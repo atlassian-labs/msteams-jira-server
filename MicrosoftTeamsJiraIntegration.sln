@@ -1,0 +1,174 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicrosoftTeamsIntegration.Jira", "src\MicrosoftTeamsIntegration.Jira\MicrosoftTeamsIntegration.Jira.csproj", "{6666248B-5745-426C-9DA8-616DB540868A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0E0CD0FB-30A7-4D10-881B-29C4186D3849}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{FC0CC019-7C8E-41A3-988E-16924D86BE2E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE.md = LICENSE.md
+		NuGet.Config = NuGet.Config
+		README.md = README.md
+		stylecop.json = stylecop.json
+		StyleCop.ruleset = StyleCop.ruleset
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicrosoftTeamsIntegration.Jira.Tests", "tests\MicrosoftTeamsIntegration.Jira.Tests\MicrosoftTeamsIntegration.Jira.Tests.csproj", "{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Build", "build\Build.csproj", "{6C251163-DCA2-41EF-8C22-F851E2DE64D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4DD38C95-7550-4A9F-8136-5CAD2C3C4A2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{A6B4B541-7A22-4EE0-B58F-8683FE67F327}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "manifests", "manifests", "{99A97CFB-FB3E-45BF-A194-970181AFDC20}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "development", "development", "{FD71D912-F539-4E50-A569-F261A607C9E0}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\cloud\development\color.png = manifests\cloud\development\color.png
+		manifests\cloud\development\manifest.json = manifests\cloud\development\manifest.json
+		manifests\cloud\development\outline.png = manifests\cloud\development\outline.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration", "{01B27214-41FE-4EC4-BA19-0FD2C0BB8D10}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\cloud\integration\color.png = manifests\cloud\integration\color.png
+		manifests\cloud\integration\manifest.json = manifests\cloud\integration\manifest.json
+		manifests\cloud\integration\outline.png = manifests\cloud\integration\outline.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "staging", "staging", "{58342504-6367-4C85-9460-2B1295381435}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\cloud\staging\color.png = manifests\cloud\staging\color.png
+		manifests\cloud\staging\manifest.json = manifests\cloud\staging\manifest.json
+		manifests\cloud\staging\outline.png = manifests\cloud\staging\outline.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", "{647C9988-E1F0-4240-99D9-F9BE7CD78A59}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\cloud\production\color.png = manifests\cloud\production\color.png
+		manifests\cloud\production\manifest.json = manifests\cloud\production\manifest.json
+		manifests\cloud\production\outline.png = manifests\cloud\production\outline.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cloud", "cloud", "{E7FFE2D4-A5D1-413E-B097-18F1D64425C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{D8150C08-A065-483E-B306-4FAB48893F88}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration", "{3CCEFD7C-06BE-4381-BFB1-D16E27E8178B}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\server\integration\color.png = manifests\server\integration\color.png
+		manifests\server\integration\manifest.json = manifests\server\integration\manifest.json
+		manifests\server\integration\outline.png = manifests\server\integration\outline.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "staging", "staging", "{AB3C5CDD-C64C-462B-B93A-C3D7881F4685}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\server\staging\color.png = manifests\server\staging\color.png
+		manifests\server\staging\manifest.json = manifests\server\staging\manifest.json
+		manifests\server\staging\outline.png = manifests\server\staging\outline.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "development", "development", "{0959885E-6EE5-4AF4-B996-B42F22B135E8}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\server\development\color.png = manifests\server\development\color.png
+		manifests\server\development\manifest.json = manifests\server\development\manifest.json
+		manifests\server\development\outline.png = manifests\server\development\outline.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", "{06AF2F23-D535-4D88-9C91-A34DEA181D40}"
+	ProjectSection(SolutionItems) = preProject
+		manifests\server\production\color.png = manifests\server\production\color.png
+		manifests\server\production\manifest.json = manifests\server\production\manifest.json
+		manifests\server\production\outline.png = manifests\server\production\outline.png
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicrosoftTeamsIntegration.Artifacts", "src\MicrosoftTeamsIntegration.Artifacts\MicrosoftTeamsIntegration.Artifacts.csproj", "{CA11B340-50B2-4F12-9525-1FE342DD952D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6666248B-5745-426C-9DA8-616DB540868A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Debug|x64.Build.0 = Debug|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Debug|x86.Build.0 = Debug|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Release|x64.ActiveCfg = Release|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Release|x64.Build.0 = Release|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Release|x86.ActiveCfg = Release|Any CPU
+		{6666248B-5745-426C-9DA8-616DB540868A}.Release|x86.Build.0 = Release|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Debug|x64.Build.0 = Debug|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Debug|x86.Build.0 = Debug|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Release|x64.ActiveCfg = Release|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Release|x64.Build.0 = Release|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Release|x86.ActiveCfg = Release|Any CPU
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}.Release|x86.Build.0 = Release|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Debug|x64.Build.0 = Debug|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Debug|x86.Build.0 = Debug|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Release|x64.ActiveCfg = Release|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Release|x64.Build.0 = Release|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Release|x86.ActiveCfg = Release|Any CPU
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9}.Release|x86.Build.0 = Release|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Debug|x64.Build.0 = Debug|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Debug|x86.Build.0 = Debug|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|x64.ActiveCfg = Release|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|x64.Build.0 = Release|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|x86.ActiveCfg = Release|Any CPU
+		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6666248B-5745-426C-9DA8-616DB540868A} = {4DD38C95-7550-4A9F-8136-5CAD2C3C4A2F}
+		{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2} = {0E0CD0FB-30A7-4D10-881B-29C4186D3849}
+		{6C251163-DCA2-41EF-8C22-F851E2DE64D9} = {A6B4B541-7A22-4EE0-B58F-8683FE67F327}
+		{FD71D912-F539-4E50-A569-F261A607C9E0} = {E7FFE2D4-A5D1-413E-B097-18F1D64425C1}
+		{01B27214-41FE-4EC4-BA19-0FD2C0BB8D10} = {E7FFE2D4-A5D1-413E-B097-18F1D64425C1}
+		{58342504-6367-4C85-9460-2B1295381435} = {E7FFE2D4-A5D1-413E-B097-18F1D64425C1}
+		{647C9988-E1F0-4240-99D9-F9BE7CD78A59} = {E7FFE2D4-A5D1-413E-B097-18F1D64425C1}
+		{E7FFE2D4-A5D1-413E-B097-18F1D64425C1} = {99A97CFB-FB3E-45BF-A194-970181AFDC20}
+		{D8150C08-A065-483E-B306-4FAB48893F88} = {99A97CFB-FB3E-45BF-A194-970181AFDC20}
+		{3CCEFD7C-06BE-4381-BFB1-D16E27E8178B} = {D8150C08-A065-483E-B306-4FAB48893F88}
+		{AB3C5CDD-C64C-462B-B93A-C3D7881F4685} = {D8150C08-A065-483E-B306-4FAB48893F88}
+		{0959885E-6EE5-4AF4-B996-B42F22B135E8} = {D8150C08-A065-483E-B306-4FAB48893F88}
+		{06AF2F23-D535-4D88-9C91-A34DEA181D40} = {D8150C08-A065-483E-B306-4FAB48893F88}
+		{CA11B340-50B2-4F12-9525-1FE342DD952D} = {4DD38C95-7550-4A9F-8136-5CAD2C3C4A2F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {979AD259-F001-49F7-A776-E781CC1A9909}
+	EndGlobalSection
+EndGlobal

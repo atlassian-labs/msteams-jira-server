@@ -1,0 +1,177 @@
+﻿@import 'variables';
+@import 'icons';
+@import 'app-colors';
+
+:host {
+    display: inline-block;
+    width: 100%;
+}
+
+.select {
+  position: relative;
+  width: 100%;
+
+  &__title-label {
+    border: 0;
+    color: $app-gray-02-light;
+    display: inline-block;
+    font-size: 1rem;
+    line-height: 1rem;
+    margin: 0 0 0.5rem 0;
+    padding: 0;
+    font-weight: 400;
+  }
+
+  &__face {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    height: 30px;
+    min-height: 30px;
+  }
+
+  &__options {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    z-index: 999;
+    width: 100%;
+    box-shadow: 0px 0.125rem 0.75rem 0px rgba(22, 35, 58, 0.36);
+	margin-top: 0.1875rem;
+	
+	margin-bottom: 4px;
+  }
+
+  &__option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0.7rem;
+  }
+
+  &__label {
+    width: 95%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    user-select: none;
+    margin-left: 0.5rem;
+  }
+
+  &__icon {
+    opacity: 0.74;
+  }
+
+  &__face, &__options {
+    border-radius: 3px;
+  }
+
+  &__state-icon {
+    display: block;
+    font-family: $msteams-icons-font !important;
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 1;
+    speak: none;
+
+    &::before {
+      bottom: 1px;
+      content: $chevron-down;
+      position: relative;
+    }
+  }
+}
+
+.dropdown {
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+
+  &__face {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 30px;
+  }
+
+  &__options {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    z-index: 999;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0px 0.125rem 0.75rem 0px rgba(22, 35, 58, 0.36);
+    margin-top: 0.1875rem;
+  }
+
+  &__face, &__options {
+    border-radius: 3px;
+  }
+
+  &__option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &.active {
+      background-color: $app-brand;
+      color: $white;
+    }
+
+    &:focus, &:hover {
+      background-color: $app-brand;
+      color: $white;
+    }
+  }
+
+  &__label {
+    width: 95%;
+    margin-left: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__state-icon {
+    display: block;
+    font-family: $msteams-icons-font !important;
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 1;
+    speak: none;
+
+    &::before {
+      bottom: 1px;
+      content: $chevron-down;
+      position: relative;
+    }
+  }
+}
+
+:host-context(.default) .select__face, :host-context(.default) .select__options {
+  background-color: $app-gray-10-light;
+}
+
+:host-context(.dark) .select__face, :host-context(.dark) .select__options {
+  background-color: $black-dark;
+}
+
+:host-context(.contrast) .select__face, :host-context(.contrast) .select__options {
+  background-color: $black;
+  border: 1px solid $white;
+}
+
+input[type='text'] {
+  border-radius: 0px !important;
+}

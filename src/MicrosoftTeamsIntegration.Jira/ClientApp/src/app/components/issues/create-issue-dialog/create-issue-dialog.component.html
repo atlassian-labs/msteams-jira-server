@@ -1,0 +1,154 @@
+<div *ngIf="!loading; else loadingTemplate" class="dialog">
+  <div *ngIf="errorMessage" class="dialog__top-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="dialog__content">
+    <form *ngIf="issueForm" #form class="issue-form" [formGroup]="issueForm" (submit)="onSubmit()">
+      <div class="issue-form__body">
+        <div class="issue-form__setup-fields">
+
+          <!-- Project -->
+          <div *ngIf="getControlByName('project')" class="field-group">
+            <div class="field-group__header">
+              <label class="field-group__label icon-required">
+                Project
+              </label>
+            </div>
+            <div class="field-group__body">
+                <app-dropdown required="true" searchable="true" isInnerSearch="true" [options]="availableProjectsOptions"
+                              (optionSelect)="onProjectSelected($event)" formControlName="project"></app-dropdown>
+            </div>
+          </div>
+
+          <!-- Issue Type -->
+          <div *ngIf="getControlByName('issuetype')" class="field-group">
+            <div class="field-group__header">
+              <label class="field-group__label icon-required">
+                Issue Type
+              </label>
+            </div>
+
+            <div class="field-group__body">
+              <div class="issue-types-dropdown">
+                <app-dropdown #issueTypeDropdown required="true" [options]="availableIssueTypesOptions"
+                (optionSelect)="onIssueTypeSelected($event)" formControlName="issuetype" [disabled]="!canCreateIssue"></app-dropdown>
+              </div>
+            </div>
+
+            <div class="field-group__footer">
+              Some issue types are unavailable due to incompatible field configuration and/or workflow associations.
+            </div>
+          </div>
+
+        </div>
+
+        <hr>
+
+        <div class="issue-form__content">
+          <!-- Summary -->
+          <div *ngIf="getControlByName('summary')" class="field-group">
+            <div class="field-group__header">
+              <label class="field-group__label icon-required">
+                Summary
+              </label>
+              <span class="field-group__error">
+                <div *ngIf="getControlByName('summary').invalid && getControlByName('summary').dirty">
+                  <ng-container *ngIf="getControlByName('summary').errors?.required || getControlByName('summary').errors?.emptyString">
+                    You must specify a summary of the issue
+                  </ng-container>                 
+                </div>
+              </span>
+            </div>
+
+            <div class="field-group__body">
+              <textarea class="field-group__summary-textarea" placeholder="Write a summary" cols="20" rows="10"
+                maxlength="254" formControlName="summary" [attr.disabled]="fetching || !canCreateIssue ? true : null"></textarea>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div *ngIf="getControlByName('description')" class="field-group">
+            <div class="field-group__header">
+              <label [ngClass]="isFieldRequired('description') ? 'field-group__label icon-required' : 'field-group__label'">
+                Description
+              </label>
+
+              <span class="field-group__error">
+                <!-- Error here -->
+              </span>
+            </div>
+
+            <div class="field-group__body">
+              <textarea class="field-group__description-textarea" cols="20" rows="10" maxlength="1024"
+                formControlName="description" [attr.disabled]="fetching || !canCreateIssue ? true : null"></textarea>
+            </div>
+          </div>
+
+          <!-- Priority -->
+          <div *ngIf="getControlByName('priority')" class="field-group">
+            <div class="field-group__header">
+              <label [ngClass]="isFieldRequired('priority') ? 'field-group__label icon-required' : 'field-group__label'">
+                Priority
+              </label>
+
+              <span class="field-group__error">
+                <!-- Error here -->
+              </span>
+            </div>
+
+            <div class="field-group__body">
+              <app-dropdown searchable="true" isInnerSearch="true" [options]="prioritiesOptions"
+                formControlName="priority" [disabled]="fetching || !canCreateIssue"></app-dropdown>
+            </div>
+          </div>
+          
+          <!-- Assignee -->
+          <div *ngIf="getControlByName('assignee')" class="field-group">
+            <div class="field-group__header">
+              <label [ngClass]="isFieldRequired('assignee') ? 'field-group__label icon-required' : 'field-group__label'">
+                Assignee
+              </label>
+
+              <span class="field-group__error">
+                <!-- Error here -->
+              </span>
+            </div>
+
+            <div class="field-group__body">
+              <app-dropdown #assigneesDropdown optionsHeader="Suggestions" optionsFooter="Start Typing for Users"
+                searchable="true" [loading]="assigneesLoading && !fetching" [options]="assigneesOptions"
+                [filteredOptions]="assigneesFilteredOptions" (searchChange)="onAssigneeSearchChanged($event)"
+                formControlName="assignee"  [disabled]="fetching || !canCreateIssue"></app-dropdown>
+
+              <a *ngIf="isAssignableUser && getControlByName('assignee').value !== currentUserAccountId && canCreateIssue" 
+                (click)="assignToMe()" >Assign To Me</a>
+            </div>
+          </div>
+
+          <!-- Dynamic fields-->
+          <app-dynamic-fields [dynamicFields]="dynamicFieldsData" [formGroup]="issueForm"></app-dynamic-fields>
+
+        </div>
+
+      </div>
+      <!-- end of issue-form__body -->
+    </form>
+  </div>
+
+  <div class="dialog__footer">
+    <div class="buttons">
+      <span *ngIf="uploading || fetching" class="loading-spinner"></span>
+      <button class="ts-btn ts-btn-primary buttons__button" [disabled]="issueForm?.invalid || uploading || fetching || !canCreateIssue"
+        (click)="onSubmit()">
+        Create
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="center">
+    <mat-spinner [diameter]="50"></mat-spinner>
+  </div>
+</ng-template>

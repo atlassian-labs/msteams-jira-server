@@ -1,0 +1,17 @@
+﻿<div class="settings">
+    <div class="settings__container">
+        <div class="settings__container-header">
+            <div class="settings__container-header-title">
+                <i class="info-circle"></i>
+                <div class="settings__container-header-title-username">
+                    <span>Welcome, {{ username }}</span>
+                </div>
+            </div>
+            <div class="settings__container-link">
+                <a (click)="signOut()">Sign out</a>
+            </div>
+        </div>
+    </div>
+
+    <router-outlet name="settingsOutlet"></router-outlet>
+</div>

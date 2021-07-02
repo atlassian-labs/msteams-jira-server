@@ -1,0 +1,54 @@
+@import 'app-colors';
+
+/* default coloring schemes */
+$defaultThemeColoring: (color: $app-brand, backgroundColor: $white);
+$darkThemeColoring: (color: $app-brand-dark, backgroundColor: $app-gray-14-dark);
+$contrastThemeColoring: (color: $white, backgroundColor: $black);
+
+@mixin theme-element($selector, 
+        $color: null, $backgroundColor: null, 
+        $hoverColor: null, $hoverBackgroundColor: null, 
+        $border: #{'none'}, $borderHover: null
+    ) {
+
+    #{$selector} {
+        color: $color;
+        background-color: $backgroundColor;
+        border: $border;
+
+        &:hover {
+            color: $hoverColor;
+            background: $hoverBackgroundColor;
+            border: $borderHover;
+        }
+    }
+}
+
+body {
+    &.default {
+        @include theme-element('a', $app-brand);
+        @include theme-element('ul.dropdown__options li', $hoverColor: $white, $hoverBackgroundColor: $app-brand);
+
+        & ::-webkit-scrollbar-thumb {
+            background: $scrollbar-light;
+        }
+    }
+
+    &.dark {
+        @include theme-element('a', $app-brand-dark);
+        @include theme-element('ul.dropdown__options li', $hoverBackgroundColor: $app-brand-dark);
+
+        & ::-webkit-scrollbar-thumb {
+            background: $scrollbar-dark;
+        }
+    }
+
+    &.contrast {
+        @include theme-element('a', $yellow);
+        @include theme-element('ul.dropdown__options li, .face__icon', $white, $black, $black, $yellow );
+
+        ::-webkit-scrollbar-thumb {
+            background: $white;
+        }
+    }
+}

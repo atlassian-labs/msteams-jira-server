@@ -1,0 +1,32 @@
+.editable-field {
+  -webkit-transition: box-shadow 150ms ease-in 0ms;
+  transition: box-shadow 150ms ease-in 0ms;
+  cursor: text;
+  max-width: 100%;
+  box-shadow: 0 0 0 0 transparent;
+  position: relative;
+  vertical-align: top;
+  word-break: break-word;
+  // border-radius: 2.01px;
+  // display: inline-block;
+  // padding: 2px 30px 2px 5px;
+  // -moz-box-sizing: border-box;
+  // -webkit-box-sizing: border-box;
+  // box-sizing: border-box;
+
+  &__icon {
+    margin: auto;
+    cursor: pointer;
+  }
+}
+  
+body.default .editable-field:hover {
+  background-color: $app-gray-13-light;
+  color: $black;
+}
+
+body.contrast .editable-field:hover, body.dark .editable-field:hover  {
+    background-color: $black;
+    color: $white;
+}
+  

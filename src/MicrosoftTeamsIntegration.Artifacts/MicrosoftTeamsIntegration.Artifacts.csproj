@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>255.255.255</Version>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn),NU1701</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CodeAnalysisRuleSet>../../StyleCop.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <PackageReference Include="FakeItEasy" Version="6.0.0" />
+    <PackageReference Include="Hyperion" Version="0.9.15" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0-beta3" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.7" />
+    <PackageReference Include="Microsoft.Bot.Builder" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Bot.Schema" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Bot.Builder.Integration.ApplicationInsights.Core" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Bot.Builder.Azure" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.8.0" />
+    <PackageReference Include="Microsoft.Bot.Solutions" Version="0.8.0-preview2" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Graph" Version="3.3.0" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.3.2" />
+    <PackageReference Include="Microsoft.NetCore.Analyzers" Version="2.9.8" />
+    <PackageReference Include="NonBlocking" Version="1.0.3" />
+    <PackageReference Include="Polly" Version="7.2.0" />
+    <PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.0" />
+    <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="Refit" Version="5.1.67" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="5.1.67" />
+    <PackageReference Include="Sendgrid" Version="9.13.1" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.164">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="3.5.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.5.132" />
+    <PackageReference Include="System.Text.Json" Version="4.7.1" />
+    <PackageReference Include="Wire" Version="0.8.2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <Authors>SoftServe Inc.</Authors>
+    <Company>SoftServe Inc.</Company>
+    <Summary>A set of shared libraries and methods to streamline integration within Microsoft Teams platform.</Summary>
+    <Description>A set of shared libraries and methods to streamline integration within Microsoft Teams platform.</Description>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <PackageId>MicrosoftTeams.Integration.App</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://dev.azure.com/microsoft-teams-integrations/_git/MicrosoftTeams.Integration.Artifacts</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,26 @@
+.signout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .actions {
+    align-self: flex-end;
+
+    button {
+      margin-left: 5px;
+    }
+  }
+
+  span {
+    vertical-align: top;
+
+    &.aui-iconfont-export {
+      transform: rotate(90deg);
+    }
+  }
+  
+  p {
+    overflow: auto;
+  }
+}

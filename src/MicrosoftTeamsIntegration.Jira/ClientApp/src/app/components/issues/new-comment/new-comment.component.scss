@@ -1,0 +1,22 @@
+.new-comment {
+    display: flex;
+
+    &__user-thumbnail {
+    } 
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    &__buttons {
+        display: flex;
+        justify-content: flex-end;
+        height: 36px;
+    }
+
+    &__state {
+        margin-right: 10px;
+    }
+}

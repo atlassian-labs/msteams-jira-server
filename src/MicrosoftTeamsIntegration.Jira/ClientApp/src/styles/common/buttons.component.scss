@@ -1,0 +1,133 @@
+﻿@import 'icons';
+@import '_app-colors';
+
+.ts-btn {
+  height: 3.4rem;
+  min-width: 9.6rem;
+  border: 0.2rem solid transparent;
+  border-radius: 0.3rem;
+  white-space: nowrap;
+  cursor: pointer;
+  font: inherit;
+  background: $app-brand-dark;
+  color: $white;
+  border-color: transparent;
+}
+
+body.default .ts-btn-primary {
+  background: $app-brand;
+  color: $white;
+  border: transparent;
+
+  &:hover, &:focus {
+    background: $app-brand-04;
+    color: $white;
+    border: transparent;
+    outline: none;
+  }
+
+  &:disabled {
+    background: $app-gray-12-light;
+    color: $app-gray-06-light;
+    border-color: transparent;
+    cursor: default;
+  }
+}
+
+body.default .ts-btn-secondary {
+  background: $white;
+  color: $app-gray-02-light;  
+  border: 0.125rem solid $app-gray-06-light;   
+
+  &:hover, &:focus {   
+    background: $app-gray-06-light; 
+    border-color: transparent;
+    color: $black-light;
+    outline: none;
+  }
+
+  &:disabled { 
+    background: $white;
+    border-color: $app-gray-06-light; 
+    color: $app-gray-06-light;
+    cursor: default;    
+  }
+}
+
+body.dark .ts-btn-primary {
+  background: $app-brand-dark;
+  color: $black;
+  border: transparent;
+
+  &:hover, &:focus {
+    background: $app-brand-04;
+    color: $white;
+    border: transparent;
+    outline: none;
+  }
+
+  &:disabled {
+    background: $app-gray-12;
+    color: $app-gray-06;
+    border-color: transparent;
+    cursor: default;
+  }
+}
+
+body.dark .ts-btn-secondary {
+  background: $app-gray-10-dark;
+  border: 0.125rem solid $app-gray-06-dark;  
+  color: $app-gray-02-dark;
+
+  &:hover, &:focus {      
+    background: $app-gray-06-dark; ;
+    border-color: transparent;
+    color: $white;    
+    outline: none;
+  }
+
+  &:disabled {   
+    background: $app-gray-10-dark;
+    border-color: $app-gray-12-dark;
+    color: $app-gray-06-dark;   
+    cursor: default;
+  }
+}
+
+body.contrast .ts-btn-primary {
+  background: transparent;
+  color: $white;
+  border: 1px solid $white;
+
+  &:hover {
+    background: $yellow;
+    color: $black;
+    border-color: $white;
+  }
+
+  &:disabled {
+    background: $contrast-button-disabled;
+    color: $black;
+    border-color: transparent;
+    cursor: default;
+  }
+}
+
+body.contrast .ts-btn-secondary {
+  background: $white;
+  color: $black;
+  border: 1px solid $white;
+
+  &:hover {
+    background: $yellow;
+    color: $black;
+    border-color: $white;
+  }
+
+  &:disabled {   
+    background: $black;
+    border-color: $green-contrast;
+    color: $green-contrast;
+    cursor: default;
+  }
+}

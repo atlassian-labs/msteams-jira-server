@@ -1,0 +1,76 @@
+﻿<div class="settings">
+    <div class="settings__options-container">
+        <div class="settings__options-container-header">
+            <span class="settings__options-container-header-text">
+                Select the kind of tab you want to set up:
+                <span>
+                    <i *ngIf="savedFiltersIsDisabled"
+                       class="settings__no-filters-icon"
+                       matTooltip="No saved filters found. Click to get more information."
+                       (click)="openFiltersPage()">
+                    </i>
+                </span>
+            </span>
+        </div>
+
+        <!-- saved filter selection -->
+        <div class="settings__options-container-panel">
+            <div class="settings__options-container-panel-filters">
+                <div class="radio-button" (click)="!savedFiltersIsDisabled && onRadioButtonClicked(FilterType.Saved)">
+                    <input class="radio-button__input"
+                           name="filters"
+                           type="radio"
+                           [checked]="filter === FilterType.Saved"
+                           [disabled]="savedFiltersIsDisabled" />
+                    <button class="radio-button__button" role="radio"></button>
+                    <label class="radio-button__label">Choose one of your saved filters</label>
+                </div>
+            </div>
+
+            <div *ngIf="!savedFiltersIsDisabled && filter === FilterType.Saved" class="selection-section">
+
+                <app-dropdown #filtersDropdown placeholder="Start typing to search"
+                              [searchable]="true" [loading]="filtersLoading" [options]="savedFiltersOptions" debounceTime="350"
+                              (searchChange)="onFilterSearchChanged($event)"
+                              [disabled]="savedFiltersIsDisabled" (optionSelect)="onFilterSelected($event, 'filter')"></app-dropdown>
+            </div>
+        </div>
+
+        <!-- project and custom filter selection -->
+        <div class="settings__options-container-panel">
+            <div class="radio-button" (click)="onRadioButtonClicked(FilterType.Custom)">
+                <input class="radio-button__input" type="radio" [checked]="filter === FilterType.Custom" name="filters" />
+                <button class="radio-button__button" role="radio"></button>
+                <label class="radio-button__label">Create a custom filter</label>
+            </div>
+
+            <div *ngIf="filter === FilterType.Custom" class="selection-section">
+                <app-dropdown
+                              placeholder="Select a project"
+                              required="true"
+                              searchable="true"
+                              isInnerSearch="true"
+                              [options]="availableProjectsOptions"
+                              (optionSelect)="onProjectSelected($event)"
+                              formControlName="project"></app-dropdown>
+
+                <div *ngIf="selectedProject">
+                    <app-tree *ngIf="statusesOptions.length"
+                              title="Filter by status"
+                              [options]="statusesOptions"
+                              (optionSelect)="onFilterOptionSelected($event, 'status')"></app-tree>
+
+                    <app-tree *ngIf="issueTypesOptions.length"
+                              title="Filter by type"
+                              [options]="issueTypesOptions"
+                              (optionSelect)="onFilterOptionSelected($event, 'type')"></app-tree>
+
+                    <app-tree *ngIf="selectedProject && prioritiesOptions.length"
+                              title="Filter by priority"
+                              [options]="prioritiesOptions"
+                              (optionSelect)="onFilterOptionSelected($event, 'priority')"></app-tree>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

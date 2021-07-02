@@ -1,0 +1,260 @@
+<div *ngIf="!loading; else loadingTemplate" class="dialog">
+  <div *ngIf="errorMessage" class="dialog__top-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="dialog__content">
+    <form
+      *ngIf="issueForm"
+      #form
+      class="issue-form"
+      [formGroup]="issueForm"
+      (submit)="onSubmit()">
+   
+        <div class="top-panel">
+          <div class="top-panel__issue-info">
+            <img
+              class="top-panel__type-icon"
+              [src]="domSanitizer.bypassSecurityTrustUrl(issue.issueTypeIconUrl)"
+              alt="Issue icon" />
+            <a
+              class="top-panel__key"
+              href="{{ keyLink }}"
+              matTooltip="{{ issue.key }}"
+              [matTooltipPosition]="'above'"
+              target="_blank" 
+              rel="noreferrer noopener">
+              {{ issue.key }}
+            </a>
+          </div>     
+        </div>   
+
+        <div class="issue-form__content">
+          <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="20px">
+            <!-- Main data section -->
+            <div fxFlex="66">
+              <!-- Summary section -->
+              <div class="field-group">
+                <div class="field-group__header">
+                  <label class="field-group__label icon-required">
+                    Summary
+                  </label>
+                  <span class="field-group__error">
+                    <div *ngIf="summary?.invalid && summary?.dirty">
+                      <ng-container *ngIf="summary?.errors?.required || summary?.errors?.emptyString">
+                        You must specify a summary of the issue
+                      </ng-container>                 
+                    </div>
+                  </span>
+                </div>
+                <div class="field-group__body">
+                  <textarea
+                    *ngIf="allowEditSummary; else readonlySummary"
+                    class="field-group__summary-textarea"
+                    placeholder="Write a summary"
+                    cols="20"
+                    rows="10"
+                    maxlength="254"
+                    formControlName="summary"
+                    (keyup)="setUpdatedFormFields()">
+                  </textarea>
+                  <ng-template #readonlySummary>
+                    <div>{{ issue.summary }}</div>
+                  </ng-template>
+                </div>            
+              </div>
+              
+              <!-- Description section -->
+              <div class="field-group">
+                <div class="field-group__header">
+                  <label class="field-group__label">Description</label>              
+                </div>
+                <div class="field-group__body">
+                  <textarea
+                    *ngIf="allowEditDescription; else readonlyDescription"
+                    class="field-group__description-textarea"
+                    cols="20"
+                    rows="10"
+                    maxlength="1024"
+                    formControlName="description"
+                    (keyup)="setUpdatedFormFields()">
+                  </textarea>
+                  <ng-template #readonlyDescription>
+                    <div>{{ issue.description }}</div>
+                  </ng-template>
+                </div>            
+              </div>
+
+              
+              <!-- comments section -->
+              <div>
+                <div class="field-group__header">
+                  <label class="field-group__label">Comments</label>              
+                </div>
+                
+                <div>
+                    <!-- all comments -->                    
+                    <div *ngFor="let comment of issue.comment?.comments">                        
+                        <app-issue-comment 
+                            [comment]="comment" 
+                            [jiraUrl]="jiraUrl" 
+                            [issueId]="issue.id" 
+                            [user]="currentUser"
+                            [permissions]="permissions"
+                        ></app-issue-comment>
+                    </div>
+
+                    <!-- new comment -->
+                    <div *ngIf="currentUser && permissions.ADD_COMMENTS.havePermission" 
+                          class="new-comment">
+                        <app-new-comment 
+                            [jiraUrl]="jiraUrl" 
+                            [issueId]="issue.id" 
+                            [user]="currentUser" 
+                            (created)="onNewCommentCreated($event)"
+                        ></app-new-comment>
+                    </div>
+                    <!--  -->
+                </div>
+              </div>
+
+            </div>
+            <!-- Additional data section -->
+            <div fxFlex="33">
+
+              <!-- Assignee section -->
+              <div class="field-group">
+                <div class="field-group__header">
+                  <label class="field-group__label">Assignee</label>             
+                </div>
+                <div class="field-group__body">
+                  <div *ngIf="allowEditAssignee; else readonlyAssignee"> 
+                    <app-dropdown              
+                      optionsHeader="Suggestions"
+                      optionsFooter="Start Typing for Users"
+                      searchable="true"
+                      [loading]="assigneesLoading"
+                      [options]="assigneesOptions"
+                      [filteredOptions]="assigneesFilteredOptions"
+                      (searchChange)="onAssigneeSearchChanged($event)"
+                      formControlName="assigneeAccountId"
+                      (optionSelect)="removeUnassignableUser(); setUpdatedFormFields()">
+                    </app-dropdown>
+      
+                    <a *ngIf="permissions.ASSIGNABLE_USER.havePermission && assigneeAccountId.value !== currentUserAccountId" (click)="assignToMe()">
+                      Assign To Me
+                    </a>
+                  </div>
+                  <ng-template #readonlyAssignee>           
+                    <div class="readonly-field-wrapper">
+                      <img class="avatar"
+                        [src]="(issue.assignee && domSanitizer.bypassSecurityTrustUrl(issue.assignee.avatarUrls['24x24'])) || '/assets/useravatar24x24.png'"
+                        alt="Avatar"/>
+                      <app-truncated-text [text]="issue.assignee?.displayName || 'Unassigned'"></app-truncated-text>
+                    </div>
+                  </ng-template>
+                </div>           
+              </div>
+
+              <!-- Status section -->
+              <div class="field-group">
+                <div class="field-group__header">
+                  <span class="field-group__label">Status</span>             
+                </div>
+                <div class="field-group__body">
+                  <app-dropdown
+                    *ngIf="allowEditStatus; else readonlyStatus" 
+                    isInnerSearch="true"
+                    [options]="statusesOptions"
+                    formControlName="status"
+                    (optionSelect)="setUpdatedFormFields()">
+                  </app-dropdown> 
+                  <ng-template #readonlyStatus>
+                    <div class="readonly-field-wrapper">                
+                      <app-truncated-text [text]="issue.status.name"></app-truncated-text>
+                    </div>
+                  </ng-template>              
+                </div>                    
+              </div>
+
+              <!-- Priority section -->
+              <div *ngIf="issue.priorityId" class="field-group">
+                <div class="field-group__header">
+                  <label class="field-group__label">Priority</label>             
+                </div>
+                <div class="field-group__body">
+                  <app-dropdown
+                    *ngIf="allowEditPriority; else readonlyPriority"               
+                    isInnerSearch="true"
+                    [options]="prioritiesOptions"
+                    formControlName="priorityId"
+                    (optionSelect)="setUpdatedFormFields()">
+                  </app-dropdown>
+                  <ng-template #readonlyPriority>
+                    <div class="readonly-field-wrapper">
+                      <img
+                        class="avatar"
+                        [src]="domSanitizer.bypassSecurityTrustUrl(issue.priority.iconUrl)"
+                        alt="Avatar" />
+                      <app-truncated-text [text]="issue.priority.name"></app-truncated-text>
+                    </div>
+                  </ng-template>
+                </div>         
+              </div>
+
+              <!-- Reporter section -->
+              <div *ngIf="issue.reporter" class="field-group">
+                <div class="field-group__header">
+                  <div class="field-group__label">Reporter</div>
+                </div>
+                <div style="display: flex; margin-top: 2px;">
+                  <img
+                    class="avatar"
+                    [src]="domSanitizer.bypassSecurityTrustUrl(issue.reporter.avatarUrls['24x24'])"
+                    alt="Avatar" />
+                  <app-truncated-text [text]="issue.reporter.displayName"></app-truncated-text>
+                </div>
+              </div> 
+              
+              <!-- Modifications section -->
+              <div fxLayout="row" fxLayoutAlign="space-between" class="field-group date-info">
+                  <div fxFlex>
+                      <span class="field-group__text--label">Updated</span>
+                      <span class="field-group__text--label">Created</span>
+                  </div>
+                  <div fxFlex>
+                      <span class="field-group__text--small">{{ issue.updated | date: 'MM/dd/yy' }}</span>
+                      <span class="field-group__text--small">{{ issue.created | date: 'MM/dd/yy' }}</span>
+                  </div>
+              </div>
+            </div>
+          </div>
+
+        </div>   
+    </form>
+  </div>
+
+  <div class="dialog__footer">
+    <div class="buttons">
+      <button       
+          class="ts-btn ts-btn-secondary buttons__button"
+          [disabled]="uploading"
+          (click)="onConfirmCancel()">
+        Cancel
+      </button>
+      <span *ngIf="uploading" class="loading-spinner"></span>
+      <button       
+          class="ts-btn ts-btn-primary buttons__button"
+          [disabled]="issueForm?.invalid || uploading || updatedFormFields.length === 0"
+          (click)="onSubmit()">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="center">
+    <mat-spinner [diameter]="50"></mat-spinner>
+  </div>
+</ng-template>

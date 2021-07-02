@@ -1,0 +1,15 @@
+<div class="signout">
+    <div class="signout__container">
+        <div class="signout__content">
+            Are you sure you want to sign out?
+        </div>
+        <div class="signout__actions">
+            <button class="signout__button ts-btn ts-btn-primary" (click)="onSignOut()" [disabled]="isSigningOut">
+                Yes
+            </button>
+            <button class="signout__button ts-btn ts-btn-primary" (click)="navigateBack()" [disabled]="isSigningOut">
+                No
+            </button>
+        </div>
+    </div>
+</div>

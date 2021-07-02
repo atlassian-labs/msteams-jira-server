@@ -1,0 +1,17 @@
+<div>
+  <div class="jira-field-header">
+    <span class="jira-field-header__label">Priority: </span>
+
+    <span matTooltip="{{ errorMessage }}" class="jira-field-header__error">
+      {{ errorMessage }}
+    </span>  
+  </div>    
+
+  <app-dropdown 
+  iconSize="sm"
+  [options]="priorityOptions" 
+  [selected]="selectedOption" 
+  [loading]="loading" 
+  (optionSelect)="onPriorityOptionSelected($event)"
+  ></app-dropdown>
+</div>

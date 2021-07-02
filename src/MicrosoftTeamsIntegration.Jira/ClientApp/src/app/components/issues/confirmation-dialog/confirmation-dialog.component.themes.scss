@@ -1,0 +1,19 @@
+@import 'icons', 'app-colors';
+
+:host-context(.default) {
+    .content {
+        color: $black-light;
+    }
+}
+  
+:host-context(.dark) {
+    .content {
+        color: $white;
+    }
+}
+  
+:host-context(.contrast) {
+    .content {
+        color: $white;
+    }
+}

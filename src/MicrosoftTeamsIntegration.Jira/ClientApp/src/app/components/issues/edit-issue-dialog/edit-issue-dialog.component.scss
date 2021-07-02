@@ -1,0 +1,194 @@
+@import 'app-colors';
+
+.top-panel {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.2rem;
+
+  &__issue-info {
+    display: flex;
+    align-items: center;
+  }
+
+  &__key {   
+    margin-left: 10px;
+  }  
+
+  &__type-icon {
+    vertical-align: top;
+  }
+}
+
+.dialog {
+  margin-left: 3.2rem;
+  margin-right: 3.2rem;
+  margin-top: 0.2rem;
+
+  &__content {
+    max-height: 43rem;
+    overflow: auto;
+  }
+
+  &__footer {
+    position: absolute;
+    bottom: 3.2rem;
+    right: 3.2rem;
+  }
+
+  &__top-error {
+    font-size: 12px;
+    color: #ff5630;
+  }
+}
+
+.summary__text-area {
+  min-height: 55px;
+  height: 55px;
+  max-height: 95px;
+}
+
+.description__text-area {
+  margin-top: 4px;
+  min-height: 55px;
+  height: 55px;
+  max-height: 150px;
+}
+
+.field-group {
+  width: 100%;
+
+  &__label, 
+  &__description {
+    font-size: 12px;
+    line-height: 1.6rem;
+    font-weight: 400;
+  }
+
+  &__header {
+    margin-top:1.2rem;
+    margin-bottom:0.6rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__error {
+    font-size: 12px;
+    color: #ff5630;
+    padding-left: 12px;
+    text-align: right;
+  }
+
+  &__body { }
+
+  &__footer {
+    font-size: 12px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 16px;
+    margin-top: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  &__description {
+    font-weight: normal;
+  }
+
+  &__summary-textarea {
+    height: 3.2rem;
+    overflow: hidden;
+  }
+
+  &__description-textarea {
+    height: 9.2rem;
+  }
+
+  &__text {
+    &--label {
+      font-size: 12px;
+      display: block;
+    }
+
+    &--small {
+      font-size: 12px;
+      display: block;
+    }
+  }
+
+  &.date-info {
+    margin-top: 1.3rem;
+    display: flex;
+  }
+}
+
+.issue-types-dropdown {
+  height: 3.2rem;
+}
+
+.buttons {
+  &__button {
+    width: 96px;
+    height: 32px;
+  }
+
+  .buttons__button:first-of-type {
+    margin-right: 15px;;
+  }
+}
+
+input, textarea {
+  box-shadow: none;
+  outline: none;
+  resize: vertical;
+  border: none;
+  border-radius: 3px;
+  border-bottom: solid 0.2rem transparent;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input:focus, textarea:focus {
+  border-color: $app-brand;
+}
+
+input.ng-invalid.ng-touched, textarea.ng-invalid.ng-dirty {
+  box-shadow: 0 0 0 1px #ff5630;
+  border: 1px solid #ff5630;
+}
+
+.center {
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid $app-gray-02;
+  margin: 1em 0;
+  padding: 0;
+}
+
+.text-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: inherit;
+}
+
+.readonly-field-wrapper {
+  display: inline-flex;
+  width: 154px;
+}
+
+:host-context(.mobile) .l-grid__content {
+  flex-direction: column !important;
+  
+  .info-panel {
+    width: 100%;
+  }
+
+  .main {
+    padding: 0;
+  }
+}

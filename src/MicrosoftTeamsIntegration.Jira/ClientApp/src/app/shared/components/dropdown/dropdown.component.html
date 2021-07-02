@@ -1,0 +1,62 @@
+﻿<div *ngIf="label || errorMessage" class="jira-field-header">
+    <span [ngClass]="{ 'jira-field-header__label': true, 'icon-required': required }">
+        {{ label }}
+    </span>
+    <span matTooltip="{{ errorMessage }}" class="jira-field-header__error error-label">
+        {{ errorMessage }}
+    </span>
+</div>
+
+<div class="dropdown" (clickOutside)="close()" [ngClass]="{ 'disabled': disabled || (loading && !searchable) }">
+
+    <div *ngIf="selected" class="dropdown__face face" >   
+        <div class="face__label" (click)="!disabled && !loading && (searchable ? open() : toggle())">
+
+            <img *ngIf="selected.icon && !hideIcon"
+                [src]="domSanitizer.bypassSecurityTrustUrl(selected.icon)"
+                [ngClass]="setIconClasses()"
+                alt="{{ selected.label }} icon">
+
+            <app-truncated-text *ngIf="!searchable; else searchableTemplate" [text]="selected.label"></app-truncated-text>
+
+            <ng-template #searchableTemplate>
+                <input #searchInput
+                    type="text" 
+                    class="face__search-input"
+                    [value]="selected?.label || ''" 
+                    onclick="this.select()" 
+                    (keyup)="onSearchInput($event.target.value)"
+                    (focus)="hideIcon = true"
+                    (blur)="hideIcon = false"
+                    [attr.disabled]="disabled ? true : null">
+            </ng-template>
+        </div>
+                
+        <div class="face__icon" (click)="toggle()">
+            <span *ngIf="loading" class="loading-spinner"></span>
+                
+            <span *ngIf="!loading" class="dropdown__state-icon"></span>
+        </div>
+    </div>
+
+    <ul class="dropdown__options" *ngIf="opened && !loading">
+        <div *ngIf="searchable && !filteredOptions.length; else filteredOptionsTemplate">
+            <span class="dropdown__no-matches-label">No matches</span>
+        </div>
+
+        <ng-template #filteredOptionsTemplate>
+            <h5 *ngIf="optionsHeader" class="dropdown__options-header">{{ optionsHeader }}</h5>
+            
+            <li class="dropdown__option" *ngFor="let option of filteredOptions" (click)="optionClicked(option)">
+                <div class="dropdown__label" title="{{ option.label }}">
+                    <span *ngIf="option.icon">
+                        <img class="icon icon--sm" [src]="domSanitizer.bypassSecurityTrustUrl(option.icon)" alt="{{ option.label }} Icon">
+                    </span>
+                    <span class="dropdown__label-text"> {{ option.label }} </span>
+                </div>
+            </li>
+            
+            <span *ngIf="searchable && optionsFooter" class="dropdown__options-footer">{{ optionsFooter }}</span>
+        </ng-template>
+    </ul>
+</div>

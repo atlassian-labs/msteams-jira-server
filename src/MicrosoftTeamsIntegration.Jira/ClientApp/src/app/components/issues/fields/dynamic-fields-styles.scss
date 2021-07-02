@@ -1,0 +1,111 @@
+.field-group {
+    width: 100%;
+  
+    &__label {
+      font-size: 12px;
+      line-height: 1.6rem;
+      font-weight: 400;
+    }
+  
+    &__header {
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+    }
+  
+    &__error {
+      font-size: 12px;
+      color: red;
+      padding-left: 12px;
+      text-align: right;
+    }
+}
+
+.select-cascading-parent {
+  width: 50%;
+  margin-right: 5px;
+}
+
+.select-cascading-children {
+  width: 50%;
+}
+
+.select-cascading-options {
+  display: flex;
+}
+
+.epic-color-label {
+  vertical-align: middle;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-bottom: 0px !important;
+}
+
+.epic-color-preview {
+  vertical-align: middle;
+  margin: 10px 10px 10px 0px;
+  height: 20px;
+  width: 20px;
+  border-radius: 2px;
+}
+
+.epic-key-text {
+  color: rgba(0,0,0,0.54);
+}
+
+.epic-color_13 {
+  background-color: #57D9A3;
+}
+
+.epic-color_5 {
+  background-color: #00C7E6;
+}
+
+.epic-color_4 {
+  background-color: #4C9AFF;
+}
+
+.epic-color_8 {
+  background-color: #998DD9;
+}
+
+.epic-color_14 {
+  background-color: #FF8F73;
+}
+
+.epic-color_2 {
+  background-color: #FFC400;
+}
+
+.epic-color_1 {
+  background-color: #42526E;
+}
+
+.epic-color_6 {
+  background-color: #79F2C0;
+}
+
+.epic-color_11 {
+  background-color: #79E2F2;
+}
+
+.epic-color_10 {
+  background-color: #B3D4FF;
+}
+
+.epic-color_7 {
+  background-color: #C0B6F2;
+}
+
+.epic-color_9 {
+  background-color: #FFBDAD;
+}
+
+.epic-color_3 {
+  background-color: #FFE380;
+}
+
+.epic-color_12 {
+  background-color: #EBECF0;
+}

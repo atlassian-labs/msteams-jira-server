@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="box" *ngFor="let issue of data" (click)="issueClicked.emit(issue.id)">
+        <img class="issuetype-icon"
+            [src]="issue.issueTypeIconUrl"
+            width="20"
+            height="20" />
+
+        <div class="issue-info-container">
+            <app-truncated-text [style.fontSize]="'16px'" [text]="issue.summary"></app-truncated-text>
+
+            <div class="issue-info">
+                <span class="issue-key">{{ issue.issuekey }}</span>
+
+                <img *ngIf="issue.priorityIconUrl"
+                    [src]="issue.priorityIconUrl"
+                    width="14"
+                    height="14"
+                    class="priority-icon">
+                    
+                <app-truncated-text 
+                    class="aui-lozenge aui-lozenge-subtle {{ issue.statusCategory }}"
+                    [style.fontSize]="'12px'" 
+                    [text]="issue.status.name">
+                </app-truncated-text>
+            </div>
+        </div>
+    </div>
+</div>

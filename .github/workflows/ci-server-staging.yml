@@ -1,0 +1,57 @@
+name: CI Jira Server Staging
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        clean: false
+        
+    - name: Replace JiraMicrosoftTeamsIntegration version
+      uses: rvolo/xml-replace-action@v0.3
+      with:
+        filepath: '${{ github.workspace}}/src/MicrosoftTeamsIntegration.Jira/MicrosoftTeamsIntegration.Jira.csproj'
+        xpath: '/Project/PropertyGroup/Version/text()'
+        replace: '${{ github.run_number}}'
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Run build powershell script
+      run: ./build/build.ps1 --no-restore
+      shell: powershell
+      
+    - name: Run Tests
+      run: dotnet test --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml"
+      
+    - name: Publish Test Report
+      uses: EnricoMi/publish-unit-test-result-action/composite@v1
+      if: always()
+      with:
+        files: ${{ github.workspace }}/tests/artifacts/*test-result.xml
+
+    - name: dotnet build and publish
+      run: dotnet publish -c Release -o 'publish/jira' 
+
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'msteams-jira-server-central-us'
+        slot-name: 'staging'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_d60c72ad12244d5ba5f4aa7f9846a2e9 }}
+        package: 'publish/jira'
+    

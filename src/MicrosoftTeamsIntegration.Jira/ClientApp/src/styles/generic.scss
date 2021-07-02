@@ -1,0 +1,228 @@
+@import 'variables';
+@import 'icons';
+@import 'app-colors';
+
+// TODO: Find out how to name this file properly
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+// be careful: twitter-bootstrap applies some additional styles to this class!
+.label {
+  color: inherit;
+  font-size: 12px;
+  letter-spacing: 0;
+  line-height: 16px;
+  // reset margin and padding, because of bootstrap styling
+  margin: 0;
+  padding: 0 !important;
+  font-weight: normal;
+}
+
+.error-label {
+  font-size: 12px;
+  color: #ff5630;
+  letter-spacing: 0;
+  line-height: 16px;
+  margin: 0;
+  font-weight: normal;
+}
+
+.align-center {
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.center {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.truncated-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.pointer {
+  cursor: pointer !important;
+}
+
+// icons
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  padding: 0 10px;
+  background-image: url('../assets/spinner-36px.svg');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-position: center;
+
+  &--md {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.icon-required:after {
+  content: '*';
+  color: red;
+}
+
+
+@mixin icon() {
+  -webkit-font-smoothing: antialiased;
+  display: block;
+  font-family: $msteams-icons-font !important;
+  font-size: 16px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1;
+  speak: none;
+  text-rendering: optimizeLegibility;
+}
+
+.cancel-icon {
+  @include icon();
+
+  &:before {
+    bottom: 1px;
+    content: $cancel;
+    position: relative;
+  }
+}
+
+.chevron-up {
+  @include icon();
+
+  &::before {
+    content: $chevron-small-up;
+  }
+}
+
+.chevron-right {
+  @include icon();
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &::before {
+    content: $chevron-small-right;
+  }
+}
+
+.chevron-down {
+  @include icon();
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &::before {
+    content: $chevron-small-down;
+  }
+}
+
+@mixin icon-size($size: 24px, $marginRight: 0) {
+  font-style: normal;
+  font-size: 12px;
+  height: $size;
+  width: $size;
+  max-height: $size;
+  max-width: $size;
+  margin-right: $marginRight;
+}
+
+.avatar, .icon {
+  border-radius: 100%;
+    
+  @include icon-size(24px, 6px);
+
+  &--xlg {
+    @include icon-size(48px, 12px);
+  }
+
+  &--lg {
+    @include icon-size(32px, 12px);
+  }
+
+  &--md {
+    @include icon-size(23px, 12px);
+  }
+
+  &--sm {
+    @include icon-size(16px, 4px);
+  }
+}
+
+.question-icon {
+  @include icon-size(16px);
+  cursor: pointer;
+  color: rgba(37,36,36,0.75);
+
+  &::before {
+    font-family: $msteams-icons-font !important;
+    content: $question-mark-field;
+  }
+
+  &-wrapper {
+    display: inline-block;
+  }
+}
+// end of icons
+
+:host-context(.default) {
+  .chevron-right {
+    color: $black;
+  }
+
+  .chevron-down {
+    color: $black;
+  }
+}
+
+:host-context(.dark) {
+  .chevron-right {
+    color: $white;
+  }
+
+  .chevron-down {
+    color: $white;
+  }
+}
+
+:host-context(.contrast) {
+  .chevron-right {
+    color: $white; // Change color
+  }
+
+  .chevron-down {
+    color: $white; // Change color
+  }
+}

@@ -1,0 +1,88 @@
+@font-face {
+  font-family: 'Segoe UI';
+  src: local('Segoe UI Light'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-light-ee7b621e.woff2?v=2')
+      format('woff2'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-light-45259371.woff?v=2')
+      format('woff'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-light-fc482c4c.ttf?v=2')
+      format('truetype');
+  font-style: normal;
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src: local('Segoe UI Semilight'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-semilight-5a30cc07.woff2?v=2')
+      format('woff2'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-semilight-053444ae.woff?v=2')
+      format('woff'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-semilight-fa882b41.ttf?v=2')
+      format('truetype');
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src: local('Segoe UI'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-regular-4dd58e4f.woff2?v=2')
+      format('woff2'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-regular-60760493.woff?v=2')
+      format('woff'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-regular-16904f9c.ttf?v=2')
+      format('truetype');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src: local('Segoe UI Semibold'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-semibold-94432bf8.woff2?v=2')
+      format('woff2'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-semibold-41c3f17c.woff?v=2')
+      format('woff'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-semibold-1eed2793.ttf?v=2')
+      format('truetype');
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src: local('Segoe UI Bold'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-bold-3d970cf4.woff2?v=2')
+      format('woff2'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-bold-c0d8e901.woff?v=2')
+      format('woff'),
+    url('https://statics.teams.microsoft.com/hashedassets/fonts/segoe-ui-bold-b88d31e1.ttf?v=2')
+      format('truetype');
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+    font-family: MSTeamsIcons-Light;
+    src:
+    url('./assets/TeamsAssets-Light.svg#MSTeamsIcons-Light') format('svg'),
+    url("./assets/TeamsAssets-Light.ttf") format('truetype'),
+    url("./assets/TeamsAssets-Light.woff") format('woff'),
+    url("./assets/TeamsAssets-Light.woff2") format('woff2');
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: MSTeamsIcons-Regular;
+    src:
+       url("./assets/TeamsAssets-Regular.ttf") format('truetype');
+    font-style: normal;
+    font-weight: normal;
+}
+
+/* It should be before aui.min.css file to remove blinking background color */
+body.transparent {
+  background-color: transparent;
+}

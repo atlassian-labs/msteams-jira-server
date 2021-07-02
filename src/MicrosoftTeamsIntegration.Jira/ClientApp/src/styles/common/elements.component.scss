@@ -1,0 +1,68 @@
+@import 'icons';
+@import 'app-colors';
+@import 'variables';
+
+/* li element styles */
+
+// default li style
+body.default li {
+    color: $black-light;
+    font-weight: 400;
+    font-size: 14px;
+    a, h1, h2, h3, h4, h5, h6 {
+        color: $app-brand;
+    }
+    &:hover, &.active {
+        background-color: $app-gray-10-light;
+        color: $black-light;
+        a, h1, h2, h3, h4, h5, h6 {
+            color: $black-light;
+        }
+    }
+}
+
+body.default li.selected {
+    background-color: $app-gray-06-light;
+}
+
+// dark li style
+body.dark li {
+    color: $app-gray-01-dark;
+    font-weight: 400;
+    font-size: 14px;
+    a, h1, h2, h3, h4, h5, h6 {
+        color: $app-brand-dark-07;
+    }
+    &:hover, &.active {
+        background-color: $app-gray-07-dark;
+        color: $white;
+        a, h1, h2, h3, h4, h5, h6 {
+            color: $app-brand-dark-01;
+        }
+    }
+}
+
+body.dark li.selected {
+    background-color: $app-gray-06-dark;
+}
+
+// contrast li style
+body.contrast li {
+    color: $white;
+    font-weight: 400;
+    font-size: 14px;
+    a, h1, h2, h3, h4, h5, h6 {
+        color: $yellow;
+    }
+    &:hover, &.active {
+        background-color: $yellow;
+        color: $black;
+        a, h1, h2, h3, h4, h5, h6 {
+            color: $black;
+        }
+    }
+}
+
+body.contrast li.selected {
+    background-color: $blue;
+}
