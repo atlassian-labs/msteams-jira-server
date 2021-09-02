@@ -484,7 +484,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             foreach (var board in boards)
             {
-                sprints.AddRange(await GetAllSprints(user, board.Id));
+                try
+                {
+                    sprints.AddRange(await GetAllSprints(user, board.Id));
+                }
+                catch (Exception)
+                {
+                }
             }
 
             return sprints;
@@ -497,7 +503,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             foreach (var board in boards)
             {
-                epics.AddRange(await GetAllEpics(user, board.Id));
+                try
+                {
+                    epics.AddRange(await GetAllEpics(user, board.Id));
+                }
+                catch (Exception)
+                {
+                }
             }
 
             return epics;
