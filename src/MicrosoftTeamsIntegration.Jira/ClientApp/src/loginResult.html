@@ -19,6 +19,9 @@
 
     <script type="text/javascript">
 
+        const encoded = encodeURI(window.location.href);
+        window.history.replaceState({}, document.title, encoded);
+        
         microsoftTeams.initialize();
 
         var clientId = localStorage.getItem('userClientId');
