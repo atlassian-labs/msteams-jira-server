@@ -23,7 +23,7 @@
     "@angular/forms": "8.2.13",
     "@angular/http": "7.2.15",
     "@angular/material": "8.2.3",
-    "@angular/material-moment-adapter": "^9.2.4",
+    "@angular/material-moment-adapter": "8.2.3",
     "@angular/platform-browser": "8.2.13",
     "@angular/platform-browser-dynamic": "8.2.13",
     "@angular/router": "8.2.13",
