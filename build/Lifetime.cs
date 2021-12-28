@@ -33,9 +33,7 @@ namespace Build
             }
 
             var type = context.Environment.GetEnvironmentVariable("IntegrationType");
-            context.PackageNameFormat = !string.IsNullOrEmpty(type) && type.Equals(Constants.JiraServer) ?
-                $"JiraServer.{context.BuildNumber}.zip" :
-                $"JiraCloud.{context.BuildNumber}.zip";
+            context.PackageNameFormat = $"JiraServer.{context.BuildNumber}.zip";
             
             var artifactDirectoryPath = context.EnvironmentVariable("BUILD_ARTIFACTSTAGINGDIRECTORY");
             if (string.IsNullOrEmpty(artifactDirectoryPath))
