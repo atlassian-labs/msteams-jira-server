@@ -42,7 +42,9 @@ jobs:
         
     - name: Create zip file    
       run: |
-        pushd ./manifests/server/staging/ zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Staging.zip . popd
+        pushd ./manifests/server/staging/ 
+        zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Staging.zip . 
+        popd
         
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
