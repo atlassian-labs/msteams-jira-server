@@ -22,10 +22,10 @@ jobs:
       run: echo "`jq '.version="${{ github.run_number }}"' manifests/server/integration/manifest.json`" > manifests/server/integration/manifest.json
     
     - name: Create zip file    
-      uses: papeloto/action-zip@v1
-      with:
-        files: /manifests/server/integration/
-        dest: Jira.Server.Sideload.${{ github.run_number }}-Integration.zip
+      run: |
+        pushd ./manifests/server/integration/ 
+        zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Integration.zip . 
+        popd
         
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
@@ -35,12 +35,12 @@ jobs:
         
     - name: Update config.json
       run: echo "`jq '.version="${{ github.run_number }}"' manifests/server/staging/manifest.json`" > manifests/server/staging/manifest.json
-    
+        
     - name: Create zip file    
-      uses: papeloto/action-zip@v1
-      with:
-        files: /manifests/server/staging/
-        dest: Jira.Server.Sideload.${{ github.run_number }}-Staging.zip
+      run: |
+        pushd ./manifests/server/staging/ 
+        zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Staging.zip . 
+        popd
         
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
@@ -52,10 +52,10 @@ jobs:
       run: echo "`jq '.version="${{ github.run_number }}"' manifests/server/production/manifest.json`" > manifests/server/production/manifest.json
     
     - name: Create zip file    
-      uses: papeloto/action-zip@v1
-      with:
-        files: /manifests/server/production/
-        dest: Jira.Server.Sideload.${{ github.run_number }}-Production.zip
+      run: |
+        pushd ./manifests/server/production/ 
+        zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Production.zip . 
+        popd
         
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
