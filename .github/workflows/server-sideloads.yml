@@ -38,7 +38,7 @@ jobs:
     
     - name: Create zip file    
       run: |
-        echo "$PWD"
+        ls
         
     - name: Create zip file    
       run: |
