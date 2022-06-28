@@ -38,6 +38,10 @@ jobs:
     
     - name: Create zip file    
       run: |
+        echo "$PWD"
+        
+    - name: Create zip file    
+      run: |
         zip -r Jira.Server.Sideload.${{ github.run_number }}-Staging.zip /manifests/server/staging/
         
     - name: Upload a Build Artifact
