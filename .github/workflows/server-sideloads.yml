@@ -37,10 +37,8 @@ jobs:
       run: echo "`jq '.version="${{ github.run_number }}"' manifests/server/staging/manifest.json`" > manifests/server/staging/manifest.json
     
     - name: Create zip file    
-      uses: papeloto/action-zip@v1
-      with:
-        files: /manifests/server/staging/
-        dest: Jira.Server.Sideload.${{ github.run_number }}-Staging.zip
+      run: |
+        zip -r Jira.Server.Sideload.${{ github.run_number }}-Staging.zip /manifests/server/staging/
         
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
