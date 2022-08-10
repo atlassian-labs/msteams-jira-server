@@ -177,12 +177,23 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             {
                 getAvatars
             };
-            return ProcessRequest<List<JiraProject>>(user, "api/2/project", "GET", projectsRequest);
+            return ProcessRequest<List<JiraProject>>(user, "api/2/project?recent=2", "GET", projectsRequest);
         }
 
         public Task<JiraProject> GetProject(IntegratedUser user, string projectKey)
         {
             return ProcessRequest<JiraProject>(user, $"api/2/project/{projectKey}", "GET");
+        }
+
+        public Task<List<JiraProject>> FindProjects(IntegratedUser user, string filterName, bool getAvatars)
+        {
+            var projectsRequest = new
+            {
+                getAvatars
+            };
+
+            // var proj = ProcessRequest<List<JiraProject>>(user, $"api/2/project/picker?query={filterName}", "GET");
+            return ProcessRequest<List<JiraProject>>(user, $"api/2/projects/picker?query={filterName}", "GET");
         }
 
         public Task<List<JiraIssuePriority>> GetPriorities(IntegratedUser user)
@@ -567,11 +578,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         {
             var result = await ProcessRequest<JiraCapabilitiesResponse>(user, "capabilities", "GET");
             return result?.Capabilities;
-        }
-
-        public Task<List<JiraProject>> GetProjectsByName(IntegratedUser user, bool getAvatars, string filterName)
-        {
-            return GetProjects(user, true);
         }
 
         private Task<JiraIssueVotes> GetVotes(IntegratedUser user, string issueIdOrKey)

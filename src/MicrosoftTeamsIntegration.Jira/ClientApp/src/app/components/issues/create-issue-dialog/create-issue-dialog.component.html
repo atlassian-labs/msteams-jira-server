@@ -16,8 +16,9 @@
               </label>
             </div>
             <div class="field-group__body">
-                <app-dropdown required="true" searchable="true" isInnerSearch="true" [options]="availableProjectsOptions"
-                              (optionSelect)="onProjectSelected($event)" formControlName="project"></app-dropdown>
+                <app-dropdown #projectsDropdown required="true" searchable="true" [options]="availableProjectsOptions" [filteredOptions]="projectFilteredOptions"
+                              (optionSelect)="onProjectSelected($event)" formControlName="project" (searchChange)="onSearchChanged($event)"></app-dropdown>
+            
             </div>
           </div>
 

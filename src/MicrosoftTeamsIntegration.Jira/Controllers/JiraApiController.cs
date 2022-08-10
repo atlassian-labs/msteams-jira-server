@@ -211,12 +211,20 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(result);
         }
 
-        [HttpGet("projects-search")]
-        public async Task<IActionResult> SearchProjects(string jiraUrl, bool? getAvatars, string filterName = null)
+        [HttpGet("projects-all")]
+        public async Task<IActionResult> GetProjects(string jiraUrl, bool? getAvatars)
         {
             var user = await GetAndVerifyUser(jiraUrl);
             var getAvatarsValue = getAvatars ?? false;
-            var result = await _jiraService.GetProjectsByName(user, getAvatarsValue, filterName);
+            var result = await _jiraService.GetProjects(user, getAvatarsValue);
+            return Ok(result);
+        }
+
+        [HttpGet("projects-search")]
+        public async Task<IActionResult> SearchProjects(string jiraUrl, string filterName = null, bool getAvatars = false)
+        {
+            var user = await GetAndVerifyUser(jiraUrl);
+            var result = await _jiraService.FindProjects(user, filterName, getAvatars);
             return Ok(result);
         }
 

@@ -63,15 +63,21 @@ export class ApiService {
             .toPromise();
     }
 
-    public getProjects(jiraUrl: string, filterName: string = '', getAvatars: boolean = false): Promise<Project[]> {
+    public getProjects(jiraUrl: string, getAvatars: boolean = false): Promise<Project[]> {
         return this.http
-            .get<Project[]>(`/api/projects-search?jiraUrl=${jiraUrl}&getAvatars=${getAvatars}&&filterName=${filterName}`)
+            .get<Project[]>(`/api/projects-all?jiraUrl=${jiraUrl}&getAvatars=${getAvatars}`)
             .toPromise();
     }
 
     public getProject(jiraUrl: string, projectKey: string): Promise<Project> {
         return this.http
             .get<Project>(`/api/project?jiraUrl=${jiraUrl}&projectKey=${projectKey}`)
+            .toPromise();
+    }
+
+    public findProjects(jiraUrl: string, filterName: string = '', getAvatars: boolean = false): Promise<Project[]> {
+        return this.http
+            .get<Project[]>(`/api/projects-search?jiraUrl=${jiraUrl}&filterName=${filterName}&getAvatars=${getAvatars}`)
             .toPromise();
     }
 
