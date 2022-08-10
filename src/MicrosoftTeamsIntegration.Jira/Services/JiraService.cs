@@ -187,12 +187,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         public Task<List<JiraProject>> FindProjects(IntegratedUser user, string filterName, bool getAvatars)
         {
-            var projectsRequest = new
-            {
-                getAvatars
-            };
-
-            // var proj = ProcessRequest<List<JiraProject>>(user, $"api/2/project/picker?query={filterName}", "GET");
             return ProcessRequest<List<JiraProject>>(user, $"api/2/projects/picker?query={filterName}", "GET");
         }
 

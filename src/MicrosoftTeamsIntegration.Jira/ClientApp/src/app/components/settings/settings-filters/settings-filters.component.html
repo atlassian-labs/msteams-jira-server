@@ -30,8 +30,8 @@
             <div *ngIf="!savedFiltersIsDisabled && filter === FilterType.Saved" class="selection-section">
 
                 <app-dropdown #filtersDropdown placeholder="Start typing to search"
-                              [searchable]="true" [loading]="filtersLoading" [options]="savedFiltersOptions" debounceTime="350"
-                              (searchChange)="onFilterSearchChanged($event)"
+                              [searchable]="true" [loading]="filtersLoading" [options]="savedFiltersOptions"
+                              [isInnerSearch]="true" 
                               [disabled]="savedFiltersIsDisabled" (optionSelect)="onFilterSelected($event, 'filter')"></app-dropdown>
             </div>
         </div>

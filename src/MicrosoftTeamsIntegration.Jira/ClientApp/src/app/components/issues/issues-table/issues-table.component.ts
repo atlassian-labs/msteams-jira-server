@@ -562,10 +562,10 @@ export class IssuesComponent implements OnInit {
         this.selectedJiraFilter = this.jiraFilters && this.jiraFilters.length ? this.jiraFilters[0] : undefined;
     }
 
-    private async getJiraFilters(filterName: string = '', skipEmptyResult: boolean = false): Promise<SelectOption[] | never> {
+    private async getJiraFilters(skipEmptyResult: boolean = false): Promise<SelectOption[] | never> {
         this.filtersLoading = true;
 
-        const filters = await this.apiService.searchSavedFilters(this.jiraUrl, filterName);
+        const filters = await this.apiService.getFavouriteFilters(this.jiraUrl);
 
         this.filtersLoading = false;
         if ((!filters || !filters.length) && !skipEmptyResult) {
@@ -596,11 +596,6 @@ export class IssuesComponent implements OnInit {
         return jiraFilters;
     }
 
-    public async onFilterSearchChanged(filterName: string): Promise<void> {
-        const filters = await this.getJiraFilters(filterName, true);
-        this.filtersDropdown.filteredOptions = filters;
-    }
-
     private async getConfigurationFiltersForHeader(jqlQuery: string, jiraUrl: string): Promise<string> {
         const filters = this.issuesService.getFiltersFromQuery(jqlQuery);
 
@@ -610,7 +605,7 @@ export class IssuesComponent implements OnInit {
 
             // try to find saved filter in list of all filters. Used for backward compatibility with older addons
             if (!savedFilter) {
-                const savedFilters = await this.apiService.searchSavedFilters(jiraUrl);
+                const savedFilters = await this.apiService.getFavouriteFilters(jiraUrl);
                 savedFilter = savedFilters.find((x) => x.id === id);
             }
 

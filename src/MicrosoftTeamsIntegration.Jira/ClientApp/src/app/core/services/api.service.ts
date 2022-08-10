@@ -117,6 +117,12 @@ export class ApiService {
             .toPromise();
     }
 
+    public getFavouriteFilters(jiraUrl: string): Promise<Filter[]> {
+        return this.http
+            .get<Filter[]>(`/api/favourite-filters?jiraUrl=${jiraUrl}`)
+            .toPromise();
+    }
+
     public getFilter(jiraUrl: string, filterId: string): Promise<Filter> {
         return this.http
             .get<Filter>(`/api/filter?jiraUrl=${jiraUrl}&filterId=${filterId}`)

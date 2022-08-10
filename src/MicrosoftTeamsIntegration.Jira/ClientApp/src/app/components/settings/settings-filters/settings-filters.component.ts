@@ -186,16 +186,10 @@ export class SettingsFiltersComponent implements OnInit {
         this.filter = filter;
     }
 
-    public async onFilterSearchChanged(filterName: string): Promise<void> {
-        const filters = await this.getFilterOptions(filterName);
-        this.savedFilteredFiltersOptions = filters;
-        this.filtersDropdown.filteredOptions = filters;
-    }
-
-    private async getFilterOptions(filterName: string = ''): Promise<DropDownOption<string>[]> {
+    private async getFilterOptions(): Promise<DropDownOption<string>[]> {
         this.filtersLoading = true;
 
-        const filters = await this.apiService.searchSavedFilters(this.jiraUrl, filterName);
+        const filters = await this.apiService.getFavouriteFilters(this.jiraUrl);
 
         this.filtersLoading = false;
 
