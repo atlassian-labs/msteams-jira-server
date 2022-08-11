@@ -5,53 +5,57 @@ on:
 
 jobs:
   build:
-
     runs-on: windows-latest
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-        clean: false
-        
-    - name: Replace JiraMicrosoftTeamsIntegration version
-      uses: rvolo/xml-replace-action@v0.3
-      with:
-        filepath: '${{ github.workspace}}/src/MicrosoftTeamsIntegration.Jira/MicrosoftTeamsIntegration.Jira.csproj'
-        xpath: '/Project/PropertyGroup/Version/text()'
-        replace: '${{ github.run_number}}'
-        
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Run build powershell script
-      run: ./build/build.ps1 --no-restore
-      shell: powershell
-      
-    - name: Run Tests
-      run: dotnet test --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml"
-      
-    - name: Publish test report
-      uses: EnricoMi/publish-unit-test-result-action/composite@v1
-      if: always()
-      with:
-        files: ${{ github.workspace }}/tests/artifacts/*test-result.xml
-        
-    - name: Publish application
-      run: dotnet publish -c Release -o 'publish/jira' 
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
 
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'msteams-jira-server-central-us'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_0be5bf9d4af94dfb9b161d41be64d2c3 }}
-        package: 'publish/jira'
-    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          clean: false
+
+      - name: Replace JiraMicrosoftTeamsIntegration version
+        uses: rvolo/xml-replace-action@v0.3
+        with:
+          filepath: "${{ github.workspace}}/src/MicrosoftTeamsIntegration.Jira/MicrosoftTeamsIntegration.Jira.csproj"
+          xpath: "/Project/PropertyGroup/Version/text()"
+          replace: "${{ github.run_number}}"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "3.1.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run build powershell script
+        run: ./build/build.ps1 --no-restore
+        shell: powershell
+
+      - name: Run Tests
+        run: dotnet test --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml"
+
+      - name: Publish test report
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+          junit_files: ${{ github.workspace }}/tests/artifacts/*test-result.xml
+
+      - name: Publish application
+        run: dotnet publish -c Release -o 'publish/jira'
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "msteams-jira-server-central-us"
+          slot-name: "production"
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_0be5bf9d4af94dfb9b161d41be64d2c3 }}
+          package: "publish/jira"
