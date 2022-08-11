@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -211,13 +212,31 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(result);
         }
 
-        [HttpGet("projects-search")]
-        public async Task<IActionResult> SearchProjects(string jiraUrl, bool? getAvatars, string filterName = null)
+        [HttpGet("projects-all")]
+        public async Task<IActionResult> GetProjects(string jiraUrl, bool? getAvatars)
         {
             var user = await GetAndVerifyUser(jiraUrl);
             var getAvatarsValue = getAvatars ?? false;
-            var result = await _jiraService.GetProjectsByName(user, getAvatarsValue, filterName);
+            var result = await _jiraService.GetProjects(user, getAvatarsValue);
             return Ok(result);
+        }
+
+        [HttpGet("projects-search")]
+        public async Task<IActionResult> SearchProjects(string jiraUrl, string filterName = null, bool getAvatars = false)
+        {
+            var user = await GetAndVerifyUser(jiraUrl);
+            List<JiraProject> jiraProjects = new List<JiraProject>();
+
+            try
+            {
+                jiraProjects = await _jiraService.FindProjects(user, filterName, getAvatars);
+                return Ok(jiraProjects);
+            }
+            catch (Exception)
+            {
+                // Returning an empty object
+                return Ok(jiraProjects);
+            }
         }
 
         [HttpGet("filters-search")]

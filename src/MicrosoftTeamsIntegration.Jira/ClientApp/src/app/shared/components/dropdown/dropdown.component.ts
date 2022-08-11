@@ -82,13 +82,11 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
             return this.options;
         }
 
-        const optionsFilterFunc = (opt: DropDownOption<T>): boolean => opt.id !== this.selected.id;
-
         if (!this.searchable) {
-            return this.options.filter(optionsFilterFunc);
+            return this.options; 
         }
 
-        return this._filteredOptions.filter(optionsFilterFunc);
+        return this._filteredOptions;
     }
     set filteredOptions(options: DropDownOption<T>[]) {
         this._filteredOptions = options;

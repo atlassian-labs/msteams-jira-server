@@ -20,6 +20,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
         Task<JiraApiActionCallResponse> Unwatch(IntegratedUser user, string issueIdOrKey);
         Task<List<JiraProject>> GetProjects(IntegratedUser user, bool getAvatars);
         Task<JiraProject> GetProject(IntegratedUser user, string projectKey);
+        Task<List<JiraProject>> FindProjects(IntegratedUser user, string filterName, bool getAvatars);
         Task<List<JiraIssuePriority>> GetPriorities(IntegratedUser user);
         Task<JiraApiActionCallResponse> UpdatePriority(IntegratedUser user, string issueIdOrKey, string priorityId);
         Task<List<JiraIssueStatus>> GetStatuses(IntegratedUser user);
@@ -55,6 +56,5 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
         Task<List<JiraIssueEpic>> GetAllEpics(IntegratedUser user, string boardId);
         Task<List<JiraIssueSprint>> GetAllSprintsForProject(IntegratedUser user, string projectKeyOrId);
         Task<List<JiraIssueEpic>> GetAllEpicsForProject(IntegratedUser user, string projectKeyOrId);
-        Task<List<JiraProject>> GetProjectsByName(IntegratedUser user, bool getAvatars, string filterName);
     }
 }

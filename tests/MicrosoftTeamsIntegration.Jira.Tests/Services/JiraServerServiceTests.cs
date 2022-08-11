@@ -1099,37 +1099,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         }
 
         [Fact]
-        public async Task GetProjectsByName()
-        {
-            const string id = "Project Id";
-
-            A.CallTo(() =>
-                    _signalRService.SendRequestAndWaitForResponse(A<string>._, A<string>._, CancellationToken.None))
-                .Returns(new SignalRResponse
-                {
-                    Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<List<JiraProject>>
-                    {
-                        ResponseCode = 200,
-                        Response = new List<JiraProject>()
-                        {
-                            new JiraProject()
-                            {
-                                Id = id
-                            }
-                        }
-                    })
-                });
-
-            var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
-
-            var result = await jiraServerService.GetProjectsByName(new IntegratedUser() { AccessToken = "token" }, false, string.Empty);
-
-            Assert.NotNull(result);
-            Assert.Equal(id, result[0].Id);
-        }
-
-        [Fact]
         public async Task Search_WhenJiraIssuesNull()
         {
             const string id = "Project Id";

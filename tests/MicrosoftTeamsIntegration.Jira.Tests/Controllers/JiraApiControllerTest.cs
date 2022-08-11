@@ -443,21 +443,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         }
 
         [Fact]
-        public async Task SearchProjects_ShouldServiceMethodHappen()
-        {
-            // arrange
-            var user = GetFakeOfVerifiedUser(out JiraApiController jiraApiController);
-
-            A.CallTo(() => _fakeJiraService.GetProjectsByName(user, A<bool>._, A<string>._)).Returns(new List<JiraProject>());
-
-            // act
-            await jiraApiController.SearchProjects(user.JiraInstanceUrl, false);
-
-            // assert
-            A.CallTo(() => _fakeJiraService.GetProjectsByName(user, A<bool>._, A<string>._)).MustHaveHappened();
-        }
-
-        [Fact]
         public async Task SearchFilters_ShouldServiceMethodHappen()
         {
             // arrange

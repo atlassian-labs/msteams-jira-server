@@ -30,8 +30,8 @@
             <div *ngIf="!savedFiltersIsDisabled && filter === FilterType.Saved" class="selection-section">
 
                 <app-dropdown #filtersDropdown placeholder="Start typing to search"
-                              [searchable]="true" [loading]="filtersLoading" [options]="savedFiltersOptions" debounceTime="350"
-                              (searchChange)="onFilterSearchChanged($event)"
+                              [searchable]="true" [loading]="filtersLoading" [options]="savedFiltersOptions"
+                              [isInnerSearch]="true" 
                               [disabled]="savedFiltersIsDisabled" (optionSelect)="onFilterSelected($event, 'filter')"></app-dropdown>
             </div>
         </div>
@@ -45,14 +45,17 @@
             </div>
 
             <div *ngIf="filter === FilterType.Custom" class="selection-section">
-                <app-dropdown
-                              placeholder="Select a project"
-                              required="true"
-                              searchable="true"
-                              isInnerSearch="true"
-                              [options]="availableProjectsOptions"
-                              (optionSelect)="onProjectSelected($event)"
-                              formControlName="project"></app-dropdown>
+
+                <app-dropdown #projectsDropdown
+                    placeholder="Select or start typing to search"
+                    required="true" 
+                    searchable="true" 
+                    [loading]="isFetchingProjects" 
+                    [options]="availableProjectsOptions" 
+                    [filteredOptions]="projectFilteredOptions"
+                    (optionSelect)="onProjectSelected($event)" 
+                    (searchChange)="onSearchChanged($event)" 
+                    debounceTime="700"></app-dropdown>
 
                 <div *ngIf="selectedProject">
                     <app-tree *ngIf="statusesOptions.length"

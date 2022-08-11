@@ -65,6 +65,7 @@ export class SettingsFiltersComponent implements OnInit {
     public savedFiltersIsDisabled = false;
     public projectsDataLoaded = false;
     public filtersLoading = false;
+    public isFetchingProjects = false;
 
     private jiraUrl: string;
     public projects: Project[];
@@ -103,10 +104,23 @@ export class SettingsFiltersComponent implements OnInit {
 
     public async onSearchChanged(filterName: string): Promise<void> {
         filterName = filterName.trim().toLowerCase();
-        this.projects = await this.apiService.getProjects(this.jiraUrl, filterName, true);
-            
-        const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
-        this.projectsDropdown.filteredOptions = filteredProjects;
+        this.isFetchingProjects = true;
+        try {
+            this.projects = await this.findProjects(this.jiraUrl, filterName);
+            const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
+            this.projectsDropdown.filteredOptions = filteredProjects;
+        }
+        catch(error)
+        {
+            this.appInsightsService.trackException(
+                new Error('Error while searching projects'),
+                'Settings Filter Component',
+                { originalErrorMessage: error.message }
+            );
+        }
+        finally {
+            this.isFetchingProjects = false;
+        }
     }
 
     public openFiltersPage(): void {
@@ -186,16 +200,10 @@ export class SettingsFiltersComponent implements OnInit {
         this.filter = filter;
     }
 
-    public async onFilterSearchChanged(filterName: string): Promise<void> {
-        const filters = await this.getFilterOptions(filterName);
-        this.savedFilteredFiltersOptions = filters;
-        this.filtersDropdown.filteredOptions = filters;
-    }
-
-    private async getFilterOptions(filterName: string = ''): Promise<DropDownOption<string>[]> {
+    private async getFilterOptions(): Promise<DropDownOption<string>[]> {
         this.filtersLoading = true;
 
-        const filters = await this.apiService.searchSavedFilters(this.jiraUrl, filterName);
+        const filters = await this.apiService.getFavouriteFilters(this.jiraUrl);
 
         this.filtersLoading = false;
 
@@ -236,7 +244,7 @@ export class SettingsFiltersComponent implements OnInit {
                 this.apiService.getPriorities(this.jiraUrl)
             ]);
 
-            this.projects = await this.apiService.getProjects(this.jiraUrl, '', true);
+            this.projects = await this.apiService.getProjects(this.jiraUrl, true);
             this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
             this.projectFilteredOptions = this.availableProjectsOptions;
             
@@ -349,6 +357,11 @@ export class SettingsFiltersComponent implements OnInit {
             localStorage.setItem(this.CACHED_FILTER_KEY, this.filters.get('filter')[0]);
             this.filters.delete('filter');
         }
+    }
+
+    private async findProjects(jiraUrl: string, filterName?: string): Promise<Project[]> {
+        const result = await this.apiService.findProjects(jiraUrl, filterName, true);
+        return result;
     }
 
     private registerHandler(contentUrl: string, jql: string): void {

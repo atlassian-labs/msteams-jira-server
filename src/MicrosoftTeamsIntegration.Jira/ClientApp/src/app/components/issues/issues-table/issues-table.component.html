@@ -54,9 +54,8 @@
                                   [selected]="selectedJiraFilter"
                                   (optionSelect)="setJiraFilter($event)"
                                   [searchable]="searchableFilters"
-                                  (searchChange)="onFilterSearchChanged($event)"
+                                  [isInnerSearch]="true"
                                   [loading]="filtersLoading"
-                                  debounceTime="350"
                                   optionsFooter="Start typing to find more filters">
                     </app-dropdown>
                 </div>
