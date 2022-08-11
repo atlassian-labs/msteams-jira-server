@@ -177,7 +177,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             {
                 getAvatars
             };
-            return ProcessRequest<List<JiraProject>>(user, "api/2/project?recent=2", "GET", projectsRequest);
+            return ProcessRequest<List<JiraProject>>(user, "api/2/project?recent=20", "GET", projectsRequest);
         }
 
         public Task<JiraProject> GetProject(IntegratedUser user, string projectKey)

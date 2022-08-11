@@ -103,7 +103,7 @@ export class SettingsFiltersComponent implements OnInit {
 
     public async onSearchChanged(filterName: string): Promise<void> {
         filterName = filterName.trim().toLowerCase();
-        this.projects = await this.apiService.findProjects(this.jiraUrl, filterName, true);
+        this.projects = await this.findProjects(this.jiraUrl, filterName);
             
         const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
         this.projectsDropdown.filteredOptions = filteredProjects;
@@ -343,6 +343,11 @@ export class SettingsFiltersComponent implements OnInit {
             localStorage.setItem(this.CACHED_FILTER_KEY, this.filters.get('filter')[0]);
             this.filters.delete('filter');
         }
+    }
+
+    private async findProjects(jiraUrl: string, filterName?: string): Promise<Project[]> {
+        const result = await this.apiService.findProjects(jiraUrl, filterName, true);
+        return result;
     }
 
     private registerHandler(contentUrl: string, jql: string): void {

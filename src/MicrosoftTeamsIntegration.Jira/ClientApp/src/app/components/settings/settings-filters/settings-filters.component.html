@@ -45,14 +45,16 @@
             </div>
 
             <div *ngIf="filter === FilterType.Custom" class="selection-section">
-                <app-dropdown
-                              placeholder="Select a project"
-                              required="true"
-                              searchable="true"
-                              isInnerSearch="true"
-                              [options]="availableProjectsOptions"
-                              (optionSelect)="onProjectSelected($event)"
-                              formControlName="project"></app-dropdown>
+
+                <app-dropdown #projectsDropdown
+                    placeholder="Select or start typing to search"
+                    required="true" 
+                    searchable="true" 
+                    [options]="availableProjectsOptions" 
+                    [filteredOptions]="projectFilteredOptions"
+                    (optionSelect)="onProjectSelected($event)" 
+                    (searchChange)="onSearchChanged($event)" 
+                    debounceTime="350"></app-dropdown>
 
                 <div *ngIf="selectedProject">
                     <app-tree *ngIf="statusesOptions.length"
