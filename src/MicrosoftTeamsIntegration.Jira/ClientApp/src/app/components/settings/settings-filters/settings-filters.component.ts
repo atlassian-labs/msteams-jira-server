@@ -118,7 +118,7 @@ export class SettingsFiltersComponent implements OnInit {
                 { originalErrorMessage: error.message }
             );
         }
-        finally{
+        finally {
             this.isFetchingProjects = false;
         }
     }

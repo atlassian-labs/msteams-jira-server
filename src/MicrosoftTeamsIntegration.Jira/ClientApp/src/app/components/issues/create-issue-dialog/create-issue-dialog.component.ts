@@ -204,7 +204,7 @@ export class CreateIssueDialogComponent implements OnInit {
                 { originalErrorMessage: error.message }
             );
         }
-        finally{
+        finally {
             this.isFetchingProjects = false;
         }
     }

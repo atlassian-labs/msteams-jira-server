@@ -55,7 +55,7 @@
                     [filteredOptions]="projectFilteredOptions"
                     (optionSelect)="onProjectSelected($event)" 
                     (searchChange)="onSearchChanged($event)" 
-                    debounceTime="350"></app-dropdown>
+                    debounceTime="700"></app-dropdown>
 
                 <div *ngIf="selectedProject">
                     <app-tree *ngIf="statusesOptions.length"
