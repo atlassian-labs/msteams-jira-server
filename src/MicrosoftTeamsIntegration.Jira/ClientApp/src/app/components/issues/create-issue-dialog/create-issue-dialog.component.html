@@ -16,9 +16,16 @@
               </label>
             </div>
             <div class="field-group__body">
-                <app-dropdown #projectsDropdown required="true" searchable="true" [options]="availableProjectsOptions" [filteredOptions]="projectFilteredOptions"
-                              (optionSelect)="onProjectSelected($event)" formControlName="project" (searchChange)="onSearchChanged($event)" debounceTime="350"></app-dropdown>
-            
+                <app-dropdown #projectsDropdown 
+                  required="true" 
+                  searchable="true" 
+                  [options]="availableProjectsOptions" 
+                  [filteredOptions]="projectFilteredOptions"
+                  [loading]="isFetchingProjects" 
+                  (optionSelect)="onProjectSelected($event)" 
+                  formControlName="project" 
+                  (searchChange)="onSearchChanged($event)" 
+                  debounceTime="350"></app-dropdown>
             </div>
           </div>
 

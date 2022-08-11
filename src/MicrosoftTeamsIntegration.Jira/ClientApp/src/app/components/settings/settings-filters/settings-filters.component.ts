@@ -65,6 +65,7 @@ export class SettingsFiltersComponent implements OnInit {
     public savedFiltersIsDisabled = false;
     public projectsDataLoaded = false;
     public filtersLoading = false;
+    public isFetchingProjects = false;
 
     private jiraUrl: string;
     public projects: Project[];
@@ -103,10 +104,23 @@ export class SettingsFiltersComponent implements OnInit {
 
     public async onSearchChanged(filterName: string): Promise<void> {
         filterName = filterName.trim().toLowerCase();
-        this.projects = await this.findProjects(this.jiraUrl, filterName);
-            
-        const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
-        this.projectsDropdown.filteredOptions = filteredProjects;
+        this.isFetchingProjects = true;
+        try {
+            this.projects = await this.findProjects(this.jiraUrl, filterName);
+            const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
+            this.projectsDropdown.filteredOptions = filteredProjects;
+        }
+        catch(error)
+        {
+            this.appInsightsService.trackException(
+                new Error('Error while searching projects'),
+                'Settings Filter Component',
+                { originalErrorMessage: error.message }
+            );
+        }
+        finally{
+            this.isFetchingProjects = false;
+        }
     }
 
     public openFiltersPage(): void {

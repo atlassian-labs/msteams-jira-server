@@ -50,6 +50,7 @@
                     placeholder="Select or start typing to search"
                     required="true" 
                     searchable="true" 
+                    [loading]="isFetchingProjects" 
                     [options]="availableProjectsOptions" 
                     [filteredOptions]="projectFilteredOptions"
                     (optionSelect)="onProjectSelected($event)" 

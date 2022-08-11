@@ -31,6 +31,7 @@ import { UtilService } from '@core/services/util.service';
 export class CreateIssueDialogComponent implements OnInit {
     public loading = false;
     public uploading = false;
+    public isFetchingProjects = false;
     public fetching = false;
     public canCreateIssue = true;
     public errorMessage = '';
@@ -189,9 +190,23 @@ export class CreateIssueDialogComponent implements OnInit {
 
     public async onSearchChanged(filterName: string): Promise<void> {
         filterName = filterName.trim().toLowerCase();
-        this.projects = await this.findProjects(this.jiraUrl, filterName);
-        const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
-        this.projectsDropdown.filteredOptions = filteredProjects;
+        this.isFetchingProjects = true;
+        try {
+            this.projects = await this.findProjects(this.jiraUrl, filterName);
+            const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
+            this.projectsDropdown.filteredOptions = filteredProjects;
+        }
+        catch(error)
+        {
+            this.appInsightsService.trackException(
+                new Error('Error while searching projects'),
+                'Create Issue Dialog',
+                { originalErrorMessage: error.message }
+            );
+        }
+        finally{
+            this.isFetchingProjects = false;
+        }
     }
 
     public get isAssignableUser(): boolean {
