@@ -1,6 +1,6 @@
-﻿@import 'variables';
-@import 'icons';
-@import 'app-colors';
+﻿@import "variables";
+@import "icons";
+@import "app-colors";
 
 .settings {
   &__no-filters-icon {
@@ -88,6 +88,16 @@
 }
 
 :host ::ng-deep .select__options {
-    max-height: 250px;
-    overflow-y: auto;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+::ng-deep snack-bar-container.alert-red {
+  padding: 20px;
+  background-color: #d83b01;
+  color: white;
+  min-width: 535px;
+  text-align: center;
+  align-content: center;
+  margin-left: 0px;
 }

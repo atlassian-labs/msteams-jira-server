@@ -32,6 +32,7 @@ import * as microsoftTeams from '@microsoft/teams-js';
 import { StatusCode } from '@core/enums';
 import { logger } from '@core/services/logger.service';
 import { DropdownUtilService } from '../../../shared/services/dropdown.util.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 enum FilterType {
     Saved = 'from-saved',
@@ -70,6 +71,8 @@ export class SettingsFiltersComponent implements OnInit {
     private jiraUrl: string;
     public projects: Project[];
 
+    public isAddonUpdated: boolean;
+
     private settings = new Map<string, string>();
     private filters = new Map<FilterSetting, string[]>();
     private cachedSettings = new Map<string, string>();
@@ -91,7 +94,8 @@ export class SettingsFiltersComponent implements OnInit {
         private utilService: UtilService,
         private appInsightsService: AppInsightsService,
         private loadingIndicatorService: LoadingIndicatorService,
-        private dropdownUtilService: DropdownUtilService
+        private dropdownUtilService: DropdownUtilService,
+        private snackBar: MatSnackBar
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -191,6 +195,8 @@ export class SettingsFiltersComponent implements OnInit {
         }
 
         if (filter === FilterType.Custom && !this.projectsDataLoaded) {
+            const { addonVersion } = await this.apiService.getAddonStatus(this.jiraUrl);
+            this.isAddonUpdated = this.utilService.isAddonUpdated(addonVersion);
             await this.loadProjectsData();
         }
 
@@ -198,6 +204,19 @@ export class SettingsFiltersComponent implements OnInit {
 
         this.selectedProject = undefined;
         this.filter = filter;
+    }
+
+    public handleProjectClick(): void {
+        if (!this.isAddonUpdated){
+            this.openSnackBar()
+        }
+    }
+
+    private openSnackBar(): void {
+        this.snackBar.open(this.utilService.getUpgradeAddonMessage(), undefined, {
+            panelClass: ['alert-red'],
+            duration: 3000,
+        });
     }
 
     private async getFilterOptions(): Promise<DropDownOption<string>[]> {

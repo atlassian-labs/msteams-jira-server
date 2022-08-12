@@ -3,6 +3,7 @@
 
 import { Injectable } from '@angular/core';
 import { HostClientType, getContext } from '@microsoft/teams-js';
+import { compare } from 'compare-versions';
 
 interface PredefinedFilters {
     id: number;
@@ -23,6 +24,9 @@ export class UtilService {
         { id: 5, value: 'resolved-recently', label: 'Resolved recently' },
         { id: 6, value: 'updated-recently', label: 'Updated recently' }
     ];
+
+    private readonly UPGRADE_ADDON_MESSAGE = "Please upgrade Jira Server for Microsoft Teams app on your Jira Server to perform projects search.";
+    private readonly ADDON_VERSION = '2022.08.103'
 
     public isMobile = (): Promise<boolean> =>
         new Promise(resolve =>
@@ -110,5 +114,17 @@ export class UtilService {
     public isElectron = (): boolean => {
         const userAgent = navigator.userAgent.toLowerCase();
         return userAgent.indexOf('electron') > -1;
+    }
+
+    public getMinAddonVersion = (): string => {
+        return this.ADDON_VERSION;
+    }
+
+    public getUpgradeAddonMessage = (): string => {
+        return this.UPGRADE_ADDON_MESSAGE;
+    }
+
+    public isAddonUpdated = (addonVersion: string) : boolean => {
+        return compare(addonVersion, this.getMinAddonVersion(), '>=');
     }
 }
