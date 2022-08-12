@@ -25,7 +25,8 @@
                   (optionSelect)="onProjectSelected($event)" 
                   formControlName="project" 
                   (searchChange)="onSearchChanged($event)" 
-                  debounceTime="700"></app-dropdown>
+                  debounceTime="700"
+                  (click)="handleProjectClick()"></app-dropdown>
             </div>
           </div>
 

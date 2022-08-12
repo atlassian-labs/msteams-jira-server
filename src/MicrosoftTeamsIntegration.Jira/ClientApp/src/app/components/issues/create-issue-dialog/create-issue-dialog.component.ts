@@ -17,11 +17,11 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 import { FieldItem } from '../fields/field-item';
 import { FieldsService } from '@shared/services/fields.service';
 import { IssueType } from '@core/models/Jira/issues.model';
-import { JiraIssueFieldMeta } from '@core/models/Jira/jira-issue-field-meta.model';
 import { PermissionService } from '@core/services/entities/permission.service';
 import { Project } from '@core/models/Jira/project.model';
 import { StringValidators } from './../../../core/validators/string.validators';
 import { UtilService } from '@core/services/util.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-create-issue-dialog',
@@ -62,6 +62,8 @@ export class CreateIssueDialogComponent implements OnInit {
     public returnIssueOnSubmit: boolean;
     public replyToActivityId: string;
 
+    public isAddonUpdated: boolean;
+
     private dialogDefaultSettings: MatDialogConfig = {
         width: '350px',
         height: '200px',
@@ -98,6 +100,7 @@ export class CreateIssueDialogComponent implements OnInit {
         private errorService: ErrorService,
         private permissionService: PermissionService,
         private fieldsService: FieldsService,
+        private snackBar: MatSnackBar
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -113,7 +116,8 @@ export class CreateIssueDialogComponent implements OnInit {
 
         try {
             await this.createForm();
-
+            const { addonVersion } = await this.apiService.getAddonStatus(jiraUrl);
+            this.isAddonUpdated = this.utilService.isAddonUpdated(addonVersion);
             this.currentUser = await this.apiService.getCurrentUserData(this.jiraUrl);
             this.currentUserAccountId = this.currentUser.name;
 
@@ -291,6 +295,19 @@ export class CreateIssueDialogComponent implements OnInit {
 
     public assignToMe(): void {
         this.getControlByName('assignee').setValue(this.currentUserAccountId);
+    }
+
+    public handleProjectClick(): void {
+        if (!this.isAddonUpdated){
+            this.openSnackBar()
+        }
+    }
+
+    private openSnackBar(): void {
+        this.snackBar.open(this.utilService.getUpgradeAddonMessage(), undefined, {
+            panelClass: ['alert-red'],
+            duration: 3000,
+        });
     }
 
     private openConfirmationDialog(issue: Issue): void {

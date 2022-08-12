@@ -55,6 +55,7 @@ import { SprintFieldComponent } from './components/issues/fields/sprint-field.co
 import { EpicFieldComponent } from './components/issues/fields/epic-field.component';
 import { UrlFieldComponent } from './components/issues/fields/url-field.component';
 import { SelectCascadingFieldComponent } from './components/issues/fields/select-cascading-field.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
     imports: [
@@ -79,7 +80,8 @@ import { SelectCascadingFieldComponent } from './components/issues/fields/select
         MatSortModule,
         MatPaginatorModule,
         CoreModule,
-        SharedModule
+        SharedModule,
+        MatSnackBarModule
     ],
     declarations: [
         AppComponent,
