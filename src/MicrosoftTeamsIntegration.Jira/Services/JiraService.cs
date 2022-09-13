@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MicrosoftTeamsIntegration.Jira.ContractResolvers;
+using MicrosoftTeamsIntegration.Jira.Exceptions;
 using MicrosoftTeamsIntegration.Jira.Helpers;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
@@ -523,49 +524,63 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         public async Task<List<JiraIssueTypeMeta>> GetCreateMetaIssueTypes(IntegratedUser user, string projectKeyOrId)
         {
             var endpointUrl = "api/2/issue/createmeta";
-            var canUseNewCreateMetaEndpoints = await CanUseNewCreateMetaEndpoints(user);
 
-            if (!canUseNewCreateMetaEndpoints)
+            try
             {
-                var requestUrl = $"{endpointUrl}?projectKeys={projectKeyOrId}&expand=projects.issuetypes";
-                var response = await ProcessRequest<JiraIssueCreateMeta>(user, requestUrl, "GET");
-                var project = response?.Projects.FirstOrDefault();
-
-                return project?.IssueTypes;
+                return await ProcessPaginatedRequestRecursively<JiraIssueTypeMeta>(user, $"{endpointUrl}/{projectKeyOrId}/issuetypes", "GET");
             }
+            catch (Exception ex)
+            {
+                // createmeta was not found, try to use endpoint available in Jira Server API < v8
+                if (ex is NotFoundException)
+                {
+                    var requestUrl = $"{endpointUrl}?projectKeys={projectKeyOrId}&expand=projects.issuetypes";
+                    var response = await ProcessRequest<JiraIssueCreateMeta>(user, requestUrl, "GET");
+                    var project = response?.Projects.FirstOrDefault();
 
-            return await ProcessPaginatedRequestRecursively<JiraIssueTypeMeta>(user, $"{endpointUrl}/{projectKeyOrId}/issuetypes", "GET");
+                    return project?.IssueTypes;
+                }
+
+                throw ex;
+            }
         }
 
         public async Task<ExpandoObject> GetCreateMetaIssueTypeFields(IntegratedUser user, string projectKeyOrId, string issueTypeId, string issueTypeName)
         {
             var endpointUrl = "api/2/issue/createmeta";
-            var canUseNewCreateMetaEndpoints = await CanUseNewCreateMetaEndpoints(user);
 
-            if (!canUseNewCreateMetaEndpoints)
+            try
             {
-                var requestUrl = $"{endpointUrl}?projectKeys={projectKeyOrId}&issuetypeNames={issueTypeName}&expand=projects.issuetypes.fields";
-                var response = await ProcessRequest<JiraIssueCreateMeta>(user, requestUrl, "GET");
-                var project = response?.Projects.FirstOrDefault();
-                var issuetype = project?.IssueTypes.FirstOrDefault();
+                var result = await ProcessPaginatedRequestRecursively<ExpandoObject>(user, $"{endpointUrl}/{projectKeyOrId}/issuetypes/{issueTypeId}", "GET");
 
-                return issuetype?.Fields;
-            }
-
-            var result = await ProcessPaginatedRequestRecursively<ExpandoObject>(user, $"{endpointUrl}/{projectKeyOrId}/issuetypes/{issueTypeId}", "GET");
-
-            // build dynamic object from list of dynamic objects to follow the model returned from legacy API endpoints
-            dynamic fields = new ExpandoObject();
-            var fieldsDict = fields as IDictionary<string, object>;
-            foreach (var res in result)
-            {
-                if (((IDictionary<string, object>)res).ContainsKey("fieldId"))
+                // build dynamic object from list of dynamic objects to follow the model returned from legacy API endpoints
+                dynamic fields = new ExpandoObject();
+                var fieldsDict = fields as IDictionary<string, object>;
+                foreach (var res in result)
                 {
-                    fieldsDict[((dynamic)res).fieldId] = res;
+                    if (((IDictionary<string, object>)res).ContainsKey("fieldId"))
+                    {
+                        fieldsDict[((dynamic)res).fieldId] = res;
+                    }
                 }
-            }
 
-            return fields;
+                return fields;
+            }
+            catch (Exception ex)
+            {
+                // createmeta was not found, try to use endpoint available in Jira Server API < v8
+                if (ex is NotFoundException)
+                {
+                    var requestUrl = $"{endpointUrl}?projectKeys={projectKeyOrId}&issuetypeNames={issueTypeName}&expand=projects.issuetypes.fields";
+                    var response = await ProcessRequest<JiraIssueCreateMeta>(user, requestUrl, "GET");
+                    var project = response?.Projects.FirstOrDefault();
+                    var issuetype = project?.IssueTypes.FirstOrDefault();
+
+                    return issuetype?.Fields;
+                }
+
+                throw ex;
+            }
         }
 
         public async Task<JiraCapabilities> GetJiraCapabilities(IntegratedUser user)
@@ -657,9 +672,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         private async Task<bool> CanUseNewCreateMetaEndpoints(IntegratedUser user)
         {
-            var jiraCapabilities = await GetJiraCapabilities(user);
-            return !string.IsNullOrEmpty(jiraCapabilities.ListIssueTypeFields) &&
-                   !string.IsNullOrEmpty(jiraCapabilities.ListProjectIssueTypes);
+            try
+            {
+                var jiraCapabilities = await GetJiraCapabilities(user);
+                return !string.IsNullOrEmpty(jiraCapabilities.ListIssueTypeFields) &&
+                       !string.IsNullOrEmpty(jiraCapabilities.ListProjectIssueTypes);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private IEnumerable<string> GetSearchFieldsFilter()

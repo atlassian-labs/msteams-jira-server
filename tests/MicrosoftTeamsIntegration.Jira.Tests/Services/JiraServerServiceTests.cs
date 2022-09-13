@@ -1,17 +1,17 @@
-﻿using FakeItEasy;
-using MicrosoftTeamsIntegration.Jira.Models;
-using MicrosoftTeamsIntegration.Jira.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading;
 using System.Threading.Tasks;
+using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Meta;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Transition;
+using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
@@ -28,7 +28,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         private readonly IJiraAuthService _jiraAuthService = A.Fake<IJiraAuthService>();
         private readonly ILogger<JiraService> _logger = new NullLogger<JiraService>();
 
-
         [Fact]
         public async Task GetUserNameOrAccountId_SuccessfullyGetsUsernameFromJira_ReturnsIt()
         {
@@ -40,7 +39,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 {
                     Received = true,
                     Message = JsonConvert.SerializeObject(new JiraResponse<MyselfInfo>
-                        {ResponseCode = 200, Response = new MyselfInfo {Name = username}})
+                        { ResponseCode = 200, Response = new MyselfInfo { Name = username } })
                 });
             var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
 
@@ -64,7 +63,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 {
                     Received = true,
                     Message = JsonConvert.SerializeObject(new JiraResponse<MyselfInfo>
-                        {ResponseCode = 200, Response = new MyselfInfo()})
+                        { ResponseCode = 200, Response = new MyselfInfo() })
                 });
             var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
 
@@ -747,9 +746,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         {
             var userName = "test";
 
-            var user = new JiraUser() {Name = userName};
+            var user = new JiraUser() { Name = userName };
             dynamic jObject = new JObject();
-            jObject.Assignee = (JObject) JToken.FromObject(user);
+            jObject.Assignee = (JObject)JToken.FromObject(user);
 
             string message =
                 "{\"requestUrl\":\"api/2/issue/\",\"requestType\":\"GET\",\"requestBody\":\"\",\"token\":\"token\",\"teamsId\":null,\"atlasId\":null}";
@@ -811,7 +810,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                         }
                     })
                 });
-
 
             var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
 
@@ -1101,8 +1099,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         [Fact]
         public async Task Search_WhenJiraIssuesNull()
         {
-            const string id = "Project Id";
-
             A.CallTo(() =>
                     _signalRService.SendRequestAndWaitForResponse(A<string>._, A<string>._, CancellationToken.None))
                 .Returns(new SignalRResponse
@@ -1206,7 +1202,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 });
             var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
 
-            var result = await jiraServerService.Vote(new IntegratedUser() {AccessToken = "token"}, string.Empty);
+            var result = await jiraServerService.Vote(new IntegratedUser() { AccessToken = "token" }, string.Empty);
 
             Assert.NotNull(result);
             Assert.True(result.IsSuccess);
@@ -1485,7 +1481,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         [Fact]
         public async Task GetCreateMetaIssueTypes()
         {
-            string message = "{\"requestUrl\":\"capabilities\",\"requestType\":\"GET\",\"requestBody\":\"\",\"token\":\"token\",\"teamsId\":null,\"atlasId\":null}";
             string description = "Description";
 
             A.CallTo(() =>
@@ -1493,42 +1488,20 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 .Returns(new SignalRResponse
                 {
                     Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraIssueCreateMeta>
+                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraPaginatedResponse<JiraIssueTypeMeta>>
                     {
                         ResponseCode = 200,
-                        Response = new JiraIssueCreateMeta()
+                        Response = new JiraPaginatedResponse<JiraIssueTypeMeta>()
                         {
-                            Projects = new List<JiraProjectMeta>()
+                            IsLast = true,
+                            Values = new List<JiraIssueTypeMeta>()
                             {
-                                new JiraProjectMeta()
+                                new JiraIssueTypeMeta()
                                 {
                                     Id = "id",
-                                    IssueTypes = new List<JiraIssueTypeMeta>()
-                                    {
-                                        new JiraIssueTypeMeta()
-                                        {
-                                            Description = description
-                                        }
-                                    }
+                                    Description = description,
+                                    Fields = new ExpandoObject()
                                 }
-                            }
-                        }
-                    })
-                });
-
-            A.CallTo(() =>
-                    _signalRService.SendRequestAndWaitForResponse(A<string>._, message, CancellationToken.None))
-                .Returns(new SignalRResponse
-                {
-                    Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraCapabilitiesResponse>
-                    {
-                        ResponseCode = 200,
-                        Response = new JiraCapabilitiesResponse()
-                        {
-                            Capabilities = new JiraCapabilities()
-                            {
-                                ListIssueTypeFields = "ListIssueTypeFields"
                             }
                         }
                     })
@@ -1544,9 +1517,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         }
 
         [Fact]
-        public async Task GetCreateMetaIssueTypeFields_WhenCanUseNewCreateMetaEndpoints_IsTrue()
+        public async Task GetCreateMetaIssueTypeFields()
         {
-            string message = "{\"requestUrl\":\"capabilities\",\"requestType\":\"GET\",\"requestBody\":\"\",\"token\":\"token\",\"teamsId\":null,\"atlasId\":null}";
             dynamic exapndoObject = new ExpandoObject();
             exapndoObject.fieldId = "FieldId";
 
@@ -1569,87 +1541,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                     })
                 });
 
-            A.CallTo(() =>
-                    _signalRService.SendRequestAndWaitForResponse(A<string>._, message, CancellationToken.None))
-                .Returns(new SignalRResponse
-                {
-                    Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraCapabilitiesResponse>
-                    {
-                        ResponseCode = 200,
-                        Response = new JiraCapabilitiesResponse()
-                        {
-                            Capabilities = new JiraCapabilities()
-                            {
-                                ListIssueTypeFields = "ListIssueTypeFields",
-                                ListProjectIssueTypes = "ListProjectIssueTypes"
-                            }
-                        }
-                    })
-                });
-
             var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
 
             var result = await jiraServerService.GetCreateMetaIssueTypeFields(new IntegratedUser() { AccessToken = "token" }, string.Empty, string.Empty, string.Empty);
 
-            Assert.IsType<ExpandoObject>(result);
-        }
-
-        [Fact]
-        public async Task GetCreateMetaIssueTypeFields()
-        {
-            string message = "{\"requestUrl\":\"capabilities\",\"requestType\":\"GET\",\"requestBody\":\"\",\"token\":\"token\",\"teamsId\":null,\"atlasId\":null}";
-            A.CallTo(() =>
-                    _signalRService.SendRequestAndWaitForResponse(A<string>._, A<string>._, CancellationToken.None))
-                .Returns(new SignalRResponse
-                {
-                    Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraIssueCreateMeta>
-                    {
-                        ResponseCode = 200,
-                        Response = new JiraIssueCreateMeta()
-                        {
-                            Projects = new List<JiraProjectMeta>()
-                            {
-                                new JiraProjectMeta()
-                                {
-                                    Id = "id",
-                                    IssueTypes = new List<JiraIssueTypeMeta>()
-                                    {
-                                        new JiraIssueTypeMeta()
-                                        {
-                                            Fields = new ExpandoObject()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    })
-                });
-
-            A.CallTo(() =>
-                    _signalRService.SendRequestAndWaitForResponse(A<string>._, message, CancellationToken.None))
-                .Returns(new SignalRResponse
-                {
-                    Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraCapabilitiesResponse>
-                    {
-                        ResponseCode = 200,
-                        Response = new JiraCapabilitiesResponse()
-                        {
-                            Capabilities = new JiraCapabilities()
-                            {
-                                ListIssueTypeFields = "ListIssueTypeFields",
-                            }
-                        }
-                    })
-                });
-
-            var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
-
-            var result = await jiraServerService.GetCreateMetaIssueTypeFields(new IntegratedUser() { AccessToken = "token" }, string.Empty, string.Empty, string.Empty);
-
-            Assert.NotNull(result);
             Assert.IsType<ExpandoObject>(result);
         }
 
