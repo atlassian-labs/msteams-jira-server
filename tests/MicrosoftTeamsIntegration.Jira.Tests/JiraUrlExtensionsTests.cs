@@ -12,7 +12,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         [InlineData("08a8dde9-b347-4355-895c", "08a8dde9-b347-4355-895c", false)]
         [InlineData("5716b702-b515-4f7f-bf29-e9dd1fa8925f", "5716b702-b515-4f7f-bf29-e9dd1fa8925f", true)]
         [InlineData(null, "", false)]
-        [InlineData(null, "", false)]
         public void TryToNormalizeJiraUrlTests(string url, string expectedNormalizedUrl, bool isValid)
         {
             var result = url.TryToNormalizeJiraUrl(out var normalizedUrl);
