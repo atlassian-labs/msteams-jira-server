@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Azure;
+using Microsoft.Bot.Builder.Azure.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -74,7 +74,7 @@ namespace MicrosoftTeamsIntegration.Jira
                 .AddJwtBearer("Bearer API", options =>
                 {
                     options.Audience = appSettings.MicrosoftAppId;
-                    options.Authority = "https://login.microsoftonline.com/organizations/v2.0/";
+                    options.Authority = $"{appSettings.MicrosoftLoginBaseUrl}/organizations/v2.0/";
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = false // as we support multi-tenant
@@ -127,7 +127,7 @@ namespace MicrosoftTeamsIntegration.Jira
 
             if (!_env.IsDevelopment())
             {
-                IStorage dataStore = new AzureBlobStorage(appSettings.StorageConnectionString, appSettings.BotDataStoreContainer);
+                IStorage dataStore = new BlobsStorage(appSettings.StorageConnectionString, appSettings.BotDataStoreContainer);
                 services.AddSingleton(dataStore);
             }
 

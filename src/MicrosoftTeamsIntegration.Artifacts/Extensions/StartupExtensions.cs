@@ -39,7 +39,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Extensions
                                                      .WaitAndRetryAsync(delay));
 
             // Configure credentials
-            services.AddSingleton<ICredentialProvider, ConfigurationCredentialProvider>();
+            services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
             services.AddSingleton(new MicrosoftAppCredentials(
                 configuration.GetValue<string>("MicrosoftAppId"),
                 configuration.GetValue<string>("MicrosoftAppPassword")));
@@ -70,10 +70,6 @@ namespace MicrosoftTeamsIntegration.Artifacts.Extensions
             services.AddSingleton<UserState>();
             services.AddSingleton<ConversationState>();
 
-            // Create the debug middleware
-            services.AddSingleton<InspectionMiddleware>();
-            services.AddSingleton<InspectionState>();
-
             // Register service to send proactive messages to users
             services.AddSingleton<IProactiveMessagesService, ProactiveMessagesService>();
 
@@ -83,7 +79,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Extensions
 
             // Configure service for getting AAD access token
             services.AddRefitClient<IOAuthV2Service>()
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://login.microsoftonline.com"));
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(configuration.GetValue<string>("MicrosoftLoginBaseUrl") ?? "https://login.microsoftonline.com"));
 
             return services;
         }

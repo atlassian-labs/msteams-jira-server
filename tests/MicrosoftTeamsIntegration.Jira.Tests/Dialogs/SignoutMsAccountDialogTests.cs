@@ -43,12 +43,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             var sut = new SignoutMsAccountDialog(_fakeAccessors, _appSettings, _telemetry, _fakeBotFrameworkAdapterService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
-            A.CallTo(() => _fakeBotFrameworkAdapterService.SignOutUserAsync(A<ITurnContext>._, A<string>._, A<string>._, CancellationToken.None))
+            A.CallTo(() => _fakeBotFrameworkAdapterService.SignOutUserAsync(A<ITurnContext>._, A<string>._, CancellationToken.None))
                 .Returns(Task.Delay(1));
 
             await testClient.SendActivityAsync<IMessageActivity>("Signout");
 
-            A.CallTo(() => _fakeBotFrameworkAdapterService.SignOutUserAsync(A<ITurnContext>._, A<string>._, A<string>._, CancellationToken.None))
+            A.CallTo(() => _fakeBotFrameworkAdapterService.SignOutUserAsync(A<ITurnContext>._, A<string>._, CancellationToken.None))
                 .MustHaveHappened();
         }
     }

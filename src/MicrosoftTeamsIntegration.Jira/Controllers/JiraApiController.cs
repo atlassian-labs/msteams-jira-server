@@ -688,7 +688,8 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             var exception = await ApiException.Create(
                 new HttpRequestMessage(),
                 HttpMethod.Post,
-                response);
+                response,
+                new RefitSettings());
             throw exception;
         }
 

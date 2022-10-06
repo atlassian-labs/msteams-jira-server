@@ -9,6 +9,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Teams;
+using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Logging;
@@ -236,11 +237,11 @@ namespace MicrosoftTeamsIntegration.Jira
             }
             else
             {
-                var adapter = (IUserTokenProvider)turnContext.Adapter;
-                var accessToken = await turnContext.GetBotUserAccessToken(_appSettings.OAuthConnectionName, magicCode, cancellationToken);
+                var userTokenClient = turnContext.TurnState.Get<UserTokenClient>();
+                var accessToken = await userTokenClient.GetUserTokenAsync(turnContext.Activity.From.Id, _appSettings.OAuthConnectionName, turnContext.Activity.ChannelId, magicCode, cancellationToken);
                 if (accessToken is null)
                 {
-                    var link = await adapter.GetOauthSignInLinkAsync(turnContext, _appSettings.OAuthConnectionName, cancellationToken).ConfigureAwait(false);
+                    var link = (await userTokenClient.GetSignInResourceAsync(_appSettings.OAuthConnectionName, turnContext.Activity, null, cancellationToken).ConfigureAwait(false)).SignInLink;
                     link += "&width=800&height=600";
 
                     var response = MessagingExtensionHelper.BuildCardActionResponse("auth", "Sign in with Microsoft account", link);
@@ -250,7 +251,7 @@ namespace MicrosoftTeamsIntegration.Jira
                 {
                     if (user != null)
                     {
-                        user.AccessToken = accessToken;
+                        user.AccessToken = accessToken?.Token;
                     }
 
                     await ProcessInvokeRequest(turnContext, user, cancellationToken);

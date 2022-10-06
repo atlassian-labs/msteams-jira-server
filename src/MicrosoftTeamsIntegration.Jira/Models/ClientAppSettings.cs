@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.PlatformAbstractions;
+﻿using System.Reflection;
 using Newtonsoft.Json;
 
 namespace MicrosoftTeamsIntegration.Jira.Models
@@ -19,7 +19,7 @@ namespace MicrosoftTeamsIntegration.Jira.Models
         public string InstrumentationKey { get; }
 
         [JsonProperty("version")]
-        public string Version { get; } = PlatformServices.Default.Application.ApplicationVersion;
+        public string Version { get; } = Assembly.GetEntryAssembly().GetName().Version.ToString();
 
         [JsonProperty("baseUrl")]
         public string BaseUrl { get; }

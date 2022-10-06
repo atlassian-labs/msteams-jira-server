@@ -6,6 +6,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
 {
     public interface IBotFrameworkAdapterService
     {
-        Task SignOutUserAsync(ITurnContext turnContext, string connectionName, string userId, CancellationToken cancellationToken);
+        Task SignOutUserAsync(ITurnContext turnContext, string connectionName, CancellationToken cancellationToken);
     }
 }

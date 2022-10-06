@@ -36,8 +36,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
                 new ServiceDescriptor(typeof(IGraphSdkHelper), typeof(GraphSdkHelper), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IGraphApiService), typeof(GraphApiService), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IBotTelemetryClient), typeof(BotTelemetryClient), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(InspectionMiddleware), typeof(InspectionMiddleware), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(InspectionState), typeof(InspectionState), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ConversationState), typeof(ConversationState), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(UserState), typeof(UserState), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(TelemetryLoggerMiddleware), typeof(TelemetryLoggerMiddleware), ServiceLifetime.Singleton),

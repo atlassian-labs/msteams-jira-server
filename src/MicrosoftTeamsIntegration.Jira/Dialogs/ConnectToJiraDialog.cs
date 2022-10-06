@@ -54,7 +54,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         {
             _telemetry.TrackPageView("ConnectToJiraDialog");
 
-            await _botFrameworkAdapterService.SignOutUserAsync(dc.Context, _appSettings.OAuthConnectionName, null, cancellationToken);
+            await _botFrameworkAdapterService.SignOutUserAsync(dc.Context, _appSettings.OAuthConnectionName, cancellationToken);
 
             return await dc.BeginDialogAsync(MainWaterfall, cancellationToken: cancellationToken);
         }
