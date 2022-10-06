@@ -27,7 +27,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
         {
             _serviceDescriptors = new List<ServiceDescriptor>()
             {
-                new ServiceDescriptor(typeof(ICredentialProvider), typeof(ConfigurationCredentialProvider), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(BotFrameworkAuthentication), typeof(ConfigurationBotFrameworkAuthentication), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ITelemetryInitializer), typeof(OperationCorrelationTelemetryInitializer), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ITelemetryInitializer), typeof(TelemetryBotIdInitializer), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IBotFrameworkHttpAdapter), typeof(TeamsBotHttpAdapter), ServiceLifetime.Singleton),

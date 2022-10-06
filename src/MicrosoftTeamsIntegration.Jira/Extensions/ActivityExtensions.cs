@@ -36,8 +36,15 @@ namespace MicrosoftTeamsIntegration.Jira.Extensions
         public static async Task<string> GetBotUserAccessToken(this ITurnContext turnContext, string connectionName, string magicCode = null, CancellationToken cancellationToken = default)
         {
             var userTokenClient = turnContext.TurnState.Get<UserTokenClient>();
-            var token = await userTokenClient.GetUserTokenAsync(turnContext.Activity.From.Id, connectionName, turnContext.Activity.ChannelId, magicCode, cancellationToken);
-            return token?.Token;
+            if (userTokenClient != null)
+            {
+                var token = await userTokenClient.GetUserTokenAsync(turnContext.Activity.From.Id, connectionName, turnContext.Activity.ChannelId, magicCode, cancellationToken);
+                return token?.Token;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public static async Task<string> GetMsTeamsUserIdFromMentions(this ITurnContext turnContext)
