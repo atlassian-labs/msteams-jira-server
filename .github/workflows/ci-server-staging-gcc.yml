@@ -1,4 +1,4 @@
-name: CI Jira Server Staging GCC
+name: CI Jira Server Staging
 
 on:
   workflow_dispatch:

@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     types: [closed]
+    branches: main
 
 jobs:
   build:
@@ -32,7 +33,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: "6.0.x"
+          dotnet-version: "3.1.x"
 
       - name: Restore dependencies
         run: dotnet restore
