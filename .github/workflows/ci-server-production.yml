@@ -2,8 +2,6 @@ name: CI Jira Server Production
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main_GCC]
 
 jobs:
   build:
