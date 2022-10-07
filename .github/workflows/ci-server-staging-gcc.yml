@@ -1,10 +1,7 @@
-name: CI Jira Server Integration
+name: CI Jira Server Staging
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [closed]
-    branches: main
 
 jobs:
   build:
@@ -33,7 +30,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: "3.1.x"
+          dotnet-version: "6.0.x"
 
       - name: Restore dependencies
         run: dotnet restore
@@ -51,7 +48,7 @@ jobs:
         with:
           junit_files: ${{ github.workspace }}/tests/artifacts/*test-result.xml
 
-      - name: Publish application
+      - name: dotnet build and publish
         run: dotnet publish -c Release -o 'publish/jira'
 
       - name: Deploy to Azure Web App
@@ -59,6 +56,6 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: "msteams-jira-server-central-us"
-          slot-name: "integration"
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_9c042cbc3a8643f59996859df7c4650c }}
+          slot-name: "staging-gcc"
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_d60c72ad12244d5ba5f4aa7f9846a2e9 }}
           package: "publish/jira"

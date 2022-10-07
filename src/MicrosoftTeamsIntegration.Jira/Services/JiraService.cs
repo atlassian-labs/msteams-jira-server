@@ -541,7 +541,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     return project?.IssueTypes;
                 }
 
-                throw ex;
+                throw new Exception(ex.Message, ex);
             }
         }
 
@@ -579,7 +579,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     return issuetype?.Fields;
                 }
 
-                throw ex;
+                throw new Exception(ex.Message, ex);
             }
         }
 

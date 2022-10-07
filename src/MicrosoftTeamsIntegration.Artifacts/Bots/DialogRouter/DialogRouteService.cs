@@ -178,13 +178,11 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
                     Regex.Replace(choiceValue, @"[^A-Za-z0-9 ]", string.Empty);
                 }
 
-                if (choiceValue.IndexOf(
-                        utteranceToCheck,
-                        ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) >= 0)
+                if (choiceValue.Contains(utteranceToCheck, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                 {
                     score = (double)decimal.Divide(utteranceToCheck.Length, choiceValue.Length);
                 }
-                else if (utteranceToCheck.IndexOf(choiceValue, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) >= 0)
+                else if (utteranceToCheck.Contains(choiceValue, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                 {
                     score = Math.Min(0.5 + ((double)choiceValue.Length / utteranceToCheck.Length), 0.9);
                 }
@@ -194,9 +192,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
                     {
                         var matched = string.Empty;
 
-                        if (choiceValue.IndexOf(
-                                token,
-                                ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) >= 0)
+                        if (choiceValue.Contains(token, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                         {
                             matched += token;
                         }

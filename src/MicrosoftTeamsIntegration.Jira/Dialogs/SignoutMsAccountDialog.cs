@@ -33,7 +33,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             _telemetry.TrackPageView("SignOutMSAccountDialog");
 
             // The bot adapter encapsulates the authentication processes.
-            await _botFrameworkAdapterService.SignOutUserAsync(innerDc.Context, _appSettings.OAuthConnectionName, null, cancellationToken);
+            await _botFrameworkAdapterService.SignOutUserAsync(innerDc.Context, _appSettings.OAuthConnectionName, cancellationToken);
             await innerDc.Context.SendActivityAsync(MessageFactory.Text("You have been signed out."), cancellationToken);
             return await innerDc.CancelAllDialogsAsync(cancellationToken);
         }
