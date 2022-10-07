@@ -1,10 +1,10 @@
-name: CI Jira Server Integration
+name: CI Gated
 
 on:
-  workflow_dispatch:
   pull_request:
-    types: [closed]
-    branches: main
+    branches: main_GCC
+  push:
+    branches: main_GCC
 
 jobs:
   build:
@@ -33,16 +33,16 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: "3.1.x"
+          dotnet-version: "6.0.x"
 
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Run build powershell script
-        run: ./build/build.ps1 --no-restore
+        run: ./build/build.ps1 --isGatedBuild=True --no-restore
         shell: powershell
 
-      - name: Run Tests
+      - name: Run tests
         run: dotnet test --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml"
 
       - name: Publish test report
@@ -50,15 +50,3 @@ jobs:
         if: always()
         with:
           junit_files: ${{ github.workspace }}/tests/artifacts/*test-result.xml
-
-      - name: Publish application
-        run: dotnet publish -c Release -o 'publish/jira'
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "msteams-jira-server-central-us"
-          slot-name: "integration"
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_9c042cbc3a8643f59996859df7c4650c }}
-          package: "publish/jira"
