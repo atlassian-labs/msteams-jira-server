@@ -1,4 +1,4 @@
-name: CI Jira Server Staging
+name: CI Jira Server Staging (GCC)
 
 on:
   workflow_dispatch:
@@ -57,5 +57,5 @@ jobs:
         with:
           app-name: "msteams-jira-server-central-us"
           slot-name: "staging-gcc"
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_d60c72ad12244d5ba5f4aa7f9846a2e9 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E30CD6797F7D42CE87F03574FBBB4126 }}
           package: "publish/jira"

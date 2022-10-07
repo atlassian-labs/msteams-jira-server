@@ -1,4 +1,4 @@
-name: CI Gated
+name: CI Gated (GCC)
 
 on:
   pull_request:
