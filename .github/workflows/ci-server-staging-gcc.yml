@@ -1,10 +1,9 @@
-name: CI Gated
+name: CI Jira Server Staging
 
 on:
-  pull_request:
-    branches: [main, main_GCC]
+  workflow_dispatch:
   push:
-    branches: [main, main_GCC]
+    branches: [main_GCC]
 
 jobs:
   build:
@@ -39,10 +38,10 @@ jobs:
         run: dotnet restore
 
       - name: Run build powershell script
-        run: ./build/build.ps1 --isGatedBuild=True --no-restore
+        run: ./build/build.ps1 --no-restore
         shell: powershell
 
-      - name: Run tests
+      - name: Run Tests
         run: dotnet test --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml"
 
       - name: Publish test report
@@ -50,3 +49,15 @@ jobs:
         if: always()
         with:
           junit_files: ${{ github.workspace }}/tests/artifacts/*test-result.xml
+
+      - name: dotnet build and publish
+        run: dotnet publish -c Release -o 'publish/jira'
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "msteams-jira-server-central-us"
+          slot-name: "staging-gcc"
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_d60c72ad12244d5ba5f4aa7f9846a2e9 }}
+          package: "publish/jira"
