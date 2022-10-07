@@ -174,7 +174,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
         {
             var user = await GetAndVerifyUser(jiraUrl);
             var result = await _jiraService.GetStatuses(user);
-            result = result.DistinctBy(s => s.Name)
+            result = result.DistinctBy(selector: s => s.Name)
                 .OrderBy(s => s.Name)
                 .ToList();
             return Ok(result);
