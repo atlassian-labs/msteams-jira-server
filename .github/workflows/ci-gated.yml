@@ -2,9 +2,9 @@ name: CI Gated
 
 on:
   pull_request:
-    branches: [main, main_GCC]
+    branches: main
   push:
-    branches: [main, main_GCC]
+    branches: main
 
 jobs:
   build:

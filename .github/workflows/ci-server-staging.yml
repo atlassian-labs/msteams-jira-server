@@ -2,8 +2,6 @@ name: CI Jira Server Staging
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main_GCC]
 
 jobs:
   build:
