@@ -266,7 +266,8 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("teams.microsoft.com")
                         .From("*.teams.microsoft.com")
                         .From("*.skype.com")
-                        .From("*.msteams-atlassian.com");
+                        .From("*.msteams-atlassian.com")
+                        .From("*.azurewebsites.net");
                 });
 
             app.UseSecurityHeaders(policyCollection);
