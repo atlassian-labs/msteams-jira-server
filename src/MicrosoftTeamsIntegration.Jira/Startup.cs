@@ -259,8 +259,10 @@ namespace MicrosoftTeamsIntegration.Jira
                         .UnsafeInline()
                         .From("*");
 
-                    builder.AddFrameAncestors()
-                        .Self()
+                    var frameAncestors = builder.AddFrameAncestors()
+                        .Self();
+
+                    frameAncestors
                         .From("*.jira.com")
                         .From("*.atlassian.net")
                         .From("teams.microsoft.com")
@@ -274,8 +276,7 @@ namespace MicrosoftTeamsIntegration.Jira
                         var validDomains = appSettings.CspValidDomains.Split();
                         foreach (var domain in validDomains)
                         {
-                            builder.AddFrameAncestors()
-                                .Self()
+                            frameAncestors
                                 .From(domain.Trim());
                         }
                     }
