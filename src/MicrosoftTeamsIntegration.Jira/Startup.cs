@@ -259,15 +259,27 @@ namespace MicrosoftTeamsIntegration.Jira
                         .UnsafeInline()
                         .From("*");
 
-                    builder.AddFrameAncestors()
-                        .Self()
+                    var frameAncestors = builder.AddFrameAncestors()
+                        .Self();
+
+                    frameAncestors
                         .From("*.jira.com")
                         .From("*.atlassian.net")
                         .From("teams.microsoft.com")
                         .From("*.teams.microsoft.com")
+                        .From("*.teams.microsoft.us")
                         .From("*.skype.com")
-                        .From("*.msteams-atlassian.com")
-                        .From("*.azurewebsites.net");
+                        .From("*.msteams-atlassian.com");
+
+                    if (!string.IsNullOrEmpty(appSettings.CspValidDomains))
+                    {
+                        var validDomains = appSettings.CspValidDomains.Split();
+                        foreach (var domain in validDomains)
+                        {
+                            frameAncestors
+                                .From(domain.Trim());
+                        }
+                    }
                 });
 
             app.UseSecurityHeaders(policyCollection);
