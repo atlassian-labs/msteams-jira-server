@@ -265,9 +265,20 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("*.atlassian.net")
                         .From("teams.microsoft.com")
                         .From("*.teams.microsoft.com")
+                        .From("*.teams.microsoft.us")
                         .From("*.skype.com")
-                        .From("*.msteams-atlassian.com")
-                        .From("*.azurewebsites.net");
+                        .From("*.msteams-atlassian.com");
+
+                    if (!string.IsNullOrEmpty(appSettings.CspValidDomains))
+                    {
+                        var validDomains = appSettings.CspValidDomains.Split();
+                        foreach (var domain in validDomains)
+                        {
+                            builder.AddFrameAncestors()
+                                .Self()
+                                .From(domain.Trim());
+                        }
+                    }
                 });
 
             app.UseSecurityHeaders(policyCollection);
