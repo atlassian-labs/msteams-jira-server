@@ -53,6 +53,12 @@ export class UtilService {
 
     public getUserClientId = (): string => localStorage.getItem('userClientId');
 
+    public getAADInstance = (): string => {
+        const microsoftLoginBaseUrl = localStorage.getItem('microsoftLoginBaseUrl');
+        const baseUrl = microsoftLoginBaseUrl ? microsoftLoginBaseUrl : 'https://login.microsoftonline.com';
+        return `${baseUrl}/`;
+    };
+
     public convertStringToNull = (value: any) => value === 'null' || value === 'undefined' ? null : value;
 
     public getDefaultUserIcon(size: IconSize = 'small'): string {

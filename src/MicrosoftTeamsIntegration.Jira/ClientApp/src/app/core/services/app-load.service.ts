@@ -12,6 +12,7 @@ interface Settings {
     baseUrl: string;
     analyticsEnvironment: string;
     version: string;
+    microsoftLoginBaseUrl: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +30,7 @@ export class AppLoadService {
                 localStorage.setItem('baseUrl', settings.baseUrl);
                 localStorage.setItem('analyticsEnvironment', settings.analyticsEnvironment);
                 localStorage.setItem('version', settings.version);
+                localStorage.setItem('microsoftLoginBaseUrl', settings.microsoftLoginBaseUrl);
 
                 return settings;
             })
