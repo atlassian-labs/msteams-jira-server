@@ -23,32 +23,36 @@
 
         microsoftTeams.initialize();
 
-        var clientId = localStorage.getItem('userClientId');
+        const clientId = localStorage.getItem('userClientId');
 
         if (!clientId) {
             displayError();
         }
         else {
-            var config = {
+            const microsoftLoginBaseUrl = window.localStorage.getItem('microsoftLoginBaseUrl');
+            const loginBaseUrl = microsoftLoginBaseUrl ? microsoftLoginBaseUrl : 'https://login.microsoftonline.com';
+            
+            const config = {
+                instance: `${loginBaseUrl}/`,
                 redirectUri: "https://" + window.location.host + "/loginResult.html",
                 cacheLocation: "localStorage",
                 navigateToLoginRequestUrl: false,
                 clientId: clientId
             };
 
-            var authContext = new AuthenticationContext(config);
+            const authContext = new AuthenticationContext(config);
 
             if (authContext.isCallback(window.location.hash)) {
                 authContext.handleWindowCallback(window.location.hash);
             }
 
-            var user = authContext.getCachedUser();
+            const user = authContext.getCachedUser();
 
             if (!user) {
                 displayError();
             }
             else {
-                var redirectUri = window.localStorage.getItem('redirectUri');
+                const redirectUri = window.localStorage.getItem('redirectUri');
                 if (redirectUri) {
                     window.localStorage.removeItem('redirectUri');
                     window.location.replace(redirectUri);
@@ -76,7 +80,7 @@
         }
 
         function displayError() {
-            var error = localStorage.getItem('adal.login.error') || localStorage.getItem('adal.error');
+            const error = localStorage.getItem('adal.login.error') || localStorage.getItem('adal.error');
 
             document.getElementById('content')
                 .innerHTML =

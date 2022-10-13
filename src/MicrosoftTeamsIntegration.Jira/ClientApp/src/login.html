@@ -6,10 +6,13 @@
     <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.17/js/adal.min.js" integrity="sha384-BIOS/65fbAsb2XiCCSTlZSTTl0ZgqkOU522dpyk5meOnN2EOQ3uH+QpqEtoAtmBn" crossorigin="anonymous"></script>
     <title>Jira for Microsoft Teams - Login</title>
     <script type="text/javascript">
-        var clientId = window.localStorage.getItem('userClientId');
-        var context = JSON.parse(window.localStorage.getItem('msTeamsContext'));
+        const clientId = window.localStorage.getItem('userClientId');
+        const context = JSON.parse(window.localStorage.getItem('msTeamsContext'));
+        const microsoftLoginBaseUrl = window.localStorage.getItem('microsoftLoginBaseUrl');
+        const loginBaseUrl = microsoftLoginBaseUrl ? microsoftLoginBaseUrl : 'https://login.microsoftonline.com';
 
-        var config = {
+        const config = {
+            instance: `${loginBaseUrl}/`,
             redirectUri: "https://" + window.location.host + "/loginResult.html",
             cacheLocation: "localStorage",
             navigateToLoginRequestUrl: false,
@@ -17,7 +20,7 @@
             tenant: context && context.tid
         };
 
-        var extraQueryParamsName = {
+        const extraQueryParamsName = {
             scope: 'scope=',
             loginHint: 'login_hint='
         };
