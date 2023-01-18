@@ -29,6 +29,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             _logger = logger;
         }
 
+        [NonAction]
         [HttpPost("feedEvent")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
