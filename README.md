@@ -42,7 +42,7 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
     - In **Service Provider** selectbox choose **Azure Active Directory v2**. **Client id** is the **Application (client) ID** of AzureAD app registration. **Client secret** is the secret of AzureAD app registration. Set value of **Tennant ID** to `common`. **Scopes** should be a value of the added permission.
     - **Save** the changes
     - Open just created Connection string from Bot Channel Registration resource. Press **Test Connection**. 
-    - If connection was tested successfully add Name of just created connection to the _appsettings.Development.json_ as a value of property **OAuthConnectionName**.
+    - If connection was tested successfully add Name of just created connection to the `appsettings.Development.json` as a value of property **OAuthConnectionName**.
  1. Install locally or configure Mongo Db on Azure. Example for Azure:
     - Login into [Azure](https://portal.azure.com).
     - Click on All Resources -> Add Azure Cosmos DB
@@ -106,6 +106,23 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
  1. Click on Store -> Upload Custom App and put your ZIP there.
 
 Side note - every time you will restart ngrok your microsoft bot application base url changes. After restart you have to change all `<MICROSOFT_BOT_APPLICATION_BASE_URL>` urls once again (in Portal Azure, User Secrets or appsettings.json, manifests, install Jira Sever\Cloud Add-on). Register free ngrok account to resolve this issue.
+
+## GCC/GCCH configs
+
+In order to use the application with GCC/GCHH please fill next configs in `appsettings.Development.json` file (those configs should be empty for commercial cloud or local environment)
+
+  ```xml  
+    {
+      "MicrosoftLoginBaseUrl": "https://login.microsoftonline.us"
+      "ChannelService": "https://botframework.azure.us",
+      "OAuthUrl": "https://tokengcch.botframework.azure.us/",
+      "ToChannelFromBotLoginUrl": "https://login.microsoftonline.us/MicrosoftServices.onmicrosoft.us",
+      "ToChannelFromBotOAuthScope": https://api.botframework.us",
+      "ToBotFromChannelTokenIssuer": "https://api.botframework.us",
+      "ToBotFromChannelOpenIdMetadataUrl": "https://login.botframework.azure.us/v1/.well-known/openidconfiguration",
+      "ToBotFromEmulatorOpenIdMetadataUrl": "https://login.microsoftonline.us/cab8a31a-1906-4287-a0d8-4eef66b95f6e/v2.0/.well-known/openid-configuration",
+   }
+  ```
 
 ## Documentation
 
