@@ -15,22 +15,17 @@ using Microsoft.Extensions.Logging;
 
 namespace MicrosoftTeamsIntegration.Artifacts.Bots
 {
-    public class TeamsBotHttpAdapter : BotFrameworkHttpAdapter
+    public class TeamsBotHttpAdapter : CloudAdapter
     {
         public TeamsBotHttpAdapter(
             IHostingEnvironment env,
             IConfiguration configuration,
             ILogger<TeamsBotHttpAdapter> logger,
             TelemetryInitializerMiddleware telemetryInitializerMiddleware,
-            InspectionMiddleware inspectionMiddleware,
             IHttpClientFactory httpClientFactory,
             ConversationState? conversationState = null,
             UserState? userState = null)
-            : base(
-                new ConfigurationCredentialProvider(configuration),
-                new ConfigurationChannelProvider(configuration),
-                httpClientFactory.CreateClient(nameof(TeamsBotHttpAdapter)),
-                logger)
+            : base(configuration, httpClientFactory, logger)
         {
             OnTurnError = async (turnContext, exception) =>
             {
@@ -92,7 +87,6 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots
 
             if (env.IsDevelopment())
             {
-                Use(inspectionMiddleware);
                 Use(new EventDebuggerMiddleware());
                 Use(new ConsoleOutputMiddleware());
             }

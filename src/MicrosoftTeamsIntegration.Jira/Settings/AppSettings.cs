@@ -14,9 +14,10 @@
         public string OAuthConnectionName { get; set; }
         public string CacheConnectionString { get; set; }
         public int JiraServerMaximumReceiveMessageSize { get; set; }
-
-        // stage https://id.stg.internal.atlassian.com
-        // prod https://id.atlassian.com
+        public string MicrosoftLoginBaseUrl { get; set; }
         public string IdentityServiceUrl { get; set; }
+
+        // space separated list of uls that should be added to CSP list
+        public string CspValidDomains { get; set; }
     }
 }

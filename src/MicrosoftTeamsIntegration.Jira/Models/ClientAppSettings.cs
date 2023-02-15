@@ -1,14 +1,15 @@
-﻿using Microsoft.Extensions.PlatformAbstractions;
+﻿using System.Reflection;
 using Newtonsoft.Json;
 
 namespace MicrosoftTeamsIntegration.Jira.Models
 {
     public sealed class ClientAppSettings
     {
-        public ClientAppSettings(string clientId, string baseUrl, string instrumentationKey)
+        public ClientAppSettings(string clientId, string baseUrl, string microsoftLoginBaseUrl, string instrumentationKey)
         {
             ClientId = clientId;
             BaseUrl = baseUrl;
+            MicrosoftLoginBaseUrl = microsoftLoginBaseUrl;
             InstrumentationKey = instrumentationKey;
         }
 
@@ -19,9 +20,12 @@ namespace MicrosoftTeamsIntegration.Jira.Models
         public string InstrumentationKey { get; }
 
         [JsonProperty("version")]
-        public string Version { get; } = PlatformServices.Default.Application.ApplicationVersion;
+        public string Version { get; } = Assembly.GetEntryAssembly()?.GetName().Version?.ToString();
 
         [JsonProperty("baseUrl")]
         public string BaseUrl { get; }
+
+        [JsonProperty("microsoftLoginBaseUrl")]
+        public string MicrosoftLoginBaseUrl { get; }
     }
 }

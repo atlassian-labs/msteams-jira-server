@@ -1,4 +1,5 @@
-name: CI Jira Server Integration
+name: CI Jira Server Integration (GCC)
+
 
 on:
   workflow_dispatch:

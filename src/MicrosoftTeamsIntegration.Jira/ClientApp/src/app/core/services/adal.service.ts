@@ -12,6 +12,7 @@ interface Settings {
     redirectUri: string;
     cacheLocation: string;
     navigateToLoginRequestUrl: boolean;
+    instance: string;
     [key: string]: any;
 }
 
@@ -19,6 +20,7 @@ interface Settings {
 export class AdalService {
 
     public settings: Settings = {
+        instance: this.utilService.getAADInstance(),
         redirectUri: `https://${window.location.host}/loginResult.html`,
         cacheLocation: 'localStorage',
         navigateToLoginRequestUrl: false

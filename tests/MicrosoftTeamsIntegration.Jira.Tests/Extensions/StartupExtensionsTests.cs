@@ -27,7 +27,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
         {
             _serviceDescriptors = new List<ServiceDescriptor>()
             {
-                new ServiceDescriptor(typeof(ICredentialProvider), typeof(ConfigurationCredentialProvider), ServiceLifetime.Singleton),
+                new ServiceDescriptor(typeof(BotFrameworkAuthentication), typeof(ConfigurationBotFrameworkAuthentication), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ITelemetryInitializer), typeof(OperationCorrelationTelemetryInitializer), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ITelemetryInitializer), typeof(TelemetryBotIdInitializer), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IBotFrameworkHttpAdapter), typeof(TeamsBotHttpAdapter), ServiceLifetime.Singleton),
@@ -36,8 +36,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
                 new ServiceDescriptor(typeof(IGraphSdkHelper), typeof(GraphSdkHelper), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IGraphApiService), typeof(GraphApiService), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(IBotTelemetryClient), typeof(BotTelemetryClient), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(InspectionMiddleware), typeof(InspectionMiddleware), ServiceLifetime.Singleton),
-                new ServiceDescriptor(typeof(InspectionState), typeof(InspectionState), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(ConversationState), typeof(ConversationState), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(UserState), typeof(UserState), ServiceLifetime.Singleton),
                 new ServiceDescriptor(typeof(TelemetryLoggerMiddleware), typeof(TelemetryLoggerMiddleware), ServiceLifetime.Singleton),

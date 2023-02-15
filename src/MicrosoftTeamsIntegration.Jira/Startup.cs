@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Azure;
+using Microsoft.Bot.Builder.Azure.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -74,7 +74,7 @@ namespace MicrosoftTeamsIntegration.Jira
                 .AddJwtBearer("Bearer API", options =>
                 {
                     options.Audience = appSettings.MicrosoftAppId;
-                    options.Authority = "https://login.microsoftonline.com/organizations/v2.0/";
+                    options.Authority = $"{appSettings.MicrosoftLoginBaseUrl}/organizations/v2.0/";
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = false // as we support multi-tenant
@@ -127,7 +127,7 @@ namespace MicrosoftTeamsIntegration.Jira
 
             if (!_env.IsDevelopment())
             {
-                IStorage dataStore = new AzureBlobStorage(appSettings.StorageConnectionString, appSettings.BotDataStoreContainer);
+                IStorage dataStore = new BlobsStorage(appSettings.StorageConnectionString, appSettings.BotDataStoreContainer);
                 services.AddSingleton(dataStore);
             }
 
@@ -259,14 +259,27 @@ namespace MicrosoftTeamsIntegration.Jira
                         .UnsafeInline()
                         .From("*");
 
-                    builder.AddFrameAncestors()
-                        .Self()
+                    var frameAncestors = builder.AddFrameAncestors()
+                        .Self();
+
+                    frameAncestors
                         .From("*.jira.com")
                         .From("*.atlassian.net")
                         .From("teams.microsoft.com")
                         .From("*.teams.microsoft.com")
+                        .From("*.teams.microsoft.us")
                         .From("*.skype.com")
                         .From("*.msteams-atlassian.com");
+
+                    if (!string.IsNullOrEmpty(appSettings.CspValidDomains))
+                    {
+                        var validDomains = appSettings.CspValidDomains.Split();
+                        foreach (var domain in validDomains)
+                        {
+                            frameAncestors
+                                .From(domain.Trim());
+                        }
+                    }
                 });
 
             app.UseSecurityHeaders(policyCollection);

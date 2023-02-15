@@ -22,7 +22,11 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
         [AllowAnonymous]
         public ActionResult<ClientAppSettings> GetClientAppSettings()
         {
-            var settings = new ClientAppSettings(_appSettings.MicrosoftAppId, _appSettings.BaseUrl, _telemetryConfiguration.InstrumentationKey);
+            var settings = new ClientAppSettings(
+                _appSettings.MicrosoftAppId,
+                _appSettings.BaseUrl,
+                _appSettings.MicrosoftLoginBaseUrl,
+                _telemetryConfiguration.InstrumentationKey);
             return Ok(settings);
         }
     }

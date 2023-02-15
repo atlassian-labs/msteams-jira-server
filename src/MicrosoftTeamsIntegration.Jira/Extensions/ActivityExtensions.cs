@@ -4,7 +4,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Builder.Teams;
+using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
@@ -33,9 +35,16 @@ namespace MicrosoftTeamsIntegration.Jira.Extensions
 
         public static async Task<string> GetBotUserAccessToken(this ITurnContext turnContext, string connectionName, string magicCode = null, CancellationToken cancellationToken = default)
         {
-            var adapter = (IUserTokenProvider)turnContext.Adapter;
-            var token = await adapter.GetUserTokenAsync(turnContext, connectionName, magicCode, cancellationToken).ConfigureAwait(false);
-            return token?.Token;
+            var userTokenClient = turnContext.TurnState.Get<UserTokenClient>();
+            if (userTokenClient != null)
+            {
+                var token = await userTokenClient.GetUserTokenAsync(turnContext.Activity.From.Id, connectionName, turnContext.Activity.ChannelId, magicCode, cancellationToken);
+                return token?.Token;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public static async Task<string> GetMsTeamsUserIdFromMentions(this ITurnContext turnContext)
