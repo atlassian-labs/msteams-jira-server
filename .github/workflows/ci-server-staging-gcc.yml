@@ -57,5 +57,5 @@ jobs:
         with:
           app-name: "msteams-jira-server-central-us"
           slot-name: "staging-gcc"
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E30CD6797F7D42CE87F03574FBBB4126 }}
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_d60c72ad12244d5ba5f4aa7f9846a2e9 }}
           package: "publish/jira"
