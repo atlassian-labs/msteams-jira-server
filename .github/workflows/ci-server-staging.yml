@@ -56,11 +56,20 @@ jobs:
       - name: dotnet build and publish
         run: dotnet publish -c Release -o 'publish/jira'
 
-      - name: Deploy to Azure Web App
+      - name: Deploy to Azure Web App (Commercial Cloud version)
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: "msteams-jira-server-central-us"
           slot-name: "staging"
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_d60c72ad12244d5ba5f4aa7f9846a2e9 }}
+          package: "publish/jira"
+
+      - name: Deploy to Azure Web App (GCCH version)
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "msteams-jira-server-central-us"
+          slot-name: "staging-gcc"
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_d60c72ad12244d5ba5f4aa7f9846a2e9 }}
           package: "publish/jira"
