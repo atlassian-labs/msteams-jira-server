@@ -7,6 +7,7 @@
     "ng": "./node_modules/.bin/ng",
     "start": "ng serve --disableHostCheck true",
     "build": "ng build",
+    "test": "node --no-deprecation ./node_modules/@angular/cli/bin/ng test --watch=false --progress=false",
     "lint": "tslint --fix -c ./tslint.json 'src/**/*.ts'"
   },
   "private": true,
@@ -58,6 +59,6 @@
     "typescript": "3.4.5"
   },
   "engines": {
-    "node": "14.17"
+    "node": "16"
   }
 }
