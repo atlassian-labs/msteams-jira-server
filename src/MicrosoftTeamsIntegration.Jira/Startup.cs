@@ -145,7 +145,7 @@ namespace MicrosoftTeamsIntegration.Jira
 
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp";
+                configuration.RootPath = "ClientApp/dist";
             });
         }
 
