@@ -16,13 +16,14 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
 ### Prerequisites
  1. Clone solution to local repository. To do that you can use [clone action](https://git-scm.com/docs/git-clone).
  1. Create or use your existing [Microsoft Teams](https://teams.microsoft.com) account for testing the application.
- 1. Create [Bot Channels Registration](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-quickstart-registration?view=azure-bot-service-3.0).
-    - Select the **New** button found on the upper left-hand corner of the Azure portal. Type **Bot Channels Registration** in the search box and press enter
-    - On the **Bot Channels Registration** blade click the **Create** button to start the creation process.
-    - On the **Bot Service** blade fill in all requested fields. _Messaging endpoint use your application base url `https://<MICROSOFT_BOT_APPLICATION_BASE_URL>/api/messages`.
-    - Press **Create** button to create the service and register your bot's messaging endpoint. You can monitor the creation progess by checking the Notifications pane. The notifications will be changing from 'Deployment in progress...' to 'Deployment succeeded'. 
-    - When deployment is finished go to **All resources** from the left pane and select the bot.
-    - Open **Configuration** blade and click **Manage**. The link is placed near **Microsoft App ID** field. 
+ 1. Create [Azure Bot](https://learn.microsoft.com/en-us/azure/bot-service/bot-service-quickstart-registration?view=azure-bot-service-4.0).
+    - Select the **New** button found on the upper left-hand corner of the Azure portal. Type **bot** in the search box and press enter. Select the Azure Bot card.
+    - On the **Azure Bot** blade click the **Create** button to start the creation process. 
+    - Fill all required fields. If should be available only in your Microsoft tenant select Type of App as Single Tenant.  
+    - Press **Create** button to create the service. You can monitor the creation progress by checking the Notifications pane. The notifications will be changing from 'Deployment in progress...' to 'Deployment succeeded'. 
+    - When deployment is finished go to Azure portal main screen, select **All resources** from the list of services and select the bot.
+    - Open **Configuration** blade. Fill __Messaging endpoint__ field. Use your application base url `https://<MICROSOFT_BOT_APPLICATION_BASE_URL>/api/messages`. 
+    - Click **Manage Password** link, placed near **Microsoft App ID** field.
     - Click **New client secret** for generating a new password.
     - Save generated password as **__BOT_APP_SECRET__**.
     - Navigate to **Overview** section and save **Application (client) ID** as **__BOT_APP_ID__**.
@@ -36,45 +37,48 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
     - Click **Add a scope** button. Enter clear Scope name (e.g. App.Read), set "Admins and users" for the field _Who can consent?_, enter some description and save the scope.
     - Navigate to **API permissions**.
     - Click **Add a permission** button. Select just created API from **My APIs** tab. Select the Scope previously created above and save the changes. Please copy the value of just added permission (it's like `api://.../...`). It will be necessary later.
-    - Go to **All resources** and select your created Bot Channels registration resource.
+    - Navigate to **Manifest**. Set __accessTokenAcceptedVersion__ as __2__. Save changes.
+    - Go to Azure portal main screen, select **All resources** from the list of services and select your created Azure Bot resource.
     - From the **Configuration** blade on bot resource, click **Add OAuth Connection Settings** button on the bottom of page.
-    - Enter clear name for the new connection string.
-    - In **Service Provider** selectbox choose **Azure Active Directory v2**. **Client id** is the **Application (client) ID** of AzureAD app registration. **Client secret** is the secret of AzureAD app registration. Set value of **Tennant ID** to `common`. **Scopes** should be a value of the added permission.
+    - Enter clear name for the new connection string. Save it as **__AAD_OAUTH_CONNECTION_NAME__**
+    - In **Service Provider** select box choose **Azure Active Directory v2**. **Client id** is the **Application (client) ID** of AzureAD app registration (**__BOT_APP_ID__**). **Client secret** is the secret of AzureAD app registration (**__BOT_APP_SECRET__**). Set value of **Tennant ID** to `common` or your specific Microsoft tenant id if the app is not multi tenant. **Scopes** should be a value of the added permission (like: `api://.../...`).
     - **Save** the changes
-    - Open just created Connection string from Bot Channel Registration resource. Press **Test Connection**. 
+    - Open just created Connection string from Azure Bot resource. Press **Test Connection**. 
     - If connection was tested successfully add Name of just created connection to the `appsettings.Development.json` as a value of property **OAuthConnectionName**.
  1. Install locally or configure Mongo Db on Azure. Example for Azure:
     - Login into [Azure](https://portal.azure.com).
-    - Click on All Resources -> Add Azure Cosmos DB
-    - Fill all items. In my example ID is testingmsteams, API: Mongo DB. And use or create new resource group. Click Create.
+    - Click on All Resources -> Create -> Find __Azure Cosmos DB__ and press **Create**. Select __Azure Cosmos DB for NoSQL__ card. Press **Create**.
+    - Fill all items. Use or create new resource group. Click Create.
     - Navigate to Azure Cosmos DB created resource. 
     - Add new database. Save its name as **__DATABASE_NAME__** (e.g. jiraintegrationdb).
     - Click on Connection String and copy Primary Connection string. Example: `mongodb://testingmsteams:azgsTNX2Jq.../?ssl=true&replicaSet=globaldb`
     - Copy and alter it by adding newly created database name after the last '/' in line: `mongodb://testingmsteams:azgsTNX2Jq.../__DATABASE_NAME__?ssl=true&replicaSet=globaldb`. Example : `mongodb://testingmsteams:azgsTNX2Jq.../jiraintegrationdb?ssl=true&replicaSet=globaldb`
     - Save it as **__DATABASE_URL__**.
  1. Create new [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-quickstart-create-account?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&tabs=portal)
-    - Save **Primary Connection string** as **__TABLE_BOT_DATA_STORE_CONNECTION_STRING__**.
+    - Save **Primary Connection string** (Access keys > Connection string for the key1) as **__TABLE_BOT_DATA_STORE_CONNECTION_STRING__**.
  1. Create [Azure SignalR Service instance](https://docs.microsoft.com/en-us/azure/azure-signalr/signalr-quickstart-azure-functions-csharp)
     - Select the New button found on the upper left-hand corner of the Azure portal. In the New screen, type **SignalR Service** in the search box and press enter
     - Select **SignalR Service** from the search results, then select **Create**.
     - Configure the settings for your new instance.
     - Select **Create** to start deploying the SignalR Service instance.
     - Go to created resource > **Keys**.  Save connection string as **__SIGNALR_CONNECTION_STRING__**
+ 1. Create new [Azure Cache for Redis](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview)
+    - Save **Primary Connection string** (Access keys > Primary connection string) as **__CACHE_CONNECTION_STRING__**.
 
 ### Configuring
- 1. Download [ngrok](https://ngrok.com/download).Install it and run `ngrok http 5000 --host-header=localhost:5000` in the terminal. Note that ports can be different. Use yours. The ngrok will emulate traffic to your connection. The created link is your `<MICROSOFT_BOT_APPLICATION_BASE_URL>`.
+ 1. Download [ngrok](https://ngrok.com/download).Install it and run `ngrok http 5000 --host-header=localhost:5000` in the terminal. Note that ports can be different. Use yours. The ngrok will emulate traffic to your connection. The created link is your `<MICROSOFT_BOT_APPLICATION_BASE_URL>`. You can use any other tunnel for your preference to set up app locally. For the hosted app use it's base url.
  1. Run `npm install` command in the terminal from a root of ClienApp folder to install project dependencies.
  1. Open  _appsettings.Development.json_ for MicrosoftTeamsIntegration.Jira and put this json inside it:
   ```xml  
     {
       "BaseUrl": "https://<MICROSOFT_BOT_APPLICATION_BASE_URL>",
-      "DatabaseUrl": "DATABASE_NAME",
-      "MicrosoftAppId": "__BOT_APP_ID__",
-      "MicrosoftAppPassword": "__BOT_APP_SECRET__",
+      "DatabaseUrl": "DATABASE_URL",
+      "MicrosoftAppId": "BOT_APP_ID",
+      "MicrosoftAppPassword": "BOT_APP_SECRET",
       "OAuthConnectionName": "AAD_OAUTH_CONNECTION_NAME",
-      "AddonKey": "microsoft-teams-jira-dev",
+      "AddonKey": "microsoft-teams-jira-server",
       "StorageConnectionString": "TABLE_BOT_DATA_STORE_CONNECTION_STRING",
-      "BotDataStoreContainer": "DATA_STORE_CONTAINER_NAME",
+      "BotDataStoreContainer": "DATA_STORE_CONTAINER_NAME", // name of container that will be automatically created in Azure storage (TABLE_BOT_DATA_STORE_CONNECTION_STRING) on app startup
       "CacheConnectionString": "CACHE_CONNECTION_STRING",
       "SignalRConnectionString": "SIGNALR_CONNECTION_STRING",
       "Logging": {
@@ -86,11 +90,12 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
       }      
     }
   ```
-4.  Build project and start it with any server (for example IIS Express).
+ 1. Fill the json with previously saved values from the __Prerequisites__ section above   
+ 1. Build project and start it with any server (for example IIS Express).
 
 ### Install Jira Server app (add-on)
  1. Install standalone Jira server is installed on your machine or you have installed Atlassian SDK (https://developer.atlassian.com/server/framework/atlassian-sdk/install-the-atlassian-sdk-on-a-windows-system/).
- 1. Create Jira Server add-on. See more details [here](https://dev.azure.com/msteams-atlassian/On-Premises%20Apps/_git/RefAppAddon?path=%2FREADME.md&version=GBmaster).
+ 1. Create Jira Server add-on. See more details [here](https://github.com/atlassian-labs/msteams-jira-server-addon#readme).
  1. Got to your local instance of Jira Server -> Settings -> Manage apps.
  1. Click **Upload app** and select *.jar file of your Jira Server addon created previously.
  1. Finish installation. Expand new app. All modules should be enabled.
