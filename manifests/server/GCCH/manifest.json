@@ -190,10 +190,8 @@
   "permissions": ["identity", "messageTeamMembers"],
   "validDomains": [
     "*.msteams-atlassian.com",
-    "msteamsconnectors-web.azureedge.net",
-    "connectors-web.msteams-atlassian.com",
-    "connectors.msteams-atlassian.com",
     "token.botframework.com",
+    "token.botframework.azure.us",
     "<MICROSOFT_TEAMS_APP_DOMAIN>"
   ]
 }
