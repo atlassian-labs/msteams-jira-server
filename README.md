@@ -31,9 +31,10 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
     - Navigate to **Authentication.** section.
     - In the **Redirect URIs**, add a redirect URL of type Web with a value  `https://<MICROSOFT_BOT_APPLICATION_BASE_URL>/loginResult.html`.
     - In the  **Implicit grant and hybrid flows** section, check **ID tokens** as this sample requires the [Implicit grant flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-implicit-grant-flow) to be enabled to sign-in the user.
-    - Also, in the **Redirect URIs**, add a redirect URL of type Web and value  `https://token.botframework.com/.auth/web/redirect`.
+    - Also, in the **Redirect URIs**, add a redirect URL of type Web and value  `https://token.botframework.com/.auth/web/redirect` or `https://token.botframework.azure.us/.auth/web/redirect` for GCCH configuration.
     - Select **Save**.
     - Navigate to **Expose an API**.
+    - Check if Application ID URI is populated. Set it to default value, if not.
     - Click **Add a scope** button. Enter clear Scope name (e.g. App.Read), set "Admins and users" for the field _Who can consent?_, enter some description and save the scope.
     - Navigate to **API permissions**.
     - Click **Add a permission** button. Select just created API from **My APIs** tab. Select the Scope previously created above and save the changes. Please copy the value of just added permission (it's like `api://.../...`). It will be necessary later.
@@ -47,12 +48,12 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
     - If connection was tested successfully add Name of just created connection to the `appsettings.Development.json` as a value of property **OAuthConnectionName**.
  1. Install locally or configure Mongo Db on Azure. Example for Azure:
     - Login into [Azure](https://portal.azure.com).
-    - Click on All Resources -> Create -> Find __Azure Cosmos DB__ and press **Create**. Select __Azure Cosmos DB for NoSQL__ card. Press **Create**.
+    - Click on All Resources -> Create -> Find __Azure Cosmos DB__ and press **Create**. Select __Azure Cosmos DB for MongoDB__ card (or select it from the drop down). Press **Create**.
     - Fill all items. Use or create new resource group. Click Create.
     - Navigate to Azure Cosmos DB created resource. 
-    - Add new database. Save its name as **__DATABASE_NAME__** (e.g. jiraintegrationdb).
+    - Add new Collection. Save its name as **__DATABASE_NAME__** (e.g. jiraintegrationdb).
     - Click on Connection String and copy Primary Connection string. Example: `mongodb://testingmsteams:azgsTNX2Jq.../?ssl=true&replicaSet=globaldb`
-    - Copy and alter it by adding newly created database name after the last '/' in line: `mongodb://testingmsteams:azgsTNX2Jq.../__DATABASE_NAME__?ssl=true&replicaSet=globaldb`. Example : `mongodb://testingmsteams:azgsTNX2Jq.../jiraintegrationdb?ssl=true&replicaSet=globaldb`
+    - Copy and edit it by adding newly created database name after the last '/' in line: `mongodb://testingmsteams:azgsTNX2Jq.../__DATABASE_NAME__?ssl=true&replicaSet=globaldb`. Example : `mongodb://testingmsteams:azgsTNX2Jq.../jiraintegrationdb?ssl=true&replicaSet=globaldb`
     - Save it as **__DATABASE_URL__**.
  1. Create new [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-quickstart-create-account?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&tabs=portal)
     - Save **Primary Connection string** (Access keys > Connection string for the key1) as **__TABLE_BOT_DATA_STORE_CONNECTION_STRING__**.
@@ -65,7 +66,7 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
  1. Create new [Azure Cache for Redis](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview)
     - Save **Primary Connection string** (Access keys > Primary connection string) as **__CACHE_CONNECTION_STRING__**.
 
-### Configuring
+## Configuring
  1. Download [ngrok](https://ngrok.com/download).Install it and run `ngrok http 5000 --host-header=localhost:5000` in the terminal. Note that ports can be different. Use yours. The ngrok will emulate traffic to your connection. The created link is your `<MICROSOFT_BOT_APPLICATION_BASE_URL>`. You can use any other tunnel for your preference to set up app locally. For the hosted app use it's base url.
  1. Run `npm install` command in the terminal from a root of ClienApp folder to install project dependencies.
  1. Open  _appsettings.Development.json_ for MicrosoftTeamsIntegration.Jira and put this json inside it:
@@ -76,7 +77,6 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
       "MicrosoftAppId": "BOT_APP_ID",
       "MicrosoftAppPassword": "BOT_APP_SECRET",
       "OAuthConnectionName": "AAD_OAUTH_CONNECTION_NAME",
-      "AddonKey": "microsoft-teams-jira-server",
       "StorageConnectionString": "TABLE_BOT_DATA_STORE_CONNECTION_STRING",
       "BotDataStoreContainer": "DATA_STORE_CONTAINER_NAME", // name of container that will be automatically created in Azure storage (TABLE_BOT_DATA_STORE_CONNECTION_STRING) on app startup
       "CacheConnectionString": "CACHE_CONNECTION_STRING",
@@ -92,6 +92,34 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
   ```
  1. Fill the json with previously saved values from the __Prerequisites__ section above   
  1. Build project and start it with any server (for example IIS Express).
+
+### GCC/GCCH configuration
+
+In order to use the application with GCC/GCHH please fill next configs in `appsettings.Development.json` file (those configs should be empty for commercial cloud or local environment)
+
+  ```xml  
+    {
+      "MicrosoftLoginBaseUrl": "https://login.microsoftonline.us"
+      "ChannelService": "https://botframework.azure.us",
+      "OAuthUrl": "https://tokengcch.botframework.azure.us/",
+      "ToChannelFromBotLoginUrl": "https://login.microsoftonline.us/MicrosoftServices.onmicrosoft.us",
+      "ToChannelFromBotOAuthScope": https://api.botframework.us",
+      "ToBotFromChannelTokenIssuer": "https://api.botframework.us",
+      "ToBotFromChannelOpenIdMetadataUrl": "https://login.botframework.azure.us/v1/.well-known/openidconfiguration",
+      "ToBotFromEmulatorOpenIdMetadataUrl": "https://login.microsoftonline.us/cab8a31a-1906-4287-a0d8-4eef66b95f6e/v2.0/.well-known/openid-configuration",
+   }
+  ```
+
+## Deployment
+
+In case you want to deploy the application later you need to do some additional configurationL:
+1. Login into [Azure](https://portal.azure.com).
+1. Create new [Web App](https://learn.microsoft.com/en-us/azure/app-service/overview) resource:
+    - Set runtime to .Net 6 or later
+    - Click "Create" button
+    - Go to just created resource,copy **Default domain** and save it as `<MICROSOFT_BOT_APPLICATION_BASE_URL>`
+    - Go to Configuration section and add all configs from **Configuring** section above. As an option you can create [App Configuration](https://learn.microsoft.com/en-us/azure/azure-app-configuration/overview) resource and set all the configs there and the app service configuration will just keep App Configuration resource connection string. 
+1. Deploy your application to Web App resource
 
 ### Install Jira Server app (add-on)
  1. Install standalone Jira server is installed on your machine or you have installed Atlassian SDK (https://developer.atlassian.com/server/framework/atlassian-sdk/install-the-atlassian-sdk-on-a-windows-system/).
@@ -111,23 +139,6 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
  1. Click on Store -> Upload Custom App and put your ZIP there.
 
 Side note - every time you will restart ngrok your microsoft bot application base url changes. After restart you have to change all `<MICROSOFT_BOT_APPLICATION_BASE_URL>` urls once again (in Portal Azure, User Secrets or appsettings.json, manifests, install Jira Sever\Cloud Add-on). Register free ngrok account to resolve this issue.
-
-## GCC/GCCH configs
-
-In order to use the application with GCC/GCHH please fill next configs in `appsettings.Development.json` file (those configs should be empty for commercial cloud or local environment)
-
-  ```xml  
-    {
-      "MicrosoftLoginBaseUrl": "https://login.microsoftonline.us"
-      "ChannelService": "https://botframework.azure.us",
-      "OAuthUrl": "https://tokengcch.botframework.azure.us/",
-      "ToChannelFromBotLoginUrl": "https://login.microsoftonline.us/MicrosoftServices.onmicrosoft.us",
-      "ToChannelFromBotOAuthScope": https://api.botframework.us",
-      "ToBotFromChannelTokenIssuer": "https://api.botframework.us",
-      "ToBotFromChannelOpenIdMetadataUrl": "https://login.botframework.azure.us/v1/.well-known/openidconfiguration",
-      "ToBotFromEmulatorOpenIdMetadataUrl": "https://login.microsoftonline.us/cab8a31a-1906-4287-a0d8-4eef66b95f6e/v2.0/.well-known/openid-configuration",
-   }
-  ```
 
 ## Documentation
 
