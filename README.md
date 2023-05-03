@@ -80,7 +80,12 @@ Issue urls sent in a message to the group chat or team channel unfurl cards with
       "StorageConnectionString": "TABLE_BOT_DATA_STORE_CONNECTION_STRING",
       "BotDataStoreContainer": "DATA_STORE_CONTAINER_NAME", // name of container that will be automatically created in Azure storage (TABLE_BOT_DATA_STORE_CONNECTION_STRING) on app startup
       "CacheConnectionString": "CACHE_CONNECTION_STRING",
-      "SignalRConnectionString": "SIGNALR_CONNECTION_STRING",
+      "MicrosoftLoginBaseUrl": "https://login.microsoftonline.com",
+      "Azure": {
+         "SignalR": {
+            "ConnectionString": "SIGNALR_CONNECTION_STRING"
+         }
+      },
       "Logging": {
       "LogLevel": {
          "Default": "Debug",
