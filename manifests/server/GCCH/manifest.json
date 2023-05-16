@@ -12,7 +12,7 @@
   },
   "webApplicationInfo": {
     "id": "<MICROSOFT_TEAMS_BOT_ID>",
-    "resource": "https://graph.microsoft.com"
+    "resource": "https://graph.microsoft.us"
   },
   "name": {
     "short": "Jira Server",
