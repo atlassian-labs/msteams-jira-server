@@ -191,7 +191,7 @@
   "validDomains": [
     "*.msteams-atlassian.com",
     "token.botframework.com",
-    "token.botframework.azure.us",
+    "tokengcch.botframework.azure.us",
     "<MICROSOFT_TEAMS_APP_DOMAIN>"
   ]
 }
