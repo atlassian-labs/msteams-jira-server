@@ -1,0 +1,435 @@
+﻿<div class="issues">
+        <!-- Header -->
+        <div *ngIf="!loading" class="issues__header">
+            <div *ngIf="!showStaticTabElements" class="issues__header-container">
+                <div class="issues__header-row">
+                    <div class="issues__header-logo">
+                        <a [href]="jiraLink" target="_blank" *ngIf="!isJiraServerApplication" rel="noreferrer noopener">
+                            <div class="issues__header-logo-image"></div>
+                        </a>
+                        <div *ngIf="isJiraServerApplication" class="issues__header-logo-image jira-server"></div>
+                    </div>
+                    <div class="issues__header-buttons-container">
+                        <div>Hi, {{displayName}}!</div>
+                        <div class="signout-container"><a (click)="openSignOutDialog()">Sign out</a></div>
+                    </div>
+                </div>
+
+                <div class="issues__header-container title-container">
+                    <div class="title-container__project" *ngIf="projectName">
+                        {{ projectName }}
+                    </div>
+
+                    <div class="title-container__filter">
+                        <div class="title-container__filter-panel" *ngIf="currentFilter">
+                            <app-truncated-text [text]="'Filter: ' + currentFilter"></app-truncated-text>
+                            &nbsp;
+                        </div>
+                        <div class="title-container__filter-panel" *ngIf="decodedTransformedJqlQuery">
+                            <app-truncated-text [text]="filters"></app-truncated-text>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div *ngIf="showStaticTabElements" class="issues__header-static-row">
+                <div class="issues__header-logo">
+                    <a [href]="jiraLink" target="_blank" *ngIf="!isJiraServerApplication" rel="noreferrer noopener">
+                        <div class="issues__header-logo-image"></div>
+                    </a>                
+                    <div *ngIf="isJiraServerApplication" class="issues__header-logo-image jira-server"></div>               
+                </div>
+                <div class="issues__header-buttons-container">
+                    <div>Hi, {{displayName}}!</div>
+                    <div class="signout-container"><a (click)="openSignOutDialog()">Sign out</a></div>
+                </div>
+            </div>
+            <div class="issues__header-static-row">
+                <div class="dropdown-container">
+                    <app-dropdown *ngIf="jiraFilters"
+                                  #filtersDropdown
+                                  class="dropdown-container__dropdown"
+                                  [label]="label"
+                                  [options]="jiraFilters"
+                                  [selected]="selectedJiraFilter"
+                                  (optionSelect)="setJiraFilter($event)"
+                                  [searchable]="searchableFilters"
+                                  [isInnerSearch]="true"
+                                  [loading]="filtersLoading"
+                                  optionsFooter="Start typing to find your favourite filters">
+                    </app-dropdown>
+                </div>
+                <div class="issues__header-buttons-container">
+                    <span matTooltip="{{ (!permissions || !permissions.CREATE_ISSUES.havePermission) ?
+                        'You don\'t have permissions to create issues.' : ''}}">
+                        <button class="create-button ts-btn ts-btn-primary"
+                                type="button"
+                                [disabled]="!permissions || !permissions.CREATE_ISSUES.havePermission"
+                                (click)="openIssueCreateDialog()">
+                            Create issue
+                        </button>
+                    </span>
+                </div>
+            </div>        
+        </div>
+        <div *ngIf="showPaginator">
+            <mat-paginator 
+                [length]="pageCount" 
+                [pageSize]="pageSize" 
+                [pageIndex]="pageIndex"
+                [hidePageSize]="true"
+                [showFirstLastButtons]="true"                         
+                (page)="pageEvent = changePage($event)">
+            </mat-paginator>
+        </div>    
+    
+        <!-- Table -->
+    
+        <!-- Table for mobile -->
+        <app-issues-table-mobile 
+                *ngIf="isMobile && dataSource && dataSource.data" 
+                [data]="dataSource.data"
+                (issueClicked)="openEditDialog($event)"
+            >
+        </app-issues-table-mobile>
+        
+        <!-- Table for desktop -->
+        <div *ngIf="!isMobile" class="scroll-container" [hidden]="loadingTableData">
+            <div *ngIf="!error" class="issues__table-container" [style.marginRight]="getScrollWidth(table) + 'px'">                
+                <mat-table #table                                    
+                        [dataSource]="dataSource"
+                        [style.marginRight]="-getScrollWidth(table) + 'px'"
+                        [class.show-paginator]="showPaginator">
+    
+                    <!-- Time to resolution column -->
+                    <ng-container matColumnDef="timeToResolution">
+                        <mat-header-cell *cdkHeaderCellDef  
+                                         matTooltip="Time to resolution"
+                                         matTooltipDisabled="{{ timeToResolutionHeader.scrollWidth === timeToResolutionHeader.clientWidth }}"
+                                         (click)="sortData('timeToResolution')"
+                                         class="pointer">
+                            <span class="truncated-text" #timeToResolutionHeader>Time to resolution</span>
+                            <i [ngClass]="getChevronClass('timeToResolution')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <div>{{ element.timeToResolution.remainingTimeFriendly }}</div>
+                            <span *ngIf="element.timeToResolution.remainingTimeFriendly" [ngClass]="element.timeToResolution.iconClassesName">
+                                </span>
+                            </mat-cell>
+                    </ng-container>
+    
+                    <!-- Time to first response column -->
+                    <ng-container matColumnDef="timeToFirstResponse">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Time to first response"
+                                         matTooltipDisabled="{{ timeToFirstResponseHeader.scrollWidth === timeToFirstResponseHeader.clientWidth }}"
+                                         (click)="sortData('timeToFirstResponse')"
+                                         class="pointer">
+                            <span class="truncated-text" #timeToFirstResponseHeader>Time to first response</span>
+                            <i [ngClass]="getChevronClass('timeToFirstResponse')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                                <div>{{ element.timeToFirstResponse.remainingTimeFriendly }}</div>
+                                <span *ngIf="element.timeToFirstResponse.remainingTimeFriendly" [ngClass]="element.timeToFirstResponse.iconClassesName">
+                                </span>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Time to approve normal change column -->
+                    <ng-container matColumnDef="timeToApproveNormalChange">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Time to approve normal change"
+                                         matTooltipDisabled="{{ timeToApproveNormalChangeHeader.scrollWidth === timeToApproveNormalChangeHeader.clientWidth }}"
+                                         (click)="sortData('timeToApproveNormalChange')"
+                                         class="pointer">
+                            <span class="truncated-text" #timeToApproveNormalChangeHeader>Time to approve normal change</span>
+                            <i [ngClass]="getChevronClass('timeToApproveNormalChange')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                                <div>{{ element.timeToApproveNormalChange.remainingTimeFriendly }}</div>
+                                <span [ngClass]="element.timeToApproveNormalChange.iconClassesName">
+                                </span>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Time to close after resolution -->
+                    <ng-container matColumnDef="timeToCloseAfterResolution">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Time to close after resolution"
+                                         matTooltipDisabled="{{ timeToCloseAfterResolutionHeader.scrollWidth === timeToCloseAfterResolutionHeader.clientWidth }}"
+                                         (click)="sortData('timeToCloseAfterResolution')"
+                                         class="pointer">
+                            <span class="truncated-text" #timeToCloseAfterResolutionHeader>Time to close after resolution</span>
+                            <i [ngClass]="getChevronClass('timeToCloseAfterResolution')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                            <mat-cell *cdkCellDef="let element">
+                                    <div>{{ element.timeToCloseAfterResolution.remainingTimeFriendly }}</div>
+                                    <span [ngClass]="element.timeToCloseAfterResolution.iconClassesName">
+                                    </span>
+                            </mat-cell>
+                        </ng-container>
+    
+                    <!-- Issue type column -->
+                    <ng-container matColumnDef="issuetype">
+                        <mat-header-cell *cdkHeaderCellDef  
+                                         matTooltip="Issue type" 
+                                         (click)="sortData('issuetype')" 
+                                         class="pointer">
+                            T
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <img class="issuetype-icon"
+                                 matTooltip="{{element.issueTypeDescription}}"
+                                [src]="domSanitizer.bypassSecurityTrustUrl(element.issueTypeIconUrl)"
+                                width="16"
+                                height="16">
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Impact column -->
+                    <ng-container matColumnDef="impact">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Impact"
+                                         matTooltipDisabled="{{ impactHeader.scrollWidth === impactHeader.clientWidth }}"
+                                         (click)="sortData('impact')"
+                                         class="pointer">
+                            <span class="truncated-text" #impactHeader>Impact</span>
+                            <i [ngClass]="getChevronClass('impact')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <span>{{ element.impact }}</span>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Labels column -->
+                    <ng-container matColumnDef="labels">
+                        <mat-header-cell *cdkHeaderCellDef
+                                         matTooltip="Labels"
+                                         matTooltipDisabled="{{ labelsHeader.scrollWidth === labelsHeader.clientWidth }}">
+                            <span class="truncated-text" #labelsHeader>Labels</span>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <ul class="labels">
+                                <li *ngFor="let label of element.labels">
+                                    <span class="issue-label">{{ label }}</span>
+                                </li>
+                            </ul>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Request type column -->
+                    <ng-container matColumnDef="requestType">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Request type"
+                                         matTooltipDisabled="{{ requestTypeHeader.scrollWidth === requestTypeHeader.clientWidth }}"
+                                         (click)="sortData('requestType')"
+                                         class="pointer">
+                            <span class="truncated-text" #requestTypeHeader>Request type</span>
+                            <i [ngClass]="getChevronClass('requestType')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <span>{{ element.requestType }}</span>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Satisfaction column -->
+                    <ng-container matColumnDef="satisfaction">
+                        <mat-header-cell *cdkHeaderCellDef class="satisfaction-cell__header pointer"
+                                         matTooltip="Satisfaction"
+                                         matTooltipDisabled="{{ satisfactionHeader.scrollWidth === satisfactionHeader.clientWidth }}"
+                                         (click)="sortData('satisfaction')">
+                            <span class="truncated-text" #satisfactionHeader>Satisfaction</span>
+                            <i [ngClass]="getChevronClass('satisfaction')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element" class="satisfaction-cell__content">
+                            <span *ngFor="let i of makeArray(element.satisfaction)"
+                                class="aui-icon aui-icon-small aui-iconfont-star feedback-star"
+                                style="color: #f6c342">
+                            </span>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Issue key column -->
+                    <ng-container matColumnDef="issuekey">
+                        <mat-header-cell *cdkHeaderCellDef  
+                                        (click)="sortData('issuekey')" 
+                                        class="pointer">
+                            Key
+                            <i [ngClass]="getChevronClass('issuekey')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <app-truncated-text [text]="element.issuekey"></app-truncated-text>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Summary column -->
+                    <ng-container matColumnDef="summary">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Summary"
+                                         matTooltipDisabled="{{ summaryHeader.scrollWidth === summaryHeader.clientWidth }}"
+                                         (click)="sortData('summary')"
+                                         class="pointer">
+                            <span class="truncated-text" #summaryHeader>Summary</span>
+                            <i [ngClass]="getChevronClass('summary')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell class="summary-cell" *cdkCellDef="let element">
+                            <app-truncated-text [text]="element.summary" showDelay="500"></app-truncated-text>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Assignee column -->
+                    <ng-container matColumnDef="assignee">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Assignee"
+                                         matTooltipDisabled="{{ assigneeHeader.scrollWidth === assigneeHeader.clientWidth }}"
+                                         (click)="sortData('assignee')"
+                                         class="pointer">
+                            <span class="truncated-text" #assigneeHeader>Assignee</span>
+                            <i [ngClass]="getChevronClass('assignee')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element" class="assignee-cell">
+                            <app-truncated-text [text]="element.assignee" showDelay="500"></app-truncated-text>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Reporter column -->
+                    <ng-container matColumnDef="reporter">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Reporter"
+                                         matTooltipDisabled="{{ reporterHeader.scrollWidth === reporterHeader.clientWidth }}"
+                                         (click)="sortData('reporter')"
+                                         class="pointer">
+                            <span class="truncated-text" #reporterHeader>Reporter</span>
+                            <i [ngClass]="getChevronClass('reporter')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <app-truncated-text [text]="element.reporter" showDelay="500"></app-truncated-text>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Priority column -->
+                    <ng-container matColumnDef="priority">
+                        <mat-header-cell *cdkHeaderCellDef  
+                                          matTooltip="Priority" 
+                                          (click)="sortData('priority')" 
+                                          class="pointer">
+                            P
+                            <i [ngClass]="getChevronClass('priority')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element"
+                                matTooltip="{{ element.priorityName }}"
+                                matTooltipShowDelay="500">
+                            <img *ngIf="element.priorityIconUrl"
+                                [src]="domSanitizer.bypassSecurityTrustUrl(element.priorityIconUrl)"
+                                width="16"
+                                height="16"
+                                class="priority-icon">
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Status column -->
+                    <ng-container matColumnDef="status">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Status"
+                                         matTooltipDisabled="{{ statusHeader.scrollWidth === statusHeader.clientWidth }}"
+                                         (click)="sortData('status')"
+                                         class="pointer">
+                            <span class="truncated-text" #statusHeader>Status</span>
+                            <i [ngClass]="getChevronClass('status')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <app-truncated-text class="aui-lozenge aui-lozenge-subtle {{element.statusCategory}}" [text]="element.status.name"></app-truncated-text>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Resolution time column -->
+                    <ng-container matColumnDef="resolution">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Resolution"
+                                         matTooltipDisabled="{{ resolutionHeader.scrollWidth === resolutionHeader.clientWidth }}"
+                                         (click)="sortData('resolution')"
+                                         class="pointer">
+                            <span class="truncated-text" #resolutionHeader>Resolution</span>
+                            <i [ngClass]="getChevronClass('resolution')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element" matTooltip="{{element.resolution}}" matTooltipShowDelay="500">
+                            <span class="truncated-text">
+                                {{element.resolution}}
+                            </span>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Components column -->
+                    <ng-container matColumnDef="components">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         matTooltip="Components"
+                                         matTooltipDisabled="{{ componentsHeader.scrollWidth === componentsHeader.clientWidth }}"
+                                         (click)="sortData('components')"
+                                         class="pointer">
+                            <span class="truncated-text" #componentsHeader>Components</span>
+                            <i [ngClass]="getChevronClass('components')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">
+                            <div *ngFor="let component of element.components">
+                                {{ component }}<ng-container *ngIf="element.components.length > 1">,</ng-container>
+                            </div>
+                        </mat-cell>
+                    </ng-container>
+    
+                    <!-- Updated date column -->
+                    <ng-container matColumnDef="updated">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         (click)="sortData('updated')" 
+                                         class="pointer">
+                            Updated
+                            <i [ngClass]="getChevronClass('updated')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">{{ element.updated | date:'shortDate' }}</mat-cell>
+                    </ng-container>
+    
+                    <!-- Created date column -->
+                    <ng-container matColumnDef="created">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         (click)="sortData('created')" 
+                                         class="pointer">
+                            Created
+                            <i [ngClass]="getChevronClass('created')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">{{element.created | date:'shortDate'}}</mat-cell>
+                    </ng-container>
+    
+                    <!-- Due date column -->
+                    <ng-container matColumnDef="duedate">
+                        <mat-header-cell *cdkHeaderCellDef 
+                                         (click)="sortData('duedate')" 
+                                         class="pointer">
+                            Due
+                            <i [ngClass]="getChevronClass('duedate')" aria-hidden="true"></i>
+                        </mat-header-cell>
+                        <mat-cell *cdkCellDef="let element">{{ element.duedate | date:'shortDate' }}</mat-cell>
+                    </ng-container>
+    
+                    <mat-header-row *cdkHeaderRowDef="displayedColumns"></mat-header-row>
+                    <mat-row *cdkRowDef="let row; columns: displayedColumns;" (click)="openEditDialog(row.id)" id="{{row.id}}"></mat-row>
+                </mat-table>
+            </div>        
+        </div>
+    
+        <div class="table-loading" [hidden]="!loadingTableData">
+            <mat-spinner [diameter]="50"></mat-spinner>
+        </div>
+    
+    
+        <div *ngIf="!loading && !error && !issues.length" class="issues__no-content-container">
+            There are no issues
+        </div>
+    
+        <div *ngIf="!loading && error" class="issues__no-content-container">
+            <span class="text-danger">{{ error }}</span>
+        </div>
+    </div>
+    <ng-template #loadingTemplate>
+        <div class="center">
+            <mat-spinner [diameter]="50"></mat-spinner>
+        </div>
+    </ng-template>

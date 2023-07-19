@@ -1,0 +1,103 @@
+﻿@import "variables";
+@import "icons";
+@import "app-colors";
+
+.settings {
+  &__no-filters-icon {
+    font-style: normal;
+    margin-left: 5px;
+    cursor: pointer;
+
+    &::before {
+      font-family: $msteams-icons-font !important;
+      content: $question-mark-field;
+      position: relative;
+    }
+  }
+
+  &__options-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: inherit;
+      opacity: 0.75;
+      margin: 8px;
+
+      &-text {
+        display: flex;
+      }
+    }
+
+    &-panel {
+      margin-bottom: 12px;
+    }
+
+    &-panel-filters {
+      display: flex;
+    }
+  }
+}
+
+.selection-section {
+  padding-right: 5px;
+  padding-left: calc(5%);
+  margin-top: 8px;
+}
+
+.caption-text {
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 10px;
+  color: $red;
+  font-style: italic;
+}
+
+:host ::ng-deep .dropdown {
+  width: 80%;
+}
+
+:host ::ng-deep .dropdown__face {
+  padding: 5px;
+}
+
+:host ::ng-deep .dropdown__label {
+  font-size: 14px;
+}
+
+:host ::ng-deep .dropdown__options {
+  max-height: 276px;
+  overflow-y: auto;
+}
+
+:host ::ng-deep .dropdown__option {
+  padding: 5px;
+}
+
+:host ::ng-deep .select__icon {
+  margin-right: 10px;
+}
+
+::ng-deep .mat-tooltip {
+  font-size: 10px !important;
+}
+
+:host ::ng-deep .select__options {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+::ng-deep snack-bar-container.alert-red {
+  padding: 20px;
+  background-color: #d83b01;
+  color: white;
+  min-width: 535px;
+  text-align: center;
+  align-content: center;
+  margin-left: 0px;
+}

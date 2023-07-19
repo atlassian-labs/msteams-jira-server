@@ -1,0 +1,175 @@
+@import "app-colors";
+
+.dialog {
+  margin-left: 3.2rem;
+  margin-right: 3.2rem;
+
+  &__content {
+    overflow: auto;
+
+    // note: overall height of the task module in desktop is 522px
+    // so the main part is 100vh(522px) - 56px(32px footer>buttons>button + 12px margin-bottom from content + 12px margin-bottom from footer + 40px height of top error message)
+    max-height: calc(100vh - 96px);
+    margin-bottom: 12px;
+
+    // styles to make scrollbar shifted to the right
+    padding-right: 3.2rem;
+    margin-right: -3rem;
+  }
+
+  &__footer {
+    margin-bottom: 12px;
+
+    .loading-spinner {
+      margin-top: 9px;
+      margin-right: 5px;
+    }
+  }
+
+  &__top-error {
+    font-size: 12px;
+    color: $red;
+    max-height: 40px;
+    overflow: auto;
+    margin-right: -3rem;
+  }
+}
+
+.issue-form {
+  &__setup-fields {
+  }
+
+  &__content {
+    margin-top: 2rem;
+  }
+}
+
+.field-group {
+  width: 100%;
+
+  &__label,
+  &__description {
+    font-size: 12px;
+    line-height: 1.6rem;
+    font-weight: 400;
+  }
+
+  &__header {
+    margin-top: 1.2rem;
+    margin-bottom: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__error {
+    font-size: 12px;
+    color: $red;
+    padding-left: 12px;
+    text-align: right;
+  }
+
+  &__body {
+  }
+
+  &__footer {
+    font-size: 12px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 16px;
+    margin-top: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  &__description {
+    font-weight: normal;
+  }
+
+  &__summary-textarea {
+    height: 3.2rem;
+    overflow: hidden;
+  }
+
+  &__description-textarea {
+    height: 9.2rem;
+  }
+
+  &__environment-textarea {
+    height: 5rem;
+  }
+
+  &__textarea-single {
+    height: 3.2rem;
+    overflow: hidden;
+  }
+}
+
+.issue-types-dropdown {
+  height: 3.2rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+
+  &__button {
+    width: 96px;
+    height: 32px;
+  }
+}
+
+input,
+textarea {
+  box-shadow: none;
+  outline: none;
+  resize: vertical;
+  border: none;
+  border-radius: 3px;
+  border-bottom: solid 0.2rem transparent;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input:focus,
+textarea:focus {
+  border-color: $app-brand;
+}
+
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-dirty {
+  box-shadow: 0 0 0 1px $red;
+  border: 1px solid $red;
+}
+
+.center {
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+::ng-deep snack-bar-container.alert-red {
+  padding: 20px;
+  background-color: #d83b01;
+  color: white;
+  min-width: 550px;
+  text-align: center;
+  align-content: center;
+  margin-bottom: 30px;
+  margin-right: 30px;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid $app-gray-02;
+  margin: 1em 0;
+  padding: 0;
+}
+
+:host-context(.jira-cc-banner-present) {
+  .dialog__content {
+    max-height: calc(
+      100vh - 148px
+    ); /* 52px + 96px: 52px fro coockies consent bar, 96px by default for this element*/
+  }
+}

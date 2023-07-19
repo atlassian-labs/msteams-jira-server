@@ -1,0 +1,40 @@
+﻿<div class="select" (clickOutside)="close()">
+    <label *ngIf="title" class="select__title-label">{{ title }}</label>
+    <div class="select__face" (click)="toggle()">
+        <div class="select__label">{{ labelText }}</div>
+        <div class="select__icon">
+            <i class="select__state-icon"></i>
+        </div>
+    </div>
+    <div class="select__options" *ngIf="isOpened">
+        <ng-container *ngIf="mutliple">
+            <div class="select__option" *ngFor="let option of options">
+                <div class="checkbox__container">
+                    <input class="checkbox__input"
+                           type="checkbox"
+                           name="checkbox"
+                           [checked]="isOptionSelected(option)"
+                           readonly/>
+                    <button role="checkbox"
+                            class="checkbox__button"
+                            (click)="onCheckboxClicked(option)">
+                    </button>
+                    <label
+                        [hidden]="isOptionSelected(option)"
+                        class="checkbox__label">
+                    </label>
+                </div>
+                <div class="select__label">{{ option.label }}</div>
+            </div>
+        </ng-container>
+        
+        <ng-container *ngIf="!mutliple">
+            <div class="dropdown__option"
+                 *ngFor="let option of options"
+                 [ngClass]="{'active': isOptionSelected(option)}"
+                 (click)="optionClicked(option)">
+                <div class="dropdown__label" title="{{option.label}}">{{ option.label }}</div>
+            </div>
+        </ng-container>
+    </div>
+</div>

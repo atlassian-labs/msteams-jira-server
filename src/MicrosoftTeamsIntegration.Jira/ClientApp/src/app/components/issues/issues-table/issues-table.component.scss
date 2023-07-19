@@ -1,0 +1,487 @@
+@import 'icons', 'app-colors', 'variables';
+
+$icon-color-breached: #de350b;
+$icon-color-expired: #ffab00;
+$icon-color-workhours: #00a3bf;
+$icon-color-success: #36b37e;
+
+$srollbar-width: 17px;
+
+.issues {
+    height: 100vh;
+    font-family: $font-family;
+
+    &__header {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 114px;
+        padding: 16px 16px 10px;
+
+        &-logo {
+            a {
+                display: inline-block;
+            }
+
+            &-image {
+                display: inline-block;
+                height: 30px;
+                width: 90px;
+                background: no-repeat;
+                background-size: contain;
+                vertical-align: bottom;
+
+                &.jira-server {
+                    height: 35px;
+                    width: 150px;
+                }
+            }
+
+            :host-context(.dark) &-image {
+                background-image: url('../../../../assets/Jira@2x-white.png');
+
+                &.jira-server {
+                    background-image: url('../../../../assets/JiraSoftware@2x-white.png');
+                }
+            }
+
+            :host-context(.contrast) &-image {
+                background-image: url('../../../../assets/Jira@2x-white.png');
+
+                &.jira-server {
+                    background-image: url('../../../../assets/JiraSoftware@2x-white.png');
+                }
+            }
+
+            :host-context(.default) &-image {
+                background-image: url('../../../../assets/Jira@2x-blue.png');
+
+                &.jira-server {
+                    background-image: url('../../../../assets/JiraSoftware@2x-blue.png');
+                }
+            }
+        }
+
+        &-container {
+            min-width: 0;
+            min-height: 0;
+            flex: 1;
+
+            .title-container {
+                &__project {
+                    align-self: flex-start;
+                    font-size: 18px;
+                    font-weight: bold;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                &__filter-panel {
+                    font-size: 14px;
+                }
+            }
+        }
+
+        &-static-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+
+            .dropdown-container {
+
+                &__dropdown {
+                    border-radius: 3px;
+
+                    & > input {
+                        position: absolute;
+                        padding: 5px;
+                        width: 180px;
+                        border-radius: 3px;
+                    }
+                }
+            }
+        }
+
+        &-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        &-buttons-container {
+            height: 100%;
+
+            .create-button {
+                width: 118px;
+                height: 32px;
+                float: right;
+            }
+
+            .signout-container {
+                text-align: right;
+            }
+        }
+    }
+
+    &__no-content-container {
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        top: calc(100%/2);
+        margin-top: auto;
+        text-align: center;
+        color: $app-brand;
+        font-size: 20px;
+    }
+
+    *::-webkit-scrollbar {
+        width: $srollbar-width;
+        height: $srollbar-width;
+    }
+}
+
+// dropdown customization
+:host ::ng-deep .dropdown {
+  min-width: 200px;
+  max-width: 200px;
+
+  &__face {
+    padding: 5px;
+    width: 180px;
+  }
+
+  &__options {
+    width: 180px !important;
+    min-width: 150px;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  &__option {
+    padding: 5px;
+  }
+}
+//
+
+// table customization
+.issues__table-container { 
+  position: relative;    
+  display: block;
+  width: 100%;
+}
+
+.mat-header-row {    
+    position: absolute;   
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;  
+    z-index: 1;   
+}
+
+.mat-table {
+  font-family: $font-family;
+  background-color: inherit;  
+  height: calc(100vh - 130px);
+  overflow-x: hidden;
+  padding-top: 56px;
+  
+  &.show-paginator {
+    height: calc(100vh - 180px);
+  }
+}
+
+:host-context(.jira-cc-banner-present) {
+    .mat-table {
+        height: calc(100vh - 182px);
+
+        &.show-paginator {
+          height: calc(100vh - 230px);
+        }
+    }    
+}
+
+::ng-deep .mat-paginator-container {
+  padding: 0 20px 0 8px !important;
+  min-height: 45px !important;
+
+  .mat-icon-button {     
+    width: 30px;
+    height: 30px;      
+    line-height: 0;      
+  }
+
+  .mat-paginator-range-label {
+    margin: 0 24px;
+  }
+}
+
+.mat-row {
+  cursor: pointer;
+}
+
+mat-header-cell {
+  color: #252424;
+  opacity: 0.75;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  display: none !important;
+}
+
+.mat-cell, .mat-header-cell {
+  padding: 17px 12px 19px 0px;
+
+  &:first-of-type {
+    margin-left: 12px !important;
+  }
+
+  &:last-of-type {
+    margin-right: 12px !important;
+  }
+}
+
+// text truncating
+::ng-deep .mat-sort-header-container {
+  min-width: 0 !important;
+}
+
+// text truncating
+::ng-deep .mat-sort-header-button {
+  min-width: 0 !important;
+}
+
+// columns customization 
+// note: angular material automatically adds `'mat-column-' + columnName` class to each column
+.mat-column {
+  &-issuetype{
+    flex: 0 0 36px;
+    // max-width: 52px;
+  }
+
+  &-priority {
+    flex: 0 0 28px;
+    // max-width: 32px;
+  }
+
+  &-issuekey {
+    flex: 0 0 76px;
+    // max-width: 58px;
+  }
+
+  &-summary {
+    flex: 1 1 300px;
+    // max-width: 300px;
+  }
+
+  &-requestType,
+  &-created, 
+  &-updated, 
+  &-duedate {
+    flex: 0 0 72px;
+    // max-width: 72px;
+  }
+
+  &-status {
+    flex: 0 0 120px;
+    // max-width: 120px;
+  }
+
+  &-timeToResolution,
+  &-timeToFirstResponse,
+  &-timeToApproveNormalChange,
+  &-timeToCloseAfterResolution {
+    justify-content: flex-end;
+  }
+
+  &-timeToResolution, 
+  &-timeToApproveNormalChange,
+  &-timeToCloseAfterResolution, 
+  &-timeToFirstResponse {
+    flex: 1 1;
+    padding: 17px 5px 19px 0px !important;
+    min-width: 80px;
+  }
+
+  &-assignee, 
+  &-reporter,
+  &-labels, 
+  &-components,
+  &-impact,
+  &-satisfaction,
+  &-components {
+    flex: 1 1 100px;
+  }
+
+  &-components.mat-cell {
+    display: flex;
+    flex-direction: column;
+    word-break: break-all;
+  }
+}
+//
+
+.table-loading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50%;
+}
+
+img.priority-icon, img.issuetype-icon {
+  min-width: 16px;
+  min-height: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.labels {
+  display: block;
+  list-style-type: none;
+  margin: 0 0 -5px;
+  padding: 0;
+
+  & > li {
+      margin-bottom: 10px;
+  }
+}
+
+.issue-label {
+  padding: 1px 5px; 
+  margin: 0 3px 5px 0; 
+  background: #f5f5f5; 
+  border-radius: 3px; 
+  border: 1px solid #ccc;
+}
+
+::ng-deep .mat-tooltip {
+  font-size: 12px !important;
+}
+
+.mat-header-cell {
+    vertical-align: bottom;
+    cursor: default;
+    
+    &[mat-sort-header]:hover {
+        cursor: pointer;
+    }
+}
+
+.aui-icon-small {
+    height: 16px;
+    width: 16px;
+}
+
+.aui-icon {
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    border: none;
+    display: inline-block;
+    height: 16px;
+    margin: 0 0 0 2px ;
+    padding: 0;
+    text-align: left;
+    text-indent: -999em;
+    vertical-align: text-bottom;
+    width: 16px;
+}
+
+.aui-iconfont-pause:before {
+    content: $pause;
+}
+.aui-iconfont-success:before{
+    content: $success;
+}
+
+.aui-iconfont-close-dialog:before{
+  content: $close-dialog;
+}
+
+.aui-iconfont-ongoing:before {
+    content: $time;
+}
+
+.sla-breached {
+  color: $sla-breached;
+} 
+.sla-expired {
+  color: $sla-expired;
+}
+.sla-work-hours {
+  color: $sla-work-hours;
+}
+.sla-success {
+  color: $sla-success;
+}
+
+.aui-icon-small:before {
+    font-size: 16px;
+    margin-top: -7px;
+}
+
+:host-context(.dark) {
+  .mat-header-row {
+    background-color: $app-gray-14-dark;
+  }
+  
+  .mat-paginator {
+    background-color: $app-gray-14-dark;
+    color: $app-gray-02-dark;    
+  }  
+}
+
+::ng-deep .dark {
+  .mat-icon-button[disabled] {
+    color: $app-gray-02-light;
+  } 
+}
+
+:host-context(.contrast) {
+  .mat-header-row {
+    background-color: $black;
+  }
+  
+  .mat-paginator {
+    background-color: $black;
+    color: $white;
+  }  
+}
+
+::ng-deep .contrast {
+  .mat-icon-button[disabled] {
+    color: $app-gray-02-light;
+  } 
+}
+
+.scroll-container {
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  padding-right: $srollbar-width;
+
+  &.horizontal-scroll-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%; 
+
+    .issues__table-container {
+      overflow-x: auto;
+      display: table;
+    }    
+  }
+}
+
+:host-context(.jira-cc-banner-present) {
+  .mat-table {   
+    height: calc(100vh - 180px);    
+  }
+}

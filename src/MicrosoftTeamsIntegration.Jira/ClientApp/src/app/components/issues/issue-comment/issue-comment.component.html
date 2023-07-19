@@ -1,0 +1,61 @@
+<div class="comment" 
+  title="{{ isEditable ? 'Click to edit' : undefined }}"
+  [ngClass]="{ 'editable-field': isEditable }" 
+  (click)="isEditable && showEditField = !showEditField"
+  (mouseenter)="isEditable && showEditIcon = true" 
+  (mouseleave)="isEditable && showEditIcon = false">
+
+  <span>
+    <img *ngIf="comment && comment.author && comment.author.avatarUrls" 
+          class="comment__user-thumbnail avatar avatar--lg" 
+          [src]="domSanitizer.bypassSecurityTrustUrl(comment.author.avatarUrls['32x32'])" alt="Avatar">
+  </span>
+
+  <div class="comment__body">
+    <div class="comment__details">
+	  <app-truncated-text [text]="comment.author.displayName"></app-truncated-text>
+      <span class="comment__details-date-label">{{ comment.created | date: 'MM/dd/yy HH:mm' }}</span>
+      <span *ngIf="comment.created !== comment.updated" class="comment__edited-label text-danger"> - edited</span>
+    </div>
+
+    <div *ngIf="!showEditField; else editingTemplate">
+      {{ comment.body }}
+    </div>
+
+    <ng-template #editingTemplate>
+      <div class="comment-edit" (click)="$event.stopPropagation()">
+        <textarea 
+          class="comment-edit__textarea" 
+          [disabled]="isPendingState" 
+          [value]="comment.body" 
+          #commentTextarea
+        ></textarea>
+
+        <div class="comment-edit__buttons">
+          <span *ngIf="isPendingState" class="loading-spinner"></span>
+          <a style="font-weight: bold;" (click)="!isPendingState && editComment(commentTextarea.value)">Save</a>
+          <a (click)="$event.stopPropagation(); showEditField = showEditIcon = false">Cancel</a>
+        </div>
+      </div>
+    </ng-template>
+
+    <span class="comment__state" [ngSwitch]="commentUpdateState">
+      <ng-container class="text-success" *ngSwitchCase="ValueChangeState.Success">
+        Comment successfully updated.
+      </ng-container>
+      <ng-container class="text-danger" *ngSwitchCase="ValueChangeState.ServerError">
+        Server error.
+      </ng-container>
+      <ng-container class="text-danger" *ngSwitchCase="ValueChangeState.Failed">
+        Update failed.
+      </ng-container>
+      <ng-container class="text-danger" *ngSwitchCase="ValueChangeState.InvalidEmpty">
+        Comment should not be empty.
+      </ng-container>
+    </span>
+  </div>
+
+  <div *ngIf="!showEditField && showEditIcon" class="editable-field__icon">
+    <span class="overlay-icon aui-icon aui-icon-small aui-iconfont-edit"></span>
+  </div>
+</div>

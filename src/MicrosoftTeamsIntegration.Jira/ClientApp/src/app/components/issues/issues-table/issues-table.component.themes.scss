@@ -1,0 +1,68 @@
+@import 'icons', 'app-colors';
+
+:host-context(.default) {
+    .issues {
+        background-color: $white;
+        color: $black-light;
+    }
+  
+    .mat-header-cell {
+        color: $black-light;
+    }
+  
+    .mat-row:hover {
+        background-color: $app-brand-14;
+    }
+}
+  
+:host-context(.dark) {
+    .issues {
+        background-color: $app-gray-14-dark;
+        color: $app-gray-02-dark;
+
+        &__no-content-container {
+            color: $app-brand-dark;
+        }
+    }
+
+    .mat-row {
+        border-color: $black-dark;
+
+        &:hover {
+            background-color: $app-brand-dark-14;
+        }
+    }
+
+    .mat-header-cell, 
+    .mat-cell {
+        color: $white;
+    }
+}
+  
+:host-context(.contrast) {
+    .issues {
+        background-color: $black;
+        color: $white;
+
+        &__no-content-container {
+            color: $yellow;
+        }
+    }
+
+    .mat-row {
+        border-color: $white;
+
+        &:hover {
+            background-color: $yellow;
+
+            .mat-cell {
+                color: $black;
+            }
+        }
+    }
+
+    .mat-header-cell,
+    .mat-cell {
+        color: $white;
+    }
+}

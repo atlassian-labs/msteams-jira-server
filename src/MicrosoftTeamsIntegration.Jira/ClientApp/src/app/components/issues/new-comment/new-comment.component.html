@@ -1,0 +1,39 @@
+<div class="new-comment">
+  <img class="new-comment__user-thumbnail avatar avatar--lg" 
+      [src]="domSanitizer.bypassSecurityTrustUrl(user.avatarUrls['32x32'])" alt="Avatar">
+
+  <div class="new-comment__body">
+    <input 
+      #newComment
+      class="new-comment__input" 
+      type="text" 
+      placeholder="Add a comment..." 
+      [disabled]="commentSendState === ValueChangeState.Pending" 
+      (keyup.enter)="sendComment(newComment.value, newComment)"
+      >
+
+    <div class="new-comment__buttons">     
+      <span class="new-comment__state" [ngSwitch]="commentSendState">
+        <div *ngSwitchCase="ValueChangeState.Pending">
+          <span class="loading-spinner"></span>
+          Sending...
+        </div>
+
+        <span class="text-success" *ngSwitchCase="ValueChangeState.Success">
+          Comment added successfully.
+        </span>
+        <span class="text-danger" *ngSwitchCase="ValueChangeState.Failed">
+          Error occured while sending the comment.
+        </span>
+        <span class="text-danger" *ngSwitchCase="ValueChangeState.ServerError">
+          {{ serverErrorMessage }}
+        </span>
+        <span class="text-danger" *ngSwitchCase="ValueChangeState.InvalidEmpty">
+          Comment cannot be empty.
+        </span>
+      </span>    
+  
+      <a (click)="commentSendState !== ValueChangeState.Pending && sendComment(newComment.value, newComment)">Add</a>
+    </div>
+  </div>
+</div>

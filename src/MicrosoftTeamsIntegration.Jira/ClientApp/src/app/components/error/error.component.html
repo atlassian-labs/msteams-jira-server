@@ -1,0 +1,13 @@
+<div class="error__container align-center">
+    {{message}}
+
+    <div class="clr"></div>
+
+    <button *ngIf="showRetryButton" type="button" (click)="retry()" class="ts-btn ts-btn-primary retry-button">
+        Retry
+    </button>
+
+    <a *ngIf="showRetryButton" class="change-jira-url-link" (click)="changeJiraUrl()">
+        Change Jira instance
+    </a>
+</div>

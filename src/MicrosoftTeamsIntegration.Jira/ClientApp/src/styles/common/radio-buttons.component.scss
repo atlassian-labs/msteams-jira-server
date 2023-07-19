@@ -1,0 +1,184 @@
+﻿@import 'app-colors';
+
+.radio-button {
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  outline: none;
+
+  &__input {
+    display: none;
+  }
+
+  &__label {
+    font-size: 12px;
+  }
+
+  body.default &__button {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0.2rem;
+    margin-left: 0.6rem;
+    font: inherit;
+    padding: 0;
+    border-radius: 100%;
+    border: 0.1rem solid;
+    border-color: rgba(92, 91, 91, 0.75);
+    background: transparent;
+    outline: none;
+  }
+
+  body.default &__label {
+    opacity: 0.75;
+    color: $black;
+  }
+
+  body.default &__input:checked + &__button {
+    border-color: $app-brand;
+    background: $app-brand;
+
+    & + label {
+      color: $black;
+      opacity: 1;
+    }
+
+    &:hover {
+      box-shadow: none;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem $app-brand-dark;
+      outline: none;
+    }
+  }
+
+  body.default &__input:disabled + &__button {
+    border-color: rgba(37, 36, 36, 0.3);
+    cursor: default;
+
+    & + label {
+      cursor: default;
+      color: rgba(37, 36, 36, 0.3);
+    }
+  }
+
+  body.default &__label {
+    cursor: pointer;
+    margin-left: 1rem;
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 0 !important;
+  }
+
+  body.dark &__button {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0.2rem;
+    margin-left: 0.6rem;
+    font: inherit;
+    padding: 0;
+    border-radius: 100%;
+    border: 0.1rem solid;
+    border-color: $app-gray-02-dark;
+    background: transparent;
+  }
+
+  body.dark &__label {
+    opacity: 0.75;
+    color: $white;
+  }
+
+  body.dark &__input:checked + &__button {
+    border-color: $app-brand;
+    background: $app-brand;
+
+    & + label {
+      color: $white;
+      opacity: 1;
+    }
+
+    &:hover {
+      box-shadow: none;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem $app-brand;
+      outline: none;
+    }
+  }
+
+  body.dark &__input:disabled + &__button {
+    background: $app-gray-10-dark;
+    cursor: default;
+
+    & + label {
+      cursor: default;
+      color: $app-gray-02-dark;
+    }
+  }
+
+  body.dark &__label {
+    cursor: pointer;
+    margin-left: 1rem;
+    font-weight: 500;
+    margin-bottom: 0 !important;
+  }
+
+  body.contrast &__button {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0.2rem;
+    margin-left: 0.6rem;
+    font: inherit;
+    padding: 0;
+    border-radius: 100%;
+    border: 0.1rem solid;
+    border-color: $white;
+    background: transparent;
+  }
+
+  body.contrast &__input:checked + &__button {
+    border-color: $blue;
+    background: $blue;
+
+    & + label {
+      color: $white;
+    }
+
+    &:hover {
+      box-shadow: none;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem $yellow;
+      outline: none;
+    }
+  }
+
+  body.contrast &__input:disabled + &__button {
+    background: transparent;
+    cursor: default;
+
+    & + label {
+      cursor: default;
+    }
+  }
+
+  body.contrast &__label {
+    color: $white;
+    cursor: pointer;
+    margin-left: 1rem;
+    font-weight: 500;
+    margin-bottom: 0 !important;
+  }
+}

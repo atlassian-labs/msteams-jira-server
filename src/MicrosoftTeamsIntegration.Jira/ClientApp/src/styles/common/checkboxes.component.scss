@@ -1,0 +1,110 @@
+﻿@import 'icons';
+@import 'variables';
+
+.checkbox {
+  &__container {
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    outline: none;
+  }
+
+  &__input {
+    display: none;
+
+    &:checked + .checkbox__button::before {
+      font-family: $msteams-icons-font;
+      content: '\e412';
+      position: absolute;
+      font-size: 1.2rem;
+      top: 0.1rem;
+      left: 0.1rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      padding: 0;
+      line-height: 1rem;
+    }
+  }
+
+  &__button {
+    outline: none;
+
+    font: inherit;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    display: inline-block;
+
+    padding: 0;
+    margin: 0.2rem;
+
+    width: 1.6rem;
+    height: 1.6rem;
+
+    border: 0.1rem solid;
+    border-radius: 0.3rem;
+  }
+}
+
+// theming 
+
+// default
+body.default .checkbox__button {
+  border-color: $app-gray-02;
+  background: transparent;
+
+  &:hover {
+    background: transparent;
+    border-color: $app-gray-02;
+  }
+}
+
+body.default .checkbox__input:checked + .checkbox__button {
+  border-color: $app-brand;
+  background: $app-brand;
+
+  &::before {
+    color: $white;
+  }
+}
+
+// dark
+body.dark .checkbox__button {
+  border-color: $app-gray-02;
+  background: transparent;
+
+  &:hover {
+    background: transparent;
+    border-color: $app-gray-02;
+  }
+}
+
+body.dark .checkbox__input:checked + .checkbox__button {
+  border-color: $app-brand;
+  background: $app-brand;
+
+  &::before {
+    color: $black;
+  }
+}
+
+// contrast
+body.contrast .checkbox__button {
+  border-color: $white;
+  background: transparent;
+
+  &:hover {
+    background: transparent;
+    border-color: $white;
+  }
+}
+
+body.contrast .checkbox__input:checked + .checkbox__button {
+  border-color: $blue;
+  background: $blue;
+
+  &::before {
+    color: $black;
+  }
+}

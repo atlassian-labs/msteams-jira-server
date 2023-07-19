@@ -1,0 +1,32 @@
+.jira-field {
+	&-header {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 4px;
+		
+		&__label {
+			color: inherit;
+			margin-right: 12px;
+			font-size: 12px;
+			letter-spacing: 0;
+			line-height: 16px;
+		}
+		
+		&__error {
+			font-size: 12px;
+			color: #ff5630;
+			text-align: right;
+			
+			text-overflow: ellipsis;
+			overflow: hidden;
+			word-break: break-all;
+			white-space: nowrap;
+			
+			// &:hover {
+			// 	overflow: visible;
+			// 	height: auto;
+			// 	white-space: normal;
+			// }
+		}
+	}
+}

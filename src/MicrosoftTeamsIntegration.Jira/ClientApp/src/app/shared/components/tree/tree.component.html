@@ -1,0 +1,29 @@
+﻿<div class="tree">
+    <div class="tree__node" (click)="toggle()">
+        <i [ngClass]="{ 'chevron-down': isExpanded, 'chevron-right': !isExpanded }"></i>
+        <span>{{ title }}</span>
+    </div>
+
+    <div class="tree__node-option-container" [ngStyle]="{ 'display': isExpanded ? 'block' : 'none' }">
+        <div class="tree__node-option" *ngFor="let option of options">
+            <div class="checkbox__container">
+                <input class="checkbox__input"
+                       type="checkbox"
+                       name="checkbox"
+                       [checked]="isOptionSelected(option)"
+                       readonly
+                />
+
+                <button role="checkbox"
+                        class="checkbox__button"
+                        (click)="onOptionClicked(option)">
+                </button>
+
+                <label [hidden]="isOptionSelected(option)"
+                       class="checkbox__label">
+                </label>
+            </div>
+            <div class="select__label">{{ option.label }}</div>
+        </div>
+    </div>
+</div>

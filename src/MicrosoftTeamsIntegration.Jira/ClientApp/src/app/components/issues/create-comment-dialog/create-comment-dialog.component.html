@@ -1,0 +1,65 @@
+<div *ngIf="!loading; else loadingTemplate" class="dialog">
+    <div *ngIf="errorMessage" class="dialog__top-error">
+        {{ errorMessage }}
+    </div>
+        
+    <div class=dialog__content>
+        <form *ngIf="commentForm" #form class="comment-form" [formGroup]="commentForm">
+            <div class="comment-form__body">
+                <div class="comment-form__setup-fields">
+
+                    <div class="field-group__body">
+                        <textarea formControlName="comment" placeholder="Add a comment..." cols="20" rows="10" maxlength="1024"
+                        class="field-group__comment-textarea"></textarea>
+                    </div>
+                    <div>
+                        <div class="field-group__footer">
+                            <label>Select an issue to add this message as a comment</label>
+                        </div>
+                        <div class="inner-addon right-addon">
+                            <i class="glyphicon glyphicon-search"></i>
+                            <input #searchBox id="search-box" (input)="search(searchBox.value)"
+                            placeholder="Search issues" class="field-group__search-input" type="text"/>
+                        </div>
+                    </div>
+                
+                    <div class="search-result">
+                        <ng-template [ngIf]="issues.length > 0" [ngIfElse]="noSearchResults">
+                            <ul class="issues-list" tabindex="0" (keyup)="handleListKeyUp($event)" (focusout)="handleListFocusOut()" (mouseover)="handleListFocusOut()">
+                                <li *ngFor="let issue of issues"
+                                    [class.selected] = "issue === selectedIssue"
+                                    [class.active] = "issue === activeIssue"
+                                    (click) = "onSelectIssue(issue)">
+                                    <div *ngIf="issue">
+                                        <app-issue-details [issue]="issue"></app-issue-details>
+                                    </div>
+                                </li>
+                            </ul>
+                        </ng-template>
+                        <ng-template #noSearchResults>
+                            <div class="field-group__footer">
+                                <label>No results. Please check issue key or try enter different keyword.</label>
+                            </div>
+                        </ng-template>
+                    </div>
+                
+                    <div class="dialog__footer">
+                        <div class="buttons">
+                            <button class="ts-btn ts-btn-primary buttons__button"
+                                [disabled]="commentForm.invalid || !selectedIssue"
+                                (click)="onSubmit()">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<ng-template #loadingTemplate>
+    <div class="center">
+        <mat-spinner [diameter]="50"></mat-spinner>
+    </div>
+</ng-template>

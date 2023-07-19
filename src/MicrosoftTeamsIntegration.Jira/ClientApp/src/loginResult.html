@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Jira for Microsoft Teams - Login Result</title>
+    <script src="https://statics.teams.microsoft.com/sdk/v1.5.2/js/MicrosoftTeams.min.js" integrity="sha384-TJ2M0tW5fxu25/LwZie10M5O53iP1Q5FweiXk5rvfTHmvA7x2a6I9+KKi2pjAk6k" crossorigin="anonymous"></script>
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.17/js/adal.min.js" integrity="sha384-BIOS/65fbAsb2XiCCSTlZSTTl0ZgqkOU522dpyk5meOnN2EOQ3uH+QpqEtoAtmBn" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://aui-cdn.atlassian.com/aui-adg/6.0.9/css/aui.min.css">
+</head>
+<body class="aui-page-notification aui-page-size-large" data-aui-version="6.0.6">
+    <div id="page">
+        <div class="aui-page-panel">
+            <div class="aui-page-panel-inner">
+                <section id="content" class="aui-page-panel-content"></section>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const encoded = encodeURI(window.location.href);
+        window.history.replaceState({}, document.title, encoded);
+
+        microsoftTeams.initialize();
+
+        const clientId = localStorage.getItem('userClientId');
+
+        if (!clientId) {
+            displayError();
+        }
+        else {
+            const microsoftLoginBaseUrl = window.localStorage.getItem('microsoftLoginBaseUrl');
+            const loginBaseUrl = microsoftLoginBaseUrl ? microsoftLoginBaseUrl : 'https://login.microsoftonline.com';
+            
+            const config = {
+                instance: `${loginBaseUrl}/`,
+                redirectUri: "https://" + window.location.host + "/loginResult.html",
+                cacheLocation: "localStorage",
+                navigateToLoginRequestUrl: false,
+                clientId: clientId
+            };
+
+            const authContext = new AuthenticationContext(config);
+
+            if (authContext.isCallback(window.location.hash)) {
+                authContext.handleWindowCallback(window.location.hash);
+            }
+
+            const user = authContext.getCachedUser();
+
+            if (!user) {
+                displayError();
+            }
+            else {
+                const redirectUri = window.localStorage.getItem('redirectUri');
+                if (redirectUri) {
+                    window.localStorage.removeItem('redirectUri');
+                    window.location.replace(redirectUri);
+                } else {
+                    displaySuccess();
+                }
+            }
+        }
+
+        function displaySuccess() {
+            document.getElementById('content')
+                .innerHTML =
+                '<h2>Authentication Successful</h2>' +
+                '<p>Microsoft Teams has been successfully authenticated. You may now close this page.</p>';
+
+            setTimeout(function () {
+                try {
+                    // 'Uncaught Error: This call is not allowed in the 'settings' context'
+                    // error may occur when notifySuccess is called on 'settings' page in a hidden iframe and it is not allowed in that context of the page
+                    microsoftTeams.authentication.notifySuccess();
+                } catch (e) {
+                    console.log('LoginResult::Notify success error: ', e);
+                }
+            }, 500);
+        }
+
+        function displayError() {
+            const error = localStorage.getItem('adal.login.error') || localStorage.getItem('adal.error');
+
+            document.getElementById('content')
+                .innerHTML =
+                '<h2>' + (error || 'Error occured') + '</h2>' +
+                '<p>' + (localStorage.getItem('adal.error.description') || 'Error while authorization') + '</p>';
+
+            window.onbeforeunload = function () {
+                if (error) {
+                    microsoftTeams.authentication.notifyFailure(error);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<div *ngIf="issue">
+  <table class="issue-table">
+    <tr>
+      <td class="issue-type" *ngIf="issueTypeImg">
+          <img [src]="sanitizer.bypassSecurityTrustUrl(issueTypeImg)">
+      </td>
+      <td>
+        <div>
+          <h5>{{title}}</h5>
+        </div>
+        <div class="issue-priority" *ngIf="priorityImg">
+          <img [src]="sanitizer.bypassSecurityTrustUrl(priorityImg)"/>
+          {{subtitle}}
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>

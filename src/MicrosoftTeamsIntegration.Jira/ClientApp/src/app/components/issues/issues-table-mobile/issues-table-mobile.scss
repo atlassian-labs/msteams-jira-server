@@ -1,0 +1,43 @@
+.container {
+    height: calc(100vh - 114px);
+    margin-top: 12px;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.box {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    /* padding to fit ellipsis on the screen */
+    padding-right: 16px;
+}
+
+.issue-info-container {
+    width: 100%;
+    margin-left: 1.2rem;
+}
+
+.issue-info {
+    margin-top: 4px;
+
+    display: flex;
+    align-items: center;
+}
+
+.issue-info > * {
+    margin-right: .4rem;
+}
+
+.issuetype-icon {
+    flex: 0 0 auto;
+}
+
+.issue-key {
+    font-size: 12px; 
+    color: grey; 
+    flex: 0 0 auto;
+}

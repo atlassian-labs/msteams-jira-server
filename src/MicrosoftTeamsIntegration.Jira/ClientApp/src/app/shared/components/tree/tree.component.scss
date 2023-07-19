@@ -1,0 +1,52 @@
+﻿@import 'app-colors';
+
+.tree {
+  margin-top: 12px;
+
+  &__node {
+    display: flex;
+    cursor: pointer;
+    font-size: 12px;
+
+    &-option-container {
+      margin-bottom: 13px;
+    }
+
+    &-option {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      padding: 0.6rem;
+      margin-left: 8px;
+    }
+  }
+}
+
+.select__label {
+  margin-left: 12px;
+  font-size: 12px;
+}
+
+:host-context(.default) {
+  .tree__node {
+    color: $black;
+    opacity: 0.75;
+  }
+
+  .select__label {
+    color: $black;
+    opacity: 0.75;
+  }
+}
+
+:host-context(.dark) {
+  .tree__node {
+    opacity: 0.75;
+    color: $white;
+  }
+
+  .select__label {
+    opacity: 0.75;
+    color: $white;
+  }
+}

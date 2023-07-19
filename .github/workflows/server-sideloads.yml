@@ -1,0 +1,65 @@
+name: Server Sideloads
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        clean: false
+    
+    - name: Update config.json
+      run: echo "`jq '.version="${{ github.run_number }}"' manifests/server/integration/manifest.json`" > manifests/server/integration/manifest.json
+    
+    - name: Create zip file    
+      run: |
+        pushd ./manifests/server/integration/ 
+        zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Integration.zip . 
+        popd
+        
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: myartifact
+        path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Integration.zip
+        
+    - name: Update config.json
+      run: echo "`jq '.version="${{ github.run_number }}"' manifests/server/staging/manifest.json`" > manifests/server/staging/manifest.json
+        
+    - name: Create zip file    
+      run: |
+        pushd ./manifests/server/staging/ 
+        zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Staging.zip . 
+        popd
+        
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: myartifact
+        path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Staging.zip
+        
+    - name: Update config.json
+      run: echo "`jq '.version="${{ github.run_number }}"' manifests/server/production/manifest.json`" > manifests/server/production/manifest.json
+    
+    - name: Create zip file    
+      run: |
+        pushd ./manifests/server/production/ 
+        zip -r ./../../../Jira.Server.Sideload.${{ github.run_number }}-Production.zip . 
+        popd
+        
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: myartifact
+        path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Production.zip
+

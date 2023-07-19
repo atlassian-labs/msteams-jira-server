@@ -1,0 +1,22 @@
+<div class="signout">
+    <div class="content">
+        <p mat-dialog-title>
+            <span class="aui-icon aui-icon-large aui-iconfont-export">Sign out</span>
+            Sign out
+        </p>
+        <mat-dialog-content>
+            <p>Are you sure you want to sign out?</p>
+        </mat-dialog-content>
+    </div>
+
+    <div class="actions">
+        <mat-dialog-actions>
+            <button class="signout__container-button ts-btn ts-btn-primary" type="button" (click)="signOut()" [disabled]="isSigningOut">
+                Yes
+            </button>
+            <button class="signout__container-button ts-btn ts-btn-primary" type="button" (click)="dialogRef.close()" [disabled]="isSigningOut">
+                No
+            </button>
+        </mat-dialog-actions>
+    </div>
+</div>

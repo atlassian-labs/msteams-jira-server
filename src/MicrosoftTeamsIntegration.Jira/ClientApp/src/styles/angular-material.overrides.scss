@@ -1,0 +1,561 @@
+@mixin md-icon-size($size: 24px) {
+  font-size: 14px;
+  line-height: $size;
+  height: $size !important;
+  width: $size !important;
+}
+
+.mat-icon {
+  &--sm {
+    @include md-icon-size(16px);
+  }
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mat-dialog-container {
+  padding: 29px !important;
+  overflow-x: hidden !important;
+}
+
+body.default {
+  .mat-dialog-container {
+    background-color: $white;
+    color: $black-light;
+  }
+}
+
+body.dark {
+  .mat-dialog-container {
+    background-color: $app-gray-14-dark;
+    color: $white;
+  }
+}
+
+body.contrast {
+  .mat-dialog-container {
+    background-color: $black;
+    color: $white;
+    border: 1px solid $white;
+  }
+}
+
+.ng-select .ng-select-container .ng-value-container .ng-input>input {
+  box-sizing: border-box !important;
+}
+
+.ng-dropdown-panel.ng-select-bottom {
+  top: calc(100%) !important;
+}
+
+.ng-select {
+  padding-bottom: 0em !important;
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+  background-color: $app-brand !important;
+  margin: 0 0.4375em 0.2em 0 !important;
+}
+
+.ng-select .ng-select-container {
+  background-color: $app-gray-10-light !important;
+  padding: 0px 0px 0px 12px !important;
+  min-height: 32px !important;
+  border-radius: 2px !important;
+  height: auto;
+  overflow-y: scroll;
+  align-items: normal;
+}
+
+.ng-select .ng-select-container .ng-value-container {
+  border-top: 0px !important;
+}
+
+.ng-select.ng-select-multiple .ng-select-container.ng-has-value {
+  background-color: $app-gray-10-light !important;
+  padding: 0px 0px 0px 12px !important;
+  padding-top: 0px !important;
+}
+
+.ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value {
+  overflow: visible !important;
+}
+
+.ng-select.ng-select-single .ng-select-container .ng-value-container {
+  padding-top: .4375em !important;
+}
+
+.ng-select input, .ng-select span {
+  margin-top: 1px;
+}
+
+.ng-select.ng-select-multiple .ng-select-container.ng-has-value .ng-clear-wrapper,.ng-select.ng-select-multiple .ng-select-container.ng-has-value .ng-arrow-wrapper {
+  border-top: 0px !important;
+}
+
+.ng-select.ng-select-single .ng-select-container .ng-arrow-wrapper {
+  bottom: 0px !important;
+  align-self: center !important;
+}
+
+.ng-select.ng-select-single .ng-select-container .ng-clear-wrapper {
+  bottom: 0px !important;
+  align-self: center !important;
+}
+
+.ng-select .ng-arrow-wrapper {
+  padding: 8px;
+  bottom: 0px !important;
+}
+
+.ng-select input[type=text] {
+  padding: 0px 0px 0px 12px !important;
+}
+
+.ng-select .ng-select-container:after {
+  border-bottom: transparent !important;
+}
+
+.ng-select .ng-arrow-wrapper .ng-arrow {
+  border-left: 0px !important;
+  border-right: 0px !important;
+  border-top: 0px !important;
+  margin: 0px !important;
+  height: auto !important;
+  width: auto !important;
+  display: block !important;
+
+  font-family: "MSTeamsIcons-Light" !important;
+  font-size: 16px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1;
+  color: #2B2B30;
+}
+
+.ng-select .ng-arrow-wrapper .ng-arrow::before {
+  bottom: 1px;
+  content: $chevron-down;
+  position: relative;
+}
+
+.ng-select .ng-clear-wrapper .ng-clear {
+  font-size: 21px !important;
+}
+
+.ng-select .ng-spinner-loader {
+  margin: 8px;
+}
+
+.ng-select .ng-has-value .ng-placeholder,.ng-select.ng-select-opened .ng-placeholder {
+  transform: translateY(-1.45em) scale(0.75) perspective(100px) translateZ(0.001px) !important;
+}
+
+.ng-select.ng-select-focused .ng-select-container .ng-value-container .ng-placeholder {
+  transform: translateY(-1.45em) scale(0.75) perspective(100px) translateZ(0.001px) !important;
+  color: $app-brand !important;
+}
+
+.ng-dropdown-panel {
+  background: $app-gray-10-light !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+  background: $app-brand;
+  color: $white;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
+  background: $app-brand-04;
+  color: $white;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover {
+  background: $app-brand;
+  color: $white;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-outer-circle {
+  border-color: rgba(0,0,0,.54) !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-button.mat-accent .mat-radio-inner-circle {
+  background-color: rgba(0,0,0,.54) !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  line-height: 2em !important;
+  min-height: 2em !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup {
+  line-height: 2em !important;
+  height: 2em !important;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  padding: 0px 10px !important;
+}
+
+.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+  border-color:  $app-brand !important;
+}
+
+.mat-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
+.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,.mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
+  background-color: $app-brand !important;
+}
+
+.mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
+  background: $app-brand !important;
+  border-radius: 0px !important;
+}
+
+.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element,.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element {
+  background: $app-brand;
+}
+
+.mat-checkbox .mat-checkbox-ripple {
+  left: calc(50% - 12px) !important;
+  top: calc(50% - 12px) !important;
+  height: 25px !important;
+  width: 25px !important;
+}
+
+.mat-checkbox {
+  font-family: inherit !important;
+}
+
+.mat-radio-container {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.mat-radio-outer-circle {
+  height: 15px !important;
+  width: 15px !important;
+}
+
+.mat-radio-inner-circle {
+  border-radius: 100% !important;
+  height: 15px !important;
+  width: 15px !important;
+}
+
+.mat-radio-button .mat-radio-ripple {
+  left: calc(50% - 10px) !important;
+  top: calc(50% - 10px) !important;
+  height: 15px !important;
+  width: 15px !important;
+}
+
+.mat-calendar-body-selected {
+  background-color: $app-brand !important;
+  color: $white !important;
+}
+
+.mat-datepicker-content {
+  background-color: $white !important;
+  color: $black !important;
+}
+
+.mat-datepicker-toggle-active {
+  color: $app-brand !important;
+}
+
+.input-date-picker {
+  font-family: $font-family;
+  font-size: 14px;
+  width: 30%;
+  padding: 5px 12px 8px;
+  box-shadow: none;
+  outline: none;
+  resize: vertical;
+  border: none;
+  border-radius: 3px;
+  border-bottom: solid 0.2rem transparent;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.input-date-picker{
+  background-color: $app-gray-10-light;
+  color: $black;
+}
+
+.input-date-picker:focus {
+  border-color: $app-brand;
+}
+
+body.dark {
+  .ng-select .ng-select-container {
+    background-color: $black-dark !important;
+    color: $white !important;
+   }
+   
+  .ng-select.ng-select-multiple .ng-select-container.ng-has-value {
+    background-color: $black-dark !important;
+    color: $white !important;
+    }
+    
+  .ng-dropdown-panel {
+    background-color: $black-dark !important;
+    color: $white !important;
+  }
+
+  .ng-select .ng-arrow-wrapper .ng-arrow {
+    color: $white !important;
+  }
+
+  .ng-select .ng-clear-wrapper .ng-clear {
+    color: $white !important;
+  }
+
+  .ng-select .ng-select-container .ng-value-container .ng-placeholder {
+    color: $app-gray-04-dark !important;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+    color: $app-gray-01-dark !important;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:hover {
+    color: $white !important;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup {
+    color: $app-gray-04-dark !important;
+  }
+
+  .ng-touched::-webkit-input-placeholder { 
+    color: $app-gray-04-dark; 
+  }
+
+  .ng-untouched::-webkit-input-placeholder { 
+    color: $app-gray-04-dark; 
+  }
+
+  .mat-datepicker-content {
+    background-color: $black-dark !important;
+    color: $white !important;
+  }
+
+  .mat-calendar-body-cell-content, 
+  .mat-calendar-body-label, 
+  .mat-calendar-table-header, 
+  .mat-datepicker-toggle-default-icon {
+    color: $white !important;
+  }
+
+  .mat-calendar-table-header {
+    color: $app-gray-04-dark !important;
+  }
+
+  .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    border-color: $app-gray-04-dark !important;
+}
+
+  .mat-datepicker-content .mat-calendar-next-button, .mat-datepicker-content .mat-calendar-previous-button, .mat-datepicker-toggle {
+    color: $white !important;
+  }
+
+  .mat-calendar-arrow {
+    border-top-color: $white;
+  }
+
+  .input-date-picker {
+    background-color: $black-dark;
+    color: $white;
+  }
+  
+  .input-date-picker:focus {
+    border-color: $app-brand-dark;
+  }
+
+  .ng-select .epic-key-text {
+    color: #8F8F8F;
+  }
+}
+
+body.contrast {
+  .ng-select .ng-select-container {
+    background-color: $black !important;
+    color: $white !important;
+    color: $white;
+    border: 1px solid $white;
+   }
+   
+  .ng-select.ng-select-multiple .ng-select-container.ng-has-value {
+    background-color: $black !important;
+    color: $white !important;
+    }
+    
+  .ng-dropdown-panel {
+    background-color: $black !important;
+    color: $white !important;
+  }
+
+  .ng-select .ng-arrow-wrapper .ng-arrow {
+    color: $white !important;
+  }
+
+  .ng-select .ng-clear-wrapper .ng-clear {
+    color: $white !important;
+  }
+
+  .ng-select .ng-select-container .ng-value-container .ng-placeholder {
+    color: $app-gray-04-dark !important;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+    color: $white !important;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:hover {
+    color: $black !important;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup {
+    color: $app-gray-04-dark !important;
+  }
+
+  .ng-touched::-webkit-input-placeholder { 
+    color: $app-gray-04-dark; 
+  }
+
+  .ng-untouched::-webkit-input-placeholder { 
+    color: $app-gray-04-dark; 
+  }
+
+  .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+    background-color: $yellow !important;
+    color: $black !important;
+  }
+
+  .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon {
+    color: $black !important;
+  }
+  
+  .ng-select.ng-select-focused .ng-select-container .ng-value-container .ng-placeholder {
+    color: $yellow !important;
+  }
+  
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
+    background: $yellow !important;
+    color: $black !important;
+  }
+  
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover {
+    background: $yellow !important;
+  }
+  
+  .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+    border-color:  $yellow !important;
+  }
+  
+  .mat-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
+  .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,.mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
+    background-color: $yellow !important;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
+    background: $app-brand-contrast;
+    color: $blue;
+  }
+
+  .mat-checkbox-frame, .mat-radio-outer-circle {
+    border-color: $app-brand-contrast;
+  }
+
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-outer-circle {
+    border-color: $app-brand-contrast !important;
+  }
+  
+  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-button.mat-accent .mat-radio-inner-circle {
+    background-color: $app-brand-contrast !important;
+  }
+
+  .mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
+    background: $blue !important;
+  }
+
+  .ng-dropdown-panel.ng-select-bottom {
+    border: 1px solid $white
+  }
+
+  .ng-dropdown-panel.ng-select-top {
+    border: 1px solid $white
+  }
+
+  .mat-calendar-body-selected {
+    background-color: $yellow !important;
+    color: $black !important;
+  }
+
+  .mat-datepicker-content {
+    background-color: $black !important;
+    color: $white !important;
+    border: 1px solid $white
+  }
+
+  .mat-calendar-body-cell-content, 
+  .mat-calendar-body-label, 
+  .mat-calendar-table-header, 
+  .mat-datepicker-toggle-default-icon {
+    color: $white !important;
+  }
+
+  .mat-calendar-table-header {
+    color: $app-gray-04-dark !important;
+  }
+
+  .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    border-color: $app-gray-04-dark !important;
+  }
+
+  .mat-datepicker-content .mat-calendar-next-button, .mat-datepicker-content .mat-calendar-previous-button, .mat-datepicker-toggle {
+    color: $white !important;
+  }
+
+  .mat-calendar-arrow {
+    border-top-color: $white !important;
+  } 
+
+  .ng-select .ng-arrow-wrapper:hover {
+    background: $yellow !important;
+  }
+
+  .ng-select .ng-arrow-wrapper:hover .ng-arrow{
+    color: $black !important;
+  }
+
+  .mat-datepicker-toggle-active {
+    color: $blue !important;
+  }
+
+  .input-date-picker {
+    background-color: $black;
+    color: $white;
+    border-color: $white;
+    border-radius: 3px;
+    border: 1px solid $white;
+  }
+  
+  .input-date-picker:focus {
+    border-color: $yellow;
+  }
+
+  .ng-select .epic-key-text {
+    color: #8F8F8F;
+  }
+}
+
+

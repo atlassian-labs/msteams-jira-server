@@ -1,0 +1,90 @@
+a:active, a:focus {
+  outline: none;
+}
+
+[role=button] {
+  cursor: pointer;
+}
+
+.cc-banner {
+  width: 100%;
+  line-height: 19px;
+  padding: 8px 8px 8px 20px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  animation: slide-in 2s forwards;
+  -webkit-animation: slide-in 2s forwards;
+}
+
+.cc-compliance {
+  background: rgb(75, 129, 232);
+  color: white;
+}
+
+.cc-link {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.cc-btn {
+  display: flex;
+  align-items: center;
+
+  font-weight: 500;
+  margin-left: 20px;
+  padding: 8px 20px 9px;
+  height: 32px;
+  border-radius: 3px;
+  transition: color 0.2s linear, background-color 0.2s linear;
+}
+
+@keyframes slide-in {
+  0% { transform: translateY(-48px); }
+  100% { transform: translateY(0px); }
+}
+
+.cc-btn:hover {
+  text-decoration: none !important;
+}
+  
+/*default theme */
+body.default {
+  .cc-banner {
+    background: #F3F2F1;
+    color: #252424;
+  }
+
+  .cc-btn {
+    color: white !important;
+  }
+}
+
+/* contrast theme */
+body.contrast {
+  .cc-banner {
+    background: black;
+    border-bottom: 1px solid white;
+  }
+
+  .cc-btn:hover {
+    color: black !important;
+  }
+}
+/* dark theme */
+body.dark {
+  .cc-banner {
+    background: #201F1F;
+    color: white;
+  }
+
+  .cc-btn {
+    color: black !important;
+  }
+  
+  .cc-btn:hover {
+    color: white !important;
+  }
+}

@@ -1,0 +1,10 @@
+<div class="auth__centered" *ngIf="isLoginButtonVisible">
+    <div>To start using Jira in Microsoft Teams.</div>
+    
+    <button type="button"
+            (click)="getAuthentication()"
+            class="auth__button ts-btn ts-btn-primary">
+        {{ buttonTitle }}
+    </button>
+</div>
+

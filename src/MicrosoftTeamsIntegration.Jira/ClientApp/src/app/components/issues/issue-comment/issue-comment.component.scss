@@ -1,0 +1,56 @@
+@import 'icons';
+
+.comment {
+  display: flex;
+  padding: 5px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+
+  &__user-thumbnail {
+    flex: 0;
+  }
+
+  &__details {
+    margin-bottom: 2px;
+    font-size: 12px;
+	font-weight: 600;
+	
+	display: flex;
+
+    &-date-label {
+      margin-left: 12px;
+	  color: inherit;
+	  flex: none;
+    }
+  }
+
+  &__edited-label {
+	  flex: none;
+  }
+
+  &__body {
+    flex: 1;
+    /* fix for comments block. Without this it will expand */
+    width: 0;
+  }
+
+  &__state {
+    margin-top: 5px;
+    font-size: 12px;
+  }
+}
+
+.comment-edit {
+    &__textarea {
+        min-height: 50px;
+        max-height: 75px;
+    }
+
+    &__buttons {
+        text-align: right;
+
+        & a{
+            margin-left: 5px;
+        }
+    }
+}

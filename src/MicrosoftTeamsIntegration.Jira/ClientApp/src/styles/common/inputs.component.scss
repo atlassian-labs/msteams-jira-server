@@ -1,0 +1,127 @@
+﻿@import 'icons';
+@import 'app-colors';
+@import 'variables';
+
+input[type=text], 
+input[type=password], 
+input[type=email], textarea, input[type=number], input[type=url] {
+  font-family: $font-family;
+  font-size: 14px;
+  width: 100%;
+  padding: 5px 12px 8px;
+  box-shadow: none;
+  outline: none;
+  resize: vertical;
+  border: none;
+  border-radius: 3px;
+  border-bottom: solid 0.2rem transparent;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+input:focus, textarea:focus {
+  box-shadow: none;
+}
+
+// input[type=text], input[type=password] and textarea theme section
+body.default input[type=text], 
+body.default input[type=password], 
+body.default input[type=number], 
+body.default input[type=url],
+body.default textarea {
+  background-color: $app-gray-10-light;
+  color: $black;
+}
+
+body.default input[type=text]:focus, 
+body.default input[type=password]:focus, 
+body.default input[type=number]:focus,
+body.default input[type=url]:focus,
+body.default textarea:focus {
+  border-color: $app-brand;
+}
+
+body.dark input[type=text], 
+body.dark input[type=password], 
+body.dark input[type=number], 
+body.dark input[type=url], 
+body.dark textarea {
+  background-color: $black-dark;
+  color: $white;
+}
+
+body.dark input[type=text]:focus, 
+body.dark input[type=password]:focus, 
+body.dark input[type=number]:focus, 
+body.dark input[type=url]:focus, 
+body.dark textarea:focus {
+  border-color: $app-brand-dark;
+}
+
+body.contrast input[type=text], 
+body.contrast input[type=password], 
+body.contrast input[type=number], 
+body.contrast input[type=url], 
+body.contrast textarea {
+  background-color: $black;
+  color: #ffffff;
+  border-color: #ffffff;
+  border-radius: 3px;
+  border: 1px solid #ffffff;
+}
+
+body.contrast input[type=text]:focus, 
+body.contrast input[type=password]:focus, 
+body.contrast input[type=number]:focus, 
+body.contrast input[type=url]:focus,
+body.contrast textarea:focus {
+  border-color: #ffff01;
+}
+
+// input[type=email] theme section
+body.default input[type=email] {
+  background-color: $app-gray-10-light;
+  color: $black;
+}
+
+body.default input[type=email]:focus {
+  border-color: $app-brand;
+}
+
+body.dark input[type=email] {
+  background-color: $black-dark;
+  color: $white;
+}
+
+body.dark input[type=email]:focus {
+  border-color: $app-brand-dark;
+}
+
+body.contrast input[type=email] {
+  background-color: $black;
+  color: $white;
+  border: 1px solid $white;
+}
+
+body.contrast input[type=email]:focus {
+  border-color: $yellow;
+}
+
+span.hint {
+  font-size: 12px;
+}
+
+body.default span.hint {
+  color: $black-light;
+}
+
+body.dark span.hint {
+  color: $app-gray-02-dark;
+}
+
+body.contrast span.hint {
+  color: $yellow;
+}

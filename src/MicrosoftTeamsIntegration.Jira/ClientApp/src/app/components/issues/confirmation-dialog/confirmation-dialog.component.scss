@@ -1,0 +1,24 @@
+.create-button {
+  padding-top: 20px;
+  width: 118px;
+  height: 32px;
+}
+
+.main {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .actions {
+    align-self: flex-end;
+  }
+}
+
+span {
+  vertical-align: top;
+}
+
+p {
+  overflow: auto;
+}

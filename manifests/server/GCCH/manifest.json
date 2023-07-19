@@ -1,0 +1,197 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.7",
+  "version": "255.255.255",
+  "id": "<MICROSOFT_TEAMS_BOT_ID>",
+  "packageName": "com.msteams-atlassian.jira-server",
+  "developer": {
+    "name": "Atlassian",
+    "websiteUrl": "https://marketplace.atlassian.com/apps/1217836/microsoft-teams-for-jira",
+    "privacyUrl": "https://www.atlassian.com/legal/privacy-policy",
+    "termsOfUseUrl": "https://www.atlassian.com/licensing/marketplace/termsofuse"
+  },
+  "webApplicationInfo": {
+    "id": "<MICROSOFT_TEAMS_BOT_ID>",
+    "resource": "https://graph.microsoft.us"
+  },
+  "name": {
+    "short": "Jira Server",
+    "full": "Jira Server"
+  },
+  "description": {
+    "short": "Plan, track, release software. Manage support, customer service and projects.",
+    "full": "Jira Server for Microsoft Teams brings your Jira Server experience into your collaboration environment, letting you and your team stay focused and communicate on issues and backlog. Interact with Jira Server bot for Microsoft Teams to: create, assign, watch, edit issues, log working time. You may also interact with the bot from your team channel. With the messaging extension, you can quickly search for a specific issue and submit it to a channel or conversation. With the actionable message, you can quickly create a new issue, pre-populated with message text as the issue description, or save the message as a comment on one of your Jira Server issues. Also, you can add your project backlog to your channel as a tab, so that your team could easily track and work on the issues within the tab. Important: To use messaging extension, bot, or tabs you�ll need to install Microsoft Teams for Jira Server add-on to your Jira Server. Make sure you have admin permissions within your Jira Server to be able to install and configure the add-on. In case you don't have admin permissions, please contact your Jira admin. Once the add-on is installed, the add-on will generate and assign a unique Jira ID to your Jira Server instance. Share the generated Jira ID with the team so that your teammates could connect Microsoft Teams to Jira. Jira Server connector for Microsoft Teams can be set up independently and doesn�t require add-on installation. Connector is using webhooks and can be configured directly from the Teams channel. Please note, that the webhook set-up in Jira requires Jira admin permissions. You will find the detailed instructions on the connector configuration page in Microsoft Teams. The detailed instructions on the configuration of Jira Server for Teams app you may find on our help page msteams-atlassian.com/JiraServer."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#0052cc",
+  "configurableTabs": [
+    {
+      "configurationUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/config;v=2.0",
+      "canUpdateConfiguration": false,
+      "scopes": ["team", "groupchat"]
+    }
+  ],
+  "staticTabs": [
+    {
+      "entityId": "JiraServerIssuesAssigned",
+      "name": "Assigned to me",
+      "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=IssuesAssigned",
+      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=IssuesAssigned",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "JiraServerIssuesReported",
+      "name": "Reported by me",
+      "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=IssuesReported",
+      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=IssuesReported",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "JiraServerIssuesWatched",
+      "name": "Watched by me",
+      "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=IssuesWatched",
+      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=IssuesWatched",
+      "scopes": ["personal"]
+    },
+    {
+      "entityId": "JiraServerMyFilters",
+      "name": "My filters",
+      "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=MyFilters",
+      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=MyFilters",
+      "scopes": ["personal"]
+    }
+  ],
+  "bots": [
+    {
+      "botId": "<MICROSOFT_TEAMS_BOT_ID>",
+      "needsChannelSelector": false,
+      "isNotificationOnly": false,
+      "supportsFiles": false,
+      "scopes": ["team", "personal", "groupchat"],
+      "commandLists": [
+        {
+          "scopes": ["team", "groupchat"],
+          "commands": [
+            {
+              "title": "assign",
+              "description": "Assign issue to yourself"
+            },
+            {
+              "title": "vote",
+              "description": "Vote on issue"
+            },
+            {
+              "title": "unvote",
+              "description": "Unvote on issue"
+            },
+            {
+              "title": "watch",
+              "description": "Watch issue"
+            },
+            {
+              "title": "unwatch",
+              "description": "Unwatch issue"
+            },
+            {
+              "title": "comment",
+              "description": "Comment on issue"
+            }
+          ]
+        },
+        {
+          "scopes": ["personal"],
+          "commands": [
+            {
+              "title": "assign",
+              "description": "Assign issue to yourself"
+            },
+            {
+              "title": "watch",
+              "description": "Watch issue"
+            },
+            {
+              "title": "unwatch",
+              "description": "Unwatch issue"
+            },
+            {
+              "title": "log",
+              "description": "Log time spent on issue"
+            },
+            {
+              "title": "edit",
+              "description": "Edit issue"
+            },
+            {
+              "title": "disconnect",
+              "description": "Disconnect Jira Server"
+            },
+            {
+              "title": "create",
+              "description": "Create new issue"
+            },
+            {
+              "title": "comment",
+              "description": "Comment on issue"
+            },
+            {
+              "title": "find",
+              "description": "Find issue"
+            },
+            {
+              "title": "help",
+              "description": "View list of all bot commands"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "composeExtensions": [
+    {
+      "botId": "<MICROSOFT_TEAMS_BOT_ID>",
+      "canUpdateConfiguration": false,
+      "commands": [
+        {
+          "id": "composeSearchCmd",
+          "title": "Search issues",
+          "description": "Search issues",
+          "initialRun": true,
+          "type": "query",
+          "parameters": [
+            {
+              "name": "search",
+              "title": "Search",
+              "description": "Search issues"
+            }
+          ]
+        },
+        {
+          "id": "composeCreateCmd",
+          "title": "Create issue",
+          "description": "Create issue",
+          "type": "action",
+          "fetchTask": true,
+          "context": ["compose", "commandBox", "message"]
+        },
+        {
+          "id": "composeCreateCommentCmd",
+          "title": "Add comment",
+          "description": "Add comment",
+          "type": "action",
+          "fetchTask": true,
+          "context": ["message"]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": [
+    "*.msteams-atlassian.com",
+    "token.botframework.com",
+    "tokengcch.botframework.azure.us",
+    "<MICROSOFT_TEAMS_APP_DOMAIN>"
+  ]
+}
