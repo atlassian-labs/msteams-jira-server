@@ -1,0 +1,39 @@
+#  Pipeline for building and publishing msteams-jira project
+image: atlassian/default-image:4
+
+options:
+  docker: true
+  size: 2x
+definitions:
+  services:
+    docker:
+      memory: 5000
+  steps:
+    - step: &dockerImage
+        name: Prepare custom Docker image
+        services:
+          - docker
+        caches:
+          - docker
+        script: 
+          - pipe: atlassian/artifactory-sidekick:v1
+          - source .artifactory/activate.sh
+          - export IMG_TAG=docker.atl-paas.net/atlassian/netrunners/dotnet-node
+          - docker build --tag="$IMG_TAG" --file Dockerfile .
+          - docker push "$IMG_TAG"
+    - step: &build
+        name: Build and Test
+        image: docker.atl-paas.net/atlassian/netrunners/dotnet-node
+        caches:
+          - dotnetcore
+          - node
+        script:
+          - REPORTS_PATH=./test-reports/build_${BITBUCKET_BUILD_NUMBER}
+          - dotnet restore
+          - dotnet build --no-restore --configuration Release
+          - dotnet test --no-build --configuration Release
+
+pipelines:
+  default:
+    - step: *dockerImage
+    - step: *build
