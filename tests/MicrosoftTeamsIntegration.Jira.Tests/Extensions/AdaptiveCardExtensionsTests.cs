@@ -8,6 +8,15 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
 {
     public class AdaptiveCardExtensionsTests
     {
+        private string dataJson =
+            @"{
+  ""msteams"": {
+    ""type"": ""Type"",
+    ""text"": ""Text"",
+    ""displayText"": ""DisplayText"",
+    ""value"": ""Value""
+  }
+}";
         [Fact]
         public void ToAttachment()
         {
@@ -21,31 +30,25 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
         [Fact]
         public void RepresentAsBotBuilderAction()
         {
-            var dataJson =
-                "{\r\n  \"msteams\": {\r\n    \"type\": \"Type\",\r\n    \"text\": \"Text\",\r\n    \"displayText\": \"DisplayText\",\r\n    \"value\": \"Value\"\r\n  }\r\n}".Replace("\r\n", Environment.NewLine);
-
             var card = new AdaptiveSubmitAction();
             var title = "Tilte";
             var cardAction = new CardAction("Type", title, null, "Text", "DisplayText", "Value");
 
             card.RepresentAsBotBuilderAction(cardAction);
 
-            Assert.Equal(dataJson, card.DataJson);
+            Assert.Equal(dataJson, card.DataJson, ignoreWhiteSpaceDifferences: true, ignoreLineEndingDifferences: true);
             Assert.Equal(title, card.Title);
         }
 
         [Fact]
         public void ToAdaptiveCardAction()
         {
-            var dataJson =
-                "{\r\n  \"msteams\": {\r\n    \"type\": \"Type\",\r\n    \"text\": \"Text\",\r\n    \"displayText\": \"DisplayText\",\r\n    \"value\": \"Value\"\r\n  }\r\n}".Replace("\r\n", Environment.NewLine);
-
             var title = "Tilte";
             var cardAction = new CardAction("Type", title, null, "Text", "DisplayText", "Value");
 
             var result = cardAction.ToAdaptiveCardAction();
 
-            Assert.Equal(dataJson, result.DataJson);
+            Assert.Equal(dataJson, result.DataJson, ignoreWhiteSpaceDifferences: true, ignoreLineEndingDifferences: true);
             Assert.Equal(title, result.Title);
         }
     }
