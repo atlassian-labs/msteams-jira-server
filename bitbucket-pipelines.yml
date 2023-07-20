@@ -23,7 +23,10 @@ definitions:
           - docker push "$IMG_TAG"
     - step: &build
         name: Build and Test
-        image: docker.atl-paas.net/atlassian/netrunners/dotnet-node
+        image: 
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
         caches:
           - dotnetcore
           - node
@@ -35,5 +38,13 @@ definitions:
 
 pipelines:
   default:
-    - step: *dockerImage
+    - step: 
+        <<: *dockerImage
+        condition:
+          changesets:
+            includePaths:
+              - './Dockerfile'
     - step: *build
+  custom:
+    buildDockerImage:
+      - step: *dockerImage
