@@ -1,4 +1,5 @@
-﻿using AdaptiveCards;
+﻿using System;
+using AdaptiveCards;
 using Microsoft.Bot.Schema;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
 using Xunit;
@@ -21,7 +22,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
         public void RepresentAsBotBuilderAction()
         {
             var dataJson =
-                "{\r\n  \"msteams\": {\r\n    \"type\": \"Type\",\r\n    \"text\": \"Text\",\r\n    \"displayText\": \"DisplayText\",\r\n    \"value\": \"Value\"\r\n  }\r\n}";
+                "{\r\n  \"msteams\": {\r\n    \"type\": \"Type\",\r\n    \"text\": \"Text\",\r\n    \"displayText\": \"DisplayText\",\r\n    \"value\": \"Value\"\r\n  }\r\n}".Replace("\r\n", Environment.NewLine);
 
             var card = new AdaptiveSubmitAction();
             var title = "Tilte";
@@ -37,7 +38,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
         public void ToAdaptiveCardAction()
         {
             var dataJson =
-                "{\r\n  \"msteams\": {\r\n    \"type\": \"Type\",\r\n    \"text\": \"Text\",\r\n    \"displayText\": \"DisplayText\",\r\n    \"value\": \"Value\"\r\n  }\r\n}";
+                "{\r\n  \"msteams\": {\r\n    \"type\": \"Type\",\r\n    \"text\": \"Text\",\r\n    \"displayText\": \"DisplayText\",\r\n    \"value\": \"Value\"\r\n  }\r\n}".Replace("\r\n", Environment.NewLine);
 
             var title = "Tilte";
             var cardAction = new CardAction("Type", title, null, "Text", "DisplayText", "Value");
