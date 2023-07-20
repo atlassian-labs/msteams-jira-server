@@ -38,5 +38,13 @@ definitions:
 
 pipelines:
   default:
-    - step: *dockerImage
+    - step: 
+        <<: *dockerImage
+        condition:
+          changesets:
+            includePaths:
+              - './Dockerfile'
     - step: *build
+  custom:
+    buildDockerImage:
+      - step: *dockerImage
