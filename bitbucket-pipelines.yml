@@ -19,7 +19,7 @@ definitions:
           - pipe: atlassian/artifactory-sidekick:v1
           - source .artifactory/activate.sh
           - export IMG_TAG=docker.atl-paas.net/atlassian/netrunners/dotnet-node
-          - docker build --tag="$IMG_TAG" --file Dockerfile .
+          - docker build --tag="$IMG_TAG" --file docker/Dockerfile .
           - docker push "$IMG_TAG"
     - step: &build
         name: Build and Test
@@ -34,7 +34,33 @@ definitions:
           - REPORTS_PATH=./test-reports/build_${BITBUCKET_BUILD_NUMBER}
           - dotnet restore
           - dotnet build --no-restore --configuration Release
-          - dotnet test --no-build --configuration Release
+          - dotnet test --no-build --configuration Release --logger:"junit;LogFilePath=$REPORTS_PATH/test-result.xml"
+    - step: &publish
+        name: Publish application
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        caches:
+          - dotnetcore
+        script:
+          - dotnet publish -c Release -o 'publish/jira'
+          - zip -r $BITBUCKET_BUILD_NUMBER-jira.zip 'publish/jira'
+        artifacts:
+          - jira.zip
+    - step: &deploy-integration
+        name: Deploy to integration
+        deployment: Integration
+        script:
+          - pipe: atlassian/azure-web-apps-deploy:1.1.0
+            variables:
+              AZURE_APP_ID: $AZURE_APP_ID
+              AZURE_PASSWORD: $AZURE_PASSWORD
+              AZURE_TENANT_ID: $AZURE_TENANT_ID
+              AZURE_RESOURCE_GROUP: $AZURE_RESOURCE_GROUP
+              AZURE_APP_NAME: $AZURE_APP_NAME
+              ZIP_FILE: '$BITBUCKET_BUILD_NUMBER-jira.zip'
+              SLOT: $AZURE_SLOT
 
 pipelines:
   default:
@@ -43,8 +69,13 @@ pipelines:
         condition:
           changesets:
             includePaths:
-              - './Dockerfile'
+              - 'docker/Dockerfile'
     - step: *build
+    - step: *deploy-integration
   custom:
     buildDockerImage:
       - step: *dockerImage
+  branches:
+      master:
+        - step: *build
+        - step: *publish
