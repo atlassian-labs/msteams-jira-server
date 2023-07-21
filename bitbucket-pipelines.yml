@@ -32,24 +32,21 @@ definitions:
           - node
         script:
           - REPORTS_PATH=./test-reports/build_${BITBUCKET_BUILD_NUMBER}
-          - dotnet restore
-          - dotnet build --no-restore --configuration Release
-          - dotnet test --no-build --configuration Release --logger:"junit;LogFilePath=$REPORTS_PATH/test-result.xml"
+          - dotnet build -c Release
+          - dotnet test --no-build -c Release --logger:"junit;LogFilePath=$REPORTS_PATH/test-result.xml"
     - step: &publish
         name: Publish application
         image:
           name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
           username: netrunners
           password: $PIPELINES_JWT_TOKEN
-        caches:
-          - dotnetcore
         script:
-          - dotnet publish -c Release -o 'publish/jira'
-          - zip -r $BITBUCKET_BUILD_NUMBER-jira.zip 'publish/jira'
+          - dotnet publish -c Release -o 'publish'
+          - zip -j jira-$BITBUCKET_BUILD_NUMBER.zip publish/*
         artifacts:
-          - jira.zip
-    - step: &deploy-integration
-        name: Deploy to integration
+          - jira-*.zip
+    - step: &deploy
+        name: Deploy application
         deployment: Integration
         script:
           - pipe: atlassian/azure-web-apps-deploy:1.1.0
@@ -59,7 +56,7 @@ definitions:
               AZURE_TENANT_ID: $AZURE_TENANT_ID
               AZURE_RESOURCE_GROUP: $AZURE_RESOURCE_GROUP
               AZURE_APP_NAME: $AZURE_APP_NAME
-              ZIP_FILE: '$BITBUCKET_BUILD_NUMBER-jira.zip'
+              ZIP_FILE: 'jira-$BITBUCKET_BUILD_NUMBER.zip'
               SLOT: $AZURE_SLOT
 
 pipelines:
@@ -69,9 +66,8 @@ pipelines:
         condition:
           changesets:
             includePaths:
-              - 'docker/Dockerfile'
+              - 'docker/**'
     - step: *build
-    - step: *deploy-integration
   custom:
     buildDockerImage:
       - step: *dockerImage
@@ -79,3 +75,12 @@ pipelines:
       master:
         - step: *build
         - step: *publish
+        - step:
+            <<: *deploy
+            name: Deploy to integration
+            deployment: Integration
+        - step:
+            <<: *deploy
+            name: Deploy to staging
+            deployment: Staging
+            trigger: manual
