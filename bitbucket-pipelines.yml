@@ -42,7 +42,7 @@ definitions:
           password: $PIPELINES_JWT_TOKEN
         script:
           - dotnet publish -c Release -o 'publish'
-          - zip -j jira-$BITBUCKET_BUILD_NUMBER.zip publish/*
+          - cd publish; zip -r ../jira-$BITBUCKET_BUILD_NUMBER.zip .; cd ..
         artifacts:
           - jira-*.zip
     - step: &deploy
