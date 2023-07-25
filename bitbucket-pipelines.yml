@@ -31,7 +31,12 @@ definitions:
           - dotnetcore
           - node
         script:
-          - REPORTS_PATH=./test-reports/build_${BITBUCKET_BUILD_NUMBER}
+          # change project version
+          - PACKAGE_VERSION=$(date +%Y.%m.%d).$BITBUCKET_BUILD_NUMBER
+          - xmlstarlet edit -L -u /Project/PropertyGroup/Version -v ""$PACKAGE_VERSION"" $BITBUCKET_CLONE_DIR/src/MicrosoftTeamsIntegration.Jira/MicrosoftTeamsIntegration.Jira.csproj
+          - echo "`xmlstarlet sel -t -v /Project/PropertyGroup/Version $BITBUCKET_CLONE_DIR/src/MicrosoftTeamsIntegration.Jira/MicrosoftTeamsIntegration.Jira.csproj`"
+          # build source code
+          - REPORTS_PATH=./test-reports/build_$BITBUCKET_BUILD_NUMBER
           - dotnet build -c Release
           - dotnet test --no-build -c Release --logger:"junit;LogFilePath=$REPORTS_PATH/test-result.xml"
     - step: &publish
@@ -42,7 +47,7 @@ definitions:
           password: $PIPELINES_JWT_TOKEN
         script:
           - dotnet publish -c Release -o 'publish'
-          - cd publish; zip -r ../jira-$BITBUCKET_BUILD_NUMBER.zip .; cd ..
+          - pushd ./publish; zip -r ../jira-$BITBUCKET_BUILD_NUMBER.zip .; popd
         artifacts:
           - jira-*.zip
     - step: &deploy
@@ -58,6 +63,26 @@ definitions:
               AZURE_APP_NAME: $AZURE_APP_NAME
               ZIP_FILE: 'jira-$BITBUCKET_BUILD_NUMBER.zip'
               SLOT: $AZURE_SLOT
+    - step: &manifests
+        name: Build manifests
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        script:
+          - MANIFEST_VERSION=$(date +%Y.%m.%d)
+          - MANIFEST_ZIP_VERSION=$MANIFEST_VERSION.$BITBUCKET_BUILD_NUMBER
+          # Change version and zip integration sideload
+          - echo "`jq '.version="'"$MANIFEST_VERSION"'"' manifests/server/integration/manifest.json`" > manifests/server/integration/manifest.json
+          - pushd ./manifests/server/integration/; zip -r ./../../../Jira.Server.Sideload.$MANIFEST_ZIP_VERSION-Integration.zip .; popd
+          # Change version and zip staging sideload
+          - echo "`jq '.version="'"$MANIFEST_VERSION"'"' manifests/server/staging/manifest.json`" > manifests/server/staging/manifest.json
+          - pushd ./manifests/server/staging/; zip -r ./../../../Jira.Server.Sideload.$MANIFEST_ZIP_VERSION-Staging.zip .; popd
+          # Change version and zip production sideload
+          - echo "`jq '.version="'"$MANIFEST_VERSION"'"' manifests/server/production/manifest.json`" > manifests/server/production/manifest.json
+          - pushd ./manifests/server/production/; zip -r ./../../../Jira.Server.Sideload.$MANIFEST_ZIP_VERSION-Production.zip .; popd
+        artifacts:
+          - Jira.Server.Sideload*.zip
 
 pipelines:
   default:
@@ -71,6 +96,8 @@ pipelines:
   custom:
     buildDockerImage:
       - step: *dockerImage
+    buildMamifests:
+      - step: *manifests
   branches:
       master:
         - step: *build
