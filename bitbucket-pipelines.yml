@@ -111,3 +111,8 @@ pipelines:
             name: Deploy to staging
             deployment: Staging
             trigger: manual
+        - step:
+            <<: *deploy
+            name: Deploy to production
+            deployment: Production
+            trigger: manual
