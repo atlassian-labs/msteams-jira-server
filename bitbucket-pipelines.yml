@@ -87,9 +87,9 @@ definitions:
         name: Create tag
         script:
           - TAG_NAME=$(date +%Y.%m.%d)
-          - echo "Creating new tag ${TAG_NAME} in ${BITBUCKET_BRANCH}"
+          - echo "Creating new tag ${TAG_NAME}"
           - git tag -am "Tag ${TAG_NAME}" $TAG_NAME
-          - git push origin $BITBUCKET_BRANCH
+          - git push origin $TAG_NAME
 
 pipelines:
   default:
