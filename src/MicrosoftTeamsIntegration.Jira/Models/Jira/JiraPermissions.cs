@@ -45,5 +45,8 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Jira
 
 		[JsonProperty("TRANSITION_ISSUES")]
 		public JiraPermission TransitionIssues { get; set; }
+
+		[JsonProperty("BROWSE")]
+		public JiraPermission Browse { get; set; }
 	}
 }

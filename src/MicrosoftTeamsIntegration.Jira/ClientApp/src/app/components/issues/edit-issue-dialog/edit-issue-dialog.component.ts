@@ -4,13 +4,13 @@ import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/fo
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
 import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
-import { CurrentJiraUser, JiraUser } from '@core/models/Jira/jira-user.model';
-import { Issue, IssueFields, Priority } from '@core/models';
-import { IssueStatus, JiraComment } from '../../../core/models/Jira/issues.model';
+import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
+import {Issue, IssueFields, Priority, ProjectType} from '@core/models';
+import { IssueStatus, JiraComment } from '@core/models';
 import { JiraPermissionName, JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AssigneeService } from '@core/services/entities/assignee.service';
 import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -22,7 +22,7 @@ import { IssueTransitionService } from '@core/services/entities/transition.servi
 import { JiraTransition } from '@core/models/Jira/jira-transition.model';
 import { PermissionService } from '@core/services/entities/permission.service';
 import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-options';
-import { StringValidators } from './../../../core/validators/string.validators';
+import { StringValidators } from '@core/validators/string.validators';
 import { UtilService } from '@core/services/util.service';
 
 interface EditIssueModel {
@@ -43,8 +43,8 @@ interface EditIssueModel {
         total: number;
         startAt: number;
     };
-    sprint: any;
     projectKey: string;
+    projectTypeKey: string;
 }
 
 const mapIssueToEditIssueDialogModel = (issue: Issue): EditIssueModel => {
@@ -63,7 +63,7 @@ const mapIssueToEditIssueDialogModel = (issue: Issue): EditIssueModel => {
         assignee: issue.fields.assignee,
         comment: issue.fields.comment,
         status: issue.fields.status,
-        sprint: 'number 1'
+        projectTypeKey: issue.fields.project.projectTypeKey
     } as EditIssueModel;
 };
 
@@ -138,7 +138,8 @@ export class EditIssueDialogComponent implements OnInit {
         private route: ActivatedRoute,
         private dropdownUtilService: DropdownUtilService,
         private assigneeService: AssigneeService,
-        private transitionService: IssueTransitionService
+        private transitionService: IssueTransitionService,
+        private router: Router
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -155,7 +156,8 @@ export class EditIssueDialogComponent implements OnInit {
             this.replyToActivityId = replyToActivityId;
 
             const issueRelatedPermissions: JiraPermissionName[] = [
-                'EDIT_ISSUES', 'ASSIGN_ISSUES', 'ASSIGNABLE_USER', 'TRANSITION_ISSUES', 'ADD_COMMENTS', 'EDIT_OWN_COMMENTS', 'EDIT_ALL_COMMENTS'
+                'EDIT_ISSUES', 'ASSIGN_ISSUES', 'ASSIGNABLE_USER', 'TRANSITION_ISSUES', 'ADD_COMMENTS',
+                'EDIT_OWN_COMMENTS', 'EDIT_ALL_COMMENTS', 'BROWSE'
             ];
 
             // if there is no jiraUrl  - it means we are in bot. That's why we need get the jiraUrl for personal scope
@@ -166,6 +168,12 @@ export class EditIssueDialogComponent implements OnInit {
             const { permissions } = await this.permissionService
                 .getMyPermissions(this.jiraUrl, issueRelatedPermissions, this.issueId);
             this.permissions = permissions;
+            
+            if (!this.canEditIssue && !this.canViewIssue) {
+                const message = "You don't have permissions to perform this action";
+                await this.router.navigate(['/error'], { queryParams: { message } });
+                return;
+            }
 
             const issue = await this.apiService.getIssueByIdOrKey(this.jiraUrl, this.issueId);
             this.issue = mapIssueToEditIssueDialogModel(issue);
@@ -179,7 +187,7 @@ export class EditIssueDialogComponent implements OnInit {
             if (this.allowEditPriority) {
                 await this.setPrioritiesOptions();
             }
-
+            
             // assignee
             if (this.allowEditAssignee) {
                 await this.setAssigneeOptions();
@@ -220,6 +228,14 @@ export class EditIssueDialogComponent implements OnInit {
         const jiraServerInstanceUrl = this.currentUser.jiraServerInstanceUrl || this.jiraUrl;
         return encodeURI(`${jiraServerInstanceUrl}/browse/${this.issue.key}`);
     }
+    
+    public get canEditIssue(): boolean {
+        return this.permissions.EDIT_ISSUES.havePermission;
+    }
+
+    public get canViewIssue(): boolean {
+        return this.permissions.BROWSE.havePermission;
+    }
 
     public get allowEditSummary(): boolean {
         return this.permissions.EDIT_ISSUES.havePermission && this.canEditField('summary');
@@ -234,6 +250,12 @@ export class EditIssueDialogComponent implements OnInit {
     }
 
     public get allowEditAssignee(): boolean {
+        // for JSM projects user should be a member of 'jira-servicedesk-users' group in order to get assignees,
+        // even with ASSIGN_ISSUES project permission 
+        if (this.issue.projectTypeKey == ProjectType.ServiceDesk) {
+            return this.currentUser.groups.items.some(x => x.name == UserGroup.JiraServicedeskUsers) && 
+                this.permissions.ASSIGN_ISSUES.havePermission;
+        }
         return this.permissions.ASSIGN_ISSUES.havePermission;
     }
 

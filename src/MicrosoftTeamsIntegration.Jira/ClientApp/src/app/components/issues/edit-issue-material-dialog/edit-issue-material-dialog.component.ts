@@ -1,11 +1,11 @@
 ﻿import { Component, OnInit, Inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { Issue, JiraComment, IssueStatus } from '@core/models';
+import {Issue, JiraComment, IssueStatus, ProjectType} from '@core/models';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { ApiService, UtilService, AppInsightsService } from '@core/services';
 
 import { EditIssueDialogData } from '@core/models/dialogs/issue-dialog.model';
-import { JiraUser, CurrentJiraUser } from '@core/models/Jira/jira-user.model';
+import {JiraUser, CurrentJiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { ValueChangeState } from '@core/enums/value-change-status.enum';
@@ -13,7 +13,7 @@ import { PermissionService } from '@core/services/entities/permission.service';
 import { JiraPermissionName, JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import { EditIssueMetadata } from '@core/models/Jira/jira-issue-edit-meta.model';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 
 
 export interface EditDialogIssueModel {
@@ -34,7 +34,7 @@ export interface EditDialogIssueModel {
         total: number;
         startAt: number;
     };
-    sprint: any;
+    projectTypeKey: string;
 }
 
 // * TODO: Move this to utils or somewhere else with dat interface
@@ -54,7 +54,7 @@ export const mapIssueToEditIssueDialogModel = (issue: Issue): EditDialogIssueMod
         assignee: issue.fields.assignee,
         comment: issue.fields.comment,
         status: issue.fields.status,
-        sprint: 'numba 1'
+        projectTypeKey: issue.fields.project.projectTypeKey
     } as EditDialogIssueModel;
 };
 
@@ -100,7 +100,8 @@ export class EditIssueMaterialDialogComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private permissionService: PermissionService,
         private utilService: UtilService,
-        private appInsightsService: AppInsightsService
+        private appInsightsService: AppInsightsService,
+        private router: Router
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -112,12 +113,18 @@ export class EditIssueMaterialDialogComponent implements OnInit, OnDestroy {
         try {
             const issueRelatedPermissions: JiraPermissionName[] = [
                 'ADD_COMMENTS', 'EDIT_OWN_COMMENTS', 'EDIT_ALL_COMMENTS',
-                'EDIT_ISSUES', 'ASSIGN_ISSUES', 'ASSIGNABLE_USER',
+                'EDIT_ISSUES', 'ASSIGN_ISSUES', 'ASSIGNABLE_USER', 'BROWSE',
             ];
 
             const { permissions } = await this.permissionService
                 .getMyPermissions(this.data.jiraUrl, issueRelatedPermissions, this.data.issueId);
             this.permissions = permissions;
+
+            if (!this.canEditIssue && !this.canViewIssue) {
+                const message = "You don't have permissions to perform this action";
+                await this.router.navigate(['/error'], { queryParams: { message } });
+                return;
+            }
 
             const issue = await this.apiService.getIssueByIdOrKey(this.data.jiraUrl, this.data.issueId);
 
@@ -256,6 +263,24 @@ export class EditIssueMaterialDialogComponent implements OnInit, OnDestroy {
 
     public ngOnDestroy(): void {
         this.subscription.unsubscribe();
+    }
+
+    public get canEditIssue(): boolean {
+        return this.permissions.EDIT_ISSUES.havePermission;
+    }
+
+    public get canViewIssue(): boolean {
+        return this.permissions.BROWSE.havePermission;
+    }
+
+    public get allowEditAssignee(): boolean {
+        // for JSM projects user should be a member of 'jira-servicedesk-users' group in order to get assignees,
+        // even with ASSIGN_ISSUES project permission 
+        if (this.issue.projectTypeKey == ProjectType.ServiceDesk) {
+            return this.currentUser.groups.items.some(x => x.name == UserGroup.JiraServicedeskUsers) &&
+                this.permissions.ASSIGN_ISSUES.havePermission;
+        }
+        return this.permissions.ASSIGN_ISSUES.havePermission;
     }
 
     private subscribeToCloseEvents(): void {

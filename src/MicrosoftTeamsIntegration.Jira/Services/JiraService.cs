@@ -236,7 +236,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         public Task<MyselfInfo> GetDataAboutMyself(IntegratedUser user)
         {
-            return ProcessRequest<MyselfInfo>(user, "api/2/myself", "GET");
+            return ProcessRequest<MyselfInfo>(user, "api/2/myself?expand=groups", "GET");
         }
 
         public Task<JiraTenantInfo> GetJiraTenantInfo(IntegratedUser user)
