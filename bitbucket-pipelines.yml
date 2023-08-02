@@ -83,6 +83,13 @@ definitions:
           - pushd ./manifests/server/production/; zip -r ./../../../Jira.Server.Sideload.$MANIFEST_ZIP_VERSION-Production.zip .; popd
         artifacts:
           - Jira.Server.Sideload*.zip
+    - step: &createTag
+        name: Create tag
+        script:
+          - TAG_NAME=$(date +%Y.%m.%d)
+          - echo "Creating new tag ${TAG_NAME}"
+          - git tag -am "Tag ${TAG_NAME}" $TAG_NAME
+          - git push origin $TAG_NAME
 
 pipelines:
   default:
@@ -96,8 +103,10 @@ pipelines:
   custom:
     buildDockerImage:
       - step: *dockerImage
-    buildMamifests:
+    buildManifests:
       - step: *manifests
+    createNewTag:
+      - step: *createTag
   branches:
       master:
         - step: *build
@@ -110,4 +119,23 @@ pipelines:
             <<: *deploy
             name: Deploy to staging
             deployment: Staging
+            trigger: manual
+      release/*:
+        - step: *build
+        - step: *publish
+        - step:
+            <<: *deploy
+            name: Deploy to integration
+            deployment: Integration
+        - step:
+            <<: *deploy
+            name: Deploy to staging
+            deployment: Staging
+        - step:
+            <<: *deploy
+            name: Deploy to production
+            deployment: Production
+            trigger: manual
+        - step: 
+            <<: *createTag
             trigger: manual
