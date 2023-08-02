@@ -13,6 +13,5 @@
 
         public const string JiraDisconnectDialogConfirmPrompt = "Are you sure you want to disconnect?";
         public const string JiraDisconnectDialogNotConnected = "You are not connected to any Jira at the moment.";
-        public const string JiraDisconnectAtlassianLogOut = "If you'd like to switch to different Atlassian account, please log out first.";
     }
 }
