@@ -34,3 +34,9 @@ export interface CurrentJiraUser extends JiraUser {
     jiraServerInstanceUrl: string;
 }
 
+export enum UserGroup {
+    JiraSoftwareUsers = 'jira-software-users',
+    JiraServicedeskUsers = 'jira-servicedesk-users',
+    JiraAdministrators = 'jira-administrators'
+}
+

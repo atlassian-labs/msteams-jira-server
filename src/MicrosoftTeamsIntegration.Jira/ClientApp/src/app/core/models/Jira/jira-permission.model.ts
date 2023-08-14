@@ -4,7 +4,7 @@ export declare type JiraCommentPermissionName = 'ADD_COMMENTS' | 'EDIT_ALL_COMME
 
 export declare type JiraIssuePermissionName = 'ASSIGNABLE_USER' | 'ASSIGN_ISSUES' | 'CLOSE_ISSUES' |
     'CREATE_ISSUES' | 'DELETE_ISSUES' | 'EDIT_ISSUES' | 'LINK_ISSUES' | 'MODIFY_REPORTER' | 'MOVE_ISSUES' |
-    'RESOLVE_ISSUES' | 'SCHEDULE_ISSUES' | 'SET_ISSUE_SECURITY' | 'TRANSITION_ISSUES';
+    'RESOLVE_ISSUES' | 'SCHEDULE_ISSUES' | 'SET_ISSUE_SECURITY' | 'TRANSITION_ISSUES' | 'BROWSE';
 
 export declare type JiraPermissionName = JiraCommentPermissionName | JiraIssuePermissionName;
 

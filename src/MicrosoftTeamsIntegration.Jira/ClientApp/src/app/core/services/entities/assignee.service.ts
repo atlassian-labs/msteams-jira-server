@@ -64,7 +64,7 @@ export class AssigneeService {
     }
 
     public assigneesToDropdownOptions(assignees: JiraUser[], username: string = ''): DropDownOption<string>[] {
-        const assigneeOptions = assignees.map(this.dropdownUtilService.mapUserToDropdownOption);
+        const assigneeOptions = assignees ? assignees.map(this.dropdownUtilService.mapUserToDropdownOption) : [];
 
         if (!username) {
             return [this.unassignedOption, this.automaticOption, ...assigneeOptions];

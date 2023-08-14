@@ -11,3 +11,9 @@ export interface Project {
     avatarUrls: JiraIconUrls;
     simplified: boolean;
 }
+
+export enum ProjectType {
+    Software = 'software',
+    ServiceDesk = 'service_desk',
+    Business = 'business'
+}

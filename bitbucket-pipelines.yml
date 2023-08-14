@@ -1,0 +1,141 @@
+#  Pipeline for building and publishing msteams-jira project
+image: atlassian/default-image:4
+
+options:
+  docker: true
+  size: 2x
+definitions:
+  services:
+    docker:
+      memory: 5000
+  steps:
+    - step: &dockerImage
+        name: Prepare custom Docker image
+        services:
+          - docker
+        caches:
+          - docker
+        script: 
+          - pipe: atlassian/artifactory-sidekick:v1
+          - source .artifactory/activate.sh
+          - export IMG_TAG=docker.atl-paas.net/atlassian/netrunners/dotnet-node
+          - docker build --tag="$IMG_TAG" --file docker/Dockerfile .
+          - docker push "$IMG_TAG"
+    - step: &build
+        name: Build and Test
+        image: 
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        caches:
+          - dotnetcore
+          - node
+        script:
+          # change project version
+          - PACKAGE_VERSION=$(date +%Y.%m.%d).$BITBUCKET_BUILD_NUMBER
+          - xmlstarlet edit -L -u /Project/PropertyGroup/Version -v ""$PACKAGE_VERSION"" $BITBUCKET_CLONE_DIR/src/MicrosoftTeamsIntegration.Jira/MicrosoftTeamsIntegration.Jira.csproj
+          - echo "`xmlstarlet sel -t -v /Project/PropertyGroup/Version $BITBUCKET_CLONE_DIR/src/MicrosoftTeamsIntegration.Jira/MicrosoftTeamsIntegration.Jira.csproj`"
+          # build source code
+          - REPORTS_PATH=./test-reports/build_$BITBUCKET_BUILD_NUMBER
+          - dotnet build -c Release
+          - dotnet test --no-build -c Release --logger:"junit;LogFilePath=$REPORTS_PATH/test-result.xml"
+    - step: &publish
+        name: Publish application
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        script:
+          - dotnet publish -c Release -o 'publish'
+          - pushd ./publish; zip -r ../jira-$BITBUCKET_BUILD_NUMBER.zip .; popd
+        artifacts:
+          - jira-*.zip
+    - step: &deploy
+        name: Deploy application
+        deployment: Integration
+        script:
+          - pipe: atlassian/azure-web-apps-deploy:1.1.0
+            variables:
+              AZURE_APP_ID: $AZURE_APP_ID
+              AZURE_PASSWORD: $AZURE_PASSWORD
+              AZURE_TENANT_ID: $AZURE_TENANT_ID
+              AZURE_RESOURCE_GROUP: $AZURE_RESOURCE_GROUP
+              AZURE_APP_NAME: $AZURE_APP_NAME
+              ZIP_FILE: 'jira-$BITBUCKET_BUILD_NUMBER.zip'
+              SLOT: $AZURE_SLOT
+    - step: &manifests
+        name: Build manifests
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        script:
+          - MANIFEST_VERSION=$(date +%Y.%m.%d)
+          - MANIFEST_ZIP_VERSION=$MANIFEST_VERSION.$BITBUCKET_BUILD_NUMBER
+          # Change version and zip integration sideload
+          - echo "`jq '.version="'"$MANIFEST_VERSION"'"' manifests/server/integration/manifest.json`" > manifests/server/integration/manifest.json
+          - pushd ./manifests/server/integration/; zip -r ./../../../Jira.Server.Sideload.$MANIFEST_ZIP_VERSION-Integration.zip .; popd
+          # Change version and zip staging sideload
+          - echo "`jq '.version="'"$MANIFEST_VERSION"'"' manifests/server/staging/manifest.json`" > manifests/server/staging/manifest.json
+          - pushd ./manifests/server/staging/; zip -r ./../../../Jira.Server.Sideload.$MANIFEST_ZIP_VERSION-Staging.zip .; popd
+          # Change version and zip production sideload
+          - echo "`jq '.version="'"$MANIFEST_VERSION"'"' manifests/server/production/manifest.json`" > manifests/server/production/manifest.json
+          - pushd ./manifests/server/production/; zip -r ./../../../Jira.Server.Sideload.$MANIFEST_ZIP_VERSION-Production.zip .; popd
+        artifacts:
+          - Jira.Server.Sideload*.zip
+    - step: &createTag
+        name: Create tag
+        script:
+          - TAG_NAME=$(date +%Y.%m.%d)
+          - echo "Creating new tag ${TAG_NAME}"
+          - git tag -am "Tag ${TAG_NAME}" $TAG_NAME
+          - git push origin $TAG_NAME
+
+pipelines:
+  default:
+    - step: 
+        <<: *dockerImage
+        condition:
+          changesets:
+            includePaths:
+              - 'docker/**'
+    - step: *build
+  custom:
+    buildDockerImage:
+      - step: *dockerImage
+    buildManifests:
+      - step: *manifests
+    createNewTag:
+      - step: *createTag
+  branches:
+      master:
+        - step: *build
+        - step: *publish
+        - step:
+            <<: *deploy
+            name: Deploy to integration
+            deployment: Integration
+        - step:
+            <<: *deploy
+            name: Deploy to staging
+            deployment: Staging
+            trigger: manual
+      release/*:
+        - step: *build
+        - step: *publish
+        - step:
+            <<: *deploy
+            name: Deploy to integration
+            deployment: Integration
+        - step:
+            <<: *deploy
+            name: Deploy to staging
+            deployment: Staging
+        - step:
+            <<: *deploy
+            name: Deploy to production
+            deployment: Production
+            trigger: manual
+        - step: 
+            <<: *createTag
+            trigger: manual

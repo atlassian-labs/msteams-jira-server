@@ -93,33 +93,9 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 await stepContext.Context.SendActivityAsync(
                     $"**You've been successfully disconnected from {jiraId}**",
                     cancellationToken: cancellationToken);
-                await SendLogOutCard(stepContext, cancellationToken);
             }
 
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
-        }
-
-        private async Task SendLogOutCard(WaterfallStepContext stepContext, CancellationToken cancellationToken = default)
-        {
-            var url = _appSettings.BaseUrl + "/logout.html";
-
-            var card = new ThumbnailCard
-            {
-                Subtitle = BotMessages.JiraDisconnectAtlassianLogOut,
-                Images = new List<CardImage>
-                {
-                    new CardImage("https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png")
-                },
-                Buttons = new List<CardAction>
-                {
-                    new CardAction(ActionTypes.Signin, "Log out", value: url)
-                }
-            };
-
-            var attachments = new List<Attachment> { card.ToAttachment() };
-            var message = stepContext.Context.Activity.CreateReply();
-            message.Attachments = attachments;
-            await stepContext.Context.SendActivityAsync(message, cancellationToken);
         }
 
         private async Task<ConversationAccount> GetDirectConversation(ITurnContext context, CancellationToken cancellationToken = default)

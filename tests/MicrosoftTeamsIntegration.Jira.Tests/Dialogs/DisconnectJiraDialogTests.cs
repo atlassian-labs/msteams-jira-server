@@ -67,11 +67,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("disconnect");
             var confirmReply = await testClient.SendActivityAsync<IMessageActivity>("Yes");
-            var card = testClient.GetNextReply<IMessageActivity>();
 
             Assert.Contains("Are you sure you want to disconnect?", reply.Text);
             Assert.Contains("You've been successfully disconnected from", confirmReply.Text);
-            Assert.IsType<ThumbnailCard>(card.Attachments.FirstOrDefault().Content);
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
 
             A.CallTo(() => _fakeJiraAuthService.Logout(A<IntegratedUser>._)).MustHaveHappened();
