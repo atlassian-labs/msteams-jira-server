@@ -15,7 +15,7 @@ definitions:
           - docker
         caches:
           - docker
-        script: 
+        script:
           - pipe: atlassian/artifactory-sidekick:v1
           - source .artifactory/activate.sh
           - export IMG_TAG=docker.atl-paas.net/atlassian/netrunners/dotnet-node
@@ -23,7 +23,7 @@ definitions:
           - docker push "$IMG_TAG"
     - step: &build
         name: Build and Test
-        image: 
+        image:
           name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
           username: netrunners
           password: $PIPELINES_JWT_TOKEN
@@ -90,10 +90,24 @@ definitions:
           - echo "Creating new tag ${TAG_NAME}"
           - git tag -am "Tag ${TAG_NAME}" $TAG_NAME
           - git push origin $TAG_NAME
-
+    - step: &snyk-scan
+        name: Run Snyk scan
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        script:
+          - pipe: atlassian/artifactory-sidekick:v1
+          - source .artifactory/activate.sh
+          # restore all dependencies before scan
+          - dotnet publish -c Release -o 'publish'
+          # install Snyk
+          - npm install -g snyk
+          # run Snyk monitor
+          - snyk monitor --all-projects
 pipelines:
   default:
-    - step: 
+    - step:
         <<: *dockerImage
         condition:
           changesets:
@@ -107,6 +121,8 @@ pipelines:
       - step: *manifests
     createNewTag:
       - step: *createTag
+    runSnyk:
+      - step: *snyk-scan
   branches:
       master:
         - step: *build
@@ -136,6 +152,6 @@ pipelines:
             name: Deploy to production
             deployment: Production
             trigger: manual
-        - step: 
+        - step:
             <<: *createTag
             trigger: manual
