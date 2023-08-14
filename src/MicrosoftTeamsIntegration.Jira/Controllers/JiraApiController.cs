@@ -267,8 +267,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
         public async Task<IActionResult> GetAuthUrl(string jiraUrl, string application, bool? staticTabChangeUrl)
         {
             var msTeamsUserId = GetUserOid();
-            var msTeamsTenantId = GetUserTid();
-            string redirectUrl;
+            string redirectUrl = string.Empty;
 
             if (jiraUrl.HasValue())
             {
@@ -284,12 +283,6 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
                 }
 
                 redirectUrl += "?width=800&height=600";
-            }
-            else
-            {
-                var user = await _databaseService.GetOrCreateUser(msTeamsUserId, msTeamsTenantId, jiraUrl);
-                redirectUrl = GetJiraAuthUrlForUser(user);
-                redirectUrl = Uri.EscapeDataString(redirectUrl);
             }
 
             if (application.HasValue() && jiraUrl.HasValue())
@@ -691,36 +684,6 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
                 response,
                 new RefitSettings());
             throw exception;
-        }
-
-        private string GetJiraAuthUrlForUser(IntegratedUser user)
-        {
-            if (user.HasJiraAuthInfo())
-            {
-                return "/loginResult.html";
-            }
-
-            var msIdToken = string.Empty;
-            if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var value))
-            {
-                msIdToken = value.ToString();
-                if (msIdToken.HasValue())
-                {
-                    msIdToken = msIdToken.Substring("Bearer ".Length);
-                }
-            }
-
-            var state = Guid.NewGuid().ToString();
-            Response.Cookies.Append("state", state, new CookieOptions()
-            {
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
-                Secure = true,
-                Expires = DateTimeOffset.UtcNow.AddMinutes(10),
-                IsEssential = true
-            });
-
-            var postBack = HttpUtility.UrlEncode($"{user.JiraInstanceUrl}/plugins/servlet/ac/{_appSettings.AddonKey}/proxy?ac.accessToken={msIdToken}&ac.state={state}");
-            return $"{_appSettings.IdentityServiceUrl}/login?continue={postBack}";
         }
 
         private async Task<string> GetDefaultMetadataMessage(string metadataRef)
