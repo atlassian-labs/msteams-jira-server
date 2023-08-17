@@ -105,6 +105,12 @@ definitions:
           - npm install -g snyk
           # run Snyk monitor
           - snyk monitor --all-projects
+    - step: &pushToGithub
+        name: Push changes to Github repo
+        script:
+          - git remote add github git@github.com:atlassian-labs/msteams-jira-server.git
+          - git push -u github ${BITBUCKET_BRANCH}
+          - git push github --follow-tags
 pipelines:
   default:
     - step:
@@ -155,3 +161,5 @@ pipelines:
         - step:
             <<: *createTag
             trigger: manual
+        - step:
+            <<: *pushToGithub
