@@ -389,3 +389,6 @@ yarn.lock
 mongo/
 local.env
 manifests/local
+
+# Snyk Configs
+security-assistant.yml
