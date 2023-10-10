@@ -139,71 +139,17 @@ namespace MicrosoftTeamsIntegration.Jira
             return new MessagingExtensionResponse();
         }
 
+        protected override async Task<InvokeResponse> OnInvokeActivityAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
+        {
+            await HandleCommand(turnContext, cancellationToken);
+            return await base.OnInvokeActivityAsync(turnContext, cancellationToken);
+        }
+
         protected override async Task OnMessageActivityAsync(
             ITurnContext<IMessageActivity> turnContext,
             CancellationToken cancellationToken)
         {
-            var user = await TryToIdentifyUser(turnContext.Activity.From);
-            var eventTelemetry = new EventTelemetry
-            {
-                Name = turnContext.Activity?.Type,
-                Properties =
-                {
-                    { "MS_Teams_User_Id", turnContext.Activity?.From?.AadObjectId },
-                    { "Jira_User_Id", user?.JiraUserAccountId },
-                    { "Activity_type", turnContext.Activity?.Type }
-                }
-            };
-            var activity = turnContext.Activity;
-            var value = activity?.Value as JObject;
-
-            // command is a property of AdaptiveCardBotCommand class which is a data to submit form adaptive card
-            var commandData = value?["command"];
-            if (commandData != null)
-            {
-                var command = commandData.ToObject<string>();
-
-                // add command to telemetry
-                eventTelemetry.Properties.Add("Activity_command", command);
-
-                // there is a command when clicking Cancel button on adaptive card
-                if (string.Equals(command, DialogMatchesAndCommands.CancelCommand, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    // if command was revoked from ME card - send InvokeResponse
-                    if (activity.Type == ActivityTypes.Invoke)
-                    {
-                        await turnContext.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse }, cancellationToken);
-                    }
-
-                    return;
-                }
-
-                const string regexPrefix = @"^(\s*)";
-                var regex = new Regex($"{regexPrefix}{DialogMatchesAndCommands.CommentDialogCommand}", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-                var match = regex.Match(command);
-                if (match.Success)
-                {
-                    // commentText is Id for Input.Text to add comment from adaptive card
-                    var commentText = value["commentText"]?.ToString();
-                    command = $"{command} {commentText}";
-                    if (string.IsNullOrEmpty(commentText?.Trim()))
-                    {
-                        // if command was revoked from ME card - send InvokeResponse
-                        if (activity.Type == ActivityTypes.Invoke)
-                        {
-                            await turnContext.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse }, cancellationToken);
-                        }
-
-                        return;
-                    }
-                }
-
-                // assign command to the Activity.Text to allow dialogs to work as usual
-                if (string.IsNullOrEmpty(activity.Text) && !string.IsNullOrEmpty(command))
-                {
-                    turnContext.Activity!.Text = command;
-                }
-            }
+            await HandleCommand(turnContext, cancellationToken);
 
             // Run the DialogSet - let the framework identify the current state of the dialog from
             // the dialog stack and figure out what (if any) is the active dialog.
@@ -284,6 +230,71 @@ namespace MicrosoftTeamsIntegration.Jira
                 }
 
                 await ProcessInvokeRequest(turnContext, user, cancellationToken);
+            }
+        }
+
+        private async Task HandleCommand(ITurnContext turnContext, CancellationToken cancellationToken)
+        {
+            var user = await TryToIdentifyUser(turnContext.Activity.From);
+            var eventTelemetry = new EventTelemetry
+            {
+                Name = turnContext.Activity?.Type,
+                Properties =
+                {
+                    { "MS_Teams_User_Id", turnContext.Activity?.From?.AadObjectId },
+                    { "Jira_User_Id", user?.JiraUserAccountId },
+                    { "Activity_type", turnContext.Activity?.Type }
+                }
+            };
+            var activity = turnContext.Activity;
+            var value = activity?.Value as JObject;
+
+            // command is a property of AdaptiveCardBotCommand class which is a data to submit form adaptive card
+            var commandData = value?["command"];
+            if (commandData != null)
+            {
+                var command = commandData.ToObject<string>();
+
+                // add command to telemetry
+                eventTelemetry.Properties.Add("Activity_command", command);
+
+                // there is a command when clicking Cancel button on adaptive card
+                if (string.Equals(command, DialogMatchesAndCommands.CancelCommand, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // if command was revoked from ME card - send InvokeResponse
+                    if (activity.Type == ActivityTypes.Invoke)
+                    {
+                        await turnContext.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse }, cancellationToken);
+                    }
+
+                    return;
+                }
+
+                const string regexPrefix = @"^(\s*)";
+                var regex = new Regex($"{regexPrefix}{DialogMatchesAndCommands.CommentDialogCommand}", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+                var match = regex.Match(command);
+                if (match.Success)
+                {
+                    // commentText is Id for Input.Text to add comment from adaptive card
+                    var commentText = value["commentText"]?.ToString();
+                    command = $"{command} {commentText}";
+                    if (string.IsNullOrEmpty(commentText?.Trim()))
+                    {
+                        // if command was revoked from ME card - send InvokeResponse
+                        if (activity.Type == ActivityTypes.Invoke)
+                        {
+                            await turnContext.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse }, cancellationToken);
+                        }
+
+                        return;
+                    }
+                }
+
+                // assign command to the Activity.Text to allow dialogs to work as usual
+                if (string.IsNullOrEmpty(activity.Text) && !string.IsNullOrEmpty(command))
+                {
+                    turnContext.Activity!.Text = command;
+                }
             }
         }
 
