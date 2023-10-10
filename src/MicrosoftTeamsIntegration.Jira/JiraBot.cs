@@ -91,7 +91,7 @@ namespace MicrosoftTeamsIntegration.Jira
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
-            // await base.OnTurnAsync(turnContext, cancellationToken);
+            await base.OnTurnAsync(turnContext, cancellationToken);
 
             // Client notifying this bot took to long to respond (timed out)
             if (turnContext.Activity.Code == EndOfConversationCodes.BotTimedOut)
@@ -103,9 +103,50 @@ namespace MicrosoftTeamsIntegration.Jira
             var user = await TryToIdentifyUser(turnContext.Activity.From);
             await _accessors.User.SetAsync(turnContext, user, cancellationToken);
 
+            await _accessors.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
+            await _accessors.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
+        }
+
+        protected override Task OnConversationUpdateActivityAsync(
+            ITurnContext<IConversationUpdateActivity> turnContext,
+            CancellationToken cancellationToken)
+            => _botMessagesService.HandleConversationUpdates(turnContext, cancellationToken);
+
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(
+            ITurnContext<IInvokeActivity> turnContext,
+            TaskModuleRequest taskModuleRequest,
+            CancellationToken cancellationToken)
+        {
+            await HandleInvoke(turnContext, cancellationToken);
+            return new TaskModuleResponse();
+        }
+
+        protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionFetchTaskAsync(
+            ITurnContext<IInvokeActivity> turnContext,
+            MessagingExtensionAction action,
+            CancellationToken cancellationToken)
+        {
+            await HandleInvoke(turnContext, cancellationToken);
+            return new MessagingExtensionActionResponse();
+        }
+
+        protected override async Task<MessagingExtensionResponse> OnTeamsMessagingExtensionQueryAsync(
+            ITurnContext<IInvokeActivity> turnContext,
+            MessagingExtensionQuery query,
+            CancellationToken cancellationToken)
+        {
+            await HandleInvoke(turnContext, cancellationToken);
+            return new MessagingExtensionResponse();
+        }
+
+        protected override async Task OnMessageActivityAsync(
+            ITurnContext<IMessageActivity> turnContext,
+            CancellationToken cancellationToken)
+        {
+            var user = await TryToIdentifyUser(turnContext.Activity.From);
             var eventTelemetry = new EventTelemetry
             {
-                Name = turnContext.Activity.Name ?? turnContext.Activity?.Type,
+                Name = turnContext.Activity?.Type,
                 Properties =
                 {
                     { "MS_Teams_User_Id", turnContext.Activity?.From?.AadObjectId },
@@ -113,25 +154,39 @@ namespace MicrosoftTeamsIntegration.Jira
                     { "Activity_type", turnContext.Activity?.Type }
                 }
             };
-
             var activity = turnContext.Activity;
             var value = activity?.Value as JObject;
 
             // command is a property of AdaptiveCardBotCommand class which is a data to submit form adaptive card
             var commandData = value?["command"];
-
-            if (turnContext.Activity.Type == ActivityTypes.Message ||
-                (turnContext.Activity.Type == ActivityTypes.Invoke && commandData != null))
+            if (commandData != null)
             {
-                if (commandData != null)
+                var command = commandData.ToObject<string>();
+
+                // add command to telemetry
+                eventTelemetry.Properties.Add("Activity_command", command);
+
+                // there is a command when clicking Cancel button on adaptive card
+                if (string.Equals(command, DialogMatchesAndCommands.CancelCommand, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var command = commandData.ToObject<string>();
+                    // if command was revoked from ME card - send InvokeResponse
+                    if (activity.Type == ActivityTypes.Invoke)
+                    {
+                        await turnContext.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse }, cancellationToken);
+                    }
 
-                    // add command to telemetry
-                    eventTelemetry.Properties.Add("Activity_command", command);
+                    return;
+                }
 
-                    // there is a command when clicking Cancel button on adaptive card
-                    if (string.Equals(command, DialogMatchesAndCommands.CancelCommand, StringComparison.InvariantCultureIgnoreCase))
+                const string regexPrefix = @"^(\s*)";
+                var regex = new Regex($"{regexPrefix}{DialogMatchesAndCommands.CommentDialogCommand}", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+                var match = regex.Match(command);
+                if (match.Success)
+                {
+                    // commentText is Id for Input.Text to add comment from adaptive card
+                    var commentText = value["commentText"]?.ToString();
+                    command = $"{command} {commentText}";
+                    if (string.IsNullOrEmpty(commentText?.Trim()))
                     {
                         // if command was revoked from ME card - send InvokeResponse
                         if (activity.Type == ActivityTypes.Invoke)
@@ -141,64 +196,31 @@ namespace MicrosoftTeamsIntegration.Jira
 
                         return;
                     }
-
-                    const string regexPrefix = @"^(\s*)";
-                    var regex = new Regex($"{regexPrefix}{DialogMatchesAndCommands.CommentDialogCommand}", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
-                    var match = regex.Match(command);
-                    if (match.Success)
-                    {
-                        // commentText is Id for Input.Text to add comment from adaptive card
-                        var commentText = value["commentText"].ToString();
-                        command = $"{command} {commentText}";
-                        if (string.IsNullOrEmpty(commentText.Trim()))
-                        {
-                            // if command was revoked from ME card - send InvokeResponse
-                            if (activity.Type == ActivityTypes.Invoke)
-                            {
-                                await turnContext.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse }, cancellationToken);
-                            }
-
-                            return;
-                        }
-                    }
-
-                    // assign command to the Activity.Text to allow dialogs to work as usual
-                    if (string.IsNullOrEmpty(activity.Text) && !string.IsNullOrEmpty(command))
-                    {
-                        turnContext.Activity.Text = command;
-                    }
                 }
 
-                // Run the DialogSet - let the framework identify the current state of the dialog from
-                // the dialog stack and figure out what (if any) is the active dialog.
-                var dc = await _dialogs.CreateContextAsync(turnContext, cancellationToken);
-
-                var dialogTurnResult = await dc.ContinueDialogAsync(cancellationToken);
-
-                // Begin main dialog if no outstanding dialogs / no one responded.
-                if (!dc.Context.Responded && dialogTurnResult.Status != DialogTurnStatus.Complete)
+                // assign command to the Activity.Text to allow dialogs to work as usual
+                if (string.IsNullOrEmpty(activity.Text) && !string.IsNullOrEmpty(command))
                 {
-                    await dc.BeginDialogAsync(nameof(MainDispatcher), cancellationToken: cancellationToken);
+                    turnContext.Activity!.Text = command;
                 }
             }
-            else if (turnContext.Activity.Type == ActivityTypes.ConversationUpdate)
-            {
-                await _botMessagesService.HandleConversationUpdates(turnContext, cancellationToken);
-            }
-            else
-            {
-                await HandleInvoke(turnContext, user, cancellationToken);
-            }
 
-            // track analytics event
-            _telemetry.TrackEvent(eventTelemetry);
+            // Run the DialogSet - let the framework identify the current state of the dialog from
+            // the dialog stack and figure out what (if any) is the active dialog.
+            var dc = await _dialogs.CreateContextAsync(turnContext, cancellationToken);
 
-            await _accessors.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
-            await _accessors.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
+            var dialogTurnResult = await dc.ContinueDialogAsync(cancellationToken);
+
+            // Begin main dialog if no outstanding dialogs / no one responded.
+            if (!dc.Context.Responded && dialogTurnResult.Status != DialogTurnStatus.Complete)
+            {
+                await dc.BeginDialogAsync(nameof(MainDispatcher), cancellationToken: cancellationToken);
+            }
         }
 
-        private async Task HandleInvoke(ITurnContext turnContext, IntegratedUser user, CancellationToken cancellationToken)
+        protected override async Task OnSignInInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
+            var user = await TryToIdentifyUser(turnContext.Activity.From);
             var magicCodeObject = turnContext.Activity.Value as JObject;
             var magicCode = magicCodeObject?.GetValue("state")?.ToString();
 
@@ -231,31 +253,37 @@ namespace MicrosoftTeamsIntegration.Jira
                             user.AccessToken = accessToken;
                         }
 
-                        await turnContext.SendActivityAsync($"**You've connected to Jira. Type {DialogMatchesAndCommands.HelpDialogCommand} to explore commands.**", cancellationToken: cancellationToken);
+                        await turnContext.SendActivityAsync(
+                            $"**You've connected to Jira. Type {DialogMatchesAndCommands.HelpDialogCommand} to explore commands.**",
+                            cancellationToken: cancellationToken);
                     }
                 }
             }
+        }
+
+        private async Task HandleInvoke(ITurnContext turnContext, CancellationToken cancellationToken)
+        {
+            var user = await TryToIdentifyUser(turnContext.Activity.From);
+            var userTokenClient = turnContext.TurnState.Get<UserTokenClient>();
+            var magicCodeObject = turnContext.Activity.Value as JObject;
+            var magicCode = magicCodeObject?.GetValue("state")?.ToString();
+            var accessToken = await userTokenClient.GetUserTokenAsync(turnContext.Activity.From.Id, _appSettings.OAuthConnectionName, turnContext.Activity.ChannelId, magicCode, cancellationToken);
+            if (accessToken is null)
+            {
+                var link = (await userTokenClient.GetSignInResourceAsync(_appSettings.OAuthConnectionName, turnContext.Activity, null, cancellationToken).ConfigureAwait(false)).SignInLink;
+                link += "&width=800&height=600";
+
+                var response = MessagingExtensionHelper.BuildCardActionResponse("auth", "Sign in with Microsoft account", link);
+                await BuildInvokeResponse(turnContext, HttpStatusCode.OK, response, cancellationToken);
+            }
             else
             {
-                var userTokenClient = turnContext.TurnState.Get<UserTokenClient>();
-                var accessToken = await userTokenClient.GetUserTokenAsync(turnContext.Activity.From.Id, _appSettings.OAuthConnectionName, turnContext.Activity.ChannelId, magicCode, cancellationToken);
-                if (accessToken is null)
+                if (user != null)
                 {
-                    var link = (await userTokenClient.GetSignInResourceAsync(_appSettings.OAuthConnectionName, turnContext.Activity, null, cancellationToken).ConfigureAwait(false)).SignInLink;
-                    link += "&width=800&height=600";
-
-                    var response = MessagingExtensionHelper.BuildCardActionResponse("auth", "Sign in with Microsoft account", link);
-                    await BuildInvokeResponse(turnContext, HttpStatusCode.OK, response, cancellationToken);
+                    user.AccessToken = accessToken.Token;
                 }
-                else
-                {
-                    if (user != null)
-                    {
-                        user.AccessToken = accessToken?.Token;
-                    }
 
-                    await ProcessInvokeRequest(turnContext, user, cancellationToken);
-                }
+                await ProcessInvokeRequest(turnContext, user, cancellationToken);
             }
         }
 
