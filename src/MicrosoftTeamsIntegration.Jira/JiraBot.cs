@@ -43,6 +43,7 @@ namespace MicrosoftTeamsIntegration.Jira
         private readonly IUserTokenService _userTokenService;
         private readonly ICommandDialogReferenceService _commandDialogReferenceService;
         private readonly IBotFrameworkAdapterService _botFrameworkAdapterService;
+        private EventTelemetry _eventTelemetry;
 
         public JiraBot(
             IMessagingExtensionService messagingExtensionService,
@@ -91,18 +92,29 @@ namespace MicrosoftTeamsIntegration.Jira
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
+            var user = await TryToIdentifyUser(turnContext.Activity.From);
+            _eventTelemetry = new EventTelemetry
+            {
+                Name = turnContext.Activity.Name ?? turnContext.Activity?.Type,
+                Properties =
+                {
+                    { "MS_Teams_User_Id", turnContext.Activity?.From?.AadObjectId },
+                    { "Jira_User_Id", user?.JiraUserAccountId },
+                    { "Activity_type", turnContext.Activity?.Type }
+                }
+            };
+
             await base.OnTurnAsync(turnContext, cancellationToken);
 
             // Client notifying this bot took to long to respond (timed out)
-            if (turnContext.Activity.Code == EndOfConversationCodes.BotTimedOut)
+            if (turnContext.Activity?.Code == EndOfConversationCodes.BotTimedOut)
             {
                 _logger.LogTrace($"Timeout in {turnContext.Activity.ChannelId} channel: Bot took too long to respond.");
                 return;
             }
 
-            var user = await TryToIdentifyUser(turnContext.Activity.From);
             await _accessors.User.SetAsync(turnContext, user, cancellationToken);
-
+            _telemetry.TrackEvent(_eventTelemetry);
             await _accessors.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await _accessors.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
@@ -235,17 +247,6 @@ namespace MicrosoftTeamsIntegration.Jira
 
         private async Task HandleCommand(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            var user = await TryToIdentifyUser(turnContext.Activity.From);
-            var eventTelemetry = new EventTelemetry
-            {
-                Name = turnContext.Activity?.Type,
-                Properties =
-                {
-                    { "MS_Teams_User_Id", turnContext.Activity?.From?.AadObjectId },
-                    { "Jira_User_Id", user?.JiraUserAccountId },
-                    { "Activity_type", turnContext.Activity?.Type }
-                }
-            };
             var activity = turnContext.Activity;
             var value = activity?.Value as JObject;
 
@@ -256,7 +257,7 @@ namespace MicrosoftTeamsIntegration.Jira
                 var command = commandData.ToObject<string>();
 
                 // add command to telemetry
-                eventTelemetry.Properties.Add("Activity_command", command);
+                _eventTelemetry.Properties.Add("Activity_command", command);
 
                 // there is a command when clicking Cancel button on adaptive card
                 if (string.Equals(command, DialogMatchesAndCommands.CancelCommand, StringComparison.InvariantCultureIgnoreCase))
