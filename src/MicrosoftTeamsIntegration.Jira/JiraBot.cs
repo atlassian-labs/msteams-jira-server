@@ -93,6 +93,7 @@ namespace MicrosoftTeamsIntegration.Jira
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
             var user = await TryToIdentifyUser(turnContext.Activity.From);
+            await _accessors.User.SetAsync(turnContext, user, cancellationToken);
             _eventTelemetry = new EventTelemetry
             {
                 Name = turnContext.Activity.Name ?? turnContext.Activity?.Type,
@@ -113,7 +114,6 @@ namespace MicrosoftTeamsIntegration.Jira
                 return;
             }
 
-            await _accessors.User.SetAsync(turnContext, user, cancellationToken);
             _telemetry.TrackEvent(_eventTelemetry);
             await _accessors.ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await _accessors.UserState.SaveChangesAsync(turnContext, false, cancellationToken);
@@ -178,8 +178,6 @@ namespace MicrosoftTeamsIntegration.Jira
 
         protected override async Task OnSignInInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
-            var user = await TryToIdentifyUser(turnContext.Activity.From);
-
             if (!string.IsNullOrEmpty(turnContext.Activity.Name)
                 && turnContext.Activity.Name.Equals("signin/verifyState", StringComparison.OrdinalIgnoreCase))
             {
@@ -213,11 +211,6 @@ namespace MicrosoftTeamsIntegration.Jira
                     var accessToken = await turnContext.GetBotUserAccessToken(_appSettings.OAuthConnectionName, cancellationToken: cancellationToken);
                     if (accessToken != null)
                     {
-                        if (user != null)
-                        {
-                            user.AccessToken = accessToken;
-                        }
-
                         await turnContext.SendActivityAsync(
                             $"**You've connected to Jira. Type {DialogMatchesAndCommands.HelpDialogCommand} to explore commands.**",
                             cancellationToken: cancellationToken);
@@ -228,7 +221,7 @@ namespace MicrosoftTeamsIntegration.Jira
 
         private async Task HandleInvoke(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            var user = await TryToIdentifyUser(turnContext.Activity.From);
+            var user = await _accessors.User.GetAsync(turnContext, () => null, cancellationToken);
             var userTokenClient = turnContext.TurnState.Get<UserTokenClient>();
             var magicCodeObject = turnContext.Activity.Value as JObject;
             var magicCode = magicCodeObject?.GetValue("state")?.ToString();
@@ -246,6 +239,7 @@ namespace MicrosoftTeamsIntegration.Jira
                 if (user != null)
                 {
                     user.AccessToken = accessToken.Token;
+                    await _accessors.User.SetAsync(turnContext, user, cancellationToken);
                 }
 
                 await ProcessInvokeRequest(turnContext, user, cancellationToken);

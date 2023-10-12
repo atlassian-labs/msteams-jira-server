@@ -72,7 +72,7 @@
                 try {
                     // 'Uncaught Error: This call is not allowed in the 'settings' context'
                     // error may occur when notifySuccess is called on 'settings' page in a hidden iframe and it is not allowed in that context of the page
-                    microsoftTeams.authentication.notifySuccess();
+                    microsoftTeams.authentication.notifySuccess("success");
                 } catch (e) {
                     console.log('LoginResult::Notify success error: ', e);
                 }
