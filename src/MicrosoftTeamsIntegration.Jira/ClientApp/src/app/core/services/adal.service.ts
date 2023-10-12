@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 import { UtilService } from '@core/services/util.service';
 import { logger } from './logger.service';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 declare const AuthenticationContext: any;
 
 interface Settings {

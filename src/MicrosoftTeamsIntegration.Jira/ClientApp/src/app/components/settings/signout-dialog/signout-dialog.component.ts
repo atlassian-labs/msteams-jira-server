@@ -18,7 +18,7 @@ import {
 export class SignoutDialogComponent implements OnInit {
 
     private jiraUrl: string;
-    
+
     public isSigningOut = false;
 
     constructor(

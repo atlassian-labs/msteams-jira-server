@@ -181,8 +181,11 @@ export class ApiService {
             .toPromise();
     }
 
-    public getCreateMetaFields(jiraUrl: string, projectKeyOrId: string, issueTypeId: string, issueTypeName: string): Promise<JiraIssueFieldMeta<any>[]> {
-        const link = this.utilService.appendParamsToLink('/api/issue/createmeta/fields', { jiraUrl, projectKeyOrId, issueTypeId, issueTypeName });
+    public getCreateMetaFields(jiraUrl: string, projectKeyOrId: string, issueTypeId: string, issueTypeName: string):
+    Promise<JiraIssueFieldMeta<any>[]> {
+        const link =
+            this.utilService.appendParamsToLink('/api/issue/createmeta/fields',
+                { jiraUrl, projectKeyOrId, issueTypeId, issueTypeName });
 
         return this.http
             .get<JiraIssueFieldMeta<any>[]>(link)
@@ -233,9 +236,10 @@ export class ApiService {
             .toPromise();
     }
 
-    public submitLoginInfo(jiraId: string, requestToken: string = '', verificationCode: string = ''): Promise<{ isSuccess: boolean, message: string }> {
+    public submitLoginInfo(jiraId: string, requestToken: string = '', verificationCode: string = ''):
+    Promise<{ isSuccess: boolean; message: string }> {
         return this.http
-            .post<any>(`/api/submit-login-info`, { atlasId: jiraId, verificationCode: verificationCode, requestToken: requestToken })
+            .post<any>('/api/submit-login-info', { atlasId: jiraId, verificationCode: verificationCode, requestToken: requestToken })
             .toPromise();
     }
 
@@ -283,7 +287,7 @@ export class ApiService {
 
     /* saves jira server id for personal scope using
        returns jiraInstanceUrl */
-    public saveJiraServerId(jiraServerId: string): Promise<{ isSuccess: boolean, message: string }> {
+    public saveJiraServerId(jiraServerId: string): Promise<{ isSuccess: boolean; message: string }> {
         return this.http
             .post<any>(`/api/save-jira-server-id?jiraServerId=${jiraServerId}`, {})
             .toPromise();

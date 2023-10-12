@@ -38,25 +38,23 @@ export interface EditDialogIssueModel {
 }
 
 // * TODO: Move this to utils or somewhere else with dat interface
-export const mapIssueToEditIssueDialogModel = (issue: Issue): EditDialogIssueModel => {
-    return {
-        key: issue.key,
-        id: issue.id,
-        issueTypeIconUrl: issue.fields.issuetype.iconUrl,
-        projectKey: issue.fields.project.key,
-        priorityId: (issue.fields.priority && issue.fields.priority.id) || null,
-        priority: issue.fields.priority,
-        summary: issue.fields.summary || '',
-        description: issue.fields.description || '',
-        created: issue.fields.created,
-        updated: issue.fields.updated,
-        reporter: issue.fields.reporter,
-        assignee: issue.fields.assignee,
-        comment: issue.fields.comment,
-        status: issue.fields.status,
-        projectTypeKey: issue.fields.project.projectTypeKey
-    } as EditDialogIssueModel;
-};
+export const mapIssueToEditIssueDialogModel = (issue: Issue): EditDialogIssueModel => ({
+    key: issue.key,
+    id: issue.id,
+    issueTypeIconUrl: issue.fields.issuetype.iconUrl,
+    projectKey: issue.fields.project.key,
+    priorityId: (issue.fields.priority && issue.fields.priority.id) || null,
+    priority: issue.fields.priority,
+    summary: issue.fields.summary || '',
+    description: issue.fields.description || '',
+    created: issue.fields.created,
+    updated: issue.fields.updated,
+    reporter: issue.fields.reporter,
+    assignee: issue.fields.assignee,
+    comment: issue.fields.comment,
+    status: issue.fields.status,
+    projectTypeKey: issue.fields.project.projectTypeKey
+} as EditDialogIssueModel);
 
 @Component({
     selector: 'app-edit-issue-material-dialog',
@@ -121,7 +119,7 @@ export class EditIssueMaterialDialogComponent implements OnInit, OnDestroy {
             this.permissions = permissions;
 
             if (!this.canEditIssue && !this.canViewIssue) {
-                const message = "You don't have permissions to perform this action";
+                const message = 'You don\'t have permissions to perform this action';
                 await this.router.navigate(['/error'], { queryParams: { message } });
                 return;
             }
@@ -275,9 +273,9 @@ export class EditIssueMaterialDialogComponent implements OnInit, OnDestroy {
 
     public get allowEditAssignee(): boolean {
         // for JSM projects user should be a member of 'jira-servicedesk-users' group in order to get assignees,
-        // even with ASSIGN_ISSUES project permission 
-        if (this.issue.projectTypeKey == ProjectType.ServiceDesk) {
-            return this.currentUser.groups.items.some(x => x.name == UserGroup.JiraServicedeskUsers) &&
+        // even with ASSIGN_ISSUES project permission
+        if (this.issue.projectTypeKey === ProjectType.ServiceDesk) {
+            return this.currentUser.groups.items.some(x => x.name === UserGroup.JiraServicedeskUsers) &&
                 this.permissions.ASSIGN_ISSUES.havePermission;
         }
         return this.permissions.ASSIGN_ISSUES.havePermission;

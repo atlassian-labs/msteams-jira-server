@@ -57,7 +57,7 @@ export class SettingsFiltersComponent implements OnInit {
 
     public availableProjectsOptions: DropDownOption<string>[];
     public projectFilteredOptions: DropDownOption<string>[];
-    
+
     public FilterType = FilterType;
     public filter: FilterType = FilterType.Saved;
 
@@ -76,7 +76,7 @@ export class SettingsFiltersComponent implements OnInit {
     private settings = new Map<string, string>();
     private filters = new Map<FilterSetting, string[]>();
     private cachedSettings = new Map<string, string>();
-    
+
     private readonly SERVER_TAB_NAME = 'Jira Server';
     private readonly ISSUES_PAGE_URL = `https://${window.location.host}/#/issues`;
     private readonly FILTERS_PAGE = 'https://confluence.atlassian.com/jiracorecloud/saving-your-search-as-a-filter-765593721.html';
@@ -113,16 +113,13 @@ export class SettingsFiltersComponent implements OnInit {
             this.projects = await this.findProjects(this.jiraUrl, filterName);
             const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
             this.projectsDropdown.filteredOptions = filteredProjects;
-        }
-        catch(error)
-        {
+        } catch(error) {
             this.appInsightsService.trackException(
                 new Error('Error while searching projects'),
                 'Settings Filter Component',
                 { originalErrorMessage: error.message }
             );
-        }
-        finally {
+        } finally {
             this.isFetchingProjects = false;
         }
     }
@@ -208,7 +205,7 @@ export class SettingsFiltersComponent implements OnInit {
 
     public handleProjectClick(): void {
         if (!this.isAddonUpdated){
-            this.openSnackBar()
+            this.openSnackBar();
         }
     }
 
@@ -266,7 +263,7 @@ export class SettingsFiltersComponent implements OnInit {
             this.projects = await this.apiService.getProjects(this.jiraUrl, true);
             this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
             this.projectFilteredOptions = this.availableProjectsOptions;
-            
+
             this.projectsOptions = this.settingsService.buildOptionsFor<Project>(this.projects);
 
             this.prioritiesOptions = this.settingsService.buildOptionsFor<Priority>(priorities);
@@ -281,11 +278,11 @@ export class SettingsFiltersComponent implements OnInit {
 
     private getQueryAndRegisterTeamsHandler(): void {
         let jql = '';
-        
+
         const encodedFilterJql = this.utilService.encode(encodeURIComponent(this.getCachedOrBuildFiltersJql()));
         this.settings.set('jqlQuery', encodedFilterJql || '');
 
-        jql = this.issuesService.createJqlQuery({ jql: encodedFilterJql, projectKey: this.settings.get('projectKey') });     
+        jql = this.issuesService.createJqlQuery({ jql: encodedFilterJql, projectKey: this.settings.get('projectKey') });
 
         this.registerHandler(this.createContentUrl(), jql);
     }

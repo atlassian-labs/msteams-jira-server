@@ -25,15 +25,15 @@ export const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-      path: 'issues/create',
-      component: CreateIssueDialogComponent,
-      canActivate: [AuthGuard]
+        path: 'issues/create',
+        component: CreateIssueDialogComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'issues/edit',
         component: EditIssueDialogComponent,
         canActivate: [AuthGuard]
-      },
+    },
     {
         path: 'issues',
         component: IssuesComponent,

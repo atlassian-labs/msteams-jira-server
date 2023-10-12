@@ -8,7 +8,7 @@ import { PageName } from '@core/enums';
 
 @Component({
     selector: 'app-go-to-website',
-    template: ``
+    template: ''
 })
 export class GoToWebsiteComponent implements OnInit {
     private page: string;
@@ -30,7 +30,7 @@ export class GoToWebsiteComponent implements OnInit {
             window.localStorage.setItem('redirectUri', `https://${window.location.host}/#/go-to-website;page=${this.page}`);
             await this.authService.authenticate('./login.html', true);
         }
-        
+
         const { jiraUrl } = await this.apiService.getJiraUrlForPersonalScope();
         const { jiraServerInstanceUrl } = await this.apiService.getCurrentUserData(jiraUrl);
         this.jiraInstanceUrl = jiraServerInstanceUrl;
@@ -40,7 +40,7 @@ export class GoToWebsiteComponent implements OnInit {
         if (url) {
             window.location.replace(url);
         } else {
-            const message = "You can't perform this action";
+            const message = 'You can\'t perform this action';
             this.router.navigate(['/error'], { queryParams: { message } });
         }
     }
@@ -52,7 +52,7 @@ export class GoToWebsiteComponent implements OnInit {
 
         let url = this.jiraInstanceUrl;
 
-        switch(page) { 
+        switch(page) {
             case PageName.Filters: {
                 url += '/secure/ManageFilters.jspa?filterView=my';
                 break;
@@ -64,11 +64,11 @@ export class GoToWebsiteComponent implements OnInit {
             case PageName.IssuesReported: {
                 url += `/issues/?jql=${encodeURIComponent('reporter = currentUser() order by updated desc')}`;
                 break;
-            } 
+            }
             case PageName.IssuesWatched: {
                 url += `/issues/?jql=${encodeURIComponent('assignee=currentUser() or watcher=currentUser() order by updated desc')}`;
                 break;
-            } 
+            }
             default: {
                 break;
             }

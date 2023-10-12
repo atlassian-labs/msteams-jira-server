@@ -16,9 +16,9 @@ import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from './../../../core/validators/string.validators';
 
 @Component({
-  selector: 'app-create-comment-dialog',
-  templateUrl: './create-comment-dialog.component.html',
-  styleUrls: ['./create-comment-dialog.component.scss']
+    selector: 'app-create-comment-dialog',
+    templateUrl: './create-comment-dialog.component.html',
+    styleUrls: ['./create-comment-dialog.component.scss']
 })
 export class CreateCommentDialogComponent implements OnInit {
 
@@ -79,7 +79,7 @@ export class CreateCommentDialogComponent implements OnInit {
     public async onSubmit(): Promise<void> {
         if (this.commentForm.invalid) {
             return;
-        } 
+        }
 
         this.errorMessage = '';
 
@@ -139,12 +139,11 @@ export class CreateCommentDialogComponent implements OnInit {
 
         if(searchTerm.includes('-')) {
             const parts = searchTerm.split('-');
-            if(parts.length == 2 && parts.every(e => e !== null && e !== '')){
+            if(parts.length === 2 && parts.every(e => e !== null && e !== '')){
                 const projectKey = parts[0].normalize();
                 const issueNumber = parts[1].normalize();
 
-                if(!isNaN(+issueNumber))
-                {
+                if(!isNaN(+issueNumber)) {
                     return `issuekey='${projectKey}-${issueNumber}'`;
                 }
             }
@@ -159,6 +158,7 @@ export class CreateCommentDialogComponent implements OnInit {
             ...{
                 data: {
                     title: 'Comment added',
+                    // eslint-disable-next-line max-len
                     subtitle: `View <a href="${this.jiraUrl}\\browse\\${issue.key}" target="_blank" rel="noreferrer noopener">${issue.key}</a>.`,
                     buttonText: 'Dismiss',
                     dialogType: DialogType.SuccessLarge
@@ -167,9 +167,9 @@ export class CreateCommentDialogComponent implements OnInit {
         };
 
         this.dialog.open(ConfirmationDialogComponent, dialogConfig)
-        .afterClosed().subscribe(() => {
-            microsoftTeams.tasks.submitTask();
-        });
+            .afterClosed().subscribe(() => {
+                microsoftTeams.tasks.submitTask();
+            });
     }
 
     private async createForm(): Promise<void> {
@@ -186,7 +186,7 @@ export class CreateCommentDialogComponent implements OnInit {
     private handleListKeyUp(event: KeyboardEvent) {
         event.stopImmediatePropagation();
         if (this.keyboardEventsManager && this.issues.length > 0) {
-            if(event.keyCode == TAB) {
+            if(event.keyCode === TAB) {
                 const activeItem = this.issues[0];
                 this.keyboardEventsManager.setActiveItem(activeItem);
                 this.activeIssue = activeItem;

@@ -5,7 +5,9 @@ import { filter } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class RoutingState {
 
-    get previousUrl(): string { return this._previousUrl || '/issues'; }
+    get previousUrl(): string {
+        return this._previousUrl || '/issues';
+    }
     private _previousUrl: string;
 
     private currentUrl: string;
@@ -32,9 +34,11 @@ export class RoutingState {
     }
 
     private extractCurrentRouteFromUrl(url: string): string {
-        if (!url) { return ''; }
+        if (!url) {
+            return '';
+        }
 
-        // tslint:disable-next-line:max-line-length
+        // eslint-disable-next-line max-len
         /* After https://dev.azure.com/msteams-atlassian/Jira%20Cloud/_git/JiraCloud/commit/014046116467242bb52e956381e3ce886483f0a8?refName=refs%2Fheads%2Fmaster&_a=compare&path=%2Fmanifests%2Fproduction%2Fmanifest.json
         * config url params divided by ';' instead of '?', so when we try to extract component path from
         * '/config?v=2.0' and use it in router.navigate(['/config?v=2.0']) we will get the following url 'config%3Fv%3D2.0'

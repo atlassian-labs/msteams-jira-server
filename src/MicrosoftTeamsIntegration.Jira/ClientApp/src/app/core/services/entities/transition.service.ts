@@ -19,13 +19,13 @@ export class IssueTransitionService {
     public doTransition(jiraUrl: string, issueIdOrKey: string, transitionId: string): Promise<JiraApiActionCallResponse> {
         return this.http
             .post<JiraApiActionCallResponse>(
-                `/api/issue/transitions?jiraUrl=${jiraUrl}&issueIdOrKey=${issueIdOrKey}`,
-                {
-                    transition:
+            `/api/issue/transitions?jiraUrl=${jiraUrl}&issueIdOrKey=${issueIdOrKey}`,
+            {
+                transition:
                     {
                         id: transitionId
                     }
-                }
-            ).toPromise();
+            }
+        ).toPromise();
     }
 }

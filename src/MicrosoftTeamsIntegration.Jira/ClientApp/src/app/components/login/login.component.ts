@@ -34,8 +34,8 @@ export class LoginComponent implements OnInit {
     private staticTabChangeUrl = false;
     private authorizationUrl: string;
 
-    // tslint:disable-next-line:max-line-length
-    private readonly JIRA_SERVER_TAB_AUTH_REDIRECT_URL = `/#/config;application=jiraServerTab;endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl}`;
+    private readonly JIRA_SERVER_TAB_AUTH_REDIRECT_URL =
+        `/#/config;application=jiraServerTab;endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl}`;
 
     constructor(
         private router: Router,

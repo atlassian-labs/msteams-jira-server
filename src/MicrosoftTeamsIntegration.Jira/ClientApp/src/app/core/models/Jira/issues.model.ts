@@ -43,7 +43,7 @@ export interface IssueRequestTypeInner {
         id: string;
         _links: {
             iconUrls: JiraIconUrls;
-        }
+        };
     };
 }
 

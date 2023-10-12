@@ -25,29 +25,31 @@ export class UtilService {
         { id: 6, value: 'updated-recently', label: 'Updated recently' }
     ];
 
-    private readonly UPGRADE_ADDON_MESSAGE = "Please upgrade Jira Server for Microsoft Teams app on your Jira Server to perform projects search.";
-    private readonly ADDON_VERSION = '2022.08.103'
+    private readonly UPGRADE_ADDON_MESSAGE =
+        'Please upgrade Jira Server for Microsoft Teams app on your Jira Server to perform projects search.';
+    private readonly ADDON_VERSION = '2022.08.103';
 
     public isMobile = (): Promise<boolean> =>
         new Promise(resolve =>
             getContext(({ hostClientType }) =>
                 resolve(hostClientType === HostClientType.ios || hostClientType === HostClientType.android))
-        )
+        );
 
     public getFilters = (): PredefinedFilters[] => this.PREDEFINED_FILTERS;
 
     public encode(value: string): string {
         if (value.match(/[!'()*]/)) {
-            return encodeURIComponent(value).replace(/[!'()*]/g, c => {
+            return encodeURIComponent(value).replace(/[!'()*]/g, c =>
                 // Also encode !, ', (, ), and *
-                return `%${c.charCodeAt(0).toString(16)}`;
-            });
+                `%${c.charCodeAt(0).toString(16)}`
+            );
         }
 
         return value;
     }
 
-    public getMsTeamsContext = (): { tid: string; loginHint: string, userObjectId: string, locale: string } => JSON.parse(localStorage.getItem('msTeamsContext'));
+    public getMsTeamsContext = (): { tid: string; loginHint: string; userObjectId: string; locale: string } =>
+        JSON.parse(localStorage.getItem('msTeamsContext'));
 
     public setTeamsContext = (tenantId: string): void => localStorage.setItem('msTeamsContext', JSON.stringify({ tid: tenantId }));
 
@@ -120,17 +122,11 @@ export class UtilService {
     public isElectron = (): boolean => {
         const userAgent = navigator.userAgent.toLowerCase();
         return userAgent.indexOf('electron') > -1;
-    }
+    };
 
-    public getMinAddonVersion = (): string => {
-        return this.ADDON_VERSION;
-    }
+    public getMinAddonVersion = (): string => this.ADDON_VERSION;
 
-    public getUpgradeAddonMessage = (): string => {
-        return this.UPGRADE_ADDON_MESSAGE;
-    }
+    public getUpgradeAddonMessage = (): string => this.UPGRADE_ADDON_MESSAGE;
 
-    public isAddonUpdated = (addonVersion: string) : boolean => {
-        return compare(addonVersion, this.getMinAddonVersion(), '>=');
-    }
+    public isAddonUpdated = (addonVersion: string): boolean => compare(addonVersion, this.getMinAddonVersion(), '>=');
 }
