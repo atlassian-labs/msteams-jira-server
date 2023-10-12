@@ -179,8 +179,6 @@ namespace MicrosoftTeamsIntegration.Jira
         protected override async Task OnSignInInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
             var user = await TryToIdentifyUser(turnContext.Activity.From);
-            var magicCodeObject = turnContext.Activity.Value as JObject;
-            var magicCode = magicCodeObject?.GetValue("state")?.ToString();
 
             if (!string.IsNullOrEmpty(turnContext.Activity.Name)
                 && turnContext.Activity.Name.Equals("signin/verifyState", StringComparison.OrdinalIgnoreCase))
@@ -203,7 +201,16 @@ namespace MicrosoftTeamsIntegration.Jira
                 }
                 else
                 {
-                    var accessToken = await turnContext.GetBotUserAccessToken(_appSettings.OAuthConnectionName, magicCode, cancellationToken);
+                    var activityValue = turnContext.Activity.Value as JObject;
+                    var state = activityValue?.GetValue("state")?.ToString();
+
+                    // if the sign in dialog was closed
+                    if (state == "CancelledByUser")
+                    {
+                        return;
+                    }
+
+                    var accessToken = await turnContext.GetBotUserAccessToken(_appSettings.OAuthConnectionName, cancellationToken: cancellationToken);
                     if (accessToken != null)
                     {
                         if (user != null)
