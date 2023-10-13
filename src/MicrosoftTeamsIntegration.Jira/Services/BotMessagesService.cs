@@ -137,21 +137,100 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             var url = $"{_appSettings.BaseUrl}/#/config;application={application};tenantId={tenantId}";
 
-            var card = new ThumbnailCard
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 3))
             {
-                Title = "Authorize in Jira",
-                Subtitle = $"Connecting you to {jiraUrl ?? "Jira"}",
-                Images = new List<CardImage>
+                Body = new List<AdaptiveElement>
                 {
-                    new CardImage("https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png")
+                    new AdaptiveColumnSet
+                    {
+                        Columns = new List<AdaptiveColumn>
+                        {
+                            new AdaptiveColumn
+                            {
+                                Width = "stretch",
+                                Items = new List<AdaptiveElement>
+                                {
+                                    new AdaptiveColumnSet
+                                    {
+                                        Columns = new List<AdaptiveColumn>
+                                        {
+                                            new AdaptiveColumn
+                                            {
+                                                Width = "auto",
+                                                Items = new List<AdaptiveElement>
+                                                {
+                                                    new AdaptiveImage
+                                                    {
+                                                        Url = new Uri(
+                                                            "https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png"),
+                                                        Size = AdaptiveImageSize.Small
+                                                    }
+                                                },
+                                                Spacing = AdaptiveSpacing.Small,
+                                                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center
+                                            },
+                                            new AdaptiveColumn
+                                            {
+                                                Width = "auto",
+                                                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center,
+                                                Items = new List<AdaptiveElement>
+                                                {
+                                                    new AdaptiveTextBlock
+                                                    {
+                                                        Size = AdaptiveTextSize.Medium,
+                                                        Weight = AdaptiveTextWeight.Bolder,
+                                                        Text = "Authorize in Jira.",
+                                                        Wrap = true
+                                                    }
+                                                },
+                                                Spacing = AdaptiveSpacing.Small
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    new AdaptiveTextBlock
+                    {
+                        Text = $"Click 'Authorize' to link you {jiraUrl ?? "Jira"} account with Microsoft Teams",
+                        Wrap = true
+                    },
+                    new AdaptiveColumnSet
+                    {
+                        Columns = new List<AdaptiveColumn>
+                        {
+                            new AdaptiveColumn
+                            {
+                                Width = "auto",
+                                Items = new List<AdaptiveElement>
+                                {
+                                    new AdaptiveActionSet
+                                    {
+                                        Actions = new List<AdaptiveAction>
+                                        {
+                                            new AdaptiveSubmitAction()
+                                            {
+                                                Title = "Authorize",
+                                                Data = new
+                                                {
+                                                    msteams = new
+                                                    {
+                                                        type = "signin",
+                                                        value = url
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
                 },
-                Buttons = new List<CardAction>
-                {
-                    new CardAction(ActionTypes.Signin, "Authorize", value: url)
-                }
             };
 
-            var message = MessageFactory.Attachment(card.ToAttachment());
+            var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
 
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
         }

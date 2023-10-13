@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -211,9 +212,7 @@ namespace MicrosoftTeamsIntegration.Jira
                     var accessToken = await turnContext.GetBotUserAccessToken(_appSettings.OAuthConnectionName, cancellationToken: cancellationToken);
                     if (accessToken != null)
                     {
-                        await turnContext.SendActivityAsync(
-                            $"**You've connected to Jira. Type {DialogMatchesAndCommands.HelpDialogCommand} to explore commands.**",
-                            cancellationToken: cancellationToken);
+                        await _actionableMessageService.HandleSuccessfulConnection(turnContext);
                     }
                 }
             }
