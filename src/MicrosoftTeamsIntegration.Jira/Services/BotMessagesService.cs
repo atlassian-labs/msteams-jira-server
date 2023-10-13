@@ -179,7 +179,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                                                     {
                                                         Size = AdaptiveTextSize.Medium,
                                                         Weight = AdaptiveTextWeight.Bolder,
-                                                        Text = "Authorize in Jira.",
+                                                        Text = "Authorize in Jira",
                                                         Wrap = true
                                                     }
                                                 },

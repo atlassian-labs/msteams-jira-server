@@ -104,7 +104,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                                                     {
                                                         Size = AdaptiveTextSize.Medium,
                                                         Weight = AdaptiveTextWeight.Bolder,
-                                                        Text = "You have been successfully connected to Jira.",
+                                                        Text = "You have been successfully connected to Jira",
                                                         Wrap = true
                                                     }
                                                 },
@@ -118,7 +118,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     },
                     new AdaptiveTextBlock
                     {
-                        Text = "Click 'Help' to explore commands.",
+                        Text = "Click 'Help' to explore commands",
                         Wrap = true
                     },
                     new AdaptiveColumnSet
