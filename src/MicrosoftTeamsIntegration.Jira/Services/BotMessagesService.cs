@@ -193,7 +193,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     },
                     new AdaptiveTextBlock
                     {
-                        Text = $"Click 'Authorize' to link you {jiraUrl ?? "Jira"} account with Microsoft Teams",
+                        Text = $"Click 'Authorize' to link your {jiraUrl ?? "Jira"} account with Microsoft Teams",
                         Wrap = true
                     },
                     new AdaptiveColumnSet
