@@ -37,9 +37,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.initMSTeams();
 
-        await this.utilService.isMobile() ?
-            document.body.classList.add('mobile') :
+        if (await this.utilService.isMobile()) {
+            document.body.classList.add('mobile');
+        } else {
             document.body.classList.remove('mobile');
+        }
 
         this.subscription = this.router.events.subscribe((event: RouterEvent) => {
             if (event instanceof NavigationStart) {
@@ -81,7 +83,7 @@ export class AppComponent implements OnInit, OnDestroy {
             body.classList.add(theme);
         };
 
-        const applyTheme = (themeColors: { backgroundColor: string, color: string }, theme: string): void => {
+        const applyTheme = (themeColors: { backgroundColor: string; color: string }, theme: string): void => {
             const oldChild = document.getElementById('data-theme-' + theme);
 
             const stylesheet = document.createElement('style');
@@ -130,6 +132,8 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy(): void {
-        if (this.subscription) { this.subscription.unsubscribe(); }
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
     }
 }

@@ -191,7 +191,7 @@ export class IssuesComponent implements OnInit {
         }
         this.loadingOff();
 
-        var issueTableComponent = this;
+        const issueTableComponent = this;
 
         // open edit issue dialog if context contains sub entity ID and user is authorized
         microsoftTeams.getContext(function (context) {
@@ -377,16 +377,16 @@ export class IssuesComponent implements OnInit {
 
     private async loadIssues(): Promise<void> {
         try {
-                const transformedJqlQuery = this.getTransformedJqlQuery();
+            const transformedJqlQuery = this.getTransformedJqlQuery();
 
-                this.decodedTransformedJqlQuery = decodeURIComponent(transformedJqlQuery);
+            this.decodedTransformedJqlQuery = decodeURIComponent(transformedJqlQuery);
 
-                this.setColumnsSorting(this.decodedTransformedJqlQuery);
+            this.setColumnsSorting(this.decodedTransformedJqlQuery);
 
-                this.jiraLinkWithJql = `${this.jiraUrl}/issues/?jql=${transformedJqlQuery}`;
+            this.jiraLinkWithJql = `${this.jiraUrl}/issues/?jql=${transformedJqlQuery}`;
 
-                this.issues = await this.getIssues(transformedJqlQuery);
-                this.setDisplayedColumns();
+            this.issues = await this.getIssues(transformedJqlQuery);
+            this.setDisplayedColumns();
         } catch (error) {
             this.appInsightService.trackException(error, 'Issue-table.component::loadData');
 
@@ -402,11 +402,11 @@ export class IssuesComponent implements OnInit {
         this.dataSource = new MatTableDataSource(this.issues || []);
     }
 
-     private async loadIssuesWithSpinner(): Promise<void> {
+    private async loadIssuesWithSpinner(): Promise<void> {
         this.loadingTableData = true;
         await this.loadIssues();
         this.loadingTableData = false;
-     }
+    }
 
     public async sortData(columnName: string): Promise<void> {
         if (this.isMobile) {
@@ -416,8 +416,8 @@ export class IssuesComponent implements OnInit {
         const columnDirection = this.sortedColumnsState.get(columnName);
 
         this.sortDirection = !columnDirection || columnDirection === JiraSortDirection.Desc ?
-                                JiraSortDirection.Asc :
-                                JiraSortDirection.Desc;
+            JiraSortDirection.Asc :
+            JiraSortDirection.Desc;
 
         this.activeColumn = columnName;
 
@@ -492,7 +492,7 @@ export class IssuesComponent implements OnInit {
             const selectedJiraFilter = this.selectedJiraFilter && this.selectedJiraFilter.value;
             options = { jql: selectedJiraFilter, jqlSuffix: this.jqlOrderBySuffix, accountId: this.accountId, page: this.page };
         } else {
-            options = { jql: this.jqlQuery, jqlSuffix: this.jqlOrderBySuffix,  projectKey: this.projectKey };
+            options = { jql: this.jqlQuery, jqlSuffix: this.jqlOrderBySuffix, projectKey: this.projectKey };
         }
 
         return this.issuesService.createJqlQuery(options);
@@ -650,10 +650,10 @@ export class IssuesComponent implements OnInit {
         };
 
         this.dialog.open(SignoutMaterialDialogComponent, dialogConfig).afterClosed()
-        .subscribe(async (isConfirmed: boolean) => {
-            if (isConfirmed) {
-                await this.router.navigate(['/login', { ...this.route.snapshot.params, status: StatusCode.Unauthorized }]);
-            }
-        });
+            .subscribe(async (isConfirmed: boolean) => {
+                if (isConfirmed) {
+                    await this.router.navigate(['/login', { ...this.route.snapshot.params, status: StatusCode.Unauthorized }]);
+                }
+            });
     }
 }

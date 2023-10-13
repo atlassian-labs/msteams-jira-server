@@ -16,7 +16,10 @@ import { FormGroup } from '@angular/forms';
 			</div>
 
 			<div class="field-group__body">
-			  <input [matDatepicker]="datePicker" placeholder="{{data.placeholder}}" formControlName="{{data.formControlName}}" class="input-date-picker" disabled>
+			  <input [matDatepicker]="datePicker"
+                     placeholder="{{data.placeholder}}"
+                     formControlName="{{data.formControlName}}"
+                     class="input-date-picker" disabled>
 			  <mat-datepicker-toggle [for]="datePicker"></mat-datepicker-toggle>
 			  <mat-datepicker #datePicker disabled="false"></mat-datepicker>
 			</div>

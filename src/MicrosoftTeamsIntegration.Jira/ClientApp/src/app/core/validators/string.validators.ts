@@ -1,4 +1,4 @@
-import { AbstractControl } from "@angular/forms";
+import { AbstractControl } from '@angular/forms';
 
 export class StringValidators {
     static isNotEmptyString(control: AbstractControl) {

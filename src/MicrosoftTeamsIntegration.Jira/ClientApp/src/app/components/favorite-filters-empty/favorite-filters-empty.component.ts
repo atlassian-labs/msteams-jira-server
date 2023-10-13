@@ -12,7 +12,8 @@ import { Component } from '@angular/core';
             To use this tab you will need to create and save your own Jira filters:
             <span>
                 Please check
-                <a href="https://confluence.atlassian.com/jiracorecloud/saving-your-search-as-a-filter-765593721.html" target="_blank" rel="noreferrer noopener">
+                <a href="https://confluence.atlassian.com/jiracorecloud/saving-your-search-as-a-filter-765593721.html"
+                   target="_blank" rel="noreferrer noopener">
                     Atlassian documentation
                 </a>
                 for detailed steps.

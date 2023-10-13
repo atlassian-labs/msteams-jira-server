@@ -130,7 +130,7 @@ export class AssigneeDropdownComponent implements OnInit {
     }
 
     private async getAssigneeOptions(userDisplayNameOrEmail: string = ''): Promise<DropDownOption<string>[]> {
-        //TODO: retrieve account id by display name if possible
+        // TODO: retrieve account id by display name if possible
         const options: SearchAssignableOptions = {
             jiraUrl: this.jiraUrl,
             issueKey: this.issueKey,

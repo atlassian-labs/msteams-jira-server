@@ -28,7 +28,7 @@ export class IssueCommentComponent {
     @Input() public user: JiraUser;
     @Input() public permissions: JiraPermissions;
 
-    @Output() public change = new EventEmitter<{ oldValue: JiraComment, newValue: JiraComment }>();
+    @Output() public change = new EventEmitter<{ oldValue: JiraComment; newValue: JiraComment }>();
 
     constructor(
         private commentService: IssueCommentService,

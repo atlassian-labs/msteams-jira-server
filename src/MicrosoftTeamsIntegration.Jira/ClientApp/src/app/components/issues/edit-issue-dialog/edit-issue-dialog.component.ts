@@ -47,25 +47,23 @@ interface EditIssueModel {
     projectTypeKey: string;
 }
 
-const mapIssueToEditIssueDialogModel = (issue: Issue): EditIssueModel => {
-    return {
-        key: issue.key,
-        id: issue.id,
-        issueTypeIconUrl: issue.fields.issuetype.iconUrl,
-        projectKey: issue.fields.project.key,
-        priorityId: (issue.fields.priority && issue.fields.priority.id) || null,
-        priority: issue.fields.priority,
-        summary: issue.fields.summary || '',
-        description: issue.fields.description || '',
-        created: issue.fields.created,
-        updated: issue.fields.updated,
-        reporter: issue.fields.reporter,
-        assignee: issue.fields.assignee,
-        comment: issue.fields.comment,
-        status: issue.fields.status,
-        projectTypeKey: issue.fields.project.projectTypeKey
-    } as EditIssueModel;
-};
+const mapIssueToEditIssueDialogModel = (issue: Issue): EditIssueModel => ({
+    key: issue.key,
+    id: issue.id,
+    issueTypeIconUrl: issue.fields.issuetype.iconUrl,
+    projectKey: issue.fields.project.key,
+    priorityId: (issue.fields.priority && issue.fields.priority.id) || null,
+    priority: issue.fields.priority,
+    summary: issue.fields.summary || '',
+    description: issue.fields.description || '',
+    created: issue.fields.created,
+    updated: issue.fields.updated,
+    reporter: issue.fields.reporter,
+    assignee: issue.fields.assignee,
+    comment: issue.fields.comment,
+    status: issue.fields.status,
+    projectTypeKey: issue.fields.project.projectTypeKey
+} as EditIssueModel);
 
 @Component({
     selector: 'app-edit-issue-dialog',
@@ -168,9 +166,9 @@ export class EditIssueDialogComponent implements OnInit {
             const { permissions } = await this.permissionService
                 .getMyPermissions(this.jiraUrl, issueRelatedPermissions, this.issueId);
             this.permissions = permissions;
-            
+
             if (!this.canEditIssue && !this.canViewIssue) {
-                const message = "You don't have permissions to perform this action";
+                const message = 'You don\'t have permissions to perform this action';
                 await this.router.navigate(['/error'], { queryParams: { message } });
                 return;
             }
@@ -187,7 +185,7 @@ export class EditIssueDialogComponent implements OnInit {
             if (this.allowEditPriority) {
                 await this.setPrioritiesOptions();
             }
-            
+
             // assignee
             if (this.allowEditAssignee) {
                 await this.setAssigneeOptions();
@@ -228,7 +226,7 @@ export class EditIssueDialogComponent implements OnInit {
         const jiraServerInstanceUrl = this.currentUser.jiraServerInstanceUrl || this.jiraUrl;
         return encodeURI(`${jiraServerInstanceUrl}/browse/${this.issue.key}`);
     }
-    
+
     public get canEditIssue(): boolean {
         return this.permissions.EDIT_ISSUES.havePermission;
     }
@@ -251,9 +249,9 @@ export class EditIssueDialogComponent implements OnInit {
 
     public get allowEditAssignee(): boolean {
         // for JSM projects user should be a member of 'jira-servicedesk-users' group in order to get assignees,
-        // even with ASSIGN_ISSUES project permission 
-        if (this.issue.projectTypeKey == ProjectType.ServiceDesk) {
-            return this.currentUser.groups.items.some(x => x.name == UserGroup.JiraServicedeskUsers) && 
+        // even with ASSIGN_ISSUES project permission
+        if (this.issue.projectTypeKey === ProjectType.ServiceDesk) {
+            return this.currentUser.groups.items.some(x => x.name === UserGroup.JiraServicedeskUsers) &&
                 this.permissions.ASSIGN_ISSUES.havePermission;
         }
         return this.permissions.ASSIGN_ISSUES.havePermission;
@@ -340,14 +338,14 @@ export class EditIssueDialogComponent implements OnInit {
 
     public onConfirmCancel(): void {
         // TODO: add confirmation popup
-       this.onCancel();
+        this.onCancel();
     }
 
     public removeUnassignableUser(): void {
         if (this.notAssignableAssignee) {
             const tempAssigneeAccountId = this.notAssignableAssignee.accountId
-                                            ? this.notAssignableAssignee.accountId
-                                            : this.notAssignableAssignee.name;
+                ? this.notAssignableAssignee.accountId
+                : this.notAssignableAssignee.name;
 
             this.assigneesOptions = this.assigneesOptions.filter(x => x.value !== tempAssigneeAccountId);
         }
@@ -503,6 +501,7 @@ export class EditIssueDialogComponent implements OnInit {
             ...{
                 data: {
                     title: 'Success',
+                    // eslint-disable-next-line max-len
                     subtitle: `Issue <a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">${this.issue.key}</a> has been successfully updated.`,
                     buttonText: 'Dismiss',
                     dialogType: DialogType.SuccessLarge
@@ -512,7 +511,13 @@ export class EditIssueDialogComponent implements OnInit {
 
         this.dialog.open(ConfirmationDialogComponent, dialogConfig)
             .afterClosed().subscribe(() => {
-                microsoftTeams.tasks.submitTask({ commandName: 'showIssueCard', issueId: this.issue.id, issueKey: this.issueKey, replyToActivityId: this.replyToActivityId });
+                microsoftTeams.tasks.submitTask(
+                    {
+                        commandName: 'showIssueCard',
+                        issueId: this.issue.id,
+                        issueKey: this.issueKey,
+                        replyToActivityId: this.replyToActivityId
+                    });
                 microsoftTeams.tasks.submitTask();
             });
     }

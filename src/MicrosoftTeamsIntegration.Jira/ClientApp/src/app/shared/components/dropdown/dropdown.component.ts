@@ -10,6 +10,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 export const CUSTOM_DROPDOWN_CONTROL_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     useExisting: forwardRef(() => DropDownComponent),
     multi: true
 };
@@ -24,14 +25,18 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     public opened = false;
 
     @Input()
-    get disabled(): boolean { return this._disabled; }
+    get disabled(): boolean {
+        return this._disabled;
+    }
     set disabled(value: boolean) {
         this._disabled = coerceBooleanProperty(value);
     }
     protected _disabled = false;
 
     @Input()
-    get options(): DropDownOption<T>[] { return this._options; }
+    get options(): DropDownOption<T>[] {
+        return this._options;
+    }
     set options(options: DropDownOption<T>[]) {
         this._options = options && options.length ? options : [this.DEFAULT_LOADING_OPTION];
 
@@ -48,8 +53,8 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
             }
         }
 
-        if (!this.searchable && 
-            this._options.length < 2 && 
+        if (!this.searchable &&
+            this._options.length < 2 &&
             this.selected !== this.DEFAULT_LOADING_OPTION) {
             this._disabled = true;
         } else {
@@ -63,7 +68,9 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     protected _options: DropDownOption<T>[] = [];
 
     @Input()
-    get selected(): DropDownOption<T> { return this._selected; }
+    get selected(): DropDownOption<T> {
+        return this._selected;
+    }
     set selected(option: DropDownOption<T>) {
         if (!option) {
             return;
@@ -83,7 +90,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
         }
 
         if (!this.searchable) {
-            return this.options; 
+            return this.options;
         }
 
         return this._filteredOptions;
@@ -116,7 +123,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
 
     @Input() public iconSize: 'sm' | 'md' = 'md';
 
-    @Input() public placeholder: string = '';
+    @Input() public placeholder = '';
 
     @Output() public optionSelect = new EventEmitter<DropDownOption<T>>();
 
@@ -234,11 +241,15 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     }
 
     public toggle(): void {
-        this.opened || this.disabled ? this.close() : this.open();
+        if (this.opened || this.disabled) {
+            this.close();
+        } else {
+            this.open();
+        }
     }
 
     public ngOnDestroy(): void {
-        if (this.searchChangeDebouncerSubscription && this.searchChangeDebouncerSubscription !== null) {
+        if (this.searchChangeDebouncerSubscription) {
             this.searchChangeDebouncerSubscription.unsubscribe();
         }
     }

@@ -51,11 +51,11 @@ export class ConfirmationDialogComponent implements OnInit, OnDestroy {
             case DialogType.ErrorSmall:
                 return 'aui-icon aui-icon-small aui-iconfont-error';
             case DialogType.ErrorLarge:
-                return  'aui-icon aui-icon-large aui-iconfont-error';
+                return 'aui-icon aui-icon-large aui-iconfont-error';
             case DialogType.WarningSmall:
-                    return  'aui-icon aui-icon-large aui-iconfont-warning';
+                return 'aui-icon aui-icon-large aui-iconfont-warning';
             case DialogType.ErrorLarge:
-                    return  'aui-icon aui-icon-large aui-iconfont-warning';
+                return 'aui-icon aui-icon-large aui-iconfont-warning';
             default:
                 return '';
         }

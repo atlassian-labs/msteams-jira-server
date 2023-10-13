@@ -9,13 +9,11 @@ import { SelectChange } from '@shared/models/select-change.model';
     styleUrls: ['./tree.component.scss']
 })
 export class TreeComponent {
-    public isExpanded = false;
-
     @Input() public title: string;
     @Input() public options: SelectOption[] = [];
-
     @Output() public optionSelect = new EventEmitter<SelectChange>();
 
+    public isExpanded = false;
     public selectedOptions: SelectOption[] = [];
 
     public toggle(): void {

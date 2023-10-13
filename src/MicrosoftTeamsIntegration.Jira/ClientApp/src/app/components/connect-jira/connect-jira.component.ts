@@ -35,7 +35,7 @@ export class ConnectJiraComponent implements OnInit {
     public get verificationCode(): AbstractControl {
         return this.loginForm.get('verificationCode');
     }
- 
+
     public static JIRA_ID_STORAGE_KEY = 'jira.jiraId';
     private endpoint: string;
 
@@ -52,7 +52,7 @@ export class ConnectJiraComponent implements OnInit {
     public addonVersion = '';
     public jiraAuthUrl = '';
     public authClicked = false;
-    public authDisabled = false
+    public authDisabled = false;
 
     private application: string;
     private enabledLoadingIndicatorHiding = true;
@@ -72,7 +72,7 @@ export class ConnectJiraComponent implements OnInit {
     public async onSubmitConnectForm(): Promise<void> {
         this.showAddonStatusError = false;
         this.loadingIndicatorService.show();
-        let showAddonExceptionOnError: boolean = true;
+        let showAddonExceptionOnError = true;
 
         try {
             const jiraId: string = this.jiraId.value;
@@ -126,7 +126,8 @@ export class ConnectJiraComponent implements OnInit {
 
         try {
             const oauthToken: string = new RegExp('[\?&]oauth_token=([^&#]*)').exec(this.jiraAuthUrl)[1];
-            const { isSuccess, message } = await this.apiService.submitLoginInfo(this.jiraServerId, oauthToken, this.verificationCode.value);
+            const { isSuccess, message } =
+                await this.apiService.submitLoginInfo(this.jiraServerId, oauthToken, this.verificationCode.value);
 
             if (isSuccess) {
                 const savingResult = await this.apiService.saveJiraServerId(this.jiraServerId);
@@ -163,9 +164,9 @@ export class ConnectJiraComponent implements OnInit {
     }
 
     private buildLoginForm(): void {
-      this.loginForm = new FormGroup({
-          verificationCode: new FormControl(null, Validators.required)
-      });
+        this.loginForm = new FormGroup({
+            verificationCode: new FormControl(null, Validators.required)
+        });
     }
 
     private async moveForward(): Promise<void> {
@@ -186,7 +187,7 @@ export class ConnectJiraComponent implements OnInit {
             if (!this.endpoint || this.endpoint === 'undefined') {
                 this.endpoint = this.SETTINGS_PAGE_ROUTE;
             }
-            
+
             // if endpoint is a static file e.g. loginResult.html - use location.replace() method
             if (this.endpoint.indexOf('.html') !== -1) {
                 window.location.replace('https://' + window.location.host + this.endpoint);

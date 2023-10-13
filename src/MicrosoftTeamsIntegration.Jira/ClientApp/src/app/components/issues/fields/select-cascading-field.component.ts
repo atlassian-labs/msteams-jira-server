@@ -71,15 +71,18 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
 
     public ngOnInit() {
 
-        this.formGroup.addControl(this.data.formControlName + '_parent', this.data.required ? new FormControl(null, [Validators.required]) : new FormControl());
+        this.formGroup.addControl(this.data.formControlName + '_parent',
+            this.data.required ?
+                new FormControl(null, [Validators.required]) :
+                new FormControl());
         this.formGroup.addControl(this.data.formControlName + '_children', new FormControl());
-        
+
         if (this.data.allowedValues) {
             // get allowed values for cascading including all child values
             this.allowedParentOptions = this.data.allowedValues.map(this.dropdownUtilService.mapAllowedValueWithChildrenToSelectOption);
 
             // select default values only if we have some values to show
-            const defaultValue = this.data.defaultValue
+            const defaultValue = this.data.defaultValue;
             if (defaultValue) {
                 this.selectedParentId = defaultValue.id || defaultValue;
 
@@ -87,8 +90,8 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
                 const defaultParentOption = this.allowedParentOptions.find(x => x.id === this.selectedParentId);
 
                 if (defaultParentOption) {
-                    this.allowedChildrenOptions = defaultParentOption.children.map(this.dropdownUtilService.mapAllowedValueToSelectOption); 
-                }                
+                    this.allowedChildrenOptions = defaultParentOption.children.map(this.dropdownUtilService.mapAllowedValueToSelectOption);
+                }
 
                 // get default children if it was set
                 if (defaultValue.child && defaultValue.child.id) {
@@ -99,7 +102,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
     }
 
     public onParentChange($event) {
-        var selectedValue = $event;
+        const selectedValue = $event;
         this.selectedChildId = []; // clear child options
 
         if (selectedValue) {
@@ -113,7 +116,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
     }
 
     public onChildrenChange($event) {
-        var selectedValue = $event;
+        const selectedValue = $event;
 
         if (selectedValue) {
             // create an cascading object for selected parent and child value

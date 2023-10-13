@@ -25,7 +25,7 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
                         (search)="onSearch($event)"
                         (open)="onOpen()"
                         (clear)="onClear()"
-                        (blur)="onBlur($event)"
+                        (blur)="onBlur()"
                         addTagText="{{data.addTagText}}"
                         [multiple]="true"
                         [hideSelected]="true"
@@ -33,7 +33,7 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
                         placeholder="{{data.placeholder}}"
                         formControlName="{{data.formControlName}}"
                         [(ngModel)]="selectedOptionIds"
-                        [attr.disabled]="data.disabled">  
+                        [attr.disabled]="data.disabled">
             </ng-select>
           </div>
         </div>
@@ -83,7 +83,7 @@ export class LabelsFieldComponent implements FieldComponent, OnInit {
     }
 
     public async onOpen() {
-        if (!this.dataInitialized)  {
+        if (!this.dataInitialized) {
             this.loadingOn();
 
             const labelsAutocompleteData = await this.apiService.getAutocompleteData(this.jiraUrl, 'labels');

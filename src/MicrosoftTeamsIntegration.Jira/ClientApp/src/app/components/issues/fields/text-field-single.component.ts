@@ -17,7 +17,7 @@ import { FormGroup } from '@angular/forms';
 		</div>
 
         <div class="field-group__body">
-          <input matInput type="text" placeholder="{{data.placeholder}}" maxlength="254" 
+          <input matInput type="text" placeholder="{{data.placeholder}}" maxlength="254"
             formControlName="{{data.formControlName}}" [attr.disabled]="data.disabled" value="{{data.defaultValue}}">
 		</div>
 	  </div>

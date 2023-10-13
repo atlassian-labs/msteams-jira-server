@@ -76,9 +76,9 @@ export class ErrorService {
         router.routerState.root.children[0].params.subscribe(params => {
             const application = params['application'];
             message = (
-                    (application === ApplicationType.JiraServerCompose || application === ApplicationType.JiraServerTab) &&
+                (application === ApplicationType.JiraServerCompose || application === ApplicationType.JiraServerTab) &&
                     error instanceof HttpErrorResponse
-                )
+            )
                 ? error.error.error
                 : message;
 
@@ -92,7 +92,7 @@ export class ErrorService {
         router.navigate(['error'], { queryParams: { message } });
     }
 
-    public showErrorModal(error: Error | HttpErrorResponse) : void {
+    public showErrorModal(error: Error | HttpErrorResponse): void {
         this.appInsightsService.trackException(error as Error, 'ErrorService::handleError');
         const message = this.getHttpErrorMessage(error);
 
@@ -130,14 +130,14 @@ export class ErrorService {
             : message;
 
         try {
-            var  parsedObj = JSON.parse(message);
+            const parsedObj = JSON.parse(message);
 
             // Some error messages are coming in next format {"errorMessages":[],"errors":{}}
             // try to get message from list of messages
             if(parsedObj && parsedObj.errorMessages && parsedObj.errorMessages.length > 0 ) {
                 return parsedObj.errorMessages[0];
             }
-        } catch (error) {
+        } catch (err) {
         }
         // or return original message
         return message;

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "jiratab": {
+    "jira": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -58,18 +58,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "jiratab:build"
+            "browserTarget": "jira:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "jiratab:build:production"
+              "browserTarget": "jira:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "jiratab:build"
+            "browserTarget": "jira:build"
           }
         },
         "test": {
@@ -90,25 +90,23 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "src/tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
+            "eslintConfig": ".eslintrc.js",
+            "lintFilePatterns": [
+              "**/*.ts"
             ]
           }
         }
       }
     },
-    "jiratab-e2e": {
+    "jira-e2e": {
       "root": "",
       "sourceRoot": "",
       "projectType": "application"
     }
   },
-  "defaultProject": "jiratab",
+  "defaultProject": "jira",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

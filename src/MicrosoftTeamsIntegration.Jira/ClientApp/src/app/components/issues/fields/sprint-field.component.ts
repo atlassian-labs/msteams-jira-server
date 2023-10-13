@@ -28,7 +28,7 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
                         [loading]="loading"
                         placeholder="{{data.placeholder}}"
                         formControlName="{{data.formControlName}}"
-                        [attr.disabled]="data.disabled">  
+                        [attr.disabled]="data.disabled">
             </ng-select>
           </div>
         </div>
