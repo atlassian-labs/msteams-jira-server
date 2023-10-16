@@ -202,7 +202,7 @@ export class EditIssueDialogComponent implements OnInit {
             this.error = error;
             this.appInsightsService.trackException(
                 new Error(error),
-                'EditIssueMaterialDialogComponent::ngOnInit',
+                'EditIssueDialogComponent::ngOnInit',
                 this.issue
             );
         }

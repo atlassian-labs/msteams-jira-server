@@ -32,7 +32,7 @@ import { AppComponent } from '@app/components/app.component';
 import {
     LoginComponent, StaticTabComponent,
     IssuesComponent, ErrorComponent, FavoriteFiltersEmptyComponent,
-    EditIssueMaterialDialogComponent, EditIssueDialogComponent, CreateIssueDialogComponent,
+    EditIssueDialogComponent, CreateIssueDialogComponent,
     AssigneeDropdownComponent, PriorityDropdownComponent, StatusDropdownComponent,
     SettingsFiltersComponent as SettingsProjectComponent, SettingsComponent,
     IssueCommentComponent, NewCommentComponent, ConfirmationDialogComponent,
@@ -92,7 +92,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         FavoriteFiltersEmptyComponent,
         SettingsComponent,
         SettingsProjectComponent,
-        EditIssueMaterialDialogComponent,
         EditIssueDialogComponent,
         AssigneeDropdownComponent,
         PriorityDropdownComponent,
@@ -126,7 +125,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         SelectCascadingFieldComponent,
     ],
     entryComponents: [
-        EditIssueMaterialDialogComponent,
         EditIssueDialogComponent,
         CreateIssueDialogComponent,
         ConfirmationDialogComponent,

@@ -5,7 +5,6 @@ export * from '@app/components/static-tab/static-tab.component';
 export * from '@app/components/go-to-website/go-to-website.component';
 
 export * from '@app/components/issues/issues-table/issues-table.component';
-export * from '@app/components/issues/edit-issue-material-dialog/edit-issue-material-dialog.component';
 export * from '@app/components/issues/edit-issue-dialog/edit-issue-dialog.component';
 export * from '@app/components/issues/create-issue-dialog/create-issue-dialog.component';
 export * from '@app/components/issues/issue-comment/issue-comment.component';
