@@ -207,7 +207,7 @@ export class IssuesComponent implements OnInit {
     }
 
     public openEditDialog(issueId: string): void {
-        const application = ApplicationType.JiraServerCompose;
+        const application = this.application || ApplicationType.JiraServerStaticTab;
         const url = `${localStorage.getItem('baseUrl')}/#/issues/edit;jiraUrl=${encodeURIComponent(this.jiraUrl)};` +
             `application=${application};issueId=${issueId};source=issuesTab`;
 
@@ -235,7 +235,7 @@ export class IssuesComponent implements OnInit {
     }
 
     public openIssueCreateDialog(): void {
-        const application = ApplicationType.JiraServerCompose;
+        const application = this.application || ApplicationType.JiraServerStaticTab;
         const url = `${localStorage.getItem('baseUrl')}/#/issues/create;jiraUrl=${encodeURIComponent(this.jiraUrl)};` +
                         `application=${application};source=issuesTab`;
 
