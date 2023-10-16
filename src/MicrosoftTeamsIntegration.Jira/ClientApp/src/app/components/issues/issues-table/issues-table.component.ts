@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 import { HttpErrorResponse } from '@angular/common/http';
 import {
     Component,
@@ -12,14 +11,12 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EditIssueMaterialDialogComponent } from '@app/components/issues/edit-issue-material-dialog/edit-issue-material-dialog.component';
 import { SignoutMaterialDialogComponent } from '@app/components/issues/signout-material-dialog/signout-material-dialog.component';
 import { AddonStatus, ApplicationType, PageName, StatusCode } from '@core/enums';
 import { JiraSortDirection } from '@core/enums/sort-direction.enum';
 import { NormalizedIssue } from '@core/models';
 import { JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import { JqlOptions } from '@core/models/Jira/jql-settings.model';
-import { EditIssueDialogData } from '@core/models/dialogs/issue-dialog.model';
 import {
     ApiService,
     AppInsightsService,
@@ -210,23 +207,31 @@ export class IssuesComponent implements OnInit {
     }
 
     public openEditDialog(issueId: string): void {
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    jiraUrl: this.jiraUrl,
-                    projectKey: this.projectKey,
-                    issueId
-                } as EditIssueDialogData
-            }
+        const application = ApplicationType.JiraServerCompose;
+        const url = `${localStorage.getItem('baseUrl')}/#/issues/edit;jiraUrl=${encodeURIComponent(this.jiraUrl)};` +
+            `application=${application};issueId=${issueId};source=issuesTab`;
+
+        const taskInfo = {
+            title: 'Edit the issue',
+            url,
+            fallbackUrl: url,
+            width: 710,
+            height: 522
         };
 
-        this.dialog.open(EditIssueMaterialDialogComponent, dialogConfig)
-            .afterClosed().subscribe(async (issueChanged: boolean) => {
-                if (issueChanged) {
+        microsoftTeams.tasks.startTask(taskInfo, async (err, result: any) => {
+            if (err) {
+                if (err !== 'User cancelled/closed the task module.') {
+                    this.appInsightService.trackException(new Error(err), 'Issue-table.component::openEditDialog');
+                }
+            } else {
+                if (result instanceof Error) {
+                    this.appInsightService.trackException(result, 'Issue-table.component::openEditDialog');
+                } else {
                     await this.loadData();
                 }
-            });
+            }
+        });
     }
 
     public openIssueCreateDialog(): void {
