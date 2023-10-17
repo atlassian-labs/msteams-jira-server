@@ -7,5 +7,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
     public interface IActionableMessageService
     {
         Task<bool> HandleConnectorCardActionQuery(ITurnContext context, IntegratedUser user);
+        Task HandleSuccessfulConnection(ITurnContext context);
     }
 }
