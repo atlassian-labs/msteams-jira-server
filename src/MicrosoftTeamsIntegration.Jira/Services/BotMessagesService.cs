@@ -162,7 +162,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                                                     new AdaptiveImage
                                                     {
                                                         Url = new Uri(
-                                                            "https://product-integrations-cdn.atl-paas.net/atlassian-logo-blue.png"),
+                                                            "https://product-integrations-cdn.atl-paas.net/atlassian-logo-gradient-blue-large.png"),
                                                         Size = AdaptiveImageSize.Small
                                                     }
                                                 },
