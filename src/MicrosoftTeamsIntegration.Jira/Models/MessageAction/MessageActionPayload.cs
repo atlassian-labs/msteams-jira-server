@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace MicrosoftTeamsIntegration.Jira.Models.MessageAction
@@ -19,5 +20,8 @@ namespace MicrosoftTeamsIntegration.Jira.Models.MessageAction
 
         [JsonProperty("linkToMessage")]
         public string LinkToMessage { get; set; }
+
+        [JsonProperty("parameters")]
+        public List<Parameter> Parameters { get; set; }
     }
 }

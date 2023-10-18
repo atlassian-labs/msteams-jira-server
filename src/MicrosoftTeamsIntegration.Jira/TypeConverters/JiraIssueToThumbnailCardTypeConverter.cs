@@ -3,7 +3,6 @@ using System.Text;
 using AutoMapper;
 using Microsoft.Bot.Schema;
 using MicrosoftTeamsIntegration.Jira.Extensions;
-using MicrosoftTeamsIntegration.Jira.Helpers;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Settings;
@@ -25,17 +24,22 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                 return null;
             }
 
-            if (card is null)
-            {
-                card = new ThumbnailCard();
-            }
+            card ??= new ThumbnailCard();
 
-            model.JiraIssue.SetJiraIssueIconUrl(_appSettings.BaseUrl, JiraIconSize.Small);
-            model.JiraIssue.SetJiraIssuePriorityIconUrl(_appSettings.BaseUrl);
+            model.JiraIssue.SetJiraIssueIconUrl(JiraIconSize.Large);
+            model.JiraIssue.SetJiraIssuePriorityIconUrl();
 
             var mappingOptions = context.ExtractMappingOptions();
-            card.Title = JiraIssueTemplateHelper.GetTitle(model.JiraInstanceUrl, model.JiraIssue);
-            card.Text = GetPreviewText(model.JiraIssue, model.EpicFieldName, mappingOptions.IsQueryLinkRequest);
+            card.Title = $"{model.JiraIssue.Key}: {model.JiraIssue.Fields.Summary}";
+            card.Subtitle = GetPreviewText(model?.JiraIssue);
+
+            if (!string.IsNullOrEmpty(model?.JiraIssue?.Fields?.Type?.IconUrl))
+            {
+                card.Images = new List<CardImage>
+                {
+                    new CardImage(model.JiraIssue.Fields.Type.IconUrl)
+                };
+            }
 
             if (mappingOptions.IsQueryLinkRequest && !string.IsNullOrWhiteSpace(mappingOptions.PreviewIconPath))
             {
@@ -48,14 +52,15 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
             return card;
         }
 
-        private static string GetPreviewText(JiraIssue jiraIssue, string epicFieldName, bool isQueryLinkRequest)
+        private static string GetPreviewText(JiraIssue jiraIssue)
         {
             var text = new StringBuilder();
-            JiraIssueTemplateHelper.AppendAssigneeAndUpdatedFields(text, jiraIssue);
-            JiraIssueTemplateHelper.AppendEpicField(text, epicFieldName, jiraIssue);
-            JiraIssueTemplateHelper.AppendIssueTypeField(text, jiraIssue);
-            JiraIssueTemplateHelper.AppendPriorityField(text, jiraIssue);
-            JiraIssueTemplateHelper.AppendStatusField(text, jiraIssue, isQueryLinkRequest);
+            text.Append(jiraIssue.Fields.Status.Name);
+            if (!string.IsNullOrEmpty(jiraIssue.Fields?.Assignee?.DisplayName))
+            {
+                text.Append(" | ");
+                text.Append(jiraIssue.Fields.Assignee.DisplayName);
+            }
 
             return text.ToString();
         }

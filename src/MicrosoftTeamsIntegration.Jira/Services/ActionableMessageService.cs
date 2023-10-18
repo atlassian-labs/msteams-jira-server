@@ -225,8 +225,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 var priorities = await _jiraService.GetPriorities(user);
                 var jiraIssue = apiResponse.JiraIssues.FirstOrDefault();
 
-                jiraIssue?.SetJiraIssueIconUrl(_appSettings.BaseUrl);
-                jiraIssue?.SetJiraIssuePriorityIconUrl(_appSettings.BaseUrl);
+                jiraIssue?.SetJiraIssueIconUrl();
+                jiraIssue?.SetJiraIssuePriorityIconUrl();
 
                 var updatedCard =
                     JiraIssueSearchHelper.CreateO365ConnectorCardFromApiResponse(apiResponse, user, priorities);

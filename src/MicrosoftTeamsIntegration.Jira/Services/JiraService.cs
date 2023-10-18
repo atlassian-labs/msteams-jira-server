@@ -698,7 +698,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 "summary",
                 "updated",
                 "watches",
-                "votes"
+                "votes",
+                "project"
             };
         }
     }

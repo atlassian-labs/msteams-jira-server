@@ -269,7 +269,8 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("*.teams.microsoft.com")
                         .From("*.teams.microsoft.us")
                         .From("*.skype.com")
-                        .From("*.msteams-atlassian.com");
+                        .From("*.msteams-atlassian.com")
+                        .From("*.office.com");
 
                     if (!string.IsNullOrEmpty(appSettings.CspValidDomains))
                     {

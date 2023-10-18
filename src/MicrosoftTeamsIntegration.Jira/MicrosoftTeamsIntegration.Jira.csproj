@@ -16,7 +16,7 @@
     <NoWarn>$(NoWarn),NU1701</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AdaptiveCards" Version="2.7.3" />
+    <PackageReference Include="AdaptiveCards" Version="3.0.0" />
     <PackageReference Include="GraphQL.Client" Version="3.2.2" />
     <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.2" />
     <PackageReference Include="GraphQL.Primitives" Version="3.2.2" />

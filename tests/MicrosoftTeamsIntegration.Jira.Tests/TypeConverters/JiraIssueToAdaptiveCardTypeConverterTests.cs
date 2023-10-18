@@ -80,17 +80,17 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
 
             Assert.NotNull(result);
             Assert.IsType<AdaptiveCard>(result);
-            Assert.IsType<AdaptiveShowCardAction>(result.Actions[0]);
-            Assert.Equal("Comment", result.Actions[0].Title);
-
-            Assert.IsType<AdaptiveSubmitAction>(result.Actions[1]);
-            Assert.Equal("Edit", result.Actions[1].Title);
+            Assert.IsType<AdaptiveShowCardAction>(result.Actions[1]);
+            Assert.Equal("Comment", result.Actions[1].Title);
 
             Assert.IsType<AdaptiveSubmitAction>(result.Actions[2]);
-            Assert.Equal("Vote", result.Actions[2].Title);
+            Assert.Equal("Edit", result.Actions[2].Title);
 
             Assert.IsType<AdaptiveSubmitAction>(result.Actions[3]);
-            Assert.Equal("Log Work", result.Actions[3].Title);
+            Assert.Equal("Vote", result.Actions[3].Title);
+
+            Assert.IsType<AdaptiveSubmitAction>(result.Actions[4]);
+            Assert.Equal("Log Work", result.Actions[4].Title);
         }
 
         [Fact]
@@ -142,11 +142,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
 
             Assert.NotNull(result);
             Assert.IsType<AdaptiveCard>(result);
-            Assert.IsType<AdaptiveShowCardAction>(result.Actions[0]);
-            Assert.Equal("Comment", result.Actions[0].Title);
+            Assert.IsType<AdaptiveShowCardAction>(result.Actions[1]);
+            Assert.Equal("Comment", result.Actions[1].Title);
 
-            Assert.IsType<AdaptiveOpenUrlAction>(result.Actions[1]);
-            Assert.Equal("View in Jira", result.Actions[1].Title);
+            Assert.IsType<AdaptiveOpenUrlAction>(result.Actions[0]);
+            Assert.Equal("Open in Jira", result.Actions[0].Title);
         }
     }
 }

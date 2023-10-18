@@ -2,7 +2,7 @@
     <div *ngIf="errorMessage" class="dialog__top-error">
         {{ errorMessage }}
     </div>
-        
+
     <div class=dialog__content>
         <form *ngIf="commentForm" #form class="comment-form" [formGroup]="commentForm">
             <div class="comment-form__body">
@@ -18,11 +18,11 @@
                         </div>
                         <div class="inner-addon right-addon">
                             <i class="glyphicon glyphicon-search"></i>
-                            <input #searchBox id="search-box" (input)="search(searchBox.value)"
+                            <input #searchBox id="search-box" (input)="search(searchBox.value)" value="{{defaultSearchTerm}}"
                             placeholder="Search issues" class="field-group__search-input" type="text"/>
                         </div>
                     </div>
-                
+
                     <div class="search-result">
                         <ng-template [ngIf]="issues.length > 0" [ngIfElse]="noSearchResults">
                             <ul class="issues-list" tabindex="0" (keyup)="handleListKeyUp($event)" (focusout)="handleListFocusOut()" (mouseover)="handleListFocusOut()">
@@ -42,7 +42,7 @@
                             </div>
                         </ng-template>
                     </div>
-                
+
                     <div class="dialog__footer">
                         <div class="buttons">
                             <button class="ts-btn ts-btn-primary buttons__button"

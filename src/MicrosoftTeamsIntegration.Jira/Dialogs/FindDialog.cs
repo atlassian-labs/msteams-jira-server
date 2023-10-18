@@ -77,7 +77,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                     var cardItems = new List<CardListItem>();
                     foreach (var jiraIssue in jiraIssues)
                     {
-                        jiraIssue.SetJiraIssueIconUrl(_appSettings.BaseUrl);
+                        jiraIssue.SetJiraIssueIconUrl();
                         cardItems.Add(new CardListItem
                         {
                             Type = CardListItemTypes.ResultItem,

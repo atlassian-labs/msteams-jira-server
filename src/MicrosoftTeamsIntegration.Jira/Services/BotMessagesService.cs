@@ -112,7 +112,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 return null;
             }
 
-            jiraIssue.SetJiraIssueIconUrl(_appSettings.BaseUrl);
+            jiraIssue.SetJiraIssueIconUrl();
 
             var userNameOrAccountId = await _jiraService.GetUserNameOrAccountId(user);
 

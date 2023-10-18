@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using AdaptiveCards;
 using AutoMapper;
@@ -32,25 +32,28 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                 return null;
             }
 
-            if (card is null)
+            card ??= new AdaptiveCard(new AdaptiveSchemaVersion(1, 5));
+            card.AdditionalProperties = new SerializableDictionary<string, object>
             {
-                card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
-            }
+                {
+                    "msTeams", new
+                    {
+                        width = "full",
+                    }
+                },
+                {
+                    "metadata", new
+                    {
+                        webUrl = $"{model.JiraInstanceUrl}/browse/{model.JiraIssue?.Key}"
+                    }
+                }
+            };
 
-            model.JiraIssue.SetJiraIssueIconUrl(_appSettings.BaseUrl);
+            model.JiraIssue?.SetJiraIssueIconUrl();
+            model.JiraIssue?.SetJiraIssuePriorityIconUrl();
 
             var watchOrUnwatchActionColumn = GetWatchOrUnwatchAdaptiveColumn(model);
             var assignActionColumn = GetAssignAdaptiveColumn(model);
-            var issueDescriptionTextBlock = GetIssueDescriptionTextBlock(model);
-            var issueSummaryText = new StringBuilder();
-            if (!string.IsNullOrEmpty(model.JiraInstanceUrl))
-            {
-                issueSummaryText.Append($"[{model.JiraIssue.Fields.Summary}]({model.JiraInstanceUrl}/browse/{model.JiraIssue.Key})");
-            }
-            else
-            {
-                issueSummaryText.Append($"{model.JiraIssue.Fields.Summary}");
-            }
 
             card.Body = new List<AdaptiveElement>
             {
@@ -70,29 +73,30 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                                     {
                                         new AdaptiveImage
                                         {
-                                            UrlString = PrepareIconUrl(model.JiraIssue.Fields.Type.IconUrl),
-                                            Size = AdaptiveImageSize.Small,
-                                            HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
-                                            Spacing = AdaptiveSpacing.None
+                                            UrlString = PrepareIconUrl(model.JiraIssue?.Fields?.Type?.IconUrl),
+                                            PixelWidth = 30,
+                                            PixelHeight = 30,
+                                            Size = AdaptiveImageSize.Medium
                                         }
                                     }
                                 },
                                 new AdaptiveColumn
                                 {
                                     Width = "stretch",
-                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center,
                                     Items = new List<AdaptiveElement>
                                     {
                                         new AdaptiveTextBlock
                                         {
-                                            Text = model.JiraIssue.Fields.Project?.Name,
-                                            Size = AdaptiveTextSize.Small,
-                                            Spacing = AdaptiveSpacing.None,
-                                            MaxLines = 1
+                                            Text = model.JiraIssue?.Fields?.Summary,
+                                            Wrap = true,
+                                            Size = AdaptiveTextSize.Medium,
+                                            Weight = AdaptiveTextWeight.Bolder
                                         },
                                         new AdaptiveTextBlock
                                         {
-                                            Text = model.JiraIssue.Key,
+                                            Text = $"{model.JiraIssue?.Fields?.Project?.Name}/{model.JiraIssue?.Key}",
+                                            IsSubtle = true,
+                                            Size = AdaptiveTextSize.Small,
                                             Spacing = AdaptiveSpacing.None
                                         }
                                     }
@@ -102,78 +106,250 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                         },
                         new AdaptiveColumnSet
                         {
-                            Spacing = AdaptiveSpacing.Small,
                             Columns = new List<AdaptiveColumn>
                             {
                                 new AdaptiveColumn
                                 {
                                     Width = "stretch",
+                                    Spacing = AdaptiveSpacing.Small,
+                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
                                     Items = new List<AdaptiveElement>
                                     {
-                                        new AdaptiveTextBlock
-                                        {
-                                            Text = issueSummaryText.ToString(),
-                                            Spacing = AdaptiveSpacing.None,
-                                            Color = AdaptiveTextColor.Dark,
-                                            Wrap = true,
-                                            MaxLines = 3
-                                        },
-                                        new AdaptiveTextBlock
-                                        {
-                                            Text = $"{model.JiraIssue.Fields.Status?.Name} " +
-                                                   $"| {model.JiraIssue.Fields.Priority?.Name} " +
-                                                   $"| {model.JiraIssue.Fields.Updated.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)}",
-                                            Spacing = AdaptiveSpacing.Small,
-                                            IsSubtle = true,
-                                            Weight = AdaptiveTextWeight.Lighter
-                                        },
-                                        new AdaptiveFactSet
-                                        {
-                                            Spacing = AdaptiveSpacing.Small,
-                                            Facts = new List<AdaptiveFact>
-                                            {
-                                                new AdaptiveFact
-                                                {
-                                                    Title = "Reporter:",
-                                                    Value = model.JiraIssue.Fields.Reporter?.DisplayName
-                                                },
-                                                new AdaptiveFact
-                                                {
-                                                    Title = "Assignee:",
-                                                    Value = !string.IsNullOrEmpty(model.JiraIssue.Fields.Assignee?.DisplayName) ?
-                                                        model.JiraIssue.Fields.Assignee.DisplayName :
-                                                        "Unassigned"
-                                                }
-                                            }
-                                        },
                                         new AdaptiveColumnSet
                                         {
-                                            Spacing = AdaptiveSpacing.None,
                                             Columns = new List<AdaptiveColumn>
                                             {
-                                                assignActionColumn
+                                                new AdaptiveColumn
+                                                {
+                                                    Width = "3",
+                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                    Items = new List<AdaptiveElement>
+                                                    {
+                                                        new AdaptiveColumnSet
+                                                        {
+                                                            Spacing = AdaptiveSpacing.Small,
+                                                            Columns = new List<AdaptiveColumn>
+                                                            {
+                                                                new AdaptiveColumn
+                                                                {
+                                                                    Width = "3",
+                                                                    Spacing = AdaptiveSpacing.Small,
+                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                    Items = new List<AdaptiveElement>
+                                                                    {
+                                                                        new AdaptiveTextBlock
+                                                                        {
+                                                                            Text = "Status",
+                                                                            Wrap = true,
+                                                                            Spacing = AdaptiveSpacing.None,
+                                                                            Size = AdaptiveTextSize.Small
+                                                                        },
+                                                                        new AdaptiveColumnSet
+                                                                        {
+                                                                            Spacing = AdaptiveSpacing.Small,
+                                                                            Columns = new List<AdaptiveColumn>
+                                                                            {
+                                                                                new AdaptiveColumn
+                                                                                {
+                                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                                    Width = "stretch",
+                                                                                    Items = new List<AdaptiveElement>
+                                                                                    {
+                                                                                        new AdaptiveTextBlock
+                                                                                        {
+                                                                                            Text = model.JiraIssue?.Fields?.Status?.Name,
+                                                                                            Spacing = AdaptiveSpacing.None,
+                                                                                            Wrap = true,
+                                                                                            HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
+                                                                                            Weight = AdaptiveTextWeight.Bolder
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                new AdaptiveColumn
+                                                {
+                                                    Width = "3",
+                                                    Spacing = AdaptiveSpacing.Small,
+                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                    Items = new List<AdaptiveElement>
+                                                    {
+                                                        new AdaptiveColumnSet
+                                                        {
+                                                            Spacing = AdaptiveSpacing.Small,
+                                                            Columns = new List<AdaptiveColumn>
+                                                            {
+                                                                new AdaptiveColumn
+                                                                {
+                                                                    Width = "4",
+                                                                    Spacing = AdaptiveSpacing.Small,
+                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                    Items = new List<AdaptiveElement>
+                                                                    {
+                                                                        new AdaptiveTextBlock
+                                                                        {
+                                                                            Text = "Priority",
+                                                                            Wrap = true,
+                                                                            Spacing = AdaptiveSpacing.None,
+                                                                            Size = AdaptiveTextSize.Small
+                                                                        },
+                                                                        new AdaptiveColumnSet
+                                                                        {
+                                                                            Spacing = AdaptiveSpacing.Small,
+                                                                            Columns = new List<AdaptiveColumn>
+                                                                            {
+                                                                                new AdaptiveColumn
+                                                                                {
+                                                                                    Width = "16px",
+                                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                                    Items = new List<AdaptiveElement>
+                                                                                    {
+                                                                                        new AdaptiveImage
+                                                                                        {
+                                                                                            UrlString = PrepareIconUrl(model.JiraIssue?.Fields?.Priority?.IconUrl),
+                                                                                            Size = AdaptiveImageSize.Small,
+                                                                                            PixelWidth = 16,
+                                                                                            PixelHeight = 16,
+                                                                                            Spacing = AdaptiveSpacing.None
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                new AdaptiveColumn
+                                                                                {
+                                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                                    Width = "6",
+                                                                                    Spacing = AdaptiveSpacing.Small,
+                                                                                    Items = new List<AdaptiveElement>
+                                                                                    {
+                                                                                        new AdaptiveTextBlock
+                                                                                        {
+                                                                                            Text = model.JiraIssue?.Fields?.Priority?.Name,
+                                                                                            Spacing = AdaptiveSpacing.None,
+                                                                                            Wrap = true,
+                                                                                            HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
+                                                                                            Weight = AdaptiveTextWeight.Bolder
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                new AdaptiveColumn
+                                                {
+                                                    Width = "3",
+                                                    Spacing = AdaptiveSpacing.Small,
+                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                    Items = new List<AdaptiveElement>
+                                                    {
+                                                        new AdaptiveColumnSet
+                                                        {
+                                                            Spacing = AdaptiveSpacing.Small,
+                                                            Columns = new List<AdaptiveColumn>
+                                                            {
+                                                                new AdaptiveColumn
+                                                                {
+                                                                    Width = "3",
+                                                                    Spacing = AdaptiveSpacing.Small,
+                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                    Items = new List<AdaptiveElement>
+                                                                    {
+                                                                        new AdaptiveColumnSet
+                                                                        {
+                                                                            Spacing = AdaptiveSpacing.Small,
+                                                                            Columns = new List<AdaptiveColumn>
+                                                                            {
+                                                                                new AdaptiveColumn
+                                                                                {
+                                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                                    Width = "auto",
+                                                                                    Spacing = AdaptiveSpacing.Small,
+                                                                                    Items = new List<AdaptiveElement>
+                                                                                    {
+                                                                                        new AdaptiveTextBlock
+                                                                                        {
+                                                                                            Text = "Assignee",
+                                                                                            Wrap = true,
+                                                                                            Spacing = AdaptiveSpacing.None,
+                                                                                            Size = AdaptiveTextSize.Small
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                assignActionColumn
+                                                                            }
+                                                                        },
+                                                                        new AdaptiveColumnSet
+                                                                        {
+                                                                            Spacing = AdaptiveSpacing.Small,
+                                                                            Columns = new List<AdaptiveColumn>
+                                                                            {
+                                                                                new AdaptiveColumn
+                                                                                {
+                                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                                                    Width = "stretch",
+                                                                                    Spacing = AdaptiveSpacing.Small,
+                                                                                    Items = new List<AdaptiveElement>
+                                                                                    {
+                                                                                        new AdaptiveTextBlock
+                                                                                        {
+                                                                                            Text = model.JiraIssue?
+                                                                                            .Fields?.Assignee?.DisplayName ?? "Unassigned",
+                                                                                            Spacing = AdaptiveSpacing.None,
+                                                                                            Wrap = true,
+                                                                                            HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
+                                                                                            Weight = AdaptiveTextWeight.Bolder
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        },
-                        issueDescriptionTextBlock
+                        }
                     }
                 }
             };
 
-            card.Actions = new List<AdaptiveAction>
+            card.Actions = new List<AdaptiveAction>();
+
+            if (!string.IsNullOrEmpty(model.JiraInstanceUrl))
             {
-                // Comment button is common for ME card and Bot issue details card
+                card.Actions.Add(new AdaptiveOpenUrlAction
+                {
+                    Title = "Open in Jira",
+                    UrlString = $"{model.JiraInstanceUrl}/browse/{model.JiraIssue?.Key}"
+                });
+            }
+
+            // Comment button is common for ME card and Bot issue details card
+            card.Actions.Add(
                 new AdaptiveShowCardAction
                 {
                     Title = DialogTitles.CommentTitle,
-                    Card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
+                    Card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 5))
                     {
                         Body = new List<AdaptiveElement>
                         {
-                            new AdaptiveTextBlock { Text = $"Add your comment to {model.JiraIssue.Key}" },
+                            new AdaptiveTextBlock { Text = $"Add your comment to {model.JiraIssue?.Key}" },
                             new AdaptiveTextInput { IsMultiline = true, Id = "commentText" }
                         },
                         Actions = new List<AdaptiveAction>
@@ -186,21 +362,11 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                             new AdaptiveSubmitAction
                             {
                                 Title = "Save",
-                                Data = new AdaptiveCardBotCommand($"{DialogMatchesAndCommands.CommentDialogCommand} {model.JiraIssue.Key}")
+                                Data = new AdaptiveCardBotCommand($"{DialogMatchesAndCommands.CommentDialogCommand} {model.JiraIssue?.Key}")
                             }
                         }
                     }
-                }
-            };
-
-            if (model.IsMessagingExtension && !string.IsNullOrEmpty(model.JiraInstanceUrl))
-            {
-                card.Actions.Add(new AdaptiveOpenUrlAction
-                {
-                    Title = "View in Jira",
-                    UrlString = $"{model.JiraInstanceUrl}/browse/{model.JiraIssue.Key}"
                 });
-            }
 
             if (model.IsMessagingExtension)
             {
@@ -208,19 +374,17 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
             }
 
             // Edit button is common fro personal and team scope
-            var taskModuleAction = new JiraBotTeamsDataWrapper
-            {
-                FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.EditIssueTaskModuleCommand, model.JiraIssue.Id, model.JiraIssue.Key),
-                TeamsData = new TeamsData
-                {
-                    Type = "task/fetch"
-                }
-            };
-
             card.Actions.Add(new AdaptiveSubmitAction
             {
                 Title = DialogTitles.EditTitle,
-                Data = taskModuleAction
+                Data = new JiraBotTeamsDataWrapper
+                {
+                    FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.EditIssueTaskModuleCommand, model.JiraIssue?.Id, model.JiraIssue?.Key),
+                    TeamsData = new TeamsData
+                    {
+                        Type = "task/fetch"
+                    }
+                }
             });
 
             // Action buttons for bot Jira issue details card
@@ -236,7 +400,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                             TeamsData = new TeamsData
                             {
                                 Type = "imBack",
-                                Value = $"{DialogMatchesAndCommands.VoteDialogCommand} {model.JiraIssue.Key}"
+                                Value = $"{DialogMatchesAndCommands.VoteDialogCommand} {model.JiraIssue?.Key}"
                             }
                         }
                     });
@@ -251,7 +415,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                             TeamsData = new TeamsData
                             {
                                 Type = "imBack",
-                                Value = $"{DialogMatchesAndCommands.UnvoteDialogCommand} {model.JiraIssue.Key}"
+                                Value = $"{DialogMatchesAndCommands.UnvoteDialogCommand} {model.JiraIssue?.Key}"
                             }
                         }
                     });
@@ -265,7 +429,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                         TeamsData = new TeamsData
                         {
                             Type = "imBack",
-                            Value = $"{DialogMatchesAndCommands.LogTimeDialogCommand} {model.JiraIssue.Key}"
+                            Value = $"{DialogMatchesAndCommands.LogTimeDialogCommand} {model.JiraIssue?.Key}"
                         }
                     }
                 });
@@ -276,16 +440,9 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
 
         private static string PrepareIconUrl(string iconUrl)
         {
-            return iconUrl
+            return !string.IsNullOrEmpty(iconUrl) && Uri.IsWellFormedUriString(iconUrl, UriKind.Absolute) ? iconUrl
                     .AddOrUpdateGetParameter("format", "png")
-                    .AddOrUpdateGetParameter("size", "large");
-        }
-
-        private static string AdjustTicketDescription(string ticketDescription)
-        {
-            var text = new StringBuilder();
-            text.Append(ticketDescription);
-            return text.Replace("\\\\", "\n\n").ToString();
+                    .AddOrUpdateGetParameter("size", "large") : iconUrl;
         }
 
         private static AdaptiveColumn GetWatchOrUnwatchAdaptiveColumn(BotAndMessagingExtensionJiraIssue model)
@@ -335,8 +492,10 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                             new AdaptiveTextBlock
                             {
                                 Spacing = AdaptiveSpacing.None,
-                                Text = $"_({DialogTitles.AssignTitle})_",
-                                Color = AdaptiveTextColor.Accent
+                                Text = $"({DialogTitles.AssignTitle})",
+                                Color = AdaptiveTextColor.Accent,
+                                Wrap = true,
+                                Size = AdaptiveTextSize.Small
                             }
                         },
                         SelectAction = new AdaptiveSubmitAction
@@ -358,8 +517,10 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                     new AdaptiveTextBlock
                     {
                         Spacing = AdaptiveSpacing.None,
-                        Text = $"_({DialogTitles.AssignTitle})_",
-                        Color = AdaptiveTextColor.Accent
+                        Text = $"({DialogTitles.AssignTitle})",
+                        Color = AdaptiveTextColor.Accent,
+                        Wrap = true,
+                        Size = AdaptiveTextSize.Small
                     }
                 },
                 SelectAction = new AdaptiveSubmitAction
@@ -368,18 +529,6 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                     Title = $"{DialogTitles.AssignTitle}"
                 }
             };
-        }
-
-        private static AdaptiveTextBlock GetIssueDescriptionTextBlock(BotAndMessagingExtensionJiraIssue model)
-        {
-            return model.IsMessagingExtension
-                ? new AdaptiveTextBlock()
-                : new AdaptiveTextBlock
-                {
-                    Text = AdjustTicketDescription(model.JiraIssue.Fields.Description),
-                    Wrap = true,
-                    MaxLines = 2
-                };
         }
 
         internal class AdaptiveCardBotCommand

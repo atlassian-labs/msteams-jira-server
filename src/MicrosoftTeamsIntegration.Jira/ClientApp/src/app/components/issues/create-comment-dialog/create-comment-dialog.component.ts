@@ -13,7 +13,7 @@ import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-d
 import { UtilService } from '@core/services/util.service';
 import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import * as microsoftTeams from '@microsoft/teams-js';
-import { StringValidators } from './../../../core/validators/string.validators';
+import { StringValidators } from '@core/validators/string.validators';
 
 @Component({
     selector: 'app-create-comment-dialog',
@@ -30,9 +30,9 @@ export class CreateCommentDialogComponent implements OnInit {
     public loading = false;
     public commentForm: FormGroup;
     private dialogDefaultSettings: MatDialogConfig = {
-        width: '250px',
+        width: '300px',
         height: '170px',
-        minWidth: '250px',
+        minWidth: '300px',
         minHeight: '170px',
         ariaLabel: 'Confirmation dialog',
         closeOnNavigation: true,
@@ -45,6 +45,7 @@ export class CreateCommentDialogComponent implements OnInit {
     @Input() public defaultComment: string;
     @Input() public jiraUrl: string;
     @Input() public jiraId: string;
+    @Input() public defaultSearchTerm: string;
 
     constructor(
         private apiService: ApiService,
@@ -59,13 +60,18 @@ export class CreateCommentDialogComponent implements OnInit {
     public async ngOnInit() {
         this.loading = true;
         try {
-            const { metadataRef, jiraUrl, jiraId, comment } = this.route.snapshot.params;
+            const { metadataRef, jiraUrl, jiraId, comment, issueUrl } = this.route.snapshot.params;
             this.metadataRef = metadataRef;
             this.jiraUrl = jiraUrl;
             this.jiraId = jiraId;
             this.defaultComment = comment;
+            this.defaultSearchTerm = this.getIssueKey(issueUrl);
 
             await this.createForm();
+
+            if (this.defaultSearchTerm) {
+                await this.search(this.defaultSearchTerm);
+            }
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error),
@@ -127,17 +133,21 @@ export class CreateCommentDialogComponent implements OnInit {
             } else {
                 this.issues = issues;
                 this.keyboardEventsManager = new ListKeyManager(this.issues as ListKeyManagerOption[]);
+                // preselect issue if we have just one result
+                if (this.issues.length === 1) {
+                    this.selectedIssue = issues[0];
+                }
             }
 
         } catch (error) {
-            this.errorMessage = 'Cannot retreive issue. Please try again later.';
+            this.errorMessage = 'Cannot retrieve issue. Please try again later.';
         }
     }
 
     private getSearchJql(searchTerm: string): string {
         searchTerm = searchTerm.trim();
 
-        if(searchTerm.includes('-')) {
+        if (searchTerm.includes('-')) {
             const parts = searchTerm.split('-');
             if(parts.length === 2 && parts.every(e => e !== null && e !== '')){
                 const projectKey = parts[0].normalize();
@@ -166,10 +176,35 @@ export class CreateCommentDialogComponent implements OnInit {
             }
         };
 
-        this.dialog.open(ConfirmationDialogComponent, dialogConfig)
-            .afterClosed().subscribe(() => {
-                microsoftTeams.tasks.submitTask();
-            });
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, dialogConfig);
+
+        dialogRef.afterClosed().subscribe(() => {
+            microsoftTeams.tasks.submitTask();
+        });
+
+        dialogRef.afterOpened().subscribe(_ => setTimeout(() => {
+            dialogRef.close();
+        }, 3000));
+    }
+
+    private getIssueKey(issueURL: string): string {
+        if (!issueURL) {
+            return null;
+        }
+
+        try {
+            const issueLinkRegex = /(?:https|https?):\/\/(?<hostname>[^\/]*)(\/[^\/]*)*\/browse\/(?<idOrKey>[a-zA-Z\d]+\-[\d]+)\/?/;
+            const issueRegexPattern = new RegExp(issueLinkRegex, 'i');
+
+            const parts = issueRegexPattern.exec(issueURL);
+            if (parts && (parts as any).groups) {
+                const groups = (parts as any).groups;
+                return groups['idOrKey'];
+            }
+            return null;
+        } catch (err) {
+            console.error('Cannot get issue id from URL', err);
+        }
     }
 
     private async createForm(): Promise<void> {
