@@ -340,33 +340,20 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                 });
             }
 
-            // Comment button is common for ME card and Bot issue details card
-            card.Actions.Add(
-                new AdaptiveShowCardAction
+            var commentIssueTaskModuleAction = new JiraBotTeamsDataWrapper
+            {
+                FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, model.JiraIssue.Id, model.JiraIssue.Key),
+                TeamsData = new TeamsData
                 {
-                    Title = DialogTitles.CommentTitle,
-                    Card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 5))
-                    {
-                        Body = new List<AdaptiveElement>
-                        {
-                            new AdaptiveTextBlock { Text = $"Add your comment to {model.JiraIssue?.Key}" },
-                            new AdaptiveTextInput { IsMultiline = true, Id = "commentText" }
-                        },
-                        Actions = new List<AdaptiveAction>
-                        {
-                            new AdaptiveSubmitAction
-                            {
-                                Title = "Cancel",
-                                Data = new AdaptiveCardBotCommand(DialogMatchesAndCommands.CancelCommand)
-                            },
-                            new AdaptiveSubmitAction
-                            {
-                                Title = "Save",
-                                Data = new AdaptiveCardBotCommand($"{DialogMatchesAndCommands.CommentDialogCommand} {model.JiraIssue?.Key}")
-                            }
-                        }
-                    }
-                });
+                    Type = "task/fetch"
+                }
+            };
+
+            card.Actions.Add(new AdaptiveSubmitAction
+            {
+                Title = DialogTitles.CommentTitle,
+                Data = commentIssueTaskModuleAction
+            });
 
             if (model.IsMessagingExtension)
             {

@@ -620,6 +620,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     taskModuleTitle = "Create an issue";
                 }
 
+                if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, StringComparison.OrdinalIgnoreCase))
+                {
+                    string jiraUrl = user?.JiraInstanceUrl;
+                    url = $"{_appSettings.BaseUrl}/#/issues/commentIssue;jiraUrl={Uri.EscapeDataString(jiraUrl)};jiraId={Uri.EscapeDataString(jiraId)};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};returnIssueOnSubmit=false;source=bot";
+                    taskModuleTitle = "Comment issue";
+                    taskModuleHeight = 250;
+                }
+
                 return new FetchTaskResponseEnvelope
                 {
                     Task = new FetchTaskResponse
