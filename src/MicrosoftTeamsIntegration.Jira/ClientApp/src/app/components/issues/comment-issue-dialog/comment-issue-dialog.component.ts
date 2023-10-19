@@ -1,7 +1,7 @@
 ﻿import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { IssueCommentService } from '@core/services/entities/comment.service';
 import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.model';
 import { ApiService, ErrorService, AppInsightsService } from '@core/services';
@@ -11,6 +11,8 @@ import { ConfirmationDialogComponent } from '@app/components/issues/confirmation
 import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
 import { DomSanitizer } from '@angular/platform-browser';
+import {JiraPermissionName} from "@core/models/Jira/jira-permission.model";
+import {PermissionService} from "@core/services/entities/permission.service";
 
 @Component({
     selector: 'app-comment-issue-dialog',
@@ -45,6 +47,8 @@ export class CommentIssueDialogComponent implements OnInit {
         private route: ActivatedRoute,
         private apiService: ApiService,
         private appInsightsService: AppInsightsService,
+        private permissionService: PermissionService,
+        private router: Router,
         private errorService: ErrorService
     ) { }
 
@@ -56,6 +60,18 @@ export class CommentIssueDialogComponent implements OnInit {
             this.jiraId = jiraId;
             this.issueId = issueId;
             this.issueKey = issueKey;
+            const commentRelatedPermissions: JiraPermissionName[] = [
+               'ADD_COMMENTS',
+            ];
+
+            const { permissions } = await this.permissionService
+                .getMyPermissions(this.jiraId, commentRelatedPermissions, this.issueId);
+
+            if (!permissions.ADD_COMMENTS.havePermission) {
+                const message = 'You don\'t have permissions to add comments';
+                await this.router.navigate(['/error'], { queryParams: { message } });
+                return;
+            }
 
             this.issue = await this.apiService.getIssueByIdOrKey(this.jiraId, this.issueId);
             await this.createForm();
