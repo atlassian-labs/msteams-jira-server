@@ -11,8 +11,8 @@ import { ConfirmationDialogComponent } from '@app/components/issues/confirmation
 import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
 import { DomSanitizer } from '@angular/platform-browser';
-import {JiraPermissionName} from "@core/models/Jira/jira-permission.model";
-import {PermissionService} from "@core/services/entities/permission.service";
+import {JiraPermissionName} from '@core/models/Jira/jira-permission.model';
+import {PermissionService} from '@core/services/entities/permission.service';
 
 @Component({
     selector: 'app-comment-issue-dialog',
@@ -61,7 +61,7 @@ export class CommentIssueDialogComponent implements OnInit {
             this.issueId = issueId;
             this.issueKey = issueKey;
             const commentRelatedPermissions: JiraPermissionName[] = [
-               'ADD_COMMENTS',
+                'ADD_COMMENTS',
             ];
 
             const { permissions } = await this.permissionService
@@ -120,10 +120,12 @@ export class CommentIssueDialogComponent implements OnInit {
     public get keyLink(): string {
         return encodeURI(`${this.jiraUrl}/browse/${this.issue.key}`);
     }
-    
+
     public get summary(): string {
-        let maxLenght = 110;
-        return (this.issue.fields.summary.length > maxLenght) ? this.issue.fields.summary.slice(0, maxLenght-1) + '...' : this.issue.fields.summary;
+        const maxLenght = 110;
+        return (this.issue.fields.summary.length > maxLenght)
+            ? this.issue.fields.summary.slice(0, maxLenght-1) + '...'
+            : this.issue.fields.summary;
     }
 
     private openConfirmationDialog(): void {
