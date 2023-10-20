@@ -120,6 +120,11 @@ export class CommentIssueDialogComponent implements OnInit {
     public get keyLink(): string {
         return encodeURI(`${this.jiraUrl}/browse/${this.issue.key}`);
     }
+    
+    public get summary(): string {
+        let maxLenght = 110;
+        return (this.issue.fields.summary.length > maxLenght) ? this.issue.fields.summary.slice(0, maxLenght-1) + '...' : this.issue.fields.summary;
+    }
 
     private openConfirmationDialog(): void {
         const dialogConfig = {

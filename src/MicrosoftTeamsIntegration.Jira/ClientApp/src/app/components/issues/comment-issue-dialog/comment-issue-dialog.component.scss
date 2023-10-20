@@ -156,26 +156,6 @@ hr {
   padding: 0;
 }
 
-.search-result {
-  max-height: 275px;
-  height: 275px;
-  margin: 0 0 1rem 0;
-}
-
-.issues-list {
-    list-style-type: none;
-    padding: 0;
-    overflow: auto;
-    height: 100%;
-    outline: 0px;
-    border: 0px;
-}
-
-.issues-list li {
-    cursor: pointer;
-    padding: .3rem .3rem .3rem 0rem;
-}
-
 /* enable absolute positioning */
 .inner-addon { 
     position: relative; 
