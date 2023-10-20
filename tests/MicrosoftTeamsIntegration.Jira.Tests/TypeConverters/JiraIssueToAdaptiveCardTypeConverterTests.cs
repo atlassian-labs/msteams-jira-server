@@ -80,7 +80,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
 
             Assert.NotNull(result);
             Assert.IsType<AdaptiveCard>(result);
-            Assert.IsType<AdaptiveShowCardAction>(result.Actions[1]);
+            Assert.IsType<AdaptiveSubmitAction>(result.Actions[1]);
             Assert.Equal("Comment", result.Actions[1].Title);
 
             Assert.IsType<AdaptiveSubmitAction>(result.Actions[2]);
@@ -142,7 +142,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
 
             Assert.NotNull(result);
             Assert.IsType<AdaptiveCard>(result);
-            Assert.IsType<AdaptiveShowCardAction>(result.Actions[1]);
+            Assert.IsType<AdaptiveSubmitAction>(result.Actions[1]);
             Assert.Equal("Comment", result.Actions[1].Title);
 
             Assert.IsType<AdaptiveOpenUrlAction>(result.Actions[0]);

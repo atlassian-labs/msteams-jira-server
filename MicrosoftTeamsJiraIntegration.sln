@@ -77,9 +77,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "staging", "staging", "{AB3C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "development", "development", "{0959885E-6EE5-4AF4-B996-B42F22B135E8}"
 	ProjectSection(SolutionItems) = preProject
-		manifests\server\development\color.png = manifests\server\development\color.png
 		manifests\server\development\manifest.json = manifests\server\development\manifest.json
 		manifests\server\development\outline.png = manifests\server\development\outline.png
+		manifests\server\development\color.png = manifests\server\development\color.png
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", "{06AF2F23-D535-4D88-9C91-A34DEA181D40}"

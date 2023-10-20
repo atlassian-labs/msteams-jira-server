@@ -1,0 +1,156 @@
+@import 'app-colors';
+
+.top-panel {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  &__issue-info {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+  }
+
+  &__issue-key {
+    flex: 1 0 auto; /* Allow it to grow to take available space, but not shrink */
+    min-width: 0; /* Ensure it can shrink if necessary */
+    max-width: 25%;
+    white-space: nowrap;
+    overflow: hidden; /* Hide overflow content if any */
+    text-overflow: ellipsis;
+    margin-right: 10px;
+  }
+  
+  &__key {
+    margin-left: 5px;
+  }
+
+  &__type-icon {
+    vertical-align: top;
+  }
+
+  &__summary {
+    text-align: left;
+  }
+
+  &__status {
+    align-self: center;
+    padding: 2px;
+    background-color: #EAEAEA;
+  }
+}
+
+.dialog {
+  margin-left: 3.2rem;
+  margin-right: 3.2rem;
+  margin-top: 2.0rem;
+
+  &__content {
+    overflow: auto;
+
+    // note: overall height of the task module in desktop is 522px
+    // so the main part is 100vh(522px) - 56px(32px footer>buttons>button + 12px margin-bottom from content + 12px margin-bottom from footer)
+    max-height: calc(100vh - 56px);
+    margin-bottom: 12px;
+    
+    // styles to make scrollbar shifted to the right
+    padding-right: 3.2rem;
+    margin-right: -3rem;
+  }
+
+  &__footer {
+    margin-bottom: 12px;
+  }
+
+  &__top-error {
+    font-size: 12px;
+    color: #ff5630;
+    margin-bottom: 5px;
+  }
+}
+
+.comment-form {
+  &__setup-fields { }
+  
+  &__content {
+    margin-top: 2rem;
+  }
+}
+
+.field-group {
+  width: 100%;
+  
+  &__comment {
+    font-weight: normal;
+  }
+
+  &__comment-textarea {
+    height: 9.2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+
+  &__button {
+    margin-top: 10px;
+    width: 96px;
+    height: 32px;
+  }
+}
+
+input, textarea {
+  box-shadow: none;
+  outline: none;
+  resize: vertical;
+  border: none;
+  border-radius: 3px;
+  border-bottom: solid 0.2rem transparent;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input:focus, 
+textarea:focus {
+  border-color: $app-brand;
+}
+
+input.ng-invalid.ng-touched, 
+textarea.ng-invalid.ng-dirty {
+  box-shadow: 0 0 0 1px #ff5630;
+  border: 1px solid #ff5630;
+}
+
+.center {
+  min-height: 610px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid $app-gray-02;
+  margin: 1em 0;
+  padding: 0;
+}
+
+/* enable absolute positioning */
+.inner-addon { 
+    position: relative; 
+}
+
+/* style icon */
+.inner-addon .glyphicon {
+  position: absolute;
+  padding: 10px;
+  pointer-events: none;
+}
+
+/* align icon */
+.right-addon .glyphicon { right: 0;}
+
+/* add padding  */
+.right-addon input { padding-right: 30px; }

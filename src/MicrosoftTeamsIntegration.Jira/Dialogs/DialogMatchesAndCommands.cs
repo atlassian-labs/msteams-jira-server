@@ -36,6 +36,8 @@
 
         public const string EditIssueTaskModuleCommand = "editIssue";
 
+        public const string CommentIssueTaskModuleCommand = "commentIssue";
+
         public const string SignoutMsAccountDialogCommand = "signout";
     }
 }

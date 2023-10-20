@@ -38,7 +38,7 @@ import {
     IssueCommentComponent, NewCommentComponent, ConfirmationDialogComponent,
     IssuesTableMobileComponent, ConnectJiraComponent, CreateCommentDialogComponent,
     IssueDetailsComponent, SignoutMaterialDialogComponent, SignoutDialogComponent,
-    GoToWebsiteComponent
+    GoToWebsiteComponent, CommentIssueDialogComponent
 } from '@app/components';
 import { DynamicFieldsDirective } from './components/issues/fields/dynamic-fields.directive';
 import { SelectFieldComponent } from './components/issues/fields/select-field.component';
@@ -104,6 +104,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         IssuesTableMobileComponent,
         ConnectJiraComponent,
         CreateCommentDialogComponent,
+        CommentIssueDialogComponent,
         IssueDetailsComponent,
         SignoutMaterialDialogComponent,
         SignoutDialogComponent,
@@ -129,6 +130,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         CreateIssueDialogComponent,
         ConfirmationDialogComponent,
         CreateCommentDialogComponent,
+        CommentIssueDialogComponent,
         SignoutMaterialDialogComponent,
         SelectFieldComponent,
         TextFieldSingleComponent,

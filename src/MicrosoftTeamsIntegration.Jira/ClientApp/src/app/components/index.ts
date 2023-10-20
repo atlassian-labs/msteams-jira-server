@@ -23,3 +23,4 @@ export * from '@app/components/connect-jira/connect-jira.component';
 export * from '@app/components/issues/create-comment-dialog/create-comment-dialog.component';
 export * from '@app/components/settings/signout-dialog/signout-dialog.component';
 export * from '@app/components/issues/issue-details/issue-details.component';
+export * from '@app/components/issues/comment-issue-dialog/comment-issue-dialog.component';

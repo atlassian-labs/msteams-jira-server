@@ -1,0 +1,64 @@
+<div *ngIf="!loading; else loadingTemplate" class="dialog">
+    <div *ngIf="errorMessage" class="dialog__top-error">
+        {{ errorMessage }}
+    </div>
+
+    <div class=dialog__content>
+        <form *ngIf="commentForm" #form class="comment-form" [formGroup]="commentForm">
+            <div class="top-panel">
+                <div class="top-panel__issue-info">
+                    <div class="top-panel__issue-key">
+                        <img
+                                class="top-panel__type-icon"
+                                [src]="domSanitizer.bypassSecurityTrustUrl(issue.fields.issuetype.iconUrl)"
+                                alt="Issue icon" />
+                        <a
+                                class="top-panel__key"
+                                href="{{ keyLink }}"
+                                matTooltip="{{ issue.key }}"
+                                [matTooltipPosition]="'above'"
+                                target="_blank"
+                                rel="noreferrer noopener">
+                            {{ issue.key }}
+                        </a>
+                    </div>
+                    <div>
+                    <span class="top-panel__summary" matTooltip="{{ issue.fields.summary }}">
+                        {{ summary }}
+                    </span>
+                    </div>
+                </div>
+                <div class="top-panel__status">
+                    <span>
+                        {{ issue.fields.status.name.toUpperCase() }}
+                    </span>
+                </div>
+            </div>
+            <div class="comment-form__body">
+                <div class="comment-form__setup-fields">
+
+                    <div class="field-group__body">
+                        <textarea formControlName="comment" placeholder="Add a comment..." cols="20" rows="10" maxlength="32767"
+                                  class="field-group__comment-textarea"></textarea>
+                    </div>
+                    
+                    <div class="dialog__footer">
+                        <div class="buttons">
+                            <button class="ts-btn ts-btn-primary buttons__button"
+                                    [disabled]="commentForm.invalid"
+                                    (click)="onSubmit()">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<ng-template #loadingTemplate>
+    <div class="center">
+        <mat-spinner [diameter]="50"></mat-spinner>
+    </div>
+</ng-template>
