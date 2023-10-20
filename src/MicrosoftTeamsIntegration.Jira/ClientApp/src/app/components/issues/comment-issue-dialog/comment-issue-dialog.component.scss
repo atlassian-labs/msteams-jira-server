@@ -14,7 +14,7 @@
   &__issue-key {
     flex: 1 0 auto; /* Allow it to grow to take available space, but not shrink */
     min-width: 0; /* Ensure it can shrink if necessary */
-    max-width: 40%;
+    max-width: 25%;
     white-space: nowrap;
     overflow: hidden; /* Hide overflow content if any */
     text-overflow: ellipsis;
