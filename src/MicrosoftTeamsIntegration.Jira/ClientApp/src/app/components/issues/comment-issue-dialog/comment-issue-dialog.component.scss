@@ -8,10 +8,21 @@
   &__issue-info {
     display: flex;
     align-items: center;
+    margin-right: 10px;
+  }
+
+  &__issue-key {
+    flex: 1 0 auto; /* Allow it to grow to take available space, but not shrink */
+    min-width: 0; /* Ensure it can shrink if necessary */
+    max-width: 40%;
+    white-space: nowrap;
+    overflow: hidden; /* Hide overflow content if any */
+    text-overflow: ellipsis;
+    margin-right: 10px;
   }
   
   &__key {
-    margin-left: 10px;
+    margin-left: 5px;
   }
 
   &__type-icon {
@@ -19,7 +30,7 @@
   }
 
   &__summary {
-    margin-left: 5px;
+    text-align: left;
   }
 
   &__status {
@@ -68,43 +79,13 @@
 
 .field-group {
   width: 100%;
-
-  &__label, &__description {
-    font-size: 12px;
-    line-height: 1.6rem;
-    font-weight: 400;
-  }
-
-  &__header {
-    margin-top: 1.2rem;
-    margin-bottom: 0.6rem;
-    display: flex;
-    justify-content: space-between;
-  }
-
-  &__body { }
-
-  &__footer {
-    font-size: 12px;
-    font-weight: 400;
-    font-style: italic;
-    line-height: 16px;
-    padding-top: 1.2rem;
-  }
-
+  
   &__comment {
     font-weight: normal;
   }
 
   &__comment-textarea {
     height: 9.2rem;
-  }
-
-  &__search-input {
-    width: 100%;
-    font-size: 14px;
-    padding: 5px 12px 8px;
-    margin-bottom: 1rem;
   }
 }
 
@@ -169,7 +150,7 @@ hr {
 }
 
 /* align icon */
-.right-addon .glyphicon { right: 0px;}
+.right-addon .glyphicon { right: 0;}
 
 /* add padding  */
 .right-addon input { padding-right: 30px; }

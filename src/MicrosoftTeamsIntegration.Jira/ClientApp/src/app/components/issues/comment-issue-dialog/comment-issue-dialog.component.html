@@ -7,22 +7,26 @@
         <form *ngIf="commentForm" #form class="comment-form" [formGroup]="commentForm">
             <div class="top-panel">
                 <div class="top-panel__issue-info">
-                    <img
-                            class="top-panel__type-icon"
-                            [src]="domSanitizer.bypassSecurityTrustUrl(issue.fields.issuetype.iconUrl)"
-                            alt="Issue icon" />
-                    <a
-                            class="top-panel__key"
-                            href="{{ keyLink }}"
-                            matTooltip="{{ issue.key }}"
-                            [matTooltipPosition]="'above'"
-                            target="_blank"
-                            rel="noreferrer noopener">
-                        {{ issue.key }}
-                    </a>
-                    <span class="top-panel__summary">
+                    <div class="top-panel__issue-key">
+                        <img
+                                class="top-panel__type-icon"
+                                [src]="domSanitizer.bypassSecurityTrustUrl(issue.fields.issuetype.iconUrl)"
+                                alt="Issue icon" />
+                        <a
+                                class="top-panel__key"
+                                href="{{ keyLink }}"
+                                matTooltip="{{ issue.key }}"
+                                [matTooltipPosition]="'above'"
+                                target="_blank"
+                                rel="noreferrer noopener">
+                            {{ issue.key }}
+                        </a>
+                    </div>
+                    <div>
+                    <span class="top-panel__summary" matTooltip="{{ issue.fields.summary }}">
                         {{ summary }}
                     </span>
+                    </div>
                 </div>
                 <div class="top-panel__status">
                     <span>

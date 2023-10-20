@@ -144,6 +144,14 @@ export class CommentIssueDialogComponent implements OnInit {
             .afterClosed().subscribe(() => {
                 microsoftTeams.tasks.submitTask();
             });
+
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, dialogConfig);
+        dialogRef.afterClosed().subscribe(() => {
+            microsoftTeams.tasks.submitTask();
+        });
+        dialogRef.afterOpened().subscribe(_ => setTimeout(() => {
+            dialogRef.close();
+        }, 3000));
     }
 
     private async createForm(): Promise<void> {
