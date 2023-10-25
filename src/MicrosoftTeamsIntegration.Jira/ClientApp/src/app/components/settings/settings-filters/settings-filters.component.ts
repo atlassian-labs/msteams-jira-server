@@ -33,6 +33,7 @@ import { StatusCode } from '@core/enums';
 import { logger } from '@core/services/logger.service';
 import { DropdownUtilService } from '../../../shared/services/dropdown.util.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {NotificationService} from "@shared/services/notificationService";
 
 enum FilterType {
     Saved = 'from-saved',
@@ -95,7 +96,8 @@ export class SettingsFiltersComponent implements OnInit {
         private appInsightsService: AppInsightsService,
         private loadingIndicatorService: LoadingIndicatorService,
         private dropdownUtilService: DropdownUtilService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private notificationService: NotificationService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -210,10 +212,7 @@ export class SettingsFiltersComponent implements OnInit {
     }
 
     private openSnackBar(): void {
-        this.snackBar.open(this.utilService.getUpgradeAddonMessage(), undefined, {
-            panelClass: ['alert-red'],
-            duration: 3000,
-        });
+        this.notificationService.notifyError(this.utilService.getUpgradeAddonMessage(), 3000);
     }
 
     private async getFilterOptions(): Promise<DropDownOption<string>[]> {

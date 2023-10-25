@@ -56,6 +56,8 @@ import { EpicFieldComponent } from './components/issues/fields/epic-field.compon
 import { UrlFieldComponent } from './components/issues/fields/url-field.component';
 import { SelectCascadingFieldComponent } from './components/issues/fields/select-cascading-field.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SuccessSnackbarComponent } from './components/snack-bars/success-bar/success-snackbar.component';
+import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-snackbar.component';
 
 @NgModule({
     imports: [
@@ -124,6 +126,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         EpicFieldComponent,
         UrlFieldComponent,
         SelectCascadingFieldComponent,
+        SuccessSnackbarComponent,
+        ErrorSnackbarComponent
     ],
     entryComponents: [
         EditIssueDialogComponent,
@@ -145,6 +149,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         EpicFieldComponent,
         UrlFieldComponent,
         SelectCascadingFieldComponent,
+        SuccessSnackbarComponent,
+        ErrorSnackbarComponent
     ],
     bootstrap: [AppComponent],
     providers: [

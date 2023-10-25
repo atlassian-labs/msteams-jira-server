@@ -1,18 +1,17 @@
-﻿import { Component, OnInit, Input } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
-import {ActivatedRoute, Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IssueCommentService } from '@core/services/entities/comment.service';
 import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.model';
 import { ApiService, ErrorService, AppInsightsService } from '@core/services';
 import { Issue } from '@core/models';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
 import { DomSanitizer } from '@angular/platform-browser';
-import {JiraPermissionName} from '@core/models/Jira/jira-permission.model';
-import {PermissionService} from '@core/services/entities/permission.service';
+import { JiraPermissionName } from '@core/models/Jira/jira-permission.model';
+import { PermissionService } from '@core/services/entities/permission.service';
+import { NotificationService } from '@shared/services/notificationService';
 
 @Component({
     selector: 'app-comment-issue-dialog',
@@ -24,17 +23,6 @@ export class CommentIssueDialogComponent implements OnInit {
     public errorMessage: string;
     public loading = false;
     public commentForm: FormGroup;
-    private dialogDefaultSettings: MatDialogConfig = {
-        width: '270px',
-        height: '200px',
-        minWidth: '250px',
-        minHeight: '170px',
-        ariaLabel: 'Confirmation dialog',
-        closeOnNavigation: true,
-        autoFocus: false,
-        role: 'dialog'
-    };
-
     public jiraUrl: string;
     public jiraId: string;
     public issueId: string;
@@ -49,7 +37,8 @@ export class CommentIssueDialogComponent implements OnInit {
         private appInsightsService: AppInsightsService,
         private permissionService: PermissionService,
         private router: Router,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private readonly notificationService: NotificationService,
     ) { }
 
     public async ngOnInit() {
@@ -129,31 +118,15 @@ export class CommentIssueDialogComponent implements OnInit {
     }
 
     private openConfirmationDialog(): void {
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Comment added',
-                    // eslint-disable-next-line max-len
-                    subtitle: `View <a href="${this.jiraUrl}\\browse\\${this.issueKey}" target="_blank" rel="noreferrer noopener">${this.issueKey}</a>.`,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.SuccessLarge
-                } as ConfirmationDialogData
-            }
-        };
+        const issueUrl = 
+            `<a href="${this.jiraUrl}/browse/${this.issue.key}" target="_blank" rel="noreferrer noopener">
+             ${this.issue.key}
+             </a>`
 
-        this.dialog.open(ConfirmationDialogComponent, dialogConfig)
-            .afterClosed().subscribe(() => {
+        this.notificationService.notifySuccess(`Comment added. View ${issueUrl}`, 3000)
+            .afterDismissed().subscribe(() => {
                 microsoftTeams.tasks.submitTask();
-            });
-
-        const dialogRef = this.dialog.open(ConfirmationDialogComponent, dialogConfig);
-        dialogRef.afterClosed().subscribe(() => {
-            microsoftTeams.tasks.submitTask();
         });
-        dialogRef.afterOpened().subscribe(_ => setTimeout(() => {
-            dialogRef.close();
-        }, 3000));
     }
 
     private async createForm(): Promise<void> {

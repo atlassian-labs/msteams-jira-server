@@ -14,7 +14,6 @@
   &__issue-key {
     flex: 1 0 auto; /* Allow it to grow to take available space, but not shrink */
     min-width: 0; /* Ensure it can shrink if necessary */
-    max-width: 25%;
     white-space: nowrap;
     overflow: hidden; /* Hide overflow content if any */
     text-overflow: ellipsis;
@@ -37,6 +36,16 @@
     align-self: center;
     padding: 2px;
     background-color: #EAEAEA;
+  }
+}
+
+::ng-deep .dark {
+  .top-panel {
+    &__status {
+      align-self: center;
+      padding: 2px;
+      background-color: #292929;
+    }
   }
 }
 
