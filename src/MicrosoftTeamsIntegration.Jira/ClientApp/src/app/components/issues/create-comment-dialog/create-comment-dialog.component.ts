@@ -12,7 +12,7 @@ import { Issue } from '@core/models';
 import { UtilService } from '@core/services/util.service';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
-import { NotificationService } from "@shared/services/notificationService";
+import { NotificationService } from '@shared/services/notificationService';
 
 @Component({
     selector: 'app-create-comment-dialog',
@@ -163,10 +163,10 @@ export class CreateCommentDialogComponent implements OnInit {
     }
 
     private openConfirmationDialog(issue: Issue): void {
-        const issueUrl = 
+        const issueUrl =
             `<a href="${this.jiraUrl}\\\\browse\\\\${issue.key}" target="_blank" rel="noreferrer noopener">
             ${issue.key}
-            </a>`
+            </a>`;
         const message = `Comment was successfully added to ${issueUrl}`;
 
         this.notificationService.notifySuccess(message, 3000).afterDismissed().subscribe(() => {

@@ -118,15 +118,14 @@ export class CommentIssueDialogComponent implements OnInit {
     }
 
     private openConfirmationDialog(): void {
-        const issueUrl = 
-            `<a href="${this.jiraUrl}/browse/${this.issue.key}" target="_blank" rel="noreferrer noopener">
+        const issueUrl = `<a href="${this.jiraUrl}/browse/${this.issue.key}" target="_blank" rel="noreferrer noopener">
              ${this.issue.key}
-             </a>`
+             </a>`;
 
         this.notificationService.notifySuccess(`Comment added. View ${issueUrl}`, 3000)
             .afterDismissed().subscribe(() => {
                 microsoftTeams.tasks.submitTask();
-        });
+            });
     }
 
     private async createForm(): Promise<void> {

@@ -33,7 +33,7 @@ import { StatusCode } from '@core/enums';
 import { logger } from '@core/services/logger.service';
 import { DropdownUtilService } from '../../../shared/services/dropdown.util.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {NotificationService} from "@shared/services/notificationService";
+import {NotificationService} from '@shared/services/notificationService';
 
 enum FilterType {
     Saved = 'from-saved',

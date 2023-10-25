@@ -19,8 +19,7 @@ import {PermissionService} from '@core/services/entities/permission.service';
 import {Project} from '@core/models/Jira/project.model';
 import {StringValidators} from '@core/validators/string.validators';
 import {UtilService} from '@core/services/util.service';
-import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
-import {NotificationService} from "@shared/services/notificationService";
+import {NotificationService} from '@shared/services/notificationService';
 
 @Component({
     selector: 'app-create-issue-dialog',
@@ -318,7 +317,7 @@ export class CreateIssueDialogComponent implements OnInit {
         const issueUrl =
             `<a href="${issueBaseUrl}" target="_blank" rel="noreferrer noopener">
             ${issue.key}
-            </a>`
+            </a>`;
         const message = `Issue ${issueUrl} has been successfully created`;
         this.notificationService.notifySuccess(message, 3000).afterDismissed().subscribe(() => {
             if (this.returnIssueOnSubmit) {

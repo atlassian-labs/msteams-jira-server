@@ -22,7 +22,7 @@ import { PermissionService } from '@core/services/entities/permission.service';
 import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-options';
 import { StringValidators } from '@core/validators/string.validators';
 import { UtilService } from '@core/services/util.service';
-import { NotificationService } from "@shared/services/notificationService";
+import { NotificationService } from '@shared/services/notificationService';
 
 interface EditIssueModel {
     key: string;
@@ -499,9 +499,9 @@ export class EditIssueDialogComponent implements OnInit {
         const issueUrl =
             `<a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">
             ${this.issueKey}
-            </a>`
+            </a>`;
         const message = `The issue ${issueUrl} has been successfully updated`;
-        
+
         this.notificationService.notifySuccess(message, 3000).afterDismissed().subscribe(() => {
             microsoftTeams.tasks.submitTask();
         });
