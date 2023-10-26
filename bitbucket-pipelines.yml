@@ -133,7 +133,6 @@ pipelines:
           changesets:
             includePaths:
               - 'docker/**'
-    - step: *staticAnalysis
     - step: *build
   custom:
     buildDockerImage:
@@ -149,6 +148,7 @@ pipelines:
   branches:
       master:
         - step: *build
+        - step: *staticAnalysis
         - step: *publish
         - step:
             <<: *deploy
