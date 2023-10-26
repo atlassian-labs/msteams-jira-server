@@ -9,7 +9,6 @@ export * from '@app/components/issues/edit-issue-dialog/edit-issue-dialog.compon
 export * from '@app/components/issues/create-issue-dialog/create-issue-dialog.component';
 export * from '@app/components/issues/issue-comment/issue-comment.component';
 export * from '@app/components/issues/new-comment/new-comment.component';
-export * from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 export * from '@app/components/issues/signout-material-dialog/signout-material-dialog.component';
 
 export * from '@app/components/assignee-dropdown/assignee-dropdown.component';

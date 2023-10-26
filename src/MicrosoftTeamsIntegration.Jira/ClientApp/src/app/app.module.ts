@@ -35,7 +35,7 @@ import {
     EditIssueDialogComponent, CreateIssueDialogComponent,
     AssigneeDropdownComponent, PriorityDropdownComponent, StatusDropdownComponent,
     SettingsFiltersComponent as SettingsProjectComponent, SettingsComponent,
-    IssueCommentComponent, NewCommentComponent, ConfirmationDialogComponent,
+    IssueCommentComponent, NewCommentComponent,
     IssuesTableMobileComponent, ConnectJiraComponent, CreateCommentDialogComponent,
     IssueDetailsComponent, SignoutMaterialDialogComponent, SignoutDialogComponent,
     GoToWebsiteComponent, CommentIssueDialogComponent
@@ -102,7 +102,6 @@ import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-
         IssueCommentComponent,
         NewCommentComponent,
         TimeToResolutionIconDirective,
-        ConfirmationDialogComponent,
         IssuesTableMobileComponent,
         ConnectJiraComponent,
         CreateCommentDialogComponent,
@@ -132,7 +131,6 @@ import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-
     entryComponents: [
         EditIssueDialogComponent,
         CreateIssueDialogComponent,
-        ConfirmationDialogComponent,
         CreateCommentDialogComponent,
         CommentIssueDialogComponent,
         SignoutMaterialDialogComponent,

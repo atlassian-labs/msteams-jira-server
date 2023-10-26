@@ -212,7 +212,7 @@ export class SettingsFiltersComponent implements OnInit {
     }
 
     private openSnackBar(): void {
-        this.notificationService.notifyError(this.utilService.getUpgradeAddonMessage(), 3000);
+        this.notificationService.notifyError(this.utilService.getUpgradeAddonMessage());
     }
 
     private async getFilterOptions(): Promise<DropDownOption<string>[]> {

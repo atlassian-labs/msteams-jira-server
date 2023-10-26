@@ -7,8 +7,6 @@
   border: 1px solid var(--light-theme-rest-border-red-border, #F3D6D8);
   background: var(--light-theme-rest-background-red-background-1, #FCF4F6);
   height: 44px;
-  margin-left: 1px;
-  margin-right: 1px;
 }
 
 ::ng-deep .dark {
@@ -41,7 +39,7 @@
   }
 }
 
-.message {
+.snackbar-message {
   font-family: Segoe UI, sans-serif;
   font-size: 14px;
   font-style: normal;
@@ -53,7 +51,7 @@
 }
 
 ::ng-deep .dark {
-  .message {
+  .snackbar-message {
     font-family: Segoe UI, sans-serif;
     font-size: 14px;
     font-style: normal;
@@ -66,7 +64,7 @@
 }
 
 ::ng-deep .contrast {
-  .message {
+  .snackbar-message {
     font-family: Segoe UI, sans-serif;
     font-size: 14px;
     font-style: normal;
@@ -78,17 +76,17 @@
   }
 }
 
-.close {
+.snackbar-close {
   position: absolute;
   right: 5px;
   margin-right: 35px;
   margin-bottom: 15px;
   opacity: 1;
 }
-.close:hover {
+.snackbar-close:hover {
   opacity: 0.3;
 }
-.close:before, .close:after {
+.snackbar-close:before, .snackbar-close:after {
   position: absolute;
   left: 15px;
   content: ' ';
@@ -97,7 +95,7 @@
   background-color: #C4314B;
 }
 ::ng-deep .dark {
-  .close:before, .close:after {
+  .snackbar-close:before, .snackbar-close:after {
     position: absolute;
     left: 15px;
     content: ' ';
@@ -107,7 +105,7 @@
   }
 }
 ::ng-deep .contrast {
-  .close:before, .close:after {
+  .snackbar-close:before, .snackbar-close:after {
     position: absolute;
     left: 15px;
     content: ' ';
@@ -116,9 +114,9 @@
     background-color: #F75E75;
   }
 }
-.close:before {
+.snackbar-close:before {
   transform: rotate(45deg);
 }
-.close:after {
+.snackbar-close:after {
   transform: rotate(-45deg);
 }

@@ -92,7 +92,7 @@ export class CommentIssueDialogComponent implements OnInit {
             const response = await this.commentService.addComment(options);
 
             if (response && response.body) {
-                this.openConfirmationDialog();
+                this.showConfirmationNotification();
                 return;
             }
         } catch (error) {
@@ -117,12 +117,12 @@ export class CommentIssueDialogComponent implements OnInit {
             : this.issue.fields.summary;
     }
 
-    private openConfirmationDialog(): void {
+    private showConfirmationNotification(): void {
         const issueUrl = `<a href="${this.jiraUrl}/browse/${this.issue.key}" target="_blank" rel="noreferrer noopener">
              ${this.issue.key}
              </a>`;
 
-        this.notificationService.notifySuccess(`Comment added. View ${issueUrl}`, 3000)
+        this.notificationService.notifySuccess(`Comment was added to ${issueUrl}`)
             .afterDismissed().subscribe(() => {
                 microsoftTeams.tasks.submitTask();
             });

@@ -1,6 +1,6 @@
 <body>
     <div class="snackbar-body">
-        <span class="message" [innerHTML]="data.message"></span>
-        <a href="#" class="close" (click)="snackBarRef.dismiss()"></a>
+        <span class="snackbar-message" [innerHTML]="data.message"></span>
+        <a href="#" class="snackbar-close" *ngIf="data.showCloseButton" (click)="snackBarRef.dismiss()"></a>
     </div>
 </body>

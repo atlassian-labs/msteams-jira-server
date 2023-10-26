@@ -187,7 +187,7 @@ export class CreateIssueDialogComponent implements OnInit {
             const response = await this.apiService.createIssue(this.jiraUrl, createIssueModel);
 
             if (response.isSuccess && response.content) {
-                this.openConfirmationDialog(response.content);
+                this.showConfirmationNotification(response.content);
                 return;
             }
         } catch (error) {
@@ -309,17 +309,17 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     private openSnackBar(): void {
-        this.notificationService.notifyError(this.utilService.getUpgradeAddonMessage(), 3000);
+        this.notificationService.notifyError(this.utilService.getUpgradeAddonMessage());
     }
 
-    private openConfirmationDialog(issue: Issue): void {
+    private showConfirmationNotification(issue: Issue): void {
         const issueBaseUrl = encodeURI(`${this.currentUser.jiraServerInstanceUrl || this.jiraUrl}/browse/${issue.key}`);
         const issueUrl =
             `<a href="${issueBaseUrl}" target="_blank" rel="noreferrer noopener">
             ${issue.key}
             </a>`;
-        const message = `Issue ${issueUrl} has been successfully created`;
-        this.notificationService.notifySuccess(message, 3000).afterDismissed().subscribe(() => {
+        const message = `Issue ${issueUrl} has been created`;
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
             if (this.returnIssueOnSubmit) {
                 microsoftTeams.tasks.submitTask(issue.key);
             } else {

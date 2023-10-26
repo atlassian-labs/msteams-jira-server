@@ -319,7 +319,7 @@ export class EditIssueDialogComponent implements OnInit {
             const response = await this.apiService.updateIssue(encodeURIComponent(this.jiraUrl), this.issue.id, editIssueModel);
 
             if (response.isSuccess) {
-                this.openConfirmationDialog();
+                this.showConfirmationNotification();
                 return;
             }
 
@@ -495,14 +495,14 @@ export class EditIssueDialogComponent implements OnInit {
         }
     }
 
-    private openConfirmationDialog(): void {
+    private showConfirmationNotification(): void {
         const issueUrl =
             `<a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">
             ${this.issueKey}
             </a>`;
-        const message = `The issue ${issueUrl} has been successfully updated`;
+        const message = `The issue ${issueUrl} has been updated`;
 
-        this.notificationService.notifySuccess(message, 3000).afterDismissed().subscribe(() => {
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
             microsoftTeams.tasks.submitTask();
         });
     }

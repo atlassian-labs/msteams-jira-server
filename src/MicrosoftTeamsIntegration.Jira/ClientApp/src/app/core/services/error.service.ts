@@ -8,9 +8,8 @@ import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 
 import { AppInsightsService } from '@core/services/app-insights.service';
 import { StatusCode } from '@core/enums';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
 import { ApplicationType } from './../enums/application-type.enum';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
+import { NotificationService } from '@shared/services/notificationService';
 
 @Injectable({ providedIn: 'root' })
 export class ErrorService {
@@ -37,7 +36,8 @@ export class ErrorService {
         private readonly zone: NgZone,
         private readonly injector: Injector,
         private readonly appInsightsService: AppInsightsService,
-        private errorDialog: MatDialog
+        private errorDialog: MatDialog,
+        private notificationService: NotificationService
     ) { }
 
     public showJiraUnavailableWindow(status: number): void {
@@ -95,20 +95,7 @@ export class ErrorService {
     public showErrorModal(error: Error | HttpErrorResponse): void {
         this.appInsightsService.trackException(error as Error, 'ErrorService::handleError');
         const message = this.getHttpErrorMessage(error);
-
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Error',
-                    subtitle: message,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.ErrorLarge
-                } as ConfirmationDialogData
-            }
-        };
-
-        this.errorDialog.open(ConfirmationDialogComponent, dialogConfig);
+        this.notificationService.notifyError(message);
     }
 
     public goToLoginWithStatusCode(status: StatusCode): void {

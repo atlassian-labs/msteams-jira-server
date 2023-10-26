@@ -100,7 +100,7 @@ export class CreateCommentDialogComponent implements OnInit {
             const response = await this.commentService.addComment(options);
 
             if (response && response.body) {
-                this.openConfirmationDialog(this.selectedIssue);
+                this.showConfirmationNotification(this.selectedIssue);
                 return;
             }
         } catch (error) {
@@ -162,14 +162,14 @@ export class CreateCommentDialogComponent implements OnInit {
         return searchTerm ? `summary~'${searchTerm}*' order by updated DESC` : '';
     }
 
-    private openConfirmationDialog(issue: Issue): void {
+    private showConfirmationNotification(issue: Issue): void {
         const issueUrl =
-            `<a href="${this.jiraUrl}\\\\browse\\\\${issue.key}" target="_blank" rel="noreferrer noopener">
+            `<a href="${this.jiraUrl}/browse/${issue.key}" target="_blank" rel="noreferrer noopener">
             ${issue.key}
             </a>`;
-        const message = `Comment was successfully added to ${issueUrl}`;
+        const message = `Comment was added to ${issueUrl}`;
 
-        this.notificationService.notifySuccess(message, 3000).afterDismissed().subscribe(() => {
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
             microsoftTeams.tasks.submitTask();
         });
     }

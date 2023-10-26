@@ -10,7 +10,7 @@ export class NotificationService {
         private snackBar: MatSnackBar
     ) { }
 
-    public notifySuccess(message: string, duration: number): MatSnackBarRef<SuccessSnackbarComponent> {
+    public notifySuccess(message: string, duration: number = 3000, showCloseButton: boolean = false): MatSnackBarRef<SuccessSnackbarComponent> {
         const configSuccess: MatSnackBarConfig = {
             panelClass: 'successful-alert',
             duration: duration,
@@ -18,12 +18,13 @@ export class NotificationService {
         };
         return this.snackBar.openFromComponent(SuccessSnackbarComponent, {
             data: {
-                message: message
+                message: message,
+                showCloseButton: showCloseButton
             },...configSuccess
         });
     }
 
-    public notifyError(message: string, duration: number): MatSnackBarRef<ErrorSnackbarComponent> {
+    public notifyError(message: string, duration: number = 3000, showCloseButton: boolean = false): MatSnackBarRef<ErrorSnackbarComponent> {
         const configSuccess: MatSnackBarConfig = {
             panelClass: 'error-alert',
             duration: duration,
@@ -31,7 +32,8 @@ export class NotificationService {
         };
         return this.snackBar.openFromComponent(ErrorSnackbarComponent, {
             data: {
-                message: message
+                message: message,
+                showCloseButton: showCloseButton
             },...configSuccess
         });
     }
