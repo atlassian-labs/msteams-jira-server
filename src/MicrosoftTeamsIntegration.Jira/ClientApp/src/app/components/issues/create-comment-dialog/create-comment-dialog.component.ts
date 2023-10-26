@@ -9,11 +9,10 @@ import { IssueCommentService } from '@core/services/entities/comment.service';
 import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.model';
 import { ApiService, ErrorService, AppInsightsService } from '@core/services';
 import { Issue } from '@core/models';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
 import { UtilService } from '@core/services/util.service';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
+import { NotificationService } from '@shared/services/notificationService';
 
 @Component({
     selector: 'app-create-comment-dialog',
@@ -54,7 +53,8 @@ export class CreateCommentDialogComponent implements OnInit {
         public dialog: MatDialog,
         private utilService: UtilService,
         private appInsightsService: AppInsightsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private notificationService: NotificationService
     ) { }
 
     public async ngOnInit() {
@@ -100,7 +100,7 @@ export class CreateCommentDialogComponent implements OnInit {
             const response = await this.commentService.addComment(options);
 
             if (response && response.body) {
-                this.openConfirmationDialog(this.selectedIssue);
+                this.showConfirmationNotification(this.selectedIssue);
                 return;
             }
         } catch (error) {
@@ -162,29 +162,16 @@ export class CreateCommentDialogComponent implements OnInit {
         return searchTerm ? `summary~'${searchTerm}*' order by updated DESC` : '';
     }
 
-    private openConfirmationDialog(issue: Issue): void {
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Comment added',
-                    // eslint-disable-next-line max-len
-                    subtitle: `View <a href="${this.jiraUrl}\\browse\\${issue.key}" target="_blank" rel="noreferrer noopener">${issue.key}</a>.`,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.SuccessLarge
-                } as ConfirmationDialogData
-            }
-        };
+    private showConfirmationNotification(issue: Issue): void {
+        const issueUrl =
+            `<a href="${this.jiraUrl}/browse/${issue.key}" target="_blank" rel="noreferrer noopener">
+            ${issue.key}
+            </a>`;
+        const message = `Comment was added to ${issueUrl}`;
 
-        const dialogRef = this.dialog.open(ConfirmationDialogComponent, dialogConfig);
-
-        dialogRef.afterClosed().subscribe(() => {
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
             microsoftTeams.tasks.submitTask();
         });
-
-        dialogRef.afterOpened().subscribe(_ => setTimeout(() => {
-            dialogRef.close();
-        }, 3000));
     }
 
     private getIssueKey(issueURL: string): string {

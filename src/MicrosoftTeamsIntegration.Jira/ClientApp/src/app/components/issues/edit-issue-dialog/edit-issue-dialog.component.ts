@@ -3,7 +3,6 @@
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
 import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
 import {Issue, IssueFields, Priority, ProjectType} from '@core/models';
 import { IssueStatus, JiraComment } from '@core/models';
@@ -12,7 +11,6 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssigneeService } from '@core/services/entities/assignee.service';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DropDownOption } from '@shared/models/dropdown-option.model';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
@@ -24,6 +22,7 @@ import { PermissionService } from '@core/services/entities/permission.service';
 import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-options';
 import { StringValidators } from '@core/validators/string.validators';
 import { UtilService } from '@core/services/util.service';
+import { NotificationService } from '@shared/services/notificationService';
 
 interface EditIssueModel {
     key: string;
@@ -137,7 +136,8 @@ export class EditIssueDialogComponent implements OnInit {
         private dropdownUtilService: DropdownUtilService,
         private assigneeService: AssigneeService,
         private transitionService: IssueTransitionService,
-        private router: Router
+        private router: Router,
+        private notificationService: NotificationService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -319,7 +319,7 @@ export class EditIssueDialogComponent implements OnInit {
             const response = await this.apiService.updateIssue(encodeURIComponent(this.jiraUrl), this.issue.id, editIssueModel);
 
             if (response.isSuccess) {
-                this.openConfirmationDialog();
+                this.showConfirmationNotification();
                 return;
             }
 
@@ -495,30 +495,15 @@ export class EditIssueDialogComponent implements OnInit {
         }
     }
 
-    private openConfirmationDialog(): void {
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Success',
-                    // eslint-disable-next-line max-len
-                    subtitle: `Issue <a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">${this.issue.key}</a> has been successfully updated.`,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.SuccessLarge
-                } as ConfirmationDialogData
-            }
-        };
+    private showConfirmationNotification(): void {
+        const issueUrl =
+            `<a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">
+            ${this.issueKey}
+            </a>`;
+        const message = `The issue ${issueUrl} has been updated`;
 
-        this.dialog.open(ConfirmationDialogComponent, dialogConfig)
-            .afterClosed().subscribe(() => {
-                microsoftTeams.tasks.submitTask(
-                    {
-                        commandName: 'showIssueCard',
-                        issueId: this.issue.id,
-                        issueKey: this.issueKey,
-                        replyToActivityId: this.replyToActivityId
-                    });
-                microsoftTeams.tasks.submitTask();
-            });
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
+            microsoftTeams.tasks.submitTask();
+        });
     }
 }

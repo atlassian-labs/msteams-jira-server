@@ -1,0 +1,122 @@
+.snackbar-body {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 4px;
+  border: 1px solid var(--light-theme-rest-border-green-border, #BDDA9B);
+  background: var(--light-theme-rest-background-green-background-2, #E7F2DA);
+  height: 44px;
+}
+
+::ng-deep .dark {
+  .snackbar-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    border: 1px solid var(--dark-theme-rest-border-green-border, #032003);
+    background: var(--dark-theme-rest-background-green-background-2, #0D2E0D);
+    height: 44px;
+    margin-left: 1px;
+    margin-right: 1px;
+  }
+}
+
+::ng-deep .contrast {
+  .snackbar-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    border: 1px solid var(--dark-theme-rest-border-green-border, #032003);
+    background: var(--dark-theme-rest-background-green-background-2, #0D2E0D);
+    height: 44px;
+    margin-left: 1px;
+    margin-right: 1px;
+  }
+}
+
+.snackbar-message {
+  font-family: Segoe UI, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  float: left;
+  color: #237B4B;
+  flex-grow: 1;
+  margin-left: 16px;
+}
+
+::ng-deep .dark {
+  .snackbar-message {
+    font-family: Segoe UI, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    float: left;
+    color: #92C353;
+    flex-grow: 1;
+    margin-left: 16px;
+  }
+}
+
+::ng-deep .contrast {
+  .snackbar-message {
+    font-family: Segoe UI, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    float: left;
+    color: #92C353;
+    flex-grow: 1;
+    margin-left: 16px;
+  }
+}
+
+.snackbar-close {
+  position: absolute;
+  right: 5px;
+  margin-right: 35px;
+  margin-bottom: 15px;
+  opacity: 1;
+}
+.snackbar-close:hover {
+  opacity: 0.3;
+}
+.snackbar-close:before, .snackbar-close:after {
+  position: absolute;
+  left: 15px;
+  content: ' ';
+  height: 15px;
+  width: 1px;
+  background-color: #237B4B;
+}
+::ng-deep .dark {
+  .snackbar-close:before, .snackbar-close:after {
+    position: absolute;
+    left: 15px;
+    content: ' ';
+    height: 15px;
+    width: 1px;
+    background-color: #92C353;
+  }
+}
+::ng-deep .contrast {
+  .snackbar-close:before, .snackbar-close:after {
+    position: absolute;
+    left: 15px;
+    content: ' ';
+    height: 15px;
+    width: 1px;
+    background-color: #92C353;
+  }
+}
+.snackbar-close:before {
+  transform: rotate(45deg);
+}
+.snackbar-close:after {
+  transform: rotate(-45deg);
+}

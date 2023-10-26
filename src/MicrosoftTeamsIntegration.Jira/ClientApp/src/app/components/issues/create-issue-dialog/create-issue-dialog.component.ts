@@ -4,13 +4,11 @@ import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/form
 import {ActivatedRoute, Router} from '@angular/router';
 import {ApiService, AppInsightsService, ErrorService} from '@core/services';
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ConfirmationDialogData, DialogType} from '@core/models/dialogs/issue-dialog.model';
 import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
 import {Issue} from '@core/models';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 
 import {AssigneeService} from '@core/services/entities/assignee.service';
-import {ConfirmationDialogComponent} from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import {DropDownComponent} from '@shared/components/dropdown/dropdown.component';
 import {DropDownOption} from '@shared/models/dropdown-option.model';
 import {DropdownUtilService} from '@shared/services/dropdown.util.service';
@@ -21,7 +19,7 @@ import {PermissionService} from '@core/services/entities/permission.service';
 import {Project} from '@core/models/Jira/project.model';
 import {StringValidators} from '@core/validators/string.validators';
 import {UtilService} from '@core/services/util.service';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {NotificationService} from '@shared/services/notificationService';
 
 @Component({
     selector: 'app-create-issue-dialog',
@@ -104,7 +102,7 @@ export class CreateIssueDialogComponent implements OnInit {
         private errorService: ErrorService,
         private permissionService: PermissionService,
         private fieldsService: FieldsService,
-        private snackBar: MatSnackBar
+        private notificationService: NotificationService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -189,7 +187,7 @@ export class CreateIssueDialogComponent implements OnInit {
             const response = await this.apiService.createIssue(this.jiraUrl, createIssueModel);
 
             if (response.isSuccess && response.content) {
-                this.openConfirmationDialog(response.content);
+                this.showConfirmationNotification(response.content);
                 return;
             }
         } catch (error) {
@@ -311,31 +309,17 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     private openSnackBar(): void {
-        this.snackBar.open(this.utilService.getUpgradeAddonMessage(), undefined, {
-            panelClass: ['alert-red'],
-            duration: 3000,
-        });
+        this.notificationService.notifyError(this.utilService.getUpgradeAddonMessage());
     }
 
-    private openConfirmationDialog(issue: Issue): void {
-        const issueUrl = encodeURI(`${this.currentUser.jiraServerInstanceUrl || this.jiraUrl}/browse/${issue.key}`);
-
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Issue created',
-                    // eslint-disable-next-line max-len
-                    subtitle: `Issue <a href="${issueUrl}" target="_blank" rel="noreferrer noopener">${issue.key}</a> has been successfully created.`,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.SuccessLarge
-                } as ConfirmationDialogData
-            }
-        };
-
-        const dialogRef = this.dialog.open(ConfirmationDialogComponent, dialogConfig);
-
-        dialogRef.afterClosed().subscribe(() => {
+    private showConfirmationNotification(issue: Issue): void {
+        const issueBaseUrl = encodeURI(`${this.currentUser.jiraServerInstanceUrl || this.jiraUrl}/browse/${issue.key}`);
+        const issueUrl =
+            `<a href="${issueBaseUrl}" target="_blank" rel="noreferrer noopener">
+            ${issue.key}
+            </a>`;
+        const message = `Issue ${issueUrl} has been created`;
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
             if (this.returnIssueOnSubmit) {
                 microsoftTeams.tasks.submitTask(issue.key);
             } else {
@@ -347,10 +331,6 @@ export class CreateIssueDialogComponent implements OnInit {
             }
             microsoftTeams.tasks.submitTask();
         });
-
-        dialogRef.afterOpened().subscribe(_ => setTimeout(() => {
-            dialogRef.close();
-        }, 3000));
     }
 
     private async createForm(): Promise<void> {
