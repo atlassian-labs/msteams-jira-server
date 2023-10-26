@@ -111,6 +111,20 @@ definitions:
           - git remote add github git@github.com:atlassian-labs/msteams-jira-server.git
           - git push -u github ${BITBUCKET_BRANCH}
           - git push github --follow-tags
+    - step: &staticAnalysis
+        name: Static analysis
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        script:
+          - dotnet tool install --global dotnet-sonarscanner
+          - dotnet tool install --global JetBrains.dotCover.GlobalTool
+          - export PATH="$PATH:/root/.dotnet/tools"
+          - dotnet sonarscanner begin /k:"$SONAR_REPOSITORY" /d:sonar.host.url="$SONAR_URL"  /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html /d:sonar.coverage.exclusions=src/**/ClientApp/**/*
+          - dotnet build --no-incremental
+          - dotnet dotcover test --dcReportType=HTML
+          - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 pipelines:
   default:
     - step:
@@ -119,6 +133,7 @@ pipelines:
           changesets:
             includePaths:
               - 'docker/**'
+    - step: *staticAnalysis
     - step: *build
   custom:
     buildDockerImage:
@@ -129,6 +144,8 @@ pipelines:
       - step: *createTag
     runSnyk:
       - step: *snyk-scan
+    runSonar:
+      - step: *staticAnalysis
   branches:
       master:
         - step: *build

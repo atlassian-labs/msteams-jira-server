@@ -7,6 +7,7 @@
     <NoWarn>$(NoWarn),NU1701</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>../../StyleCop.ruleset</CodeAnalysisRuleSet>
+    <SonarQubeTestProject>false</SonarQubeTestProject>
   </PropertyGroup>
   
   <ItemGroup>
@@ -59,12 +60,9 @@
     <Authors>Atlassian</Authors>
     <Company>Atlassian</Company>
     <Summary>A set of shared libraries and methods to streamline integration within Microsoft Teams platform.</Summary>
-    <Description>A set of shared libraries and methods to streamline integration within Microsoft Teams platform.</Description>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <PackageId>MicrosoftTeams.Integration.App</PackageId>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://dev.azure.com/microsoft-teams-integrations/_git/MicrosoftTeams.Integration.Artifacts</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
