@@ -63,7 +63,7 @@ export class CreateIssueDialogComponent implements OnInit {
     public defaultPriority: string;
     public defaultIssueType: string;
     public defaultAssignee: string;
-
+    public formDisabled: boolean;
     public isAddonUpdated: boolean;
 
     private dialogDefaultSettings: MatDialogConfig = {
@@ -187,6 +187,7 @@ export class CreateIssueDialogComponent implements OnInit {
             const response = await this.apiService.createIssue(this.jiraUrl, createIssueModel);
 
             if (response.isSuccess && response.content) {
+                this.formDisabled = true;
                 this.showConfirmationNotification(response.content);
                 return;
             }

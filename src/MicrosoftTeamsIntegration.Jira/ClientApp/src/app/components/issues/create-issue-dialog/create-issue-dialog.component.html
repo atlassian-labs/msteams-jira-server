@@ -148,7 +148,7 @@
   <div class="dialog__footer">
     <div class="buttons">
       <span *ngIf="uploading || fetching" class="loading-spinner"></span>
-      <button class="ts-btn ts-btn-primary buttons__button" [disabled]="issueForm?.invalid || uploading || fetching || !canCreateIssue"
+      <button class="ts-btn ts-btn-primary buttons__button" [disabled]="issueForm?.invalid || uploading || fetching || !canCreateIssue || formDisabled"
         (click)="onSubmit()">
         Create
       </button>
