@@ -60,20 +60,12 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             if (activity.MembersAdded?.Count > 0)
             {
                 var connectorClient = turnContext.TurnState.Get<IConnectorClient>();
-                var welcomeMessage = activity.CreateReply();
-                welcomeMessage.Text = BotMessages.WelcomeMessage;
+                var welcomeActivity = activity.CreateReply();
 
                 var botWasAdded = activity.MembersAdded.Any(x => x.Id == activity.Recipient.Id);
                 if (botWasAdded)
                 {
-                    if (!activity.IsGroupConversation())
-                    {
-                        await turnContext.SendActivityAsync(welcomeMessage, cancellationToken);
-                    }
-                    else
-                    {
-                        await connectorClient.Conversations.ReplyToActivityAsync(welcomeMessage, cancellationToken);
-                    }
+                    await SendWelcomeCard(turnContext, connectorClient, welcomeActivity, activity.IsGroupConversation(), cancellationToken);
                 }
             }
 
@@ -227,12 +219,127 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                             },
                         }
                     }
-                },
+                }
             };
 
             var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
 
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+        }
+
+        private async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
+        {
+            string welcomeText =
+                "- **View your work** in a tab via a Jira filter or see issues that are assigned to, reported by or watched by you.\n- **Search** for Jira issues right within message extension or bot command\n- **Update issues** or **add comments** right in your conversation with a bot so you can focus on your work and avoid context switching between your web browser and Teams";
+            if (isGroupConversation)
+            {
+                welcomeText =
+                    "- Add a Jira filter within a **tab** in a chat or team channel to easily reference issues within your projects\n- **Search** for Jira issues right within a Teams chat in the message extension and send it as card to the chat\n- **Update issues** or **add comments** right in your conversation so you can focus on your work and avoid context switching between your web browser and Teams\n- **Add messages as comments** to update issues right when collaboration is happening\n- **Create new issues** from messages within a chat";
+            }
+
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 5));
+            adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
+            {
+                {
+                    "msTeams", new
+                    {
+                        width = "full",
+                    }
+                }
+            };
+            adaptiveCard.Body = new List<AdaptiveElement>
+            {
+                new AdaptiveTextBlock
+                {
+                    Size = AdaptiveTextSize.Large,
+                    Weight = AdaptiveTextWeight.Bolder,
+                    Text = "Get started using Jira in Teams"
+                },
+                new AdaptiveTextBlock
+                {
+                    Text = "Here are some of the things you can do:",
+                    Wrap = true
+                },
+                new AdaptiveTextBlock
+                {
+                    Text = welcomeText,
+                    Wrap = true
+                },
+            };
+
+            if (!isGroupConversation)
+            {
+                adaptiveCard.Body.Add(new AdaptiveContainer
+                {
+                    Items = new List<AdaptiveElement>
+                    {
+                        new AdaptiveRichTextBlock
+                        {
+                            Inlines = new List<AdaptiveInline>
+                            {
+                                new AdaptiveTextRun
+                                {
+                                    Text =
+                                        "Ready to get started? Connect your Jira account!\nWant to learn more about this application? Click 'Help' button."
+                                }
+                            }
+                        },
+                        new AdaptiveColumnSet
+                        {
+                            Columns = new List<AdaptiveColumn>
+                            {
+                                new AdaptiveColumn
+                                {
+                                    Width = "auto",
+                                    Items = new List<AdaptiveElement>
+                                    {
+                                        new AdaptiveActionSet
+                                        {
+                                            Actions = new List<AdaptiveAction>
+                                            {
+                                                new AdaptiveSubmitAction
+                                                {
+                                                    Title = "Connect",
+                                                    Data = new
+                                                    {
+                                                        msteams = new
+                                                        {
+                                                            type = "messageBack",
+                                                            text = "connect"
+                                                        }
+                                                    }
+                                                },
+                                                new AdaptiveSubmitAction
+                                                {
+                                                    Title = "Help",
+                                                    Data = new
+                                                    {
+                                                        msteams = new
+                                                        {
+                                                            type = "messageBack",
+                                                            text = "help"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (isGroupConversation)
+            {
+                activity.Attachments = new List<Attachment> { adaptiveCard.ToAttachment() };
+                await connectorClient.Conversations.ReplyToActivityAsync(activity, cancellationToken);
+            }
+            else
+            {
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(adaptiveCard.ToAttachment()), cancellationToken);
+            }
         }
     }
 }
