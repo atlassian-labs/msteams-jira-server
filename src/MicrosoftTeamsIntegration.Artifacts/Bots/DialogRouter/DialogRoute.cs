@@ -10,16 +10,16 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
     [SuppressMessage("ReSharper", "SA1401", Justification = "Public API")]
     public sealed class DialogRoute
     {
-        public readonly int Order;
-        public readonly Regex? RegexCommand;
-        public readonly string[] TextCommandList;
-        public readonly bool IgnoreCase;
-        public readonly bool IgnoreNonAlphanumericCharacters;
-        public readonly double Threshold;
-        public readonly Type DialogType;
-        public readonly bool IsAuthenticationRequired;
-        public readonly object? Options;
-        public Dialog? Dialog;
+        public int Order { get; }
+        public Regex? RegexCommand { get; }
+        public string[] TextCommandList { get; }
+        public bool IgnoreCase { get; }
+        public bool IgnoreNonAlphanumericCharacters { get; }
+        public double Threshold { get; }
+        public Type DialogType { get; }
+        public bool IsAuthenticationRequired { get; }
+        public object? Options { get; }
+        public Dialog? Dialog { get; set; }
 
         public DialogRoute(
             Type dialogType,

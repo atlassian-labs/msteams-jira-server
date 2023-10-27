@@ -124,17 +124,6 @@ export class IssuesComponent implements OnInit {
         'labels'
     ];
 
-    private dialogDefaultSettings: MatDialogConfig = {
-        width: '710px',
-        height: '524px',
-        minWidth: '200px',
-        minHeight: '100px',
-        ariaLabel: 'Issue dialog',
-        closeOnNavigation: true,
-        autoFocus: false,
-        role: 'dialog'
-    };
-
     /* paginator */
     // set default value for totat page count equals to 200
     public pageCount = 200;
@@ -176,8 +165,6 @@ export class IssuesComponent implements OnInit {
         this.filters = await this.getConfigurationFiltersForHeader(decodeURIComponent(this.jqlQuery), this.jiraUrl);
 
         this.showStaticTabElements = this.application === ApplicationType.JiraServerStaticTab;
-
-        this.getPredefinedFilters(this.jqlQuery);
 
         await this.startAuthFlow();
 
@@ -536,15 +523,6 @@ export class IssuesComponent implements OnInit {
         }
 
         this.onCheckAddonInstalledFailed();
-    }
-
-    private getPredefinedFilters(jqlQuery: string): void {
-        this.utilService.getFilters()
-            .map((filter) => {
-                if (filter.value === jqlQuery) {
-                    this.currentFilter = filter.label;
-                }
-            });
     }
 
     private async setStaticTabFilters(): Promise<void> {

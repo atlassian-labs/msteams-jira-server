@@ -3,7 +3,7 @@
         <img class="issuetype-icon"
             [src]="issue.issueTypeIconUrl"
             width="20"
-            height="20" />
+            height="20" alt="issue-type"/>
 
         <div class="issue-info-container">
             <app-truncated-text [style.fontSize]="'16px'" [text]="issue.summary"></app-truncated-text>
@@ -15,7 +15,7 @@
                     [src]="issue.priorityIconUrl"
                     width="14"
                     height="14"
-                    class="priority-icon">
+                    class="priority-icon" alt="issue-priority">
                     
                 <app-truncated-text 
                     class="aui-lozenge aui-lozenge-subtle {{ issue.statusCategory }}"
