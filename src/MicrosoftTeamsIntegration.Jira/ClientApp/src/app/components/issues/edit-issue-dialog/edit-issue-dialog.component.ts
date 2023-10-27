@@ -104,7 +104,6 @@ export class EditIssueDialogComponent implements OnInit {
     public selectedStatusOption: DropDownOption<JiraTransition>;
 
     public currentUserAccountId: string;
-    public formDisabled: boolean;
 
     private editIssueMetadata: EditIssueMetadata;
     private notAssignableAssignee: JiraUser;
@@ -320,17 +319,12 @@ export class EditIssueDialogComponent implements OnInit {
             const response = await this.apiService.updateIssue(encodeURIComponent(this.jiraUrl), this.issue.id, editIssueModel);
 
             if (response.isSuccess) {
-                this.formDisabled = true;
                 this.showConfirmationNotification();
                 return;
             }
-
-            this.errorMessage = response.errorMessage ||
-                'Something went wrong. Please check your permission to perform this type of action.';
         } catch (error) {
-
-        } finally {
-            this.uploading = false;
+            this.errorMessage = error.errorMessage ||
+                'Something went wrong. Please check your permission to perform this type of action.';
         }
     }
 

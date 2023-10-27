@@ -245,7 +245,7 @@
       <span *ngIf="uploading" class="loading-spinner"></span>
       <button       
           class="ts-btn ts-btn-primary buttons__button"
-          [disabled]="issueForm?.invalid || uploading || updatedFormFields.length === 0 || formDisabled"
+          [disabled]="issueForm?.invalid || uploading || updatedFormFields.length === 0"
           (click)="onSubmit()">
         Save
       </button>
