@@ -84,7 +84,7 @@
                 flex: 0.8;
 
                 &::before {
-                    font-family: MSTeamsIcons-Regular !important;
+                    font-family: $msteams-icons-font !important;
                     bottom: 1px;
                     content: $field-error;
                     position: relative;

@@ -31,8 +31,7 @@ namespace Build
             {
                 context.BuildNumber = "255.255.255.255";
             }
-
-            var type = context.Environment.GetEnvironmentVariable("IntegrationType");
+            
             context.PackageNameFormat = $"JiraServer.{context.BuildNumber}.zip";
             
             var artifactDirectoryPath = context.EnvironmentVariable("BUILD_ARTIFACTSTAGINGDIRECTORY");

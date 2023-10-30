@@ -1,15 +1,15 @@
 <div *ngIf="issue">
-  <table class="issue-table">
+  <table class="issue-table"> <!--/* //NOSONAR */-->
     <tr>
       <td class="issue-type" *ngIf="issueTypeImg">
-          <img [src]="sanitizer.bypassSecurityTrustUrl(issueTypeImg)">
+          <img [src]="sanitizer.bypassSecurityTrustUrl(issueTypeImg)" alt="issue-type">
       </td>
       <td>
         <div>
           <h5>{{title}}</h5>
         </div>
         <div class="issue-priority" *ngIf="priorityImg">
-          <img [src]="sanitizer.bypassSecurityTrustUrl(priorityImg)"/>
+          <img [src]="sanitizer.bypassSecurityTrustUrl(priorityImg)" alt="issue-priority"/>
           {{subtitle}}
         </div>
       </td>

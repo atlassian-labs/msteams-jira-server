@@ -68,11 +68,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     await SendWelcomeCard(turnContext, connectorClient, welcomeActivity, activity.IsGroupConversation(), cancellationToken);
                 }
             }
-
-            if (activity.MembersRemoved?.Count > 0)
-            {
-                activity.MembersRemoved.Any(x => x.Id == activity.Recipient.Id);
-            }
         }
 
         public async Task BuildAndUpdateJiraIssueCard(ITurnContext turnContext, IntegratedUser user, string issueKey)

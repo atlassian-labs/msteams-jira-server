@@ -129,7 +129,7 @@ body.contrast {
   width: auto !important;
   display: block !important;
 
-  font-family: "MSTeamsIcons-Light" !important;
+  font-family: $msteams-icons-font !important;
   font-size: 16px;
   font-style: normal;
   font-variant: normal;
@@ -389,7 +389,6 @@ body.contrast {
   .ng-select .ng-select-container {
     background-color: $black !important;
     color: $white !important;
-    color: $white;
     border: 1px solid $white;
    }
    
