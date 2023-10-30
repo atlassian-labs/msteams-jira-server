@@ -325,6 +325,7 @@ export class EditIssueDialogComponent implements OnInit {
         } catch (error) {
             this.errorMessage = error.errorMessage ||
                 'Something went wrong. Please check your permission to perform this type of action.';
+            this.uploading = false;
         }
     }
 
