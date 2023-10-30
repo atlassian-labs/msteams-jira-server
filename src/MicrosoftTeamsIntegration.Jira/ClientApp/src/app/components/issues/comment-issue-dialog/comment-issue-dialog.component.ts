@@ -27,6 +27,7 @@ export class CommentIssueDialogComponent implements OnInit {
     public jiraId: string;
     public issueId: string;
     public issueKey: string;
+    public formDisabled: boolean;
 
     constructor(
         public dialog: MatDialog,
@@ -92,6 +93,7 @@ export class CommentIssueDialogComponent implements OnInit {
             const response = await this.commentService.addComment(options);
 
             if (response && response.body) {
+                this.formDisabled = true;
                 this.showConfirmationNotification();
                 return;
             }
@@ -99,6 +101,7 @@ export class CommentIssueDialogComponent implements OnInit {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
             this.errorMessage = errorMessage ||
                 'Comment cannot be added. Issue does not exist or you do not have permission to see it.';
+            this.formDisabled = false;
         }
     }
 

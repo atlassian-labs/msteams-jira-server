@@ -322,12 +322,9 @@ export class EditIssueDialogComponent implements OnInit {
                 this.showConfirmationNotification();
                 return;
             }
-
-            this.errorMessage = response.errorMessage ||
-                'Something went wrong. Please check your permission to perform this type of action.';
         } catch (error) {
-
-        } finally {
+            this.errorMessage = error.errorMessage ||
+                'Something went wrong. Please check your permission to perform this type of action.';
             this.uploading = false;
         }
     }

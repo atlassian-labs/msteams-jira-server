@@ -63,7 +63,6 @@ export class CreateIssueDialogComponent implements OnInit {
     public defaultPriority: string;
     public defaultIssueType: string;
     public defaultAssignee: string;
-
     public isAddonUpdated: boolean;
 
     private dialogDefaultSettings: MatDialogConfig = {
@@ -194,7 +193,6 @@ export class CreateIssueDialogComponent implements OnInit {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
             this.errorMessage = errorMessage ||
                 'Something went wrong. Please check your permission to perform this type of action.';
-        } finally {
             this.uploading = false;
         }
     }
