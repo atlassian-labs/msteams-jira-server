@@ -101,6 +101,7 @@ export class CommentIssueDialogComponent implements OnInit {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
             this.errorMessage = errorMessage ||
                 'Comment cannot be added. Issue does not exist or you do not have permission to see it.';
+            this.formDisabled = false;
         }
     }
 

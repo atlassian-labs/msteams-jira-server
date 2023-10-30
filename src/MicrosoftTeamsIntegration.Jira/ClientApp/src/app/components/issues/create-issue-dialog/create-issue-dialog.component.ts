@@ -193,6 +193,7 @@ export class CreateIssueDialogComponent implements OnInit {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
             this.errorMessage = errorMessage ||
                 'Something went wrong. Please check your permission to perform this type of action.';
+            this.uploading = false;
         }
     }
 
