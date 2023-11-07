@@ -329,7 +329,10 @@ export class EditIssueDialogComponent implements OnInit {
             this.errorMessage = error.errorMessage ||
                 'Something went wrong. Please try again or contact support.';
         } finally {
-            this.notificationService.notifyError(this.errorMessage);
+            if(this.errorMessage) {
+                this.notificationService.notifyError(this.errorMessage);
+            }
+
             this.uploading = false;
         }
     }
