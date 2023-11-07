@@ -322,17 +322,13 @@ export class EditIssueDialogComponent implements OnInit {
                 this.showConfirmationNotification();
                 return;
             } else {
-                this.errorMessage = response.errorMessage ||
-                    'Something went wrong. Please check your permission to perform this type of action.';
+                this.notificationService.notifyError(response.errorMessage ||
+                    'Something went wrong. Please check your permission to perform this type of action.');
+                this.uploading = false;
             }
         } catch (error) {
-            this.errorMessage = error.errorMessage ||
-                'Something went wrong. Please try again or contact support.';
-        } finally {
-            if(this.errorMessage) {
-                this.notificationService.notifyError(this.errorMessage);
-            }
-
+            this.notificationService.notifyError(error.errorMessage ||
+                'Something went wrong. Please try again or contact support.');
             this.uploading = false;
         }
     }
