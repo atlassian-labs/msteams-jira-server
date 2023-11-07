@@ -42,7 +42,7 @@
                     <div class="dialog__footer">
                         <div class="buttons">
                             <button class="ts-btn ts-btn-primary buttons__button"
-                                [disabled]="commentForm.invalid || !selectedIssue"
+                                [disabled]="commentForm.invalid || !selectedIssue || formDisabled"
                                 (click)="onSubmit()">
                                 Add
                             </button>

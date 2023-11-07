@@ -501,7 +501,7 @@ export class EditIssueDialogComponent implements OnInit {
     private showConfirmationNotification(): void {
         const issueUrl =
             `<a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">
-            ${this.issueKey}
+            ${this.issue.key}
             </a>`;
         const message = `The issue ${issueUrl} has been updated`;
 

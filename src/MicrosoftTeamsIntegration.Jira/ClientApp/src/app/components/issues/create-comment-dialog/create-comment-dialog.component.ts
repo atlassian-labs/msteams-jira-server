@@ -26,17 +26,9 @@ export class CreateCommentDialogComponent implements OnInit {
     public activeIssue: Issue;
     public searchTerm: string;
     public loading = false;
+    public formDisabled = false;
     public commentForm: FormGroup;
-    private dialogDefaultSettings: MatDialogConfig = {
-        width: '300px',
-        height: '170px',
-        minWidth: '300px',
-        minHeight: '170px',
-        ariaLabel: 'Confirmation dialog',
-        closeOnNavigation: true,
-        autoFocus: false,
-        role: 'dialog'
-    };
+
     private keyboardEventsManager: ListKeyManager<any>;
     private metadataRef: string;
 
@@ -94,6 +86,7 @@ export class CreateCommentDialogComponent implements OnInit {
         };
 
         try {
+            this.formDisabled = true;
             const response = await this.commentService.addComment(options);
 
             if (response && response.body) {
@@ -101,6 +94,7 @@ export class CreateCommentDialogComponent implements OnInit {
                 return;
             }
         } catch (error) {
+            this.formDisabled = false;
             const errorMessage = this.errorService.getHttpErrorMessage(error);
             this.notificationService.notifyError(errorMessage ||
                 'Comment cannot be added. Issue does not exist or you do not have permission to see it.');
