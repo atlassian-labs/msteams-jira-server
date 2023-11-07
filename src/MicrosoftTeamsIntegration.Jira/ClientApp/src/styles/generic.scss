@@ -229,7 +229,7 @@
 
 snack-bar-container.successful-alert {
   min-width: 100vw;
-  margin: 0px;
+  margin: 0 !important; 
   padding: 0;
   height: 44px;
   min-height: 0px;
@@ -239,7 +239,7 @@ snack-bar-container.successful-alert {
 
 snack-bar-container.error-alert {
   min-width: 100vw;
-  margin: 0px;
+  margin: 0 !important;
   padding: 0;
   height: 44px;
   min-height: 0px;
