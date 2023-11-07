@@ -321,10 +321,15 @@ export class EditIssueDialogComponent implements OnInit {
             if (response.isSuccess) {
                 this.showConfirmationNotification();
                 return;
+            } else {
+                this.errorMessage = response.errorMessage ||
+                    'Something went wrong. Please check your permission to perform this type of action.';
             }
         } catch (error) {
             this.errorMessage = error.errorMessage ||
-                'Something went wrong. Please check your permission to perform this type of action.';
+                'Something went wrong. Please try again or contact support.';
+        } finally {
+            this.notificationService.notifyError(this.errorMessage);
             this.uploading = false;
         }
     }
@@ -433,9 +438,10 @@ export class EditIssueDialogComponent implements OnInit {
     }
 
     private async setPrioritiesOptions(): Promise<void> {
-        this.priorities = await this.apiService.getPriorities(this.jiraUrl);
-        if (this.priorities) {
-            this.prioritiesOptions = this.priorities.map(this.dropdownUtilService.mapPriorityToDropdownOption);
+        const priorityFieldName = 'priority';
+        const priorities = this.editIssueMetadata.fields[priorityFieldName];
+        if (priorities) {
+            this.prioritiesOptions = priorities.allowedValues.map(this.dropdownUtilService.mapPriorityToDropdownOption);
             this.selectedPriorityOption = this.prioritiesOptions.find(prt => prt.id === this.issue.priorityId);
         }
     }

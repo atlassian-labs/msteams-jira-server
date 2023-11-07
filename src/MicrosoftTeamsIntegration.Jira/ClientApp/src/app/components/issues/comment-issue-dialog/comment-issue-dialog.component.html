@@ -1,8 +1,4 @@
 <div *ngIf="!loading; else loadingTemplate" class="dialog">
-    <div *ngIf="errorMessage" class="dialog__top-error">
-        {{ errorMessage }}
-    </div>
-
     <div class=dialog__content>
         <form *ngIf="commentForm" #form class="comment-form" [formGroup]="commentForm">
             <div class="top-panel">
