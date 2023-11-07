@@ -20,7 +20,6 @@ import { NotificationService } from '@shared/services/notificationService';
 })
 export class CommentIssueDialogComponent implements OnInit {
     public issue: Issue;
-    public errorMessage: string;
     public loading = false;
     public commentForm: FormGroup;
     public jiraUrl: string;
@@ -80,8 +79,6 @@ export class CommentIssueDialogComponent implements OnInit {
             return;
         }
 
-        this.errorMessage = '';
-
         const options: IssueAddCommentOptions = {
             jiraUrl: this.jiraId,
             issueIdOrKey: this.issueId,
@@ -99,8 +96,8 @@ export class CommentIssueDialogComponent implements OnInit {
             }
         } catch (error) {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
-            this.errorMessage = errorMessage ||
-                'Comment cannot be added. Issue does not exist or you do not have permission to see it.';
+            this.notificationService.notifyError(errorMessage ||
+                'Comment cannot be added. Issue does not exist or you do not have permission to see it.');
             this.formDisabled = false;
         }
     }

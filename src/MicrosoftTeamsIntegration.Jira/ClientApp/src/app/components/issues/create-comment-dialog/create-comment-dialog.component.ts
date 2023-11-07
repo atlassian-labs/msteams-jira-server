@@ -24,7 +24,6 @@ export class CreateCommentDialogComponent implements OnInit {
     public issues: Issue[] = [];
     public selectedIssue: Issue;
     public activeIssue: Issue;
-    public errorMessage: string;
     public searchTerm: string;
     public loading = false;
     public commentForm: FormGroup;
@@ -87,8 +86,6 @@ export class CreateCommentDialogComponent implements OnInit {
             return;
         }
 
-        this.errorMessage = '';
-
         const options: IssueAddCommentOptions = {
             jiraUrl: this.jiraId,
             issueIdOrKey: this.selectedIssue.id,
@@ -105,8 +102,8 @@ export class CreateCommentDialogComponent implements OnInit {
             }
         } catch (error) {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
-            this.errorMessage = errorMessage ||
-                'Comment cannot be added. Issue does not exist or you do not have permission to see it.';
+            this.notificationService.notifyError(errorMessage ||
+                'Comment cannot be added. Issue does not exist or you do not have permission to see it.');
         }
     }
 
@@ -140,7 +137,7 @@ export class CreateCommentDialogComponent implements OnInit {
             }
 
         } catch (error) {
-            this.errorMessage = 'Cannot retrieve issue. Please try again later.';
+            this.notificationService.notifyError('Cannot retrieve issue. Please try again later.');
         }
     }
 
