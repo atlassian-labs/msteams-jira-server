@@ -32,7 +32,6 @@ export class CreateIssueDialogComponent implements OnInit {
     public isFetchingProjects = false;
     public fetching = false;
     public canCreateIssue = true;
-    public errorMessage = '';
 
     public issueForm: FormGroup;
 
@@ -145,8 +144,6 @@ export class CreateIssueDialogComponent implements OnInit {
             return;
         }
 
-        this.errorMessage = '';
-
         const formValue = this.issueForm.value;
 
         const createIssueFields = {
@@ -191,8 +188,8 @@ export class CreateIssueDialogComponent implements OnInit {
             }
         } catch (error) {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
-            this.errorMessage = errorMessage ||
-                'Something went wrong. Please check your permission to perform this type of action.';
+            this.notificationService.notifyError(errorMessage ||
+                'Something went wrong. Please check your permission to perform this type of action.');
             this.uploading = false;
         }
     }
@@ -229,18 +226,19 @@ export class CreateIssueDialogComponent implements OnInit {
     public async onProjectSelected(optionOrValue: DropDownOption<string> | string): Promise<void> {
         const projectId = typeof optionOrValue === 'string' ? optionOrValue : optionOrValue.value;
         this.fetching = true;
-        this.errorMessage = null;
 
         this.selectedProject = this.projects.find(proj => proj.id === projectId);
 
         this.canCreateIssue = await this.canCreateIssueForProject(this.selectedProject.key);
         if (!this.canCreateIssue) {
-            this.errorMessage = 'You can\'t create issue for this project. Contact project admin to check your permissions.';
+            this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
+            const errorMessage = 'You can\'t create issue for this project. Contact project admin to check your permissions.';
+            this.notificationService.notifyError(errorMessage);
         } else {
             this.issueTypes = await this.apiService.getCreateMetaIssueTypes(this.jiraUrl, this.selectedProject.key);
+            this.availableIssueTypesOptions = this.getIssueTypesOptions();
         }
 
-        this.availableIssueTypesOptions = this.getIssueTypesOptions();
         await this.onIssueTypeSelected(this.availableIssueTypesOptions[0]);
     }
 

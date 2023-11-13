@@ -47,7 +47,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         [Theory]
         [InlineData(404, typeof(NotFoundException), "")]
         [InlineData(400, typeof(UnauthorizedException), "Invalid JWT token")]
-        [InlineData(400, typeof(JiraGeneralException), "token")]
+        [InlineData(400, typeof(BadRequestException), "token")]
         [InlineData(403, typeof(ForbiddenException), "")]
         [InlineData(0, typeof(Exception), "")]
         public async void HandleJiraServerError_ThrowsException_WhenError40X(int code, Type type, string message)

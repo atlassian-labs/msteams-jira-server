@@ -1,8 +1,4 @@
 <div *ngIf="!loading; else loadingTemplate" class="dialog">
-    <div *ngIf="errorMessage" class="dialog__top-error">
-        {{ errorMessage }}
-    </div>
-
     <div class=dialog__content>
         <form *ngIf="commentForm" #form class="comment-form" [formGroup]="commentForm">
             <div class="comment-form__body">
@@ -46,7 +42,7 @@
                     <div class="dialog__footer">
                         <div class="buttons">
                             <button class="ts-btn ts-btn-primary buttons__button"
-                                [disabled]="commentForm.invalid || !selectedIssue"
+                                [disabled]="commentForm.invalid || !selectedIssue || formDisabled"
                                 (click)="onSubmit()">
                                 Add
                             </button>

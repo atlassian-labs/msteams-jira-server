@@ -39,7 +39,7 @@ namespace MicrosoftTeamsIntegration.Jira.Helpers
 
                     throw ex;
                 case 400 when !string.IsNullOrEmpty(message):
-                    ex = new JiraGeneralException(message);
+                    ex = new BadRequestException(message);
                     logger.LogError(ex, "{MsTeamsId} | {JiraId}", msTeamsId, jiraId);
 
                     throw ex;
