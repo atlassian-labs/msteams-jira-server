@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 import { HttpErrorResponse } from '@angular/common/http';
 import {
     Component,
@@ -12,14 +11,12 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EditIssueMaterialDialogComponent } from '@app/components/issues/edit-issue-material-dialog/edit-issue-material-dialog.component';
 import { SignoutMaterialDialogComponent } from '@app/components/issues/signout-material-dialog/signout-material-dialog.component';
 import { AddonStatus, ApplicationType, PageName, StatusCode } from '@core/enums';
 import { JiraSortDirection } from '@core/enums/sort-direction.enum';
 import { NormalizedIssue } from '@core/models';
 import { JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import { JqlOptions } from '@core/models/Jira/jql-settings.model';
-import { EditIssueDialogData } from '@core/models/dialogs/issue-dialog.model';
 import {
     ApiService,
     AppInsightsService,
@@ -127,17 +124,6 @@ export class IssuesComponent implements OnInit {
         'labels'
     ];
 
-    private dialogDefaultSettings: MatDialogConfig = {
-        width: '710px',
-        height: '524px',
-        minWidth: '200px',
-        minHeight: '100px',
-        ariaLabel: 'Issue dialog',
-        closeOnNavigation: true,
-        autoFocus: false,
-        role: 'dialog'
-    };
-
     /* paginator */
     // set default value for totat page count equals to 200
     public pageCount = 200;
@@ -180,8 +166,6 @@ export class IssuesComponent implements OnInit {
 
         this.showStaticTabElements = this.application === ApplicationType.JiraServerStaticTab;
 
-        this.getPredefinedFilters(this.jqlQuery);
-
         await this.startAuthFlow();
 
         if (this.jiraUrl) {
@@ -191,7 +175,7 @@ export class IssuesComponent implements OnInit {
         }
         this.loadingOff();
 
-        var issueTableComponent = this;
+        const issueTableComponent = this;
 
         // open edit issue dialog if context contains sub entity ID and user is authorized
         microsoftTeams.getContext(function (context) {
@@ -210,27 +194,35 @@ export class IssuesComponent implements OnInit {
     }
 
     public openEditDialog(issueId: string): void {
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    jiraUrl: this.jiraUrl,
-                    projectKey: this.projectKey,
-                    issueId
-                } as EditIssueDialogData
-            }
+        const application = this.application || ApplicationType.JiraServerStaticTab;
+        const url = `${localStorage.getItem('baseUrl')}/#/issues/edit;jiraUrl=${encodeURIComponent(this.jiraUrl)};` +
+            `application=${application};issueId=${issueId};source=issuesTab`;
+
+        const taskInfo = {
+            title: 'Edit the issue',
+            url,
+            fallbackUrl: url,
+            width: 710,
+            height: 522
         };
 
-        this.dialog.open(EditIssueMaterialDialogComponent, dialogConfig)
-            .afterClosed().subscribe(async (issueChanged: boolean) => {
-                if (issueChanged) {
+        microsoftTeams.tasks.startTask(taskInfo, async (err, result: any) => {
+            if (err) {
+                if (err !== 'User cancelled/closed the task module.') {
+                    this.appInsightService.trackException(new Error(err), 'Issue-table.component::openEditDialog');
+                }
+            } else {
+                if (result instanceof Error) {
+                    this.appInsightService.trackException(result, 'Issue-table.component::openEditDialog');
+                } else {
                     await this.loadData();
                 }
-            });
+            }
+        });
     }
 
     public openIssueCreateDialog(): void {
-        const application = ApplicationType.JiraServerCompose;
+        const application = this.application || ApplicationType.JiraServerStaticTab;
         const url = `${localStorage.getItem('baseUrl')}/#/issues/create;jiraUrl=${encodeURIComponent(this.jiraUrl)};` +
                         `application=${application};source=issuesTab`;
 
@@ -377,16 +369,16 @@ export class IssuesComponent implements OnInit {
 
     private async loadIssues(): Promise<void> {
         try {
-                const transformedJqlQuery = this.getTransformedJqlQuery();
+            const transformedJqlQuery = this.getTransformedJqlQuery();
 
-                this.decodedTransformedJqlQuery = decodeURIComponent(transformedJqlQuery);
+            this.decodedTransformedJqlQuery = decodeURIComponent(transformedJqlQuery);
 
-                this.setColumnsSorting(this.decodedTransformedJqlQuery);
+            this.setColumnsSorting(this.decodedTransformedJqlQuery);
 
-                this.jiraLinkWithJql = `${this.jiraUrl}/issues/?jql=${transformedJqlQuery}`;
+            this.jiraLinkWithJql = `${this.jiraUrl}/issues/?jql=${transformedJqlQuery}`;
 
-                this.issues = await this.getIssues(transformedJqlQuery);
-                this.setDisplayedColumns();
+            this.issues = await this.getIssues(transformedJqlQuery);
+            this.setDisplayedColumns();
         } catch (error) {
             this.appInsightService.trackException(error, 'Issue-table.component::loadData');
 
@@ -402,11 +394,11 @@ export class IssuesComponent implements OnInit {
         this.dataSource = new MatTableDataSource(this.issues || []);
     }
 
-     private async loadIssuesWithSpinner(): Promise<void> {
+    private async loadIssuesWithSpinner(): Promise<void> {
         this.loadingTableData = true;
         await this.loadIssues();
         this.loadingTableData = false;
-     }
+    }
 
     public async sortData(columnName: string): Promise<void> {
         if (this.isMobile) {
@@ -416,8 +408,8 @@ export class IssuesComponent implements OnInit {
         const columnDirection = this.sortedColumnsState.get(columnName);
 
         this.sortDirection = !columnDirection || columnDirection === JiraSortDirection.Desc ?
-                                JiraSortDirection.Asc :
-                                JiraSortDirection.Desc;
+            JiraSortDirection.Asc :
+            JiraSortDirection.Desc;
 
         this.activeColumn = columnName;
 
@@ -492,7 +484,7 @@ export class IssuesComponent implements OnInit {
             const selectedJiraFilter = this.selectedJiraFilter && this.selectedJiraFilter.value;
             options = { jql: selectedJiraFilter, jqlSuffix: this.jqlOrderBySuffix, accountId: this.accountId, page: this.page };
         } else {
-            options = { jql: this.jqlQuery, jqlSuffix: this.jqlOrderBySuffix,  projectKey: this.projectKey };
+            options = { jql: this.jqlQuery, jqlSuffix: this.jqlOrderBySuffix, projectKey: this.projectKey };
         }
 
         return this.issuesService.createJqlQuery(options);
@@ -531,15 +523,6 @@ export class IssuesComponent implements OnInit {
         }
 
         this.onCheckAddonInstalledFailed();
-    }
-
-    private getPredefinedFilters(jqlQuery: string): void {
-        this.utilService.getFilters()
-            .map((filter) => {
-                if (filter.value === jqlQuery) {
-                    this.currentFilter = filter.label;
-                }
-            });
     }
 
     private async setStaticTabFilters(): Promise<void> {
@@ -650,10 +633,10 @@ export class IssuesComponent implements OnInit {
         };
 
         this.dialog.open(SignoutMaterialDialogComponent, dialogConfig).afterClosed()
-        .subscribe(async (isConfirmed: boolean) => {
-            if (isConfirmed) {
-                await this.router.navigate(['/login', { ...this.route.snapshot.params, status: StatusCode.Unauthorized }]);
-            }
-        });
+            .subscribe(async (isConfirmed: boolean) => {
+                if (isConfirmed) {
+                    await this.router.navigate(['/login', { ...this.route.snapshot.params, status: StatusCode.Unauthorized }]);
+                }
+            });
     }
 }

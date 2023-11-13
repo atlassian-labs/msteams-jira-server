@@ -17,8 +17,9 @@ import { FormGroup } from '@angular/forms';
 		</div>
 
 		<div class="field-group__body">
-          <textarea class="field-group__textarea-single" placeholder="{{data.placeholder}}" cols="20" rows="3" 
-          maxlength="1024" formControlName="{{data.formControlName}}" [attr.disabled]="data.disabled" value="{{data.defaultValue}}"></textarea>
+          <textarea class="field-group__textarea-single" placeholder="{{data.placeholder}}" cols="20" rows="3"
+          maxlength="1024" formControlName="{{data.formControlName}}" [attr.disabled]="data.disabled"
+                    value="{{data.defaultValue}}"></textarea>
 		</div>
 	  </div>
     </div>

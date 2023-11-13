@@ -22,13 +22,13 @@ import { DropDownComponent } from '@shared/components/dropdown/dropdown.componen
 		</div>
 
         <div class="field-group__body">
-            <app-dropdown 
-                searchable="true" 
-                [loading]="loading" 
+            <app-dropdown
+                searchable="true"
+                [loading]="loading"
                 [options]="options"
-                [filteredOptions]="filteredOptions" 
+                [filteredOptions]="filteredOptions"
                 (searchChange)="onSearchChanged($event)"
-                formControlName="{{data.formControlName}}"  
+                formControlName="{{data.formControlName}}"
                 [disabled]="data.disabled">
             </app-dropdown>
 		</div>
@@ -65,7 +65,7 @@ export class UserPickerFieldComponent implements FieldComponent, OnInit {
         this.loadingOn();
 
         this.jiraUrl = this.data.jiraUrl;
-       
+
         if (this.data.defaultValue) {
             this.options.unshift(this.dropdownUtilService.mapUserToDropdownOption(this.data.defaultValue));
         } else {

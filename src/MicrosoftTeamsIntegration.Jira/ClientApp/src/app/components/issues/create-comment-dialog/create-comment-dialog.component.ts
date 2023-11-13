@@ -9,42 +9,33 @@ import { IssueCommentService } from '@core/services/entities/comment.service';
 import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.model';
 import { ApiService, ErrorService, AppInsightsService } from '@core/services';
 import { Issue } from '@core/models';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
 import { UtilService } from '@core/services/util.service';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import * as microsoftTeams from '@microsoft/teams-js';
-import { StringValidators } from './../../../core/validators/string.validators';
+import { StringValidators } from '@core/validators/string.validators';
+import { NotificationService } from '@shared/services/notificationService';
 
 @Component({
-  selector: 'app-create-comment-dialog',
-  templateUrl: './create-comment-dialog.component.html',
-  styleUrls: ['./create-comment-dialog.component.scss']
+    selector: 'app-create-comment-dialog',
+    templateUrl: './create-comment-dialog.component.html',
+    styleUrls: ['./create-comment-dialog.component.scss']
 })
 export class CreateCommentDialogComponent implements OnInit {
 
     public issues: Issue[] = [];
     public selectedIssue: Issue;
     public activeIssue: Issue;
-    public errorMessage: string;
     public searchTerm: string;
     public loading = false;
+    public formDisabled = false;
     public commentForm: FormGroup;
-    private dialogDefaultSettings: MatDialogConfig = {
-        width: '250px',
-        height: '170px',
-        minWidth: '250px',
-        minHeight: '170px',
-        ariaLabel: 'Confirmation dialog',
-        closeOnNavigation: true,
-        autoFocus: false,
-        role: 'dialog'
-    };
+
     private keyboardEventsManager: ListKeyManager<any>;
     private metadataRef: string;
 
     @Input() public defaultComment: string;
     @Input() public jiraUrl: string;
     @Input() public jiraId: string;
+    @Input() public defaultSearchTerm: string;
 
     constructor(
         private apiService: ApiService,
@@ -53,19 +44,25 @@ export class CreateCommentDialogComponent implements OnInit {
         public dialog: MatDialog,
         private utilService: UtilService,
         private appInsightsService: AppInsightsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private notificationService: NotificationService
     ) { }
 
     public async ngOnInit() {
         this.loading = true;
         try {
-            const { metadataRef, jiraUrl, jiraId, comment } = this.route.snapshot.params;
+            const { metadataRef, jiraUrl, jiraId, comment, issueUrl } = this.route.snapshot.params;
             this.metadataRef = metadataRef;
             this.jiraUrl = jiraUrl;
             this.jiraId = jiraId;
             this.defaultComment = comment;
+            this.defaultSearchTerm = this.getIssueKey(issueUrl);
 
             await this.createForm();
+
+            if (this.defaultSearchTerm) {
+                await this.search(this.defaultSearchTerm);
+            }
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error),
@@ -79,9 +76,7 @@ export class CreateCommentDialogComponent implements OnInit {
     public async onSubmit(): Promise<void> {
         if (this.commentForm.invalid) {
             return;
-        } 
-
-        this.errorMessage = '';
+        }
 
         const options: IssueAddCommentOptions = {
             jiraUrl: this.jiraId,
@@ -91,16 +86,18 @@ export class CreateCommentDialogComponent implements OnInit {
         };
 
         try {
+            this.formDisabled = true;
             const response = await this.commentService.addComment(options);
 
             if (response && response.body) {
-                this.openConfirmationDialog(this.selectedIssue);
+                this.showConfirmationNotification(this.selectedIssue);
                 return;
             }
         } catch (error) {
+            this.formDisabled = false;
             const errorMessage = this.errorService.getHttpErrorMessage(error);
-            this.errorMessage = errorMessage ||
-                'Comment cannot be added. Issue does not exist or you do not have permission to see it.';
+            this.notificationService.notifyError(errorMessage ||
+                'Comment cannot be added. Issue does not exist or you do not have permission to see it.');
         }
     }
 
@@ -127,24 +124,27 @@ export class CreateCommentDialogComponent implements OnInit {
             } else {
                 this.issues = issues;
                 this.keyboardEventsManager = new ListKeyManager(this.issues as ListKeyManagerOption[]);
+                // preselect issue if we have just one result
+                if (this.issues.length === 1) {
+                    this.selectedIssue = issues[0];
+                }
             }
 
         } catch (error) {
-            this.errorMessage = 'Cannot retreive issue. Please try again later.';
+            this.notificationService.notifyError('Cannot retrieve issue. Please try again later.');
         }
     }
 
     private getSearchJql(searchTerm: string): string {
         searchTerm = searchTerm.trim();
 
-        if(searchTerm.includes('-')) {
+        if (searchTerm.includes('-')) {
             const parts = searchTerm.split('-');
-            if(parts.length == 2 && parts.every(e => e !== null && e !== '')){
+            if(parts.length === 2 && parts.every(e => e !== null && e !== '')){
                 const projectKey = parts[0].normalize();
                 const issueNumber = parts[1].normalize();
 
-                if(!isNaN(+issueNumber))
-                {
+                if(!isNaN(+issueNumber)) {
                     return `issuekey='${projectKey}-${issueNumber}'`;
                 }
             }
@@ -153,23 +153,36 @@ export class CreateCommentDialogComponent implements OnInit {
         return searchTerm ? `summary~'${searchTerm}*' order by updated DESC` : '';
     }
 
-    private openConfirmationDialog(issue: Issue): void {
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Comment added',
-                    subtitle: `View <a href="${this.jiraUrl}\\browse\\${issue.key}" target="_blank" rel="noreferrer noopener">${issue.key}</a>.`,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.SuccessLarge
-                } as ConfirmationDialogData
-            }
-        };
+    private showConfirmationNotification(issue: Issue): void {
+        const issueUrl =
+            `<a href="${this.jiraUrl}/browse/${issue.key}" target="_blank" rel="noreferrer noopener">
+            ${issue.key}
+            </a>`;
+        const message = `Comment was added to ${issueUrl}`;
 
-        this.dialog.open(ConfirmationDialogComponent, dialogConfig)
-        .afterClosed().subscribe(() => {
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
             microsoftTeams.tasks.submitTask();
         });
+    }
+
+    private getIssueKey(issueURL: string): string {
+        if (!issueURL) {
+            return null;
+        }
+
+        try {
+            const issueLinkRegex = /(?:https|https?):\/\/(?<hostname>[^\/]*)(\/[^\/]*)*\/browse\/(?<idOrKey>[a-zA-Z\d]+\-[\d]+)\/?/;
+            const issueRegexPattern = new RegExp(issueLinkRegex, 'i');
+
+            const parts = issueRegexPattern.exec(issueURL);
+            if (parts && (parts as any).groups) {
+                const groups = (parts as any).groups;
+                return groups['idOrKey'];
+            }
+            return null;
+        } catch (err) {
+            console.error('Cannot get issue id from URL', err);
+        }
     }
 
     private async createForm(): Promise<void> {
@@ -186,7 +199,7 @@ export class CreateCommentDialogComponent implements OnInit {
     private handleListKeyUp(event: KeyboardEvent) {
         event.stopImmediatePropagation();
         if (this.keyboardEventsManager && this.issues.length > 0) {
-            if(event.keyCode == TAB) {
+            if(event.keyCode === TAB) {
                 const activeItem = this.issues[0];
                 this.keyboardEventsManager.setActiveItem(activeItem);
                 this.activeIssue = activeItem;

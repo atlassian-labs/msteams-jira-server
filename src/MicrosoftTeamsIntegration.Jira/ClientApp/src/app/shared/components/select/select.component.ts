@@ -9,31 +9,36 @@ import { SelectChange } from '@shared/models/select-change.model';
     styleUrls: ['./select.component.scss']
 })
 export class SelectComponent {
-    public isOpened = false;
+    protected _options: SelectOption[];
+    protected _multiple = false;
 
     @Input()
-    get options(): SelectOption[] { return this._options; }
+    get options(): SelectOption[] {
+        return this._options;
+    }
     set options(options: SelectOption[]) {
         this._options = options;
         this.selectedOptions = [];
     }
-    protected _options: SelectOption[];
 
     @Input()
-    get multiple() { return this._multiple; }
-    set mutliple(value: boolean) {
+    get multiple() {
+        return this._multiple;
+    }
+    set multiple(value: boolean) {
         this._multiple = value;
 
         if (value && this.options && this.options.indexOf(this._allOption) < 0) {
             this.options.unshift(this._allOption);
         }
     }
-    protected _multiple = false;
 
     @Input() public placeholder = '';
     @Input() public title = '';
 
     @Output() optionSelect = new EventEmitter<SelectChange>();
+
+    public isOpened = false;
 
     private selectedOptions: SelectOption[] = [];
 

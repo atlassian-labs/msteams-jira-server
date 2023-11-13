@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,40 +30,29 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Jira.Issue
         public JiraIssueFields Fields { get; set; }
 
         [UsedImplicitly]
-        public void SetJiraIssueIconUrl(string baseUrl, JiraIconSize iconSize = JiraIconSize.Medium)
+        public void SetJiraIssueIconUrl(JiraIconSize iconSize = JiraIconSize.Medium)
         {
             if (Fields.Type != null)
             {
-                var pathPrefix = iconSize == JiraIconSize.Small
-                    ? $"{baseUrl}/assets/issue-type-icons-small"
-                    : $"{baseUrl}/assets/issue-type-icons";
+                var pathPrefix = $"{JiraConstants.PiCdnBaseUrl}/jira-issuetype/{iconSize.ToString().ToLower()}";
 
-                var iconUrl = $"{pathPrefix}/unknown.png";
+                string iconUrl;
                 switch (Fields.Type.Name.ToLowerInvariant())
                 {
                     case "epic":
-                        iconUrl = $"{pathPrefix}/epic.png";
-                        break;
                     case "story":
-                        iconUrl = $"{pathPrefix}/story.png";
-                        break;
                     case "task":
-                        iconUrl = $"{pathPrefix}/task.png";
-                        break;
                     case "sub-task":
-                        iconUrl = $"{pathPrefix}/sub-task.png";
-                        break;
                     case "problem":
-                        iconUrl = $"{pathPrefix}/problem.png";
-                        break;
                     case "incident":
-                        iconUrl = $"{pathPrefix}/incident.png";
-                        break;
-                    case "service request":
-                        iconUrl = $"{pathPrefix}/service-request.png";
-                        break;
                     case "bug":
-                        iconUrl = $"{pathPrefix}/bug.png";
+                    case "change":
+                    case "service request":
+                    case "service request with approvals":
+                        iconUrl = $"{pathPrefix}/{Fields.Type.Name.ToLowerInvariant()}.png";
+                        break;
+                    default:
+                        iconUrl = $"{pathPrefix}/bug grey.png";
                         break;
                 }
 
@@ -71,27 +61,24 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Jira.Issue
         }
 
         [UsedImplicitly]
-        public void SetJiraIssuePriorityIconUrl(string baseUrl)
+        public void SetJiraIssuePriorityIconUrl(JiraIconSize iconSize = JiraIconSize.Medium)
         {
             if (Fields.Priority != null)
             {
-                var iconUrl = $"{baseUrl}/assets/priority-icons/medium.png";
+                var iconUrl = $"{JiraConstants.PiCdnBaseUrl}/jira-priority/medium/medium.png";
                 switch (Fields.Priority.Name.ToLowerInvariant())
                 {
-                    case "highest":
-                        iconUrl = $"{baseUrl}/assets/priority-icons/highest.png";
-                        break;
+                    case "blocker":
+                    case "critical":
                     case "high":
-                        iconUrl = $"{baseUrl}/assets/priority-icons/high.png";
-                        break;
-                    case "medium":
-                        iconUrl = $"{baseUrl}/assets/priority-icons/medium.png";
-                        break;
+                    case "highest":
                     case "low":
-                        iconUrl = $"{baseUrl}/assets/priority-icons/low.png";
-                        break;
                     case "lowest":
-                        iconUrl = $"{baseUrl}/assets/priority-icons/lowest.png";
+                    case "major":
+                    case "medium":
+                    case "minor":
+                    case "trivial":
+                        iconUrl = $"{JiraConstants.PiCdnBaseUrl}/jira-priority/{iconSize.ToString().ToLower()}/{Fields.Priority.Name.ToLowerInvariant()}.png";
                         break;
                 }
 

@@ -35,7 +35,8 @@ export class UrlFieldComponent implements FieldComponent {
         const value = $event.target ? $event.target.value : null;
 
         // check if entered value is valid URL string
-        if (!/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/.test(value) && value !== "") {
+        // eslint-disable-next-line max-len
+        if (!/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/.test(value) && value !== '') {
             this.validationError = true;
         } else {
             this.validationError = false;

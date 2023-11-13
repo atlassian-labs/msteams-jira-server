@@ -226,3 +226,23 @@
     color: $white; // Change color
   }
 }
+
+snack-bar-container.successful-alert {
+  min-width: 100vw;
+  margin: 0 !important; 
+  padding: 0;
+  height: 44px;
+  min-height: 0px;
+  box-shadow: 0px 0px 0px black;
+  background: transparent;
+}
+
+snack-bar-container.error-alert {
+  min-width: 100vw;
+  margin: 0 !important;
+  padding: 0;
+  height: 44px;
+  min-height: 0px;
+  box-shadow: 0px 0px 0px black;
+  background: transparent;
+}

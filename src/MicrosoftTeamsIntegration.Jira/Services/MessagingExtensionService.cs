@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -71,6 +72,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         {
             var composeExtensionQuery = SafeCast<MessagingExtensionQuery>(turnContext.Activity.Value);
             string errorMessage;
+            StringBuilder urlStringBuilder = new StringBuilder();
+            string url;
 
             if (composeExtensionQuery?.CommandId == null)
             {
@@ -87,12 +90,17 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 var application = "jiraServerCompose";
 
                 // the url has this format (domain/#/segment/segment;param1=value1;param2=value2) since we read params as snapshot.params on the client side
-                var url = $"{_appSettings.BaseUrl}/#/issues/create;jiraUrl={Uri.EscapeDataString(jiraId)};application={application};returnIssueOnSubmit=true;source=messagingExtension";
-
-                var issueDescription = GetRequestsContent(turnContext.Activity);
+                urlStringBuilder.Append($"{_appSettings.BaseUrl}/#/issues/create;jiraUrl={Uri.EscapeDataString(jiraId)};application={application};returnIssueOnSubmit=true;source=messagingExtension");
+                MessageActionPayload createIssueActionPayload = GetRequestsContent(turnContext.Activity);
+                string issueDescription = EscapeDataString(createIssueActionPayload?.Body?.Content, createIssueActionPayload?.Body?.ContentType ?? MessageActionContentType.Text);
                 if (!string.IsNullOrEmpty(issueDescription))
                 {
-                    url += $";description={issueDescription}";
+                    urlStringBuilder.Append($";description={issueDescription}");
+                }
+
+                if (createIssueActionPayload?.Parameters?.Count > 0)
+                {
+                    AppendUrlWithParameters(urlStringBuilder, createIssueActionPayload.Parameters);
                 }
 
                 // get comment metadata only in case we have initial description
@@ -101,8 +109,10 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     var metadataRef = Guid.NewGuid().ToString();
                     await _distributedCacheService.Set(metadataRef, msgMetadata);
-                    url += $";metadataRef={metadataRef}";
+                    urlStringBuilder.Append($";metadataRef={metadataRef}");
                 }
+
+                url = urlStringBuilder.ToString();
 
                 return new FetchTaskResponseEnvelope
                 {
@@ -126,19 +136,28 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 var jiraUrl = user.JiraInstanceUrl;
                 var jiraId = user.JiraServerId;
                 var application = "jiraServerCompose";
-                var issueComment = GetRequestsContent(turnContext.Activity);
+
+                MessageActionPayload createCommentActionPayload = GetRequestsContent(turnContext.Activity);
+                var issueComment = EscapeDataString(createCommentActionPayload.Body.Content, createCommentActionPayload.Body.ContentType);
 
                 // get comment metadata only in case we have original comment
                 var msgMetadata = !string.IsNullOrEmpty(issueComment) ? await GetMessageMetadata(turnContext) : null;
 
-                var url = $"{_appSettings.BaseUrl}/#/issues/createComment;jiraUrl={Uri.EscapeDataString(jiraUrl)};jiraId={jiraId};application={application};comment={issueComment};source=messagingExtension";
+                urlStringBuilder.Append($"{_appSettings.BaseUrl}/#/issues/createComment;jiraUrl={Uri.EscapeDataString(jiraUrl)};jiraId={jiraId};application={application};comment={issueComment};source=messagingExtension");
+
+                if (createCommentActionPayload.Parameters?.Count > 0)
+                {
+                    AppendUrlWithParameters(urlStringBuilder, createCommentActionPayload.Parameters);
+                }
 
                 if (msgMetadata != null)
                 {
                     var metadataRef = Guid.NewGuid().ToString();
                     await _distributedCacheService.Set(metadataRef, msgMetadata);
-                    url += $";metadataRef={metadataRef}";
+                    urlStringBuilder.Append($";metadataRef={metadataRef}");
                 }
+
+                url = urlStringBuilder.ToString();
 
                 return new FetchTaskResponseEnvelope
                 {
@@ -485,6 +504,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
         }
 
+        private void AppendUrlWithParameters(StringBuilder sb, List<Parameter> parameters)
+        {
+            foreach (Parameter parameter in parameters)
+            {
+                sb.Append($";{parameter.Name}={EscapeDataString(parameter.Value, MessageActionContentType.Text)}");
+            }
+        }
+
         private MessagingExtensionResponse TranslateSearchApiResponseToMessagingExtensionResponse(JiraIssueSearch response, IntegratedUser user)
         {
             if (response?.JiraIssues == null || !response.JiraIssues.Any())
@@ -593,6 +620,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     taskModuleTitle = "Create an issue";
                 }
 
+                if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, StringComparison.OrdinalIgnoreCase))
+                {
+                    string jiraUrl = user?.JiraInstanceUrl;
+                    url = $"{_appSettings.BaseUrl}/#/issues/commentIssue;jiraUrl={Uri.EscapeDataString(jiraUrl)};jiraId={Uri.EscapeDataString(jiraId)};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};returnIssueOnSubmit=false;source=bot";
+                    taskModuleTitle = "Comment issue";
+                    taskModuleHeight = 250;
+                }
+
                 return new FetchTaskResponseEnvelope
                 {
                     Task = new FetchTaskResponse
@@ -613,31 +648,36 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return null;
         }
 
-        private string GetRequestsContent(Activity activity)
+        private MessageActionPayload GetRequestsContent(Activity activity)
         {
             var request = default(MessageActionRequest);
 
             try
             {
-                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString());
+                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ?? string.Empty);
             }
             catch (Exception exception)
             {
                 _logger.LogError(exception, exception.Message);
             }
 
+            return request?.Payload;
+        }
+
+        private string EscapeDataString(string stringToEscape, MessageActionContentType contentType)
+        {
             // list of unsupported strings that can come as part of message payload content
             var unsupportedStrings = new List<string>() { @"<attachment[^>]*>.*<\/attachment[^>]*>" };
 
             // append issue default description in case if message action payload is not null
             // and its content type is text, since we don't know how to properly parse html
-            if (!string.IsNullOrWhiteSpace(request?.Payload?.Body?.Content))
+            if (!string.IsNullOrWhiteSpace(stringToEscape))
             {
-                var content = request.Payload?.Body?.Content;
+                string content = stringToEscape;
 
                 try
                 {
-                    if (request.Payload.Body.ContentType == MessageActionContentType.Text)
+                    if (contentType == MessageActionContentType.Text)
                     {
                         // remove all unsupported strings as we need to take just original message
                         foreach (var unsupportedStr in unsupportedStrings)
@@ -648,7 +688,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                                 TimeSpan.FromSeconds(RegexTimeoutInSeconds)).Replace(content, string.Empty);
                         }
                     }
-                    else if (request.Payload.Body.ContentType == MessageActionContentType.Html)
+                    else if (contentType == MessageActionContentType.Html)
                     {
                         // remove all tags from html text
                         content = new Regex(

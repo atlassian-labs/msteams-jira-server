@@ -15,7 +15,7 @@ definitions:
           - docker
         caches:
           - docker
-        script: 
+        script:
           - pipe: atlassian/artifactory-sidekick:v1
           - source .artifactory/activate.sh
           - export IMG_TAG=docker.atl-paas.net/atlassian/netrunners/dotnet-node
@@ -23,7 +23,7 @@ definitions:
           - docker push "$IMG_TAG"
     - step: &build
         name: Build and Test
-        image: 
+        image:
           name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
           username: netrunners
           password: $PIPELINES_JWT_TOKEN
@@ -90,10 +90,44 @@ definitions:
           - echo "Creating new tag ${TAG_NAME}"
           - git tag -am "Tag ${TAG_NAME}" $TAG_NAME
           - git push origin $TAG_NAME
-
+    - step: &snyk-scan
+        name: Run Snyk scan
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        script:
+          - pipe: atlassian/artifactory-sidekick:v1
+          - source .artifactory/activate.sh
+          # restore all dependencies before scan
+          - dotnet publish -c Release -o 'publish'
+          # install Snyk
+          - npm install -g snyk
+          # run Snyk monitor
+          - snyk monitor --all-projects
+    - step: &pushToGithub
+        name: Push changes to Github repo
+        script:
+          - git remote add github git@github.com:atlassian-labs/msteams-jira-server.git
+          - git push -u github ${BITBUCKET_BRANCH}
+          - git push github --follow-tags
+    - step: &staticAnalysis
+        name: Static analysis
+        image:
+          name: docker-proxy.services.atlassian.com/atlassian/netrunners/dotnet-node
+          username: netrunners
+          password: $PIPELINES_JWT_TOKEN
+        script:
+          - dotnet tool install --global dotnet-sonarscanner
+          - dotnet tool install --global JetBrains.dotCover.GlobalTool
+          - export PATH="$PATH:/root/.dotnet/tools"
+          - dotnet sonarscanner begin /k:"$SONAR_REPOSITORY" /d:sonar.host.url="$SONAR_URL"  /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html /d:sonar.coverage.exclusions=src/**/ClientApp/**/*
+          - dotnet build --no-incremental
+          - dotnet dotcover test --dcReportType=HTML
+          - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 pipelines:
   default:
-    - step: 
+    - step:
         <<: *dockerImage
         condition:
           changesets:
@@ -107,9 +141,14 @@ pipelines:
       - step: *manifests
     createNewTag:
       - step: *createTag
+    runSnyk:
+      - step: *snyk-scan
+    runSonar:
+      - step: *staticAnalysis
   branches:
       master:
         - step: *build
+        - step: *staticAnalysis
         - step: *publish
         - step:
             <<: *deploy
@@ -136,6 +175,8 @@ pipelines:
             name: Deploy to production
             deployment: Production
             trigger: manual
-        - step: 
+        - step:
             <<: *createTag
             trigger: manual
+        - step:
+            <<: *pushToGithub

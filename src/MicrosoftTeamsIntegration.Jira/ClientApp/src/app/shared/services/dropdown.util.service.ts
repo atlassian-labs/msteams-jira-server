@@ -21,7 +21,7 @@ export class DropdownUtilService {
         return {
             id: allowedValue.id,
             name: allowedValue.name ? allowedValue.name : allowedValue.value
-        }
+        };
     }
 
     public mapAllowedValueWithChildrenToSelectOption(allowedValue: any): any {
@@ -29,20 +29,20 @@ export class DropdownUtilService {
             id: allowedValue.id,
             name: allowedValue.name ? allowedValue.name : allowedValue.value,
             children: allowedValue.children
-        }
+        };
     }
 
     public mapDefaultValueToOption(defaultValue: any): any {
         return {
             id: defaultValue.id
-        }
+        };
     }
 
     public mapAutocompleteDataToSelectOption(autocompleteData: any): any {
         return {
             id: autocompleteData.value,
             name: autocompleteData.displayName
-        }
+        };
     }
 
     public mapSprintDataToSelectOption(sprint: any): any {
@@ -50,7 +50,7 @@ export class DropdownUtilService {
             id: sprint.id,
             name: sprint.name,
             state: sprint.state ? sprint.state.toUpperCase() : null
-        }
+        };
     }
 
     public mapEpicDataToSelectOption(epic: any): any {
@@ -60,7 +60,7 @@ export class DropdownUtilService {
             name: epic.name,
             summary: epic.summary,
             color: epic.color ? epic.color.key : null
-        }
+        };
     }
 
     /**
@@ -69,7 +69,7 @@ export class DropdownUtilService {
      */
     public mapUserToDropdownOption(assigneeUser: JiraUser): DropDownOption<string> {
         const value = assigneeUser.accountId ? assigneeUser.accountId : assigneeUser.name;
-        return  {
+        return {
             id: value,
             value,
             icon: assigneeUser.avatarUrls['24x24'],

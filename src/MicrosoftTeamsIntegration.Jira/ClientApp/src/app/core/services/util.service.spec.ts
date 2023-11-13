@@ -17,8 +17,8 @@ describe('Service: Util',
 
         it('should convert string to null or return string value',
             () => {
-                const _null = service.convertStringToNull('null');
-                expect(_null).toEqual(null);
+                const nullString = service.convertStringToNull('null');
+                expect(nullString).toEqual(null);
 
                 const value = service.convertStringToNull('value');
                 expect(value).toEqual('value');

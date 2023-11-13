@@ -24,7 +24,7 @@ export class AppLoadService {
             .get('/api/app-settings')
             .toPromise()
             .then((settings: Settings) => {
-                logger(`Settings from API: `, settings);
+                logger('Settings from API: ', settings);
                 localStorage.setItem('userClientId', settings.clientId);
                 localStorage.setItem('instrumentationKey', settings.instrumentationKey);
                 localStorage.setItem('baseUrl', settings.baseUrl);

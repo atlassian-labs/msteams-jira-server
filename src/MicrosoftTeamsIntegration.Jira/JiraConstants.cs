@@ -23,5 +23,7 @@
         public const string AuthorizationLinkErrorMessage = "Failed to generate authorization link. Please contact your Jira Server administrator and confirm Application link for Microsoft Teams app has been properly configured.";
         public const string TokenRejectedErrorMessage = "OAuth token rejected. Please check if verification code is correct and try to resubmit it or re-authorize again to get new code.";
         public const string UnknownPermissionsErrorMessage = "Unknown permissions. Please attempt to re-authorize again.";
+
+        public const string PiCdnBaseUrl = "https://product-integrations-cdn.atl-paas.net";
     }
 }

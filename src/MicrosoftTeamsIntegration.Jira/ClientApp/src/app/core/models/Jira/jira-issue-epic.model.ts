@@ -1,4 +1,4 @@
-import { JiraIssueEpicColor } from "./jira-issue-epic-color.model";
+import { JiraIssueEpicColor } from './jira-issue-epic-color.model';
 
 export interface JiraIssueEpic {
     id: string;
@@ -7,5 +7,5 @@ export interface JiraIssueEpic {
     name: string;
     summary: string;
     done: string;
-    color: JiraIssueEpicColor
+    color: JiraIssueEpicColor;
 }

@@ -3,7 +3,6 @@
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
 import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
 import {Issue, IssueFields, Priority, ProjectType} from '@core/models';
 import { IssueStatus, JiraComment } from '@core/models';
@@ -12,7 +11,6 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssigneeService } from '@core/services/entities/assignee.service';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DropDownOption } from '@shared/models/dropdown-option.model';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
@@ -24,6 +22,7 @@ import { PermissionService } from '@core/services/entities/permission.service';
 import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-options';
 import { StringValidators } from '@core/validators/string.validators';
 import { UtilService } from '@core/services/util.service';
+import { NotificationService } from '@shared/services/notificationService';
 
 interface EditIssueModel {
     key: string;
@@ -47,25 +46,23 @@ interface EditIssueModel {
     projectTypeKey: string;
 }
 
-const mapIssueToEditIssueDialogModel = (issue: Issue): EditIssueModel => {
-    return {
-        key: issue.key,
-        id: issue.id,
-        issueTypeIconUrl: issue.fields.issuetype.iconUrl,
-        projectKey: issue.fields.project.key,
-        priorityId: (issue.fields.priority && issue.fields.priority.id) || null,
-        priority: issue.fields.priority,
-        summary: issue.fields.summary || '',
-        description: issue.fields.description || '',
-        created: issue.fields.created,
-        updated: issue.fields.updated,
-        reporter: issue.fields.reporter,
-        assignee: issue.fields.assignee,
-        comment: issue.fields.comment,
-        status: issue.fields.status,
-        projectTypeKey: issue.fields.project.projectTypeKey
-    } as EditIssueModel;
-};
+const mapIssueToEditIssueDialogModel = (issue: Issue): EditIssueModel => ({
+    key: issue.key,
+    id: issue.id,
+    issueTypeIconUrl: issue.fields.issuetype.iconUrl,
+    projectKey: issue.fields.project.key,
+    priorityId: (issue.fields.priority && issue.fields.priority.id) || null,
+    priority: issue.fields.priority,
+    summary: issue.fields.summary || '',
+    description: issue.fields.description || '',
+    created: issue.fields.created,
+    updated: issue.fields.updated,
+    reporter: issue.fields.reporter,
+    assignee: issue.fields.assignee,
+    comment: issue.fields.comment,
+    status: issue.fields.status,
+    projectTypeKey: issue.fields.project.projectTypeKey
+} as EditIssueModel);
 
 @Component({
     selector: 'app-edit-issue-dialog',
@@ -139,7 +136,8 @@ export class EditIssueDialogComponent implements OnInit {
         private dropdownUtilService: DropdownUtilService,
         private assigneeService: AssigneeService,
         private transitionService: IssueTransitionService,
-        private router: Router
+        private router: Router,
+        private notificationService: NotificationService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -168,9 +166,9 @@ export class EditIssueDialogComponent implements OnInit {
             const { permissions } = await this.permissionService
                 .getMyPermissions(this.jiraUrl, issueRelatedPermissions, this.issueId);
             this.permissions = permissions;
-            
+
             if (!this.canEditIssue && !this.canViewIssue) {
-                const message = "You don't have permissions to perform this action";
+                const message = 'You don\'t have permissions to perform this action';
                 await this.router.navigate(['/error'], { queryParams: { message } });
                 return;
             }
@@ -187,7 +185,7 @@ export class EditIssueDialogComponent implements OnInit {
             if (this.allowEditPriority) {
                 await this.setPrioritiesOptions();
             }
-            
+
             // assignee
             if (this.allowEditAssignee) {
                 await this.setAssigneeOptions();
@@ -204,7 +202,7 @@ export class EditIssueDialogComponent implements OnInit {
             this.error = error;
             this.appInsightsService.trackException(
                 new Error(error),
-                'EditIssueMaterialDialogComponent::ngOnInit',
+                'EditIssueDialogComponent::ngOnInit',
                 this.issue
             );
         }
@@ -228,7 +226,7 @@ export class EditIssueDialogComponent implements OnInit {
         const jiraServerInstanceUrl = this.currentUser.jiraServerInstanceUrl || this.jiraUrl;
         return encodeURI(`${jiraServerInstanceUrl}/browse/${this.issue.key}`);
     }
-    
+
     public get canEditIssue(): boolean {
         return this.permissions.EDIT_ISSUES.havePermission;
     }
@@ -251,9 +249,9 @@ export class EditIssueDialogComponent implements OnInit {
 
     public get allowEditAssignee(): boolean {
         // for JSM projects user should be a member of 'jira-servicedesk-users' group in order to get assignees,
-        // even with ASSIGN_ISSUES project permission 
-        if (this.issue.projectTypeKey == ProjectType.ServiceDesk) {
-            return this.currentUser.groups.items.some(x => x.name == UserGroup.JiraServicedeskUsers) && 
+        // even with ASSIGN_ISSUES project permission
+        if (this.issue.projectTypeKey === ProjectType.ServiceDesk) {
+            return this.currentUser.groups.items.some(x => x.name === UserGroup.JiraServicedeskUsers) &&
                 this.permissions.ASSIGN_ISSUES.havePermission;
         }
         return this.permissions.ASSIGN_ISSUES.havePermission;
@@ -321,15 +319,16 @@ export class EditIssueDialogComponent implements OnInit {
             const response = await this.apiService.updateIssue(encodeURIComponent(this.jiraUrl), this.issue.id, editIssueModel);
 
             if (response.isSuccess) {
-                this.openConfirmationDialog();
+                this.showConfirmationNotification();
                 return;
+            } else {
+                this.notificationService.notifyError(response.errorMessage ||
+                    'Something went wrong. Please check your permission to perform this type of action.');
+                this.uploading = false;
             }
-
-            this.errorMessage = response.errorMessage ||
-                'Something went wrong. Please check your permission to perform this type of action.';
         } catch (error) {
-
-        } finally {
+            this.notificationService.notifyError(error.errorMessage ||
+                'Something went wrong. Please try again or contact support.');
             this.uploading = false;
         }
     }
@@ -340,14 +339,14 @@ export class EditIssueDialogComponent implements OnInit {
 
     public onConfirmCancel(): void {
         // TODO: add confirmation popup
-       this.onCancel();
+        this.onCancel();
     }
 
     public removeUnassignableUser(): void {
         if (this.notAssignableAssignee) {
             const tempAssigneeAccountId = this.notAssignableAssignee.accountId
-                                            ? this.notAssignableAssignee.accountId
-                                            : this.notAssignableAssignee.name;
+                ? this.notAssignableAssignee.accountId
+                : this.notAssignableAssignee.name;
 
             this.assigneesOptions = this.assigneesOptions.filter(x => x.value !== tempAssigneeAccountId);
         }
@@ -438,9 +437,10 @@ export class EditIssueDialogComponent implements OnInit {
     }
 
     private async setPrioritiesOptions(): Promise<void> {
-        this.priorities = await this.apiService.getPriorities(this.jiraUrl);
-        if (this.priorities) {
-            this.prioritiesOptions = this.priorities.map(this.dropdownUtilService.mapPriorityToDropdownOption);
+        const priorityFieldName = 'priority';
+        const priorities = this.editIssueMetadata.fields[priorityFieldName];
+        if (priorities) {
+            this.prioritiesOptions = priorities.allowedValues.map(this.dropdownUtilService.mapPriorityToDropdownOption);
             this.selectedPriorityOption = this.prioritiesOptions.find(prt => prt.id === this.issue.priorityId);
         }
     }
@@ -497,23 +497,15 @@ export class EditIssueDialogComponent implements OnInit {
         }
     }
 
-    private openConfirmationDialog(): void {
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Success',
-                    subtitle: `Issue <a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">${this.issue.key}</a> has been successfully updated.`,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.SuccessLarge
-                } as ConfirmationDialogData
-            }
-        };
+    private showConfirmationNotification(): void {
+        const issueUrl =
+            `<a href="${this.keyLink}" target="_blank" rel="noreferrer noopener">
+            ${this.issue.key}
+            </a>`;
+        const message = `The issue ${issueUrl} has been updated`;
 
-        this.dialog.open(ConfirmationDialogComponent, dialogConfig)
-            .afterClosed().subscribe(() => {
-                microsoftTeams.tasks.submitTask({ commandName: 'showIssueCard', issueId: this.issue.id, issueKey: this.issueKey, replyToActivityId: this.replyToActivityId });
-                microsoftTeams.tasks.submitTask();
-            });
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
+            microsoftTeams.tasks.submitTask();
+        });
     }
 }

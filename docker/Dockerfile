@@ -8,3 +8,5 @@ RUN apt-get -y install zip
 RUN apt-get -y install xmlstarlet
 # install jq command for processing JSON files
 RUN apt-get -y install jq
+# install jdk (needed by sonarqube dotnet tool)
+RUN apt-get install -y openjdk-17-jre

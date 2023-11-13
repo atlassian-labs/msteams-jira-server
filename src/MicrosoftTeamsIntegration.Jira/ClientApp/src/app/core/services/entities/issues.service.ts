@@ -130,12 +130,10 @@ export class IssuesService {
 
             const { fields } = issue;
 
-            let assigneeName;
-            let reporterName;
 
-            assigneeName = fields.assignee ? fields.assignee.displayName : 'Unassigned';
-            reporterName = fields.reporter ? fields.reporter.displayName : 'Unassigned';
-            
+            const assigneeName = fields.assignee ? fields.assignee.displayName : 'Unassigned';
+            const reporterName = fields.reporter ? fields.reporter.displayName : 'Unassigned';
+
 
             const priorityLevel = fields.priority && prioritiesIdsInOrder ? prioritiesIdsInOrder.indexOf(fields.priority.id) : 9999999;
 
@@ -252,14 +250,12 @@ export class IssuesService {
 
         if (field.ongoingCycle) {
             const millis = field.ongoingCycle.remainingTime.millis;
-            const halfHourRemain =  millis > 0 && (millis / millisInMinute) <= 30 ? true : false;
+            const halfHourRemain = millis > 0 && (millis / millisInMinute) <= 30 ? true : false;
 
-            const result = this.slaIconMappingOngoingCycle.find( (rule) => {
-                return rule.breached === field.ongoingCycle.breached &&
+            const result = this.slaIconMappingOngoingCycle.find( (rule) => rule.breached === field.ongoingCycle.breached &&
                 rule.paused === field.ongoingCycle.paused &&
                 rule.withinCalendarHours === field.ongoingCycle.withinCalendarHours &&
-                rule.halfHourRemain === halfHourRemain;
-            });
+                rule.halfHourRemain === halfHourRemain);
 
             if (result) {
                 return this.SLA_ICONS_CLASSES.jiraIconsClasses + ' ' + result.class;
@@ -270,9 +266,7 @@ export class IssuesService {
 
         if (field.completedCycles.length) {
             const breached = field.completedCycles[field.completedCycles.length - 1].breached;
-            const result = this.statusIconMappingComplete.find( (rule) => {
-                return rule.breached === breached;
-            });
+            const result = this.statusIconMappingComplete.find( (rule) => rule.breached === breached);
             if (result) {
                 return this.SLA_ICONS_CLASSES.jiraIconsClasses + ' ' + result.class;
             } else {
@@ -432,7 +426,9 @@ export class IssuesService {
             if (jql && this.ALLOWED_PAGE_FILTERS[page]) {
                 jql += ' AND ';
             }
-            jql = this.ALLOWED_PAGE_FILTERS[page] ? `${jql}(${this.ALLOWED_PAGE_FILTERS[page].replace(/CURRENT_USER/gi, "currentUser()")}) ` : jql;
+            jql = this.ALLOWED_PAGE_FILTERS[page] ?
+                `${jql}(${this.ALLOWED_PAGE_FILTERS[page].replace(/CURRENT_USER/gi, 'currentUser()')}) `
+                : jql;
         }
 
         if (!jql.toLowerCase().includes('order by')) {
@@ -472,7 +468,7 @@ export class IssuesService {
         }
 
         orderByQuery = orderByQuery.indexOf(propToReplaceWith) === -1 ?
-             orderByQuery.replace(propToBeReplaced, propToReplaceWith) : orderByQuery;
+            orderByQuery.replace(propToBeReplaced, propToReplaceWith) : orderByQuery;
 
         return orderByQuery;
     }

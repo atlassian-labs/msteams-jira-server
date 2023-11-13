@@ -8,9 +8,8 @@ import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 
 import { AppInsightsService } from '@core/services/app-insights.service';
 import { StatusCode } from '@core/enums';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
 import { ApplicationType } from './../enums/application-type.enum';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
+import { NotificationService } from '@shared/services/notificationService';
 
 @Injectable({ providedIn: 'root' })
 export class ErrorService {
@@ -37,7 +36,8 @@ export class ErrorService {
         private readonly zone: NgZone,
         private readonly injector: Injector,
         private readonly appInsightsService: AppInsightsService,
-        private errorDialog: MatDialog
+        private errorDialog: MatDialog,
+        private notificationService: NotificationService
     ) { }
 
     public showJiraUnavailableWindow(status: number): void {
@@ -76,9 +76,9 @@ export class ErrorService {
         router.routerState.root.children[0].params.subscribe(params => {
             const application = params['application'];
             message = (
-                    (application === ApplicationType.JiraServerCompose || application === ApplicationType.JiraServerTab) &&
+                (application === ApplicationType.JiraServerCompose || application === ApplicationType.JiraServerTab) &&
                     error instanceof HttpErrorResponse
-                )
+            )
                 ? error.error.error
                 : message;
 
@@ -92,23 +92,10 @@ export class ErrorService {
         router.navigate(['error'], { queryParams: { message } });
     }
 
-    public showErrorModal(error: Error | HttpErrorResponse) : void {
+    public showErrorModal(error: Error | HttpErrorResponse): void {
         this.appInsightsService.trackException(error as Error, 'ErrorService::handleError');
         const message = this.getHttpErrorMessage(error);
-
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Error',
-                    subtitle: message,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.ErrorLarge
-                } as ConfirmationDialogData
-            }
-        };
-
-        this.errorDialog.open(ConfirmationDialogComponent, dialogConfig);
+        this.notificationService.notifyError(message);
     }
 
     public goToLoginWithStatusCode(status: StatusCode): void {
@@ -130,14 +117,14 @@ export class ErrorService {
             : message;
 
         try {
-            var  parsedObj = JSON.parse(message);
+            const parsedObj = JSON.parse(message);
 
             // Some error messages are coming in next format {"errorMessages":[],"errors":{}}
             // try to get message from list of messages
             if(parsedObj && parsedObj.errorMessages && parsedObj.errorMessages.length > 0 ) {
                 return parsedObj.errorMessages[0];
             }
-        } catch (error) {
+        } catch (err) {
         }
         // or return original message
         return message;

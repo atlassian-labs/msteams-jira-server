@@ -34,9 +34,8 @@ export class LoginComponent implements OnInit {
     private staticTabChangeUrl = false;
     private authorizationUrl: string;
 
-    private readonly JIRA_SERVER_COMPOSE_EXTENSION_AUTH_REDIRECT_URL = '/#/config;application=jiraServerCompose';
-    // tslint:disable-next-line:max-line-length
-    private readonly JIRA_SERVER_TAB_AUTH_REDIRECT_URL = `/#/config;application=jiraServerTab;endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl}`;
+    private readonly JIRA_SERVER_TAB_AUTH_REDIRECT_URL =
+        `/#/config;application=jiraServerTab;endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl}`;
 
     constructor(
         private router: Router,
@@ -49,7 +48,6 @@ export class LoginComponent implements OnInit {
     ) { }
 
     public async ngOnInit(): Promise<void> {
-
         this.appInsightsService.logNavigation('LoginComponent', this.route);
 
         this.parseParams();
@@ -61,26 +59,13 @@ export class LoginComponent implements OnInit {
 
     public async getAuthentication(): Promise<void> {
         try {
-
-            if (this.isJiraServerComposeApplication) {
-                localStorage.setItem('redirectUri', this.JIRA_SERVER_COMPOSE_EXTENSION_AUTH_REDIRECT_URL);
-            }
-            if (this.authService.isAuthenticated) {
-
-                if (this.application === ApplicationType.JiraServerTab) {
-                    this.authorizationUrl = this.JIRA_SERVER_TAB_AUTH_REDIRECT_URL;
-                }
-
-                if (!this.authorizationUrl) {
-                    this.authorizationUrl = await this.getAuthorizationUrl(this.staticTabChangeUrl);
-                }
-
-                localStorage.setItem('redirectUri', this.authorizationUrl);
-                await this.authService.authenticate('./login.html');
-            } else {
-                await this.authService.authenticate('./login.html');
+            this.authorizationUrl = `/#/config;application=${this.application}`;
+            if (this.application === ApplicationType.JiraServerTab) {
+                this.authorizationUrl = this.JIRA_SERVER_TAB_AUTH_REDIRECT_URL;
             }
 
+            localStorage.setItem('redirectUri', this.authorizationUrl);
+            await this.authService.authenticate('./login.html');
             await this.onAuthenticationSucceeded();
 
         } catch (error) {

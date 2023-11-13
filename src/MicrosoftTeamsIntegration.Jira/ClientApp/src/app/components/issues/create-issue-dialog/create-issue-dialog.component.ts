@@ -1,27 +1,25 @@
 ﻿import * as microsoftTeams from '@microsoft/teams-js';
 
-import { AbstractControl, AbstractControlDirective, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ApiService, AppInsightsService, ErrorService } from '@core/services';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ConfirmationDialogData, DialogType } from '@core/models/dialogs/issue-dialog.model';
-import { CurrentJiraUser, JiraUser } from '@core/models/Jira/jira-user.model';
-import { Issue, IssueFields, Priority } from '@core/models';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ApiService, AppInsightsService, ErrorService} from '@core/services';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
+import {Issue} from '@core/models';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 
-import { AssigneeService } from '@core/services/entities/assignee.service';
-import { ConfirmationDialogComponent } from '@app/components/issues/confirmation-dialog/confirmation-dialog.component';
-import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
-import { DropDownOption } from '@shared/models/dropdown-option.model';
-import { DropdownUtilService } from '@shared/services/dropdown.util.service';
-import { FieldItem } from '../fields/field-item';
-import { FieldsService } from '@shared/services/fields.service';
-import { IssueType } from '@core/models/Jira/issues.model';
-import { PermissionService } from '@core/services/entities/permission.service';
-import { Project } from '@core/models/Jira/project.model';
-import { StringValidators } from './../../../core/validators/string.validators';
-import { UtilService } from '@core/services/util.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {AssigneeService} from '@core/services/entities/assignee.service';
+import {DropDownComponent} from '@shared/components/dropdown/dropdown.component';
+import {DropDownOption} from '@shared/models/dropdown-option.model';
+import {DropdownUtilService} from '@shared/services/dropdown.util.service';
+import {FieldItem} from '../fields/field-item';
+import {FieldsService} from '@shared/services/fields.service';
+import {IssueType} from '@core/models/Jira/issues.model';
+import {PermissionService} from '@core/services/entities/permission.service';
+import {Project} from '@core/models/Jira/project.model';
+import {StringValidators} from '@core/validators/string.validators';
+import {UtilService} from '@core/services/util.service';
+import {NotificationService} from '@shared/services/notificationService';
 
 @Component({
     selector: 'app-create-issue-dialog',
@@ -34,7 +32,6 @@ export class CreateIssueDialogComponent implements OnInit {
     public isFetchingProjects = false;
     public fetching = false;
     public canCreateIssue = true;
-    public errorMessage = '';
 
     public issueForm: FormGroup;
 
@@ -61,7 +58,10 @@ export class CreateIssueDialogComponent implements OnInit {
     public currentUser: CurrentJiraUser;
     public returnIssueOnSubmit: boolean;
     public replyToActivityId: string;
-
+    public defaultSummary: string;
+    public defaultPriority: string;
+    public defaultIssueType: string;
+    public defaultAssignee: string;
     public isAddonUpdated: boolean;
 
     private dialogDefaultSettings: MatDialogConfig = {
@@ -100,17 +100,23 @@ export class CreateIssueDialogComponent implements OnInit {
         private errorService: ErrorService,
         private permissionService: PermissionService,
         private fieldsService: FieldsService,
-        private snackBar: MatSnackBar
+        private notificationService: NotificationService
     ) { }
 
     public async ngOnInit(): Promise<void> {
         this.appInsightsService.logNavigation('CreateIssueComponent', this.route);
-        const { jiraUrl, description, metadataRef, returnIssueOnSubmit, replyToActivityId } = this.route.snapshot.params;
+        const { jiraUrl, description, metadataRef, returnIssueOnSubmit, replyToActivityId, summary, issueType, priority, assignee }
+            = this.route.snapshot.params;
         this.jiraUrl = jiraUrl;
         this.defaultDescription = description;
         this.metadataRef = metadataRef;
         this.returnIssueOnSubmit = returnIssueOnSubmit === 'true';
         this.replyToActivityId = replyToActivityId;
+
+        this.defaultSummary = summary;
+        this.defaultIssueType = issueType;
+        this.defaultAssignee = assignee;
+        this.defaultPriority = priority;
 
         this.loading = true;
 
@@ -138,8 +144,6 @@ export class CreateIssueDialogComponent implements OnInit {
             return;
         }
 
-        this.errorMessage = '';
-
         const formValue = this.issueForm.value;
 
         const createIssueFields = {
@@ -147,21 +151,20 @@ export class CreateIssueDialogComponent implements OnInit {
 
         this.fieldsService.getAllowedFields(this.fields).forEach(field => {
             if (formValue[field.key]) {
-                if (field.allowedValues && field.schema.type !== "option-with-child") {
+                if (field.allowedValues && field.schema.type !== 'option-with-child') {
                     if (Array.isArray(formValue[field.key])) {
-                        createIssueFields[field.key] = formValue[field.key].map(x => ({ id: x }))
-                    }
-                    else {
+                        createIssueFields[field.key] = formValue[field.key].map(x => ({ id: x }));
+                    } else {
                         createIssueFields[field.key] = {
                             id: formValue[field.key]
-                        }
+                        };
                     }
-                    
+
                 } else {
                     if (field.schema.type === 'user') {
-                            createIssueFields[field.key] = {
-                                name: formValue[field.key]
-                            };
+                        createIssueFields[field.key] = {
+                            name: formValue[field.key]
+                        };
                     } else {
                         createIssueFields[field.key] = formValue[field.key];
                     }
@@ -180,14 +183,13 @@ export class CreateIssueDialogComponent implements OnInit {
             const response = await this.apiService.createIssue(this.jiraUrl, createIssueModel);
 
             if (response.isSuccess && response.content) {
-                this.openConfirmationDialog(response.content);
+                this.showConfirmationNotification(response.content);
                 return;
             }
         } catch (error) {
             const errorMessage = this.errorService.getHttpErrorMessage(error);
-            this.errorMessage = errorMessage ||
-                'Something went wrong. Please check your permission to perform this type of action.';
-        } finally {
+            this.notificationService.notifyError(errorMessage ||
+                'Something went wrong. Please check your permission to perform this type of action.');
             this.uploading = false;
         }
     }
@@ -196,19 +198,17 @@ export class CreateIssueDialogComponent implements OnInit {
         filterName = filterName.trim().toLowerCase();
         this.isFetchingProjects = true;
         try {
-            this.projects = await this.findProjects(this.jiraUrl, filterName);
-            const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
-            this.projectsDropdown.filteredOptions = filteredProjects;
-        }
-        catch(error)
-        {
+            this.projects =
+                await this.findProjects(this.jiraUrl, filterName);
+            this.projectsDropdown.filteredOptions =
+                this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
+        } catch (error) {
             this.appInsightsService.trackException(
                 new Error('Error while searching projects'),
                 'Create Issue Dialog',
                 { originalErrorMessage: error.message }
             );
-        }
-        finally {
+        } finally {
             this.isFetchingProjects = false;
         }
     }
@@ -226,18 +226,19 @@ export class CreateIssueDialogComponent implements OnInit {
     public async onProjectSelected(optionOrValue: DropDownOption<string> | string): Promise<void> {
         const projectId = typeof optionOrValue === 'string' ? optionOrValue : optionOrValue.value;
         this.fetching = true;
-        this.errorMessage = null;
 
         this.selectedProject = this.projects.find(proj => proj.id === projectId);
 
         this.canCreateIssue = await this.canCreateIssueForProject(this.selectedProject.key);
         if (!this.canCreateIssue) {
-            this.errorMessage = "You can't create issue for this project. Contact project admin to check your permissions.";
+            this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
+            const errorMessage = 'You can\'t create issue for this project. Contact project admin to check your permissions.';
+            this.notificationService.notifyError(errorMessage);
         } else {
             this.issueTypes = await this.apiService.getCreateMetaIssueTypes(this.jiraUrl, this.selectedProject.key);
+            this.availableIssueTypesOptions = this.getIssueTypesOptions();
         }
 
-        this.availableIssueTypesOptions = this.getIssueTypesOptions();
         await this.onIssueTypeSelected(this.availableIssueTypesOptions[0]);
     }
 
@@ -276,7 +277,7 @@ export class CreateIssueDialogComponent implements OnInit {
         });
 
         // get data for dynamic fields if user has permissions to create an issue
-        if(this.canCreateIssue) {
+        if (this.canCreateIssue) {
             this.dynamicFieldsData = this.fieldsService.getCustomFieldTemplates(this.fields, this.jiraUrl);
         } else {
             this.dynamicFieldsData = [];
@@ -298,38 +299,34 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     public handleProjectClick(): void {
-        if (!this.isAddonUpdated){
-            this.openSnackBar()
+        if (!this.isAddonUpdated) {
+            this.openSnackBar();
         }
     }
 
     private openSnackBar(): void {
-        this.snackBar.open(this.utilService.getUpgradeAddonMessage(), undefined, {
-            panelClass: ['alert-red'],
-            duration: 3000,
-        });
+        this.notificationService.notifyError(this.utilService.getUpgradeAddonMessage());
     }
 
-    private openConfirmationDialog(issue: Issue): void {
-        const issueUrl = encodeURI(`${this.currentUser.jiraServerInstanceUrl || this.jiraUrl}/browse/${issue.key}`);
-
-        const dialogConfig = {
-            ...this.dialogDefaultSettings,
-            ...{
-                data: {
-                    title: 'Success',
-                    subtitle: `Issue <a href="${issueUrl}" target="_blank" rel="noreferrer noopener">${issue.key}</a> has been successfully created.`,
-                    buttonText: 'Dismiss',
-                    dialogType: DialogType.SuccessLarge
-                } as ConfirmationDialogData
+    private showConfirmationNotification(issue: Issue): void {
+        const issueBaseUrl = encodeURI(`${this.currentUser.jiraServerInstanceUrl || this.jiraUrl}/browse/${issue.key}`);
+        const issueUrl =
+            `<a href="${issueBaseUrl}" target="_blank" rel="noreferrer noopener">
+            ${issue.key}
+            </a>`;
+        const message = `Issue ${issueUrl} has been created`;
+        this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
+            if (this.returnIssueOnSubmit) {
+                microsoftTeams.tasks.submitTask(issue.key);
+            } else {
+                microsoftTeams.tasks.submitTask({
+                    commandName: 'showIssueCard',
+                    issueId: issue.id,
+                    issueKey: issue.key,
+                    replyToActivityId: this.replyToActivityId});
             }
-        };
-
-        this.dialog.open(ConfirmationDialogComponent, dialogConfig)
-            .afterClosed().subscribe(() => {
-                this.returnIssueOnSubmit ? microsoftTeams.tasks.submitTask(issue.key) : microsoftTeams.tasks.submitTask({ commandName: 'showIssueCard', issueId: issue.id, issueKey: issue.key, replyToActivityId: this.replyToActivityId });
-                microsoftTeams.tasks.submitTask();;
-            });
+            microsoftTeams.tasks.submitTask();
+        });
     }
 
     private async createForm(): Promise<void> {
@@ -337,7 +334,7 @@ export class CreateIssueDialogComponent implements OnInit {
 
         // if there are no projects to create an issue for - the user does not permission to create an issue
         if (!this.projects || this.projects.length === 0) {
-            const message = "You don't have permission to perform this action";
+            const message = 'You don\'t have permission to perform this action';
             this.router.navigate(['/error'], { queryParams: { message } });
             return;
         }
@@ -347,20 +344,32 @@ export class CreateIssueDialogComponent implements OnInit {
 
         await this.onProjectSelected(this.availableProjectsOptions[0].value);
 
+        const defaultAssignee = this.defaultAssignee && this.assigneesOptions ?
+            this.assigneesOptions.find(x => x.label.toLowerCase() === this.defaultAssignee.toLowerCase()) : null;
+
+        const defaultIssueType = this.defaultIssueType && this.availableIssueTypesOptions ?
+            this.availableIssueTypesOptions.find(x => x.label.toLowerCase() === this.defaultIssueType.toLowerCase()) : null;
+
         this.issueForm = new FormGroup({
             project: new FormControl(
-                this.availableProjectsOptions && this.availableProjectsOptions.length > 0 ? this.availableProjectsOptions[0].value : null
+                this.availableProjectsOptions && this.availableProjectsOptions.length > 0 ?
+                    this.availableProjectsOptions[0].value :
+                    null
             ),
             issuetype: new FormControl(
-                this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ? this.availableIssueTypesOptions[0].value : null
+                this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
+                    this.availableIssueTypesOptions[0].value :
+                    null
             ),
             summary: new FormControl(
-                '',
+                this.defaultSummary ? this.defaultSummary : '',
                 [Validators.required, StringValidators.isNotEmptyString]
             ),
             description: new FormControl(this.defaultDescription),
             assignee: new FormControl(
-                this.assigneesOptions && this.assigneesOptions.length > 0 ? this.assigneesOptions[0].value : null
+                this.assigneesOptions && this.assigneesOptions.length > 0 ?
+                    this.assigneesOptions[0].value :
+                    null
             )
         });
 
@@ -373,7 +382,7 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     private addRemoveControlFromForm(controlName: string): void {
-        if(!this.issueForm || !this.fields) {
+        if (!this.issueForm || !this.fields) {
             return;
         }
 
@@ -382,7 +391,7 @@ export class CreateIssueDialogComponent implements OnInit {
                 controlName,
                 this.isFieldRequired(controlName) ? new FormControl(null, [Validators.required]) : new FormControl()
             );
-        } else if (this.issueForm.contains(controlName)){
+        } else if (this.issueForm.contains(controlName)) {
             this.issueForm.removeControl(controlName);
         }
     }
@@ -398,8 +407,12 @@ export class CreateIssueDialogComponent implements OnInit {
 
         if (priorities) {
             this.prioritiesOptions = priorities.allowedValues.map(this.dropdownUtilService.mapPriorityToDropdownOption);
-            var defaultPriorityVal = null;
-            if (priorities.hasDefaultValue && priorities.defaultValue) {
+            let defaultPriorityVal = null;
+            const defaultPriority = this.defaultPriority ?
+                priorities.allowedValues.find(p => p.name.toLowerCase() === this.defaultPriority.toLowerCase()) : null;
+            if (defaultPriority) {
+                defaultPriorityVal = this.dropdownUtilService.mapPriorityToDropdownOption(defaultPriority).value;
+            } else if (priorities.hasDefaultValue && priorities.defaultValue) {
                 defaultPriorityVal = this.dropdownUtilService.mapPriorityToDropdownOption(priorities.defaultValue).value;
             } else if (this.prioritiesOptions.length > 0) {
                 defaultPriorityVal = this.prioritiesOptions[0].value;
@@ -430,28 +443,26 @@ export class CreateIssueDialogComponent implements OnInit {
     private async getAssigneesOptions(projectKey: string, username: string = ''): Promise<DropDownOption<string>[]> {
         this.assigneesLoading = true;
 
-        const assigness = await this.assigneeService.searchAssignableMultiProject(this.jiraUrl, projectKey, username);
+        const assignees = await this.assigneeService.searchAssignableMultiProject(this.jiraUrl, projectKey, username);
 
         this.assigneesLoading = false;
 
-        return this.assigneeService.assigneesToDropdownOptions(assigness, username);
+        return this.assigneeService.assigneesToDropdownOptions(assignees, username);
     }
 
     private async findProjects(jiraUrl: string, filterName?: string): Promise<Project[]> {
-        const result = await this.apiService.findProjects(jiraUrl, filterName, true);
-        return result;
+        return await this.apiService.findProjects(jiraUrl, filterName, true);
     }
 
     private async getProjects(jiraUrl: string): Promise<Project[]> {
         this.canCreateIssue = await this.hasCreateIssuePermission();
         if (this.canCreateIssue) {
-            const result = await this.apiService.getProjects(jiraUrl, true);
-            return result;
+            return await this.apiService.getProjects(jiraUrl, true);
         }
 
         return null;
     }
-    
+
     private async canCreateIssueForProject(projectIdOrKey: string): Promise<boolean> {
         const result = await this.permissionService.getMyPermissions(this.jiraUrl, 'CREATE_ISSUES', null, projectIdOrKey);
         return result.permissions.CREATE_ISSUES.havePermission;

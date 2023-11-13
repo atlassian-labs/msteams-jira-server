@@ -37,22 +37,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
         {
             _appSettings.BaseUrl = "https://test.com";
 
-            var expectedText =
-                @"<div style=""margin-bottom: 6px;"">
-<span style=""font-size: 12px; font-weight: 600;"">Assignee User | TEST_DATE</span>
-</div>
-<span style=""margin: 2px;"">
-<img src=""https://test.com/assets/issue-type-icons-small/unknown.png?format=png&size=xsmall"" style=""width: 16px; height: 16px;"">
-</span>
-<span style=""margin: 2px;"">
-<img style=""display:block;"" src=""https://test.com/assets/priority-icons/medium.png?format=png&size=xsmall"" width=""16"" height=""16"">
-</span>
-<span>
-<strong style=""font-size:12px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width: 100px;display: inline-block;vertical-align: middle;""> | Status</strong>
-</span>".ReplaceLineEndings(string.Empty).Replace("TEST_DATE", new DateTime(0001, 1, 1).ToShortDateString());
+            var expectedTitle = "Key: Summary";
 
-            var expectedTitle =
-                "<a style=\"font-size: 14px; font-weight: 600;\" href=\"https://test.atlassian.net/browse/Key\" target=\"_blank\">Key: Summary</a>";
+            var expectedSubtitle = "Status | Assignee User";
 
             var isQueryLinkRequest = new object();
             var previewIconPath = new object();
@@ -76,9 +63,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
                     {
                         Summary = "Summary",
                         Assignee = new JiraUser() { DisplayName = "Assignee User" },
-                        Type = new JiraIssueType() { Name = "TypeName"},
-                        Priority = new JiraIssuePriority() { Name = "PriorityName"},
-                        Status = new JiraIssueStatus() { Name = "Status"},
+                        Type = new JiraIssueType() { Name = "TypeName" },
+                        Priority = new JiraIssuePriority() { Name = "PriorityName" },
+                        Status = new JiraIssueStatus() { Name = "Status" },
                     }
                 }
             };
@@ -90,7 +77,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
             Assert.NotNull(result);
             Assert.IsType<ThumbnailCard>(result);
             Assert.IsType<CardImage>(result.Images[0]);
-            Assert.Equal(expectedText, result.Text, ignoreWhiteSpaceDifferences: true, ignoreLineEndingDifferences: true);
+            Assert.Equal(expectedSubtitle, result.Subtitle, ignoreWhiteSpaceDifferences: true, ignoreLineEndingDifferences: true);
             Assert.Equal(expectedTitle, result.Title, ignoreWhiteSpaceDifferences: true, ignoreLineEndingDifferences: true);
         }
     }

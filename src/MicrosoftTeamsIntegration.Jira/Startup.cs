@@ -182,7 +182,7 @@ namespace MicrosoftTeamsIntegration.Jira
                     {
                         case ApiException ex:
                             // handle explicit 'known' API errors
-                            apiError = new ApiError(ex.Content);
+                            apiError = new ApiError(ex.Content ?? ex.Message);
                             context.Response.StatusCode = (int)ex.StatusCode;
                             break;
                         case UnauthorizedException e:
@@ -207,6 +207,10 @@ namespace MicrosoftTeamsIntegration.Jira
                                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                             }
 
+                            break;
+                        case BadRequestException e:
+                            apiError = new ApiError(e.Message);
+                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                             break;
                         default:
                             {
@@ -269,7 +273,8 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("*.teams.microsoft.com")
                         .From("*.teams.microsoft.us")
                         .From("*.skype.com")
-                        .From("*.msteams-atlassian.com");
+                        .From("*.msteams-atlassian.com")
+                        .From("*.office.com");
 
                     if (!string.IsNullOrEmpty(appSettings.CspValidDomains))
                     {

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdaptiveCards;
 using JetBrains.Annotations;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Connector;
@@ -58,6 +60,129 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return await ProcessCardActionQuery(context, user);
         }
 
+        public async Task HandleSuccessfulConnection(ITurnContext context)
+        {
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 3))
+            {
+                Body = new List<AdaptiveElement>
+                {
+                    new AdaptiveColumnSet
+                    {
+                        Columns = new List<AdaptiveColumn>
+                        {
+                            new AdaptiveColumn
+                            {
+                                Width = "stretch",
+                                Items = new List<AdaptiveElement>
+                                {
+                                    new AdaptiveColumnSet
+                                    {
+                                        Columns = new List<AdaptiveColumn>
+                                        {
+                                            new AdaptiveColumn
+                                            {
+                                                Width = "auto",
+                                                Items = new List<AdaptiveElement>
+                                                {
+                                                    new AdaptiveImage
+                                                    {
+                                                        Url = new Uri(
+                                                            "https://product-integrations-cdn.atl-paas.net/celebration.png"),
+                                                        Size = AdaptiveImageSize.Small
+                                                    }
+                                                },
+                                                Spacing = AdaptiveSpacing.Small,
+                                                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center
+                                            },
+                                            new AdaptiveColumn
+                                            {
+                                                Width = "auto",
+                                                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center,
+                                                Items = new List<AdaptiveElement>
+                                                {
+                                                    new AdaptiveTextBlock
+                                                    {
+                                                        Size = AdaptiveTextSize.Medium,
+                                                        Weight = AdaptiveTextWeight.Bolder,
+                                                        Text = "You have been successfully connected to Jira",
+                                                        Wrap = true
+                                                    }
+                                                },
+                                                Spacing = AdaptiveSpacing.Small
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    new AdaptiveTextBlock
+                    {
+                        Text = "Click 'Help' to explore commands",
+                        Wrap = true
+                    },
+                    new AdaptiveColumnSet
+                    {
+                        Columns = new List<AdaptiveColumn>
+                        {
+                            new AdaptiveColumn
+                            {
+                                Width = "auto",
+                                Items = new List<AdaptiveElement>
+                                {
+                                    new AdaptiveActionSet
+                                    {
+                                        Actions = new List<AdaptiveAction>
+                                        {
+                                            new AdaptiveSubmitAction()
+                                            {
+                                                Title = "Help",
+                                                Data = new
+                                                {
+                                                    msteams = new
+                                                    {
+                                                        type = "messageBack",
+                                                        text = $"{DialogMatchesAndCommands.HelpDialogCommand}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            new AdaptiveColumn
+                            {
+                                Width = "auto",
+                                Items = new List<AdaptiveElement>
+                                {
+                                    new AdaptiveActionSet
+                                    {
+                                        Actions = new List<AdaptiveAction>
+                                        {
+                                            new AdaptiveSubmitAction()
+                                            {
+                                                Title = "Disconnect",
+                                                Data = new
+                                                {
+                                                    msteams = new
+                                                    {
+                                                        type = "messageBack",
+                                                        text = $"{DialogMatchesAndCommands.DisconnectJiraDialogCommand}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+            };
+
+            await context.SendActivityAsync(MessageFactory.Attachment(adaptiveCard.ToAttachment()));
+        }
+
         private async Task<bool> ProcessCardActionQuery(ITurnContext context, IntegratedUser user)
         {
             var activity = context.Activity;
@@ -100,8 +225,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 var priorities = await _jiraService.GetPriorities(user);
                 var jiraIssue = apiResponse.JiraIssues.FirstOrDefault();
 
-                jiraIssue?.SetJiraIssueIconUrl(_appSettings.BaseUrl);
-                jiraIssue?.SetJiraIssuePriorityIconUrl(_appSettings.BaseUrl);
+                jiraIssue?.SetJiraIssueIconUrl();
+                jiraIssue?.SetJiraIssuePriorityIconUrl();
 
                 var updatedCard =
                     JiraIssueSearchHelper.CreateO365ConnectorCardFromApiResponse(apiResponse, user, priorities);

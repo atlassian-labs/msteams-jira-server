@@ -11,7 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio'
+import { MatRadioModule } from '@angular/material/radio';
 import { MatMomentDateModule, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
@@ -19,7 +19,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CdkTableModule } from '@angular/cdk/table';
-import { FlexLayoutModule } from "@angular/flex-layout";
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { CoreModule } from '@core/core.module';
 import { SharedModule } from '@shared/shared.module';
@@ -32,13 +32,13 @@ import { AppComponent } from '@app/components/app.component';
 import {
     LoginComponent, StaticTabComponent,
     IssuesComponent, ErrorComponent, FavoriteFiltersEmptyComponent,
-    EditIssueMaterialDialogComponent, EditIssueDialogComponent, CreateIssueDialogComponent,
+    EditIssueDialogComponent, CreateIssueDialogComponent,
     AssigneeDropdownComponent, PriorityDropdownComponent, StatusDropdownComponent,
     SettingsFiltersComponent as SettingsProjectComponent, SettingsComponent,
-    IssueCommentComponent, NewCommentComponent, ConfirmationDialogComponent,
-    IssuesTableMobileComponent, ConnectJiraComponent, CreateCommentDialogComponent, 
+    IssueCommentComponent, NewCommentComponent,
+    IssuesTableMobileComponent, ConnectJiraComponent, CreateCommentDialogComponent,
     IssueDetailsComponent, SignoutMaterialDialogComponent, SignoutDialogComponent,
-    GoToWebsiteComponent
+    GoToWebsiteComponent, CommentIssueDialogComponent
 } from '@app/components';
 import { DynamicFieldsDirective } from './components/issues/fields/dynamic-fields.directive';
 import { SelectFieldComponent } from './components/issues/fields/select-field.component';
@@ -56,6 +56,8 @@ import { EpicFieldComponent } from './components/issues/fields/epic-field.compon
 import { UrlFieldComponent } from './components/issues/fields/url-field.component';
 import { SelectCascadingFieldComponent } from './components/issues/fields/select-cascading-field.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SuccessSnackbarComponent } from './components/snack-bars/success-bar/success-snackbar.component';
+import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-snackbar.component';
 
 @NgModule({
     imports: [
@@ -92,7 +94,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         FavoriteFiltersEmptyComponent,
         SettingsComponent,
         SettingsProjectComponent,
-        EditIssueMaterialDialogComponent,
         EditIssueDialogComponent,
         AssigneeDropdownComponent,
         PriorityDropdownComponent,
@@ -101,10 +102,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         IssueCommentComponent,
         NewCommentComponent,
         TimeToResolutionIconDirective,
-        ConfirmationDialogComponent,
         IssuesTableMobileComponent,
         ConnectJiraComponent,
         CreateCommentDialogComponent,
+        CommentIssueDialogComponent,
         IssueDetailsComponent,
         SignoutMaterialDialogComponent,
         SignoutDialogComponent,
@@ -124,13 +125,14 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         EpicFieldComponent,
         UrlFieldComponent,
         SelectCascadingFieldComponent,
+        SuccessSnackbarComponent,
+        ErrorSnackbarComponent
     ],
     entryComponents: [
-        EditIssueMaterialDialogComponent,
         EditIssueDialogComponent,
         CreateIssueDialogComponent,
-        ConfirmationDialogComponent,
         CreateCommentDialogComponent,
+        CommentIssueDialogComponent,
         SignoutMaterialDialogComponent,
         SelectFieldComponent,
         TextFieldSingleComponent,
@@ -145,6 +147,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         EpicFieldComponent,
         UrlFieldComponent,
         SelectCascadingFieldComponent,
+        SuccessSnackbarComponent,
+        ErrorSnackbarComponent
     ],
     bootstrap: [AppComponent],
     providers: [

@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution 
 		README.md = README.md
 		stylecop.json = stylecop.json
 		StyleCop.ruleset = StyleCop.ruleset
+		security-assistant.yml = security-assistant.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicrosoftTeamsIntegration.Jira.Tests", "tests\MicrosoftTeamsIntegration.Jira.Tests\MicrosoftTeamsIntegration.Jira.Tests.csproj", "{ED25B1DA-5ACD-47BD-A4A7-CB38E1C006D2}"
@@ -76,9 +77,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "staging", "staging", "{AB3C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "development", "development", "{0959885E-6EE5-4AF4-B996-B42F22B135E8}"
 	ProjectSection(SolutionItems) = preProject
-		manifests\server\development\color.png = manifests\server\development\color.png
 		manifests\server\development\manifest.json = manifests\server\development\manifest.json
 		manifests\server\development\outline.png = manifests\server\development\outline.png
+		manifests\server\development\color.png = manifests\server\development\color.png
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", "{06AF2F23-D535-4D88-9C91-A34DEA181D40}"

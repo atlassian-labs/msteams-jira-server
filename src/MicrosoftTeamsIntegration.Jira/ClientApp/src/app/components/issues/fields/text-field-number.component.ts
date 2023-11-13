@@ -17,7 +17,7 @@ import { FormGroup } from '@angular/forms';
 		</div>
 
         <div class="field-group__body">
-          <input matInput type="number" placeholder="{{data.placeholder}}" 
+          <input matInput type="number" placeholder="{{data.placeholder}}"
             formControlName="{{data.formControlName}}" [attr.disabled]="data.disabled" value="{{data.defaultValue}}">
 		</div>
 	  </div>

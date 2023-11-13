@@ -10,7 +10,8 @@ import {
     SettingsComponent, SettingsFiltersComponent,
     ConnectJiraComponent,
     CreateIssueDialogComponent, EditIssueDialogComponent,
-    CreateCommentDialogComponent, GoToWebsiteComponent
+    CreateCommentDialogComponent, GoToWebsiteComponent,
+    CommentIssueDialogComponent
 } from '@app/components';
 
 import { AuthGuard } from '@core/guards/auth.guard';
@@ -25,15 +26,15 @@ export const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-      path: 'issues/create',
-      component: CreateIssueDialogComponent,
-      canActivate: [AuthGuard]
+        path: 'issues/create',
+        component: CreateIssueDialogComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'issues/edit',
         component: EditIssueDialogComponent,
         canActivate: [AuthGuard]
-      },
+    },
     {
         path: 'issues',
         component: IssuesComponent,
@@ -73,6 +74,11 @@ export const routes: Routes = [
     {
         path: 'issues/createComment',
         component: CreateCommentDialogComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'issues/commentIssue',
+        component: CommentIssueDialogComponent,
         canActivate: [AuthGuard]
     },
     {
