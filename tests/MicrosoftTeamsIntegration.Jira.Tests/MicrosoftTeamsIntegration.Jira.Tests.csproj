@@ -15,10 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.3.0" />
-    <PackageReference Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1"/>
     <PackageReference Include="Bogus" Version="29.0.2" />
     <PackageReference Include="FsCheck.Xunit" Version="2.14.0" />
     <PackageReference Include="JunitXml.TestLogger" Version="3.0.98" />
