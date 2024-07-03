@@ -3,15 +3,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.BotFramework;
 using Microsoft.Bot.Builder.Integration.ApplicationInsights.Core;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
-using Microsoft.Bot.Solutions.Middleware;
-using Microsoft.Bot.Solutions.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MicrosoftTeamsIntegration.Artifacts.Bots.Middleware;
 
 namespace MicrosoftTeamsIntegration.Artifacts.Bots
 {

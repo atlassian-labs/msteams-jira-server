@@ -152,7 +152,7 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Bot.Prompts
                     break;
 
                 case ListStyle.SuggestedAction:
-                    msg = ChoiceFactory.SuggestedAction(choices, text);
+                    msg = ChoiceFactory.SuggestedAction(choices, text, null);
                     break;
 
                 case ListStyle.None:
