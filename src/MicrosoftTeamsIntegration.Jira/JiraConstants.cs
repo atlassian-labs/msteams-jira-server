@@ -13,14 +13,14 @@
         public const string AddonIsNotInstalledMessage = "Addon is not installed";
         public const string UserNotAuthorizedMessage = "User not authorized";
 
-        // Should match the MessageService.INVALID_JWT_TOKEN constant in Jira Server app
+        // Should match the MessageService.INVALID_JWT_TOKEN constant in Jira Data Center app
         public const string InvalidJwtToken = "Invalid JWT token";
 
-        // Should match the RequestService.CONSENT_WAS_REVOKED constant in Jira Server app
+        // Should match the RequestService.CONSENT_WAS_REVOKED constant in Jira Data Center app
         public const string ConsentWasRevoked = "Consent token was revoked";
 
-        // Should correspond to AuthParamMessageHandler.java constants in Jira Server app
-        public const string AuthorizationLinkErrorMessage = "Failed to generate authorization link. Please contact your Jira Server administrator and confirm Application link for Microsoft Teams app has been properly configured.";
+        // Should correspond to AuthParamMessageHandler.java constants in Jira Data Center app
+        public const string AuthorizationLinkErrorMessage = "Failed to generate authorization link. Please contact your Jira Data Center administrator and confirm Application link for Microsoft Teams app has been properly configured.";
         public const string TokenRejectedErrorMessage = "OAuth token rejected. Please check if verification code is correct and try to resubmit it or re-authorize again to get new code.";
         public const string UnknownPermissionsErrorMessage = "Unknown permissions. Please attempt to re-authorize again.";
 

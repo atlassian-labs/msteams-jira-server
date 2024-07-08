@@ -16,12 +16,12 @@
     "resource": "https://graph.microsoft.com"
   },
   "name": {
-    "short": "Jira Server Int",
-    "full": "Jira Server Int"
+    "short": "Jira Data Center Int",
+    "full": "Jira Data Center Int"
   },
   "description": {
     "short": "Plan, track, release software. Manage support, customer service and projects.",
-    "full": "Jira Server for Microsoft Teams brings your Jira Server experience into your collaboration environment, letting you and your team stay focused and communicate on issues and backlog. Interact with Jira Server bot for Microsoft Teams to: create, assign, watch, edit issues, log working time. You may also interact with the bot from your team channel. With the messaging extension, you can quickly search for a specific issue and submit it to a channel or conversation. With the actionable message, you can quickly create a new issue, pre-populated with message text as the issue description, or save the message as a comment on one of your Jira Server issues. Also, you can add your project backlog to your channel as a tab, so that your team could easily track and work on the issues within the tab. Important: To use messaging extension, bot, or tabs you'll need to install Microsoft Teams for Jira Server add-on to your Jira Server. Make sure you have admin permissions within your Jira Server to be able to install and configure the add-on. In case you don't have admin permissions, please contact your Jira admin. Once the add-on is installed, the add-on will generate and assign a unique Jira ID to your Jira Server instance. Share the generated Jira ID with the team so that your teammates could connect Microsoft Teams to Jira. Jira Server connector for Microsoft Teams can be set up independently and doesn't require add-on installation. Connector is using webhooks and can be configured directly from the Teams channel. Please note, that the webhook set-up in Jira requires Jira admin permissions. You will find the detailed instructions on the connector configuration page in Microsoft Teams. The detailed instructions on the configuration of Jira Server for Teams app you may find on our help page msteams-atlassian.com/JiraServer."
+    "full": "Jira Data Center for Microsoft Teams brings your Jira Data Center experience into your collaboration environment, letting you and your team stay focused and communicate on issues and backlog. Interact with Jira Data Center bot for Microsoft Teams to: create, assign, watch, edit issues, log working time. You may also interact with the bot from your team channel. With the messaging extension, you can quickly search for a specific issue and submit it to a channel or conversation. With the actionable message, you can quickly create a new issue, pre-populated with message text as the issue description, or save the message as a comment on one of your Jira Data Center issues. Also, you can add your project backlog to your channel as a tab, so that your team could easily track and work on the issues within the tab. Important: To use messaging extension, bot, or tabs you'll need to install Microsoft Teams for Jira Data Center add-on to your Jira Data Center. Make sure you have admin permissions within your Jira Data Center to be able to install and configure the add-on. In case you don't have admin permissions, please contact your Jira admin. Once the add-on is installed, the add-on will generate and assign a unique Jira ID to your Jira Data Center instance. Share the generated Jira ID with the team so that your teammates could connect Microsoft Teams to Jira. Jira Data Center connector for Microsoft Teams can be set up independently and doesn't require add-on installation. Connector is using webhooks and can be configured directly from the Teams channel. Please note, that the webhook set-up in Jira requires Jira admin permissions. You will find the detailed instructions on the connector configuration page in Microsoft Teams. The detailed instructions on the configuration of Jira Data Center for Teams app you may find on our help page msteams-atlassian.com/JiraServer."
   },
   "icons": {
     "outline": "outline.png",
@@ -132,7 +132,7 @@
             },
             {
               "title": "disconnect",
-              "description": "Disconnect Jira Server"
+              "description": "Disconnect Jira Data Center"
             },
             {
               "title": "create",

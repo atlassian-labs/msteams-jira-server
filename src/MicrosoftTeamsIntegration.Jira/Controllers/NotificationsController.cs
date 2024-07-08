@@ -39,7 +39,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             var jiraConnection = await _databaseService.GetJiraServerAddonSettingsByJiraId(feedEvent.JiraServerId);
             if (jiraConnection == null)
             {
-                _logger.LogWarning($"Received notification feed event from unregistered Jira Server Addon with Id: {feedEvent.JiraServerId}");
+                _logger.LogWarning($"Received notification feed event from unregistered Jira Data Center Addon with Id: {feedEvent.JiraServerId}");
 
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }

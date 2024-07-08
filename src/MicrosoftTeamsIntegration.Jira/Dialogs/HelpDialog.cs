@@ -28,7 +28,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 
             var message = "Here’s a list of the commands I can process:\n\n";
             var isGroup = dc.Context.Activity.IsGroupConversation();
-            var jiraWording = "Jira Server instance";
+            var jiraWording = "Jira Data Center instance";
 
             message += (isGroup
                             ? string.Empty :
