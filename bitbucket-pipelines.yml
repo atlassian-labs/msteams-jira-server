@@ -126,9 +126,10 @@ definitions:
           - dotnet dotcover test --dcReportType=HTML
           - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
           - |
-            STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonar-enterprise.internal.atlassian.com/api/qualitygates/project_status?projectKey=msteams-jira-onprem&branch=$BITBUCKET_BRANCH" | jq -r .projectStatus.status)
+            ENCODED_BRANCH=$(echo "$BITBUCKET_BRANCH" | jq -sRr @uri)
+            STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonar-enterprise.internal.atlassian.com/api/qualitygates/project_status?projectKey=msteams-jira-onprem&branch=$ENCODED_BRANCH" | jq -r .projectStatus.status)
             if [ "$STATUS" != "OK" ]; then
-               echo "Quality gate failed: https://sonar-enterprise.internal.atlassian.com/dashboard?branch=$BITBUCKET_BRANCH&id=msteams-jira-onprem"
+               echo "Quality gate failed: https://sonar-enterprise.internal.atlassian.com/dashboard?branch=$ENCODED_BRANCH&id=msteams-jira-onprem"
                exit 1
             fi
 pipelines:
@@ -140,6 +141,7 @@ pipelines:
             includePaths:
               - 'docker/**'
     - step: *build
+    - step: *staticAnalysis
   custom:
     buildDockerImage:
       - step: *dockerImage
