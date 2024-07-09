@@ -125,6 +125,12 @@ definitions:
           - dotnet build --no-incremental
           - dotnet dotcover test --dcReportType=HTML
           - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+          - |
+            STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonar-enterprise.internal.atlassian.com/api/qualitygates/project_status?projectKey=msteams-jira-onprem&branch=$BITBUCKET_BRANCH" | jq -r .projectStatus.status)
+            if [ "$STATUS" != "OK" ]; then
+               echo "Quality gate failed: https://sonar-enterprise.internal.atlassian.com/dashboard?branch=$BITBUCKET_BRANCH&id=msteams-jira-onprem"
+               exit 1
+            fi
 pipelines:
   default:
     - step:
