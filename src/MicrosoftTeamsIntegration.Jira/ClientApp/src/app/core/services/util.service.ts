@@ -26,7 +26,7 @@ export class UtilService {
     ];
 
     private readonly UPGRADE_ADDON_MESSAGE =
-        'Please upgrade Jira Data Center for Microsoft Teams app on your Jira Data Center to perform projects search.';
+        'Please upgrade Jira Server for Microsoft Teams app on your Jira Data Center to perform projects search.';
     private readonly ADDON_VERSION = '2022.08.103';
 
     public isMobile = (): Promise<boolean> =>
