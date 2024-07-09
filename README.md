@@ -1,15 +1,15 @@
-# Jira Server
+# Jira Data Center
 
 [![Atlassian license](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
-Official plugin for Jira Server that integrates with [Microsoft Teams](https://www.microsoft.com/en-ww/microsoft-teams/group-chat-software).
+Official plugin for Jira Data Center that integrates with [Microsoft Teams](https://www.microsoft.com/en-ww/microsoft-teams/group-chat-software).
 
 ## Usage
 
-Jira Server for Microsoft Teams brings your Jira Server experience into your collaboration environment, letting you and your team stay focused, communicate on issues and backlog. Interact with Jira Server bot for Microsoft Teams to: create, assign, watch, edit issues, log working time. You may also interact with the bot from your team channel. With the messaging extension, you can quickly search for a specific issue and submit it to a channel or conversation. With the actionable message, you can quickly create a new issue, pre-populated with message text as the issue description, or save the message as a comment on one of your Jira Server issues. Also, you can add your project backlog to your channel as a tab, so that your team could easily track and work on the issues within the tab. 
+Jira Data Center for Microsoft Teams brings your Jira Data Center experience into your collaboration environment, letting you and your team stay focused, communicate on issues and backlog. Interact with Jira Data Center bot for Microsoft Teams to: create, assign, watch, edit issues, log working time. You may also interact with the bot from your team channel. With the messaging extension, you can quickly search for a specific issue and submit it to a channel or conversation. With the actionable message, you can quickly create a new issue, pre-populated with message text as the issue description, or save the message as a comment on one of your Jira Data Center issues. Also, you can add your project backlog to your channel as a tab, so that your team could easily track and work on the issues within the tab. 
 Issue urls sent in a message to the group chat or team channel unfurl cards with context about the issue. The unfurl displays key information such as summary, status, priority, updated date, reporter, assignee and those values can be changed from the card directly. There are available 'Assigned to me’, ‘Reported by me’, ‘Watched by me’ and ‘My filters’ tabs by default but you also have a possibility to add a tab with a custom filter and save it.
  
-**Important:** To use messaging extension, bot, or tabs you’ll need to install Microsoft Teams for Jira Server add-on to your Jira Server. Make sure you have admin permissions within your Jira Server to be able to install and configure the add-on. Once the add-on is installed, the add-on will generate and assign a unique Jira ID to your Jira Server instance. Share the generated Jira ID with the team so that your teammates could connect Microsoft Teams to Jira. Jira Server connector for Microsoft Teams can be set up independently and doesn’t require add-on installation. Connector is using webhooks and can be configured directly from the Teams channel. Please note, that the webhook set-up in Jira requires Jira admin permissions. 
+**Important:** To use messaging extension, bot, or tabs you’ll need to install Microsoft Teams for Data Center add-on to your Data Center. Make sure you have admin permissions within your Data Center to be able to install and configure the add-on. Once the add-on is installed, the add-on will generate and assign a unique Jira ID to your Data Center instance. Share the generated Jira ID with the team so that your teammates could connect Microsoft Teams to Jira. Data Center connector for Microsoft Teams can be set up independently and doesn’t require add-on installation. Connector is using webhooks and can be configured directly from the Teams channel. Please note, that the webhook set-up in Jira requires Jira admin permissions. 
 
 ## Installation
 
@@ -126,11 +126,11 @@ In case you want to deploy the application later you need to do some additional 
     - Go to Configuration section and add all configs from **Configuring** section above. As an option you can create [App Configuration](https://learn.microsoft.com/en-us/azure/azure-app-configuration/overview) resource and set all the configs there and the app service configuration will just keep App Configuration resource connection string. 
 1. Deploy your application to Web App resource
 
-### Install Jira Server app (add-on)
- 1. Install standalone Jira server is installed on your machine or you have installed Atlassian SDK (https://developer.atlassian.com/server/framework/atlassian-sdk/install-the-atlassian-sdk-on-a-windows-system/).
- 1. Create Jira Server add-on. See more details [here](https://github.com/atlassian-labs/msteams-jira-server-addon#readme).
- 1. Got to your local instance of Jira Server -> Settings -> Manage apps.
- 1. Click **Upload app** and select *.jar file of your Jira Server addon created previously.
+### Install Data Center app (add-on)
+ 1. Install standalone Data Center is installed on your machine or you have installed Atlassian SDK (https://developer.atlassian.com/server/framework/atlassian-sdk/install-the-atlassian-sdk-on-a-windows-system/).
+ 1. Create Data Center add-on. See more details [here](https://github.com/atlassian-labs/msteams-jira-server-addon#readme).
+ 1. Got to your local instance of Data Center -> Settings -> Manage apps.
+ 1. Click **Upload app** and select *.jar file of your Data Center addon created previously.
  1. Finish installation. Expand new app. All modules should be enabled.
  1. Press **Configure** and follow steps on the page.
 
@@ -151,12 +151,12 @@ Please visit a [link](https://www.msteams-atlassian.com/JiraServer/) to get more
 
 ## Tests
 
-All unit tests for Jira Server project are placed under MicrosoftTeamsIntegration.Jira.Tests. You can use Test Explorer in the Visual Studio IDE to run them and View test results. It displays the results in groups of Failed Tests, Passed Tests, Skipped Tests and Not Run Tests. The details pane at the bottom or side of the Test Explorer displays a summary of the test run.
+All unit tests for Data Center project are placed under MicrosoftTeamsIntegration.Jira.Tests. You can use Test Explorer in the Visual Studio IDE to run them and View test results. It displays the results in groups of Failed Tests, Passed Tests, Skipped Tests and Not Run Tests. The details pane at the bottom or side of the Test Explorer displays a summary of the test run.
 Another way to execute all tests is to run `dotnet test` command in the terminal from the project root folder.   
 
 ## Contributions
 
-Contributions to Jira Server are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details. 
+Contributions to Data Center are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details. 
 
 ## License
 

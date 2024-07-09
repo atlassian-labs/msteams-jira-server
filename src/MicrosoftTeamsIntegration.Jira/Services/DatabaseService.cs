@@ -178,7 +178,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 return null;
             }
 
-            // Get Jira Server users only
+            // Get Jira Data Center users only
             var users = await ProcessThrottlingRequest(() => _usersCollection.Find(x => x.MsTeamsUserId == msTeamsUserId)
                 .SortByDescending(x => x.Id)
                 .ToListAsync());

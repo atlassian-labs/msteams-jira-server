@@ -113,7 +113,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return new JiraAuthResponse
             {
                 IsSuccess = false,
-                Message = "Error during connection to Jira Server addon."
+                Message = "Error during connection to Jira Data Center addon."
             };
         }
 

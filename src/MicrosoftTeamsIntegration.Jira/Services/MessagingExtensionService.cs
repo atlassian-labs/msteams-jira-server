@@ -435,7 +435,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (UnauthorizedException ex)
             {
-                // Jira Server addon is not installed or access token was revoked
+                // Jira Data Center addon is not installed or access token was revoked
                 return BuildCardAction("auth", ex.Message, turnContext.Activity.Conversation.TenantId);
             }
             catch (Exception exception)

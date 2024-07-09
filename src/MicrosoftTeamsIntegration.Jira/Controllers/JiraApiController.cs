@@ -537,7 +537,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
 
                 if (shouldReturnError)
                 {
-                    var errorMessage = $"Please contact your Jira Server administrator and ask him to install Jira addon application.";
+                    var errorMessage = $"Please contact your Jira Data Center administrator and ask him to install Jira addon application.";
                     var error = new ApiError(errorMessage);
                     return BadRequest(error);
                 }

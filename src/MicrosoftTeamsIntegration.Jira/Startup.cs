@@ -195,7 +195,7 @@ namespace MicrosoftTeamsIntegration.Jira
                             context.Response.StatusCode = (int)HttpStatusCode.UpgradeRequired;
                             break;
                         case InvalidOperationException invalidOperation:
-                            // handle customers that configured their webhooks posting to Jira Server instead of Connector
+                            // handle customers that configured their webhooks posting to Jira Data Center instead of Connector
                             if (context.Request.Method.Equals("post", StringComparison.OrdinalIgnoreCase) && invalidOperation.Message.Contains("index.html"))
                             {
                                 apiError = new ApiError("You are sending request to an incorrect route. Please check your configuration.");

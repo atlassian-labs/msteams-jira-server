@@ -40,7 +40,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
             if (!(await _databaseService.GetJiraServerAddonSettingsByJiraId(jiraServerId) is JiraAddonSettings addonSettings))
             {
                 var errorMessage =
-                    $"Please check if {jiraServerId} is valid Jira instance and you have latest version of Microsoft Teams for Jira Server installed.";
+                    $"Please check if {jiraServerId} is valid Jira instance and you have latest version of Microsoft Teams for Jira Data Center installed.";
                 return new SignalRResponse
                 {
                     Received = false,
@@ -109,7 +109,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
 
             var jiraServerGeneralException =
                 new JiraGeneralException(
-                    "Microsoft Teams app for Jira Server is not responding. Please try later.");
+                    "Microsoft Teams app for Jira Data Center is not responding. Please try later.");
 
             _logger.LogError(
                 jiraServerGeneralException,
