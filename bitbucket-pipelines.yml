@@ -86,7 +86,7 @@ definitions:
     - step: &createTag
         name: Create tag
         script:
-          - TAG_NAME=$(date +%Y.%m.%d)
+          - TAG_NAME=$(echo "$BITBUCKET_BRANCH" | sed 's/release\///')
           - echo "Creating new tag ${TAG_NAME}"
           - git tag -am "Tag ${TAG_NAME}" $TAG_NAME
           - git push origin $TAG_NAME
