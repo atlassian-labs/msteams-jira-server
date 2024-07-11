@@ -222,7 +222,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
         }
 
-        private async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
+        private static async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
         {
             string welcomeText =
                 "- **View your work** in a tab via a Jira filter or see issues that are assigned to, reported by or watched by you.\n- **Search** for Jira issues right within message extension or bot command\n- **Update issues** or **add comments** right in your conversation with a bot so you can focus on your work and avoid context switching between your web browser and Teams";

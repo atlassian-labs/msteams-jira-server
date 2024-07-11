@@ -9,10 +9,10 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.Middleware
 {
     public class ConsoleOutputMiddleware : IMiddleware
     {
-        public async Task OnTurnAsync(ITurnContext context, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task OnTurnAsync(ITurnContext turnContext, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
         {
-            LogActivity(string.Empty, context.Activity);
-            context.OnSendActivities(OnSendActivitiesAsync);
+            LogActivity(string.Empty, turnContext.Activity);
+            turnContext.OnSendActivities(OnSendActivitiesAsync);
 
             await next(cancellationToken).ConfigureAwait(false);
         }

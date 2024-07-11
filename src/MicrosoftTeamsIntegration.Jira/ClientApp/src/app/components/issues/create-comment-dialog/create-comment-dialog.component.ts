@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
 import { UP_ARROW, DOWN_ARROW, ENTER, TAB } from '@angular/cdk/keycodes';
@@ -41,7 +40,6 @@ export class CreateCommentDialogComponent implements OnInit {
         private apiService: ApiService,
         private commentService: IssueCommentService,
         private route: ActivatedRoute,
-        public dialog: MatDialog,
         private utilService: UtilService,
         private appInsightsService: AppInsightsService,
         private errorService: ErrorService,
@@ -217,10 +215,6 @@ export class CreateCommentDialogComponent implements OnInit {
     }
 
     private handleListFocusOut() {
-        this.disableActiveListItem();
-    }
-
-    private handleListMouseover() {
         this.disableActiveListItem();
     }
 

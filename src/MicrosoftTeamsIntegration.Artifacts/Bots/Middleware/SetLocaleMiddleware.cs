@@ -15,9 +15,9 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.Middleware
             _defaultLocale = defaultLocale ?? throw new ArgumentNullException(nameof(defaultLocale));
         }
 
-        public async Task OnTurnAsync(ITurnContext context, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task OnTurnAsync(ITurnContext turnContext, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var cultureInfo = !string.IsNullOrWhiteSpace(context.Activity.Locale) ? new CultureInfo(context.Activity.Locale) : new CultureInfo(this._defaultLocale);
+            var cultureInfo = !string.IsNullOrWhiteSpace(turnContext.Activity.Locale) ? new CultureInfo(turnContext.Activity.Locale) : new CultureInfo(this._defaultLocale);
 
             CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = cultureInfo;
 
