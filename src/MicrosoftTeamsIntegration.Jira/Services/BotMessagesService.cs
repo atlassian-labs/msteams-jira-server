@@ -248,7 +248,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     Size = AdaptiveTextSize.Large,
                     Weight = AdaptiveTextWeight.Bolder,
-                    Text = "Get started using Jira in Teams"
+                    Text = "Get started using Jira Data Center"
                 },
                 new AdaptiveTextBlock
                 {

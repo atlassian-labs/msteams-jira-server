@@ -434,6 +434,11 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
 
         private static AdaptiveColumn GetWatchOrUnwatchAdaptiveColumn(BotAndMessagingExtensionJiraIssue model)
         {
+            if (model.IsMessagingExtension)
+            {
+                return new AdaptiveColumn();
+            }
+
             var isWatching = model.JiraIssue.Fields.Watches?.IsWatching == true;
             var watchOrUnwatchTitle = isWatching ? DialogTitles.UnwatchTitle : DialogTitles.WatchTitle;
             var watchOrUnwatchCommand = isWatching ? DialogMatchesAndCommands.UnwatchDialogCommand : DialogMatchesAndCommands.WatchDialogCommand;

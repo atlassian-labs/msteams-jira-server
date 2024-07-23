@@ -1,11 +1,11 @@
 ﻿{
-  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.16",
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.7",
   "version": "255.255.255",
   "id": "a3955064-f94d-4848-93d5-7fefac2b4c6d",
   "packageName": "com.msteams-atlassian.jira-server-integration",
   "developer": {
-    "name": "Atlassian",
+    "name": "Atlassian.com",
     "websiteUrl": "https://marketplace.atlassian.com/apps/1217836/microsoft-teams-for-jira",
     "privacyUrl": "https://www.atlassian.com/legal/privacy-policy",
     "termsOfUseUrl": "https://www.atlassian.com/licensing/marketplace/termsofuse",
@@ -13,7 +13,7 @@
   },
   "webApplicationInfo": {
     "id": "a3955064-f94d-4848-93d5-7fefac2b4c6d",
-    "resource": "https://graph.microsoft.com"
+    "resource": "api://jira-server-integration.msteams-atlassian.com/a3955064-f94d-4848-93d5-7fefac2b4c6d"
   },
   "name": {
     "short": "Jira Data Center Int",
@@ -21,7 +21,7 @@
   },
   "description": {
     "short": "Plan, track, release software. Manage support, customer service and projects.",
-    "full": "Jira Data Center for Microsoft Teams brings your Jira Data Center experience into your collaboration environment, letting you and your team stay focused and communicate on issues and backlog. Interact with Jira Data Center bot for Microsoft Teams to: create, assign, watch, edit issues, log working time. You may also interact with the bot from your team channel. With the messaging extension, you can quickly search for a specific issue and submit it to a channel or conversation. With the actionable message, you can quickly create a new issue, pre-populated with message text as the issue description, or save the message as a comment on one of your Jira Data Center issues. Also, you can add your project backlog to your channel as a tab, so that your team could easily track and work on the issues within the tab. Important: To use messaging extension, bot, or tabs you'll need to install Microsoft Teams for Jira Data Center add-on to your Jira Data Center. Make sure you have admin permissions within your Jira Data Center to be able to install and configure the add-on. In case you don't have admin permissions, please contact your Jira admin. Once the add-on is installed, the add-on will generate and assign a unique Jira ID to your Jira Data Center instance. Share the generated Jira ID with the team so that your teammates could connect Microsoft Teams to Jira. Jira Data Center connector for Microsoft Teams can be set up independently and doesn't require add-on installation. Connector is using webhooks and can be configured directly from the Teams channel. Please note, that the webhook set-up in Jira requires Jira admin permissions. You will find the detailed instructions on the connector configuration page in Microsoft Teams. The detailed instructions on the configuration of Jira Data Center for Teams app you may find on our help page msteams-atlassian.com/JiraServer."
+    "full": "**Jira Data Center** brings your Jira Data Center experience into your collaboration environment, letting you and your team stay focused and communicate on issues and backlog.\n**Bot Capabilities:**\n - Interact with Jira Data Center bot for Microsoft Teams to: create, assign, watch, edit issues, log working time.\n - You may also interact with the bot from your team channel.\n**Messaging Extension Capabilities:**\n -  Quickly search for a specific issue and submit it to a channel or conversation.\n - Use actionable messages to:\n\t - Quickly create a new issue, pre-populated with message text as the issue description.\n\t - Save the message as a comment on one of your Jira Data Center issues. \n**Tab Capabilities:**\nAdd your project backlog to your channel as a tab. Your team can easily track and work on the issues within the tab. \n**Important:**\nTo use messaging extension, bot, or tabs, you'll need to install the **Microsoft Teams for Jira Data Center** add-on to your Jira Data Center.\nEnsure you have admin permissions within your Jira Data Center to install and configure the add-on.\nIf you don't have admin permissions, please contact your Jira admin.\n_Setting Up:_\nOnce the add-on is installed, it will generate and assign a unique Jira ID to your Jira Data Center instance.\nShare the generated Jira ID with the team so that your teammates can connect Microsoft Teams to Jira. \nFor detailed instructions on configuring Jira Data Center for Teams app, please visit our [help page](https://confluence.atlassian.com/msteamsjiraserver/microsoft-teams-for-jira-server-documentation-1027116656.html) \n[See all Atlassian + Microsoft Teams integrations](https://www.atlassian.com/partnerships/microsoft?utm_source=product-release&utm_medium=mpac-listing&utm_campaign=P:marketplace*O:ecosystem*F:consideration*C:demo*W:jira-ms-bom*H:fy22q2*I:msteams-jira-launch*)"
   },
   "icons": {
     "outline": "outline.png",
@@ -155,7 +155,6 @@
       ]
     }
   ],
-  "connectors": [],
   "composeExtensions": [
     {
       "botId": "a3955064-f94d-4848-93d5-7fefac2b4c6d",
@@ -185,28 +184,6 @@
             "compose",
             "commandBox",
             "message"
-          ],
-          "parameters": [
-            {
-              "name": "summary",
-              "title": "Issue summary"
-            },
-            {
-              "name": "description",
-              "title": "Issue description"
-            },
-            {
-              "name": "issueType",
-              "title": "Issue type"
-            },
-            {
-              "name": "assignee",
-              "title": "Issue assignee"
-            },
-            {
-              "name": "priority",
-              "title": "Issue priority"
-            }
           ]
         },
         {
@@ -217,45 +194,11 @@
           "fetchTask": true,
           "context": [
             "message"
-          ],
-          "parameters": [
-            {
-              "name": "comment",
-              "title": "Issue comment"
-            },
-            {
-              "name": "issueUrl",
-              "title": "Issue url"
-            }
           ]
         }
       ]
     }
   ],
-  "activities": {
-    "activityTypes": [
-      {
-        "type": "issue_assigned",
-        "description": "Issue Assigned",
-        "templateText": "{usr} assigned an issue"
-      },
-      {
-        "type": "issue_generic",
-        "description": "Status Updated",
-        "templateText": "{usr} updated issue status"
-      },
-      {
-        "type": "issue_updated",
-        "description": "Issue Updated",
-        "templateText": "{usr} updated field \"{field}\""
-      },
-      {
-        "type": "comment_created",
-        "description": "Comment Created",
-        "templateText": "{usr} added a comment"
-      }
-    ]
-  },
   "permissions": [
     "identity",
     "messageTeamMembers"
