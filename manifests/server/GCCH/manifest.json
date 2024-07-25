@@ -38,28 +38,24 @@
       "entityId": "JiraServerIssuesAssigned",
       "name": "Assigned to me",
       "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=IssuesAssigned",
-      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=IssuesAssigned",
       "scopes": ["personal"]
     },
     {
       "entityId": "JiraServerIssuesReported",
       "name": "Reported by me",
       "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=IssuesReported",
-      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=IssuesReported",
       "scopes": ["personal"]
     },
     {
       "entityId": "JiraServerIssuesWatched",
       "name": "Watched by me",
       "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=IssuesWatched",
-      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=IssuesWatched",
       "scopes": ["personal"]
     },
     {
       "entityId": "JiraServerMyFilters",
       "name": "My filters",
       "contentUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/static-tab;page=MyFilters",
-      "websiteUrl": "https://<MICROSOFT_TEAMS_APP_URL>/#/go-to-website;page=MyFilters",
       "scopes": ["personal"]
     }
   ],

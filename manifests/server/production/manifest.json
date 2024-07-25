@@ -1,7 +1,7 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
   "manifestVersion": "1.7",
-  "version": "2024.07.23",
+  "version": "2024.07.24",
   "id": "6eacb5f0-68b0-46f0-9507-9e906c6861fc",
   "developer": {
     "name": "Atlassian.com",
@@ -42,7 +42,6 @@
       "entityId": "JiraServerIssuesAssigned",
       "name": "Assigned to me",
       "contentUrl": "https://jira-server.msteams-atlassian.com/#/static-tab;page=IssuesAssigned",
-      "websiteUrl": "https://jira-server.msteams-atlassian.com/#/go-to-website;page=IssuesAssigned",
       "scopes": [
         "personal"
       ]
@@ -51,7 +50,6 @@
       "entityId": "JiraServerIssuesReported",
       "name": "Reported by me",
       "contentUrl": "https://jira-server.msteams-atlassian.com/#/static-tab;page=IssuesReported",
-      "websiteUrl": "https://jira-server.msteams-atlassian.com/#/go-to-website;page=IssuesReported",
       "scopes": [
         "personal"
       ]
@@ -60,7 +58,6 @@
       "entityId": "JiraServerIssuesWatched",
       "name": "Watched by me",
       "contentUrl": "https://jira-server.msteams-atlassian.com/#/static-tab;page=IssuesWatched",
-      "websiteUrl": "https://jira-server.msteams-atlassian.com/#/go-to-website;page=IssuesWatched",
       "scopes": [
         "personal"
       ]
@@ -69,7 +66,6 @@
       "entityId": "JiraServerMyFilters",
       "name": "My filters",
       "contentUrl": "https://jira-server.msteams-atlassian.com/#/static-tab;page=MyFilters",
-      "websiteUrl": "https://jira-server.msteams-atlassian.com/#/go-to-website;page=MyFilters",
       "scopes": [
         "personal"
       ]
