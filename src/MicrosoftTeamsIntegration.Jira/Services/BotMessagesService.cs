@@ -242,12 +242,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             string installAddonMessage =
                 "To use messaging extension, bot, or tabs, you'll need to install the " +
-                "**Microsoft Teams for Jira Data Center** app to your Jira Data Center. " +
+                "**[Microsoft Teams for Jira Data Center](https://marketplace.atlassian.com/apps/1217836?tab=overview&hosting=datacenter)** app to your Jira Data Center. " +
                 "Ensure you have admin permissions within your Jira instance to install and configure the app. " +
                 "If you don't have admin permissions, contact your Jira admin.\n\n" +
                 "When the app is installed, it'll generate and assign a unique " +
                 "Jira ID to your Jira Data Center instance. Share the generated Jira ID" +
-                " with the team so your teammates can connect Microsoft Teams to Jira.";
+                " with the team so your teammates can connect Microsoft Teams to Jira.\n\n" +
+                "For detailed instructions on configuring Jira Data Center for Teams app, please visit our [help page](https://confluence.atlassian.com/msteamsjiraserver/microsoft-teams-for-jira-server-documentation-1027116656.html).";
 
             var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 5));
             adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
