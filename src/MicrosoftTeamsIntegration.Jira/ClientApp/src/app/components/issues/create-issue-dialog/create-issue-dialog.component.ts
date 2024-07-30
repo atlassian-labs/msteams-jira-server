@@ -1,6 +1,6 @@
 ﻿import * as microsoftTeams from '@microsoft/teams-js';
 
-import {AbstractControl, FormControl, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ApiService, AppInsightsService, ErrorService} from '@core/services';
 import {Component, OnInit, ViewChild} from '@angular/core';
@@ -33,7 +33,7 @@ export class CreateIssueDialogComponent implements OnInit {
     public fetching = false;
     public canCreateIssue = true;
 
-    public issueForm: FormGroup;
+    public issueForm: UntypedFormGroup;
 
     public projects: Project[];
     public issueTypes: IssueType[];
@@ -350,23 +350,23 @@ export class CreateIssueDialogComponent implements OnInit {
         const defaultIssueType = this.defaultIssueType && this.availableIssueTypesOptions ?
             this.availableIssueTypesOptions.find(x => x.label.toLowerCase() === this.defaultIssueType.toLowerCase()) : null;
 
-        this.issueForm = new FormGroup({
-            project: new FormControl(
+        this.issueForm = new UntypedFormGroup({
+            project: new UntypedFormControl(
                 this.availableProjectsOptions && this.availableProjectsOptions.length > 0 ?
                     this.availableProjectsOptions[0].value :
                     null
             ),
-            issuetype: new FormControl(
+            issuetype: new UntypedFormControl(
                 this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
                     this.availableIssueTypesOptions[0].value :
                     null
             ),
-            summary: new FormControl(
+            summary: new UntypedFormControl(
                 this.defaultSummary ? this.defaultSummary : '',
                 [Validators.required, StringValidators.isNotEmptyString]
             ),
-            description: new FormControl(this.defaultDescription),
-            assignee: new FormControl(
+            description: new UntypedFormControl(this.defaultDescription),
+            assignee: new UntypedFormControl(
                 this.assigneesOptions && this.assigneesOptions.length > 0 ?
                     this.assigneesOptions[0].value :
                     null
@@ -389,7 +389,7 @@ export class CreateIssueDialogComponent implements OnInit {
         if (this.fields[controlName]) {
             this.issueForm.addControl(
                 controlName,
-                this.isFieldRequired(controlName) ? new FormControl(null, [Validators.required]) : new FormControl()
+                this.isFieldRequired(controlName) ? new UntypedFormControl(null, [Validators.required]) : new UntypedFormControl()
             );
         } else if (this.issueForm.contains(controlName)) {
             this.issueForm.removeControl(controlName);
@@ -420,7 +420,7 @@ export class CreateIssueDialogComponent implements OnInit {
 
             this.issueForm.addControl(
                 priorityControlName,
-                new FormControl(
+                new UntypedFormControl(
                     defaultPriorityVal
                 )
             );

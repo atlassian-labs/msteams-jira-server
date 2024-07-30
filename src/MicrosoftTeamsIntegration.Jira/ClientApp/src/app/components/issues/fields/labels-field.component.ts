@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FieldComponent } from './field.component';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { ApiService } from '@core/services';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
@@ -43,7 +43,7 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class LabelsFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup;
 
     private readonly LABEL_MAX_LENGTH: number = 255;
 

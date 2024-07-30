@@ -128,31 +128,9 @@ import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-
         SuccessSnackbarComponent,
         ErrorSnackbarComponent
     ],
-    entryComponents: [
-        EditIssueDialogComponent,
-        CreateIssueDialogComponent,
-        CreateCommentDialogComponent,
-        CommentIssueDialogComponent,
-        SignoutMaterialDialogComponent,
-        SelectFieldComponent,
-        TextFieldSingleComponent,
-        TextFieldMultiComponent,
-        DatePickerFieldComponent,
-        RadioSelectFieldComponent,
-        CheckboxSelectFieldComponent,
-        TextFieldNumberComponent,
-        UserPickerFieldComponent,
-        LabelsFieldComponent,
-        SprintFieldComponent,
-        EpicFieldComponent,
-        UrlFieldComponent,
-        SelectCascadingFieldComponent,
-        SuccessSnackbarComponent,
-        ErrorSnackbarComponent
-    ],
     bootstrap: [AppComponent],
     providers: [
-        { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true} }
+        { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } }
     ]
 })
 export class AppModule { }

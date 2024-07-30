@@ -1,5 +1,5 @@
 ﻿import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IssueCommentService } from '@core/services/entities/comment.service';
@@ -21,7 +21,7 @@ import { NotificationService } from '@shared/services/notificationService';
 export class CommentIssueDialogComponent implements OnInit {
     public issue: Issue;
     public loading = false;
-    public commentForm: FormGroup;
+    public commentForm: UntypedFormGroup;
     public jiraUrl: string;
     public jiraId: string;
     public issueId: string;
@@ -129,8 +129,8 @@ export class CommentIssueDialogComponent implements OnInit {
     }
 
     private async createForm(): Promise<void> {
-        this.commentForm = new FormGroup({
-            comment: new FormControl('',[Validators.required, StringValidators.isNotEmptyString])
+        this.commentForm = new UntypedFormGroup({
+            comment: new UntypedFormControl('',[Validators.required, StringValidators.isNotEmptyString])
         });
     }
 }

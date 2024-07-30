@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FieldComponent } from './field.component';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 @Component({
@@ -53,10 +53,10 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup;
 
-    public children: FormControl;
-    public parent: FormControl;
+    public children: UntypedFormControl;
+    public parent: UntypedFormControl;
 
     public allowedParentOptions: any[];
     public allowedChildrenOptions: any[];
@@ -73,9 +73,9 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
 
         this.formGroup.addControl(this.data.formControlName + '_parent',
             this.data.required ?
-                new FormControl(null, [Validators.required]) :
-                new FormControl());
-        this.formGroup.addControl(this.data.formControlName + '_children', new FormControl());
+                new UntypedFormControl(null, [Validators.required]) :
+                new UntypedFormControl());
+        this.formGroup.addControl(this.data.formControlName + '_children', new UntypedFormControl());
 
         if (this.data.allowedValues) {
             // get allowed values for cascading including all child values

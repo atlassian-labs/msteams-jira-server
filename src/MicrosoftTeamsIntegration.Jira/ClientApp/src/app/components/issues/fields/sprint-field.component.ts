@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FieldComponent } from './field.component';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { ApiService } from '@core/services';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
@@ -38,7 +38,7 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class SprintFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup;
 
     public loading: boolean;
     public jiraUrl: string;

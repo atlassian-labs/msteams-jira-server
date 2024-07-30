@@ -3,7 +3,7 @@ import {Component, Input, ViewChild, ComponentFactoryResolver, OnChanges} from '
 import { DynamicFieldsDirective } from './dynamic-fields.directive';
 import { FieldItem } from './field-item';
 import { FieldComponent } from './field.component';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 
 @Component({
     selector: 'app-dynamic-fields',
@@ -16,7 +16,7 @@ import { FormGroup } from '@angular/forms';
 
 export class DynamicFieldsComponent implements OnChanges{
     @Input() dynamicFields: FieldItem[];
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup;
     @ViewChild(DynamicFieldsDirective, {static: true}) dynamicFieldsHost: DynamicFieldsDirective;
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver) { }

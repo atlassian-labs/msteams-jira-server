@@ -1,6 +1,6 @@
 ﻿import * as microsoftTeams from '@microsoft/teams-js';
 
-import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
 import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
@@ -81,7 +81,7 @@ export class EditIssueDialogComponent implements OnInit {
     public jiraUrl: string;
     public issueId: string;
     public issueKey: string;
-    public issueForm: FormGroup;
+    public issueForm: UntypedFormGroup;
     public updatedFormFields: string[] = [];
     public replyToActivityId: string;
 
@@ -373,12 +373,12 @@ export class EditIssueDialogComponent implements OnInit {
     }
 
     private async createForm(): Promise<void> {
-        this.issueForm = new FormGroup({});
+        this.issueForm = new UntypedFormGroup({});
 
         if (this.allowEditSummary) {
             this.issueForm.addControl(
                 this.summaryFieldName,
-                new FormControl(
+                new UntypedFormControl(
                     this.issue.summary,
                     [Validators.required, StringValidators.isNotEmptyString]
                 ),
@@ -388,7 +388,7 @@ export class EditIssueDialogComponent implements OnInit {
         if (this.allowEditDescription) {
             this.issueForm.addControl(
                 this.descriptionFieldName,
-                new FormControl(
+                new UntypedFormControl(
                     this.issue.description
                 )
             );
@@ -397,7 +397,7 @@ export class EditIssueDialogComponent implements OnInit {
         if (this.allowEditPriority) {
             this.issueForm.addControl(
                 this.priorityFieldName,
-                new FormControl(
+                new UntypedFormControl(
                     this.selectedPriorityOption.value
                 ),
             );
@@ -406,7 +406,7 @@ export class EditIssueDialogComponent implements OnInit {
         if (this.allowEditAssignee) {
             this.issueForm.addControl(
                 this.assigneeFieldName,
-                new FormControl(
+                new UntypedFormControl(
                     this.selectedAssigneeOption.value
                 ),
             );
@@ -415,7 +415,7 @@ export class EditIssueDialogComponent implements OnInit {
         if (this.allowEditStatus) {
             this.issueForm.addControl(
                 this.statusFieldName,
-                new FormControl(
+                new UntypedFormControl(
                     this.selectedStatusOption.value
                 )
             );

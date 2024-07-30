@@ -105,7 +105,6 @@
       "projectType": "application"
     }
   },
-  "defaultProject": "jira",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",

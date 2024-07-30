@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, Validators, UntypedFormControl, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     ApiService,
@@ -41,8 +41,8 @@ export class ConnectJiraComponent implements OnInit {
 
     private readonly SETTINGS_PAGE_ROUTE = '/settings';
 
-    public connectForm: FormGroup;
-    public loginForm: FormGroup;
+    public connectForm: UntypedFormGroup;
+    public loginForm: UntypedFormGroup;
     public showAddonStatusError = false;
     public jiraServerId: string;
     public displayedUrl: string;
@@ -156,16 +156,16 @@ export class ConnectJiraComponent implements OnInit {
     }
 
     private buildConnectForm(): void {
-        this.connectForm = new FormGroup({
-            jiraId: new FormControl( null, Validators.required)
+        this.connectForm = new UntypedFormGroup({
+            jiraId: new UntypedFormControl( null, Validators.required)
         });
 
         this.jiraId.setValue(localStorage.getItem(ConnectJiraComponent.JIRA_ID_STORAGE_KEY));
     }
 
     private buildLoginForm(): void {
-        this.loginForm = new FormGroup({
-            verificationCode: new FormControl(null, Validators.required)
+        this.loginForm = new UntypedFormGroup({
+            verificationCode: new UntypedFormControl(null, Validators.required)
         });
     }
 

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FieldComponent } from './field.component';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { ApiService } from '@core/services';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 import { JiraUser } from '@core/models/Jira/jira-user.model';
@@ -39,7 +39,7 @@ import { DropDownComponent } from '@shared/components/dropdown/dropdown.componen
 
 export class UserPickerFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup;
 
     @ViewChild(DropDownComponent, {static: false}) public dropdown: DropDownComponent<string>;
 

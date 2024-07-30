@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
 import { UP_ARROW, DOWN_ARROW, ENTER, TAB } from '@angular/cdk/keycodes';
@@ -26,7 +26,7 @@ export class CreateCommentDialogComponent implements OnInit {
     public searchTerm: string;
     public loading = false;
     public formDisabled = false;
-    public commentForm: FormGroup;
+    public commentForm: UntypedFormGroup;
 
     private keyboardEventsManager: ListKeyManager<any>;
     private metadataRef: string;
@@ -186,8 +186,8 @@ export class CreateCommentDialogComponent implements OnInit {
     private async createForm(): Promise<void> {
         await this.getIssues();
 
-        this.commentForm = new FormGroup({
-            comment: new FormControl(
+        this.commentForm = new UntypedFormGroup({
+            comment: new UntypedFormControl(
                 this.defaultComment,
                 [Validators.required, StringValidators.isNotEmptyString]
             )
