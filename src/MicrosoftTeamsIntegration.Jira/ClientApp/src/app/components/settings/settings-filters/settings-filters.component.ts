@@ -32,7 +32,7 @@ import * as microsoftTeams from '@microsoft/teams-js';
 import { StatusCode } from '@core/enums';
 import { logger } from '@core/services/logger.service';
 import { DropdownUtilService } from '../../../shared/services/dropdown.util.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MMatLegacySnackBar as MatSnackBar} from '@@angular/material/legacy-snack-bar;
 import {NotificationService} from '@shared/services/notificationService';
 
 enum FilterType {

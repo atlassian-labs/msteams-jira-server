@@ -13,7 +13,7 @@ import { ErrorService, AppInsightsService } from '@core/services';
 import { logger } from '@core/services/logger.service';
 
 import { StatusCode } from '@core/enums';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 @Injectable({ providedIn: 'root' })
 export class ErrorResponseInterceptor implements HttpInterceptor {

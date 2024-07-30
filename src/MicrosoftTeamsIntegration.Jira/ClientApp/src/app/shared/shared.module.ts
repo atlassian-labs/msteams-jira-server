@@ -7,11 +7,11 @@ import { FormsModule } from '@angular/forms';
 
 import { ClickOutsideModule } from 'ng-click-outside';
 import { SpinnerModule } from 'angular2-spinner/dist';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MMatLegacyButtonModule as MatButtonModule} from '@@angular/material/legacy-button;
+import { MMatLegacyDialogModule as MatDialogModule} from '@@angular/material/legacy-dialog;
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MMatLegacyProgressSpinnerModule as MatProgressSpinnerModule MMatLegacySpinner as MatSpinner} from '@@angular/material/legacy-progress-spinner;
+import { MMatLegacyTooltipModule as MatTooltipModule} from '@@angular/material/legacy-tooltip;
 
 import { SharedComponents } from '@shared/components';
 import { TruncatedTextComponent } from '@shared/truncated-text/truncated-text.component';

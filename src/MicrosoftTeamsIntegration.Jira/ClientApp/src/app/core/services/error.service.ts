@@ -4,7 +4,7 @@
 import { Injectable, Injector, NgZone } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 import { AppInsightsService } from '@core/services/app-insights.service';
 import { StatusCode } from '@core/enums';

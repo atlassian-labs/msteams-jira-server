@@ -6,7 +6,7 @@ import {ApiService, AppInsightsService, ErrorService} from '@core/services';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
 import {Issue} from '@core/models';
-import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {MMatLegacyDialog as MatDialog MMatLegacyDialogConfig as MatDialogConfig from '@@angular/material/legacy-dialog;
 
 import {AssigneeService} from '@core/services/entities/assignee.service';
 import {DropDownComponent} from '@shared/components/dropdown/dropdown.component';
