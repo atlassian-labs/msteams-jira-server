@@ -9,31 +9,32 @@
     "build": "ng lint && ng build",
     "test": "node --no-deprecation ./node_modules/@angular/cli/bin/ng test --watch=false --progress=false",
     "lint": "eslint -c .eslintrc.js --ext .ts 'src/**/*.ts' --fix",
-    "watch": "ng build --watch"
+    "watch": "ng build --watch",
+    "update": "ng update"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "9.1.13",
-    "@angular/cdk": "8.2.3",
+    "@angular/cdk": "9.2.4",
     "@angular/cli": "9.1.15",
     "@angular/common": "9.1.13",
     "@angular/compiler": "9.1.13",
     "@angular/compiler-cli": "9.1.13",
     "@angular/core": "9.1.13",
-    "@angular/flex-layout": "^8.0.0-beta.27",
+    "@angular/flex-layout": "9.0.0-beta.30",
     "@angular/forms": "9.1.13",
-    "@angular/material": "8.2.3",
-    "@angular/material-moment-adapter": "8.2.3",
+    "@angular/material": "9.2.4",
+    "@angular/material-moment-adapter": "9.2.4",
     "@angular/platform-browser": "9.1.13",
     "@angular/platform-browser-dynamic": "9.1.13",
     "@angular/router": "9.1.13",
     "@microsoft/teams-js": "1.5.2",
-    "@ng-select/ng-select": "^3.7.3",
+    "@ng-select/ng-select": "9.1.0",
     "@types/applicationinsights-js": "1.0.9",
     "angular2-spinner": "1.0.10",
     "applicationinsights-js": "1.0.20",
     "compare-versions": "^4.1.3",
-    "moment": "^2.26.0",
+    "moment": "2.30.1",
     "ng-click-outside": "5.1.1",
     "rxjs": "6.5.3",
     "zone.js": "0.10.3"
@@ -65,6 +66,6 @@
     "typescript": "3.8.3"
   },
   "engines": {
-    "node": "16"
+    "node": "12"
   }
 }
