@@ -7,7 +7,7 @@ import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.
 import {Issue, IssueFields, Priority, ProjectType} from '@core/models';
 import { IssueStatus, JiraComment } from '@core/models';
 import { JiraPermissionName, JiraPermissions } from '@core/models/Jira/jira-permission.model';
-import { MMatLegacyDialog as MatDialog MMatLegacyDialogConfig as MatDialogConfig} from '@@angular/material/legacy-dialog;
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig} from '@angular/material/legacy-dialog';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssigneeService } from '@core/services/entities/assignee.service';

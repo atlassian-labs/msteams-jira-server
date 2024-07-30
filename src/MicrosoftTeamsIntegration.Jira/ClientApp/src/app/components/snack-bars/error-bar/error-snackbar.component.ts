@@ -1,4 +1,5 @@
-﻿import {MMAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA MMatLegacySnackBarRef as MatSnackBarRef SLegacySimpleSnackBar as SimpleSnackBar from '@@angular/material/legacy-snack-bar;
+﻿// eslint-disable-next-line max-len
+import {MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA, MatLegacySnackBarRef as MatSnackBarRef, LegacySimpleSnackBar as SimpleSnackBar} from '@angular/material/legacy-snack-bar';
 import {Component, Inject} from '@angular/core';
 // ...
 

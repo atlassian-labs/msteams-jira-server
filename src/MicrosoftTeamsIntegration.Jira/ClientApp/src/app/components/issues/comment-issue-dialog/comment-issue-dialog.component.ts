@@ -1,6 +1,6 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
-import { MMatLegacyDialogConfig as MatDialogConfig MMatLegacyDialog as MatDialog} from '@@angular/material/legacy-dialog;
+import { MatLegacyDialogConfig as MatDialog} from '@angular/material/legacy-dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IssueCommentService } from '@core/services/entities/comment.service';
 import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.model';
