@@ -11,11 +11,10 @@ import {
     ConnectJiraComponent,
     CreateIssueDialogComponent, EditIssueDialogComponent,
     CreateCommentDialogComponent, GoToWebsiteComponent,
-    CommentIssueDialogComponent
+    CommentIssueDialogComponent, SignoutDialogComponent
 } from '@app/components';
 
 import { AuthGuard } from '@core/guards/auth.guard';
-import { SignoutDialogComponent } from '@app/components';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },

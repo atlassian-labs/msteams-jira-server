@@ -7,8 +7,7 @@ import { Router } from '@angular/router';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 
 import { AppInsightsService } from '@core/services/app-insights.service';
-import { StatusCode } from '@core/enums';
-import { ApplicationType } from '@core/enums';
+import { StatusCode, ApplicationType } from '@core/enums';
 import { NotificationService } from '@shared/services/notificationService';
 
 @Injectable({ providedIn: 'root' })

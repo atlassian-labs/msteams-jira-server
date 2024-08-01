@@ -1,5 +1,4 @@
-﻿import {MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
-import {MatSnackBarRef, SimpleSnackBar} from '@angular/material/snack-bar';
+﻿import {MatSnackBarRef, SimpleSnackBar, MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
 import {Component, Inject} from '@angular/core';
 // ...
 

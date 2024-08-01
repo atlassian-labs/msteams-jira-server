@@ -7,7 +7,6 @@ import {
     HttpErrorResponse
 } from '@angular/common/http';
 import {catchError, Observable, throwError} from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 import { ErrorService, AppInsightsService } from '@core/services';
 import { logger } from '@core/services/logger.service';

@@ -9,8 +9,7 @@ import { ClickOutsideModule } from 'ng-click-outside';
 import { MatButtonModule} from '@angular/material/button';
 import { MatDialogModule} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatProgressSpinner} from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule, MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule} from '@angular/material/tooltip';
 
 import { SharedComponents } from '@shared/components';
