@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, OnChanges, Type, ViewContainerRef} from '@angular/core';
+import {Component, Input, ViewChild, OnChanges, Type} from '@angular/core';
 
 import { DynamicFieldsDirective } from './dynamic-fields.directive';
 import { FieldItem } from './field-item';
@@ -18,8 +18,6 @@ export class DynamicFieldsComponent implements OnChanges{
     @Input() dynamicFields: FieldItem[] | any;
     @Input() formGroup: UntypedFormGroup | any;
     @ViewChild(DynamicFieldsDirective, {static: true}) dynamicFieldsHost: DynamicFieldsDirective | any;
-
-    constructor() { }
 
     ngOnChanges() {
         this.loadDynamicFields();
