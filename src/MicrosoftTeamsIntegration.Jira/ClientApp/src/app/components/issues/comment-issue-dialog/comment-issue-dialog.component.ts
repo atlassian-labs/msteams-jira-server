@@ -1,6 +1,5 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
-import { MatLegacyDialogConfig as MatDialog} from '@angular/material/legacy-dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IssueCommentService } from '@core/services/entities/comment.service';
 import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.model';
@@ -19,17 +18,16 @@ import { NotificationService } from '@shared/services/notificationService';
     styleUrls: ['./comment-issue-dialog.component.scss']
 })
 export class CommentIssueDialogComponent implements OnInit {
-    public issue: Issue;
+    public issue: Issue | undefined;
     public loading = false;
-    public commentForm: UntypedFormGroup;
-    public jiraUrl: string;
-    public jiraId: string;
-    public issueId: string;
-    public issueKey: string;
-    public formDisabled: boolean;
+    public commentForm: UntypedFormGroup | undefined;
+    public jiraUrl: string | undefined;
+    public jiraId: string | undefined;
+    public issueId: string | undefined;
+    public issueKey: string | undefined;
+    public formDisabled: boolean | undefined;
 
     constructor(
-        public dialog: MatDialog,
         public domSanitizer: DomSanitizer,
         private commentService: IssueCommentService,
         private route: ActivatedRoute,
@@ -54,7 +52,7 @@ export class CommentIssueDialogComponent implements OnInit {
             ];
 
             const { permissions } = await this.permissionService
-                .getMyPermissions(this.jiraId, commentRelatedPermissions, this.issueId);
+                .getMyPermissions(this.jiraId as string, commentRelatedPermissions, this.issueId);
 
             if (!permissions.ADD_COMMENTS.havePermission) {
                 const message = 'You don\'t have permissions to add comments';
@@ -62,11 +60,11 @@ export class CommentIssueDialogComponent implements OnInit {
                 return;
             }
 
-            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraId, this.issueId);
+            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraId as string, this.issueId as string);
             await this.createForm();
         } catch (error) {
             this.appInsightsService.trackException(
-                new Error(error),
+                new Error(error as any),
                 'CommentIssueDialogData::ngOnInit'
             );
         }
@@ -75,15 +73,15 @@ export class CommentIssueDialogComponent implements OnInit {
     }
 
     public async onSubmit(): Promise<void> {
-        if (this.commentForm.invalid) {
+        if (this.commentForm?.invalid) {
             return;
         }
 
         const options: IssueAddCommentOptions = {
-            jiraUrl: this.jiraId,
-            issueIdOrKey: this.issueId,
-            comment: this.commentForm.value.comment,
-            metadataRef: null
+            jiraUrl: this.jiraId as string,
+            issueIdOrKey: this.issueId as string,
+            comment: this.commentForm?.value.comment,
+            metadataRef: null as any
         };
 
         try {
@@ -95,31 +93,35 @@ export class CommentIssueDialogComponent implements OnInit {
                 return;
             }
         } catch (error) {
-            const errorMessage = this.errorService.getHttpErrorMessage(error);
+            const errorMessage = this.errorService.getHttpErrorMessage(error as any);
             this.notificationService.notifyError(errorMessage ||
                 'Comment cannot be added. Issue does not exist or you do not have permission to see it.');
             this.formDisabled = false;
         }
     }
 
-    public get comment(): AbstractControl {
-        return this.commentForm.get('comment');
+    public get comment(): AbstractControl | any {
+        return this.commentForm?.get('comment');
     }
 
     public get keyLink(): string {
-        return encodeURI(`${this.jiraUrl}/browse/${this.issue.key}`);
+        return encodeURI(`${this.jiraUrl}/browse/${this.issue?.key}`);
     }
 
-    public get summary(): string {
+    public get summary(): string | undefined {
         const maxLenght = 110;
-        return (this.issue.fields.summary.length > maxLenght)
-            ? this.issue.fields.summary.slice(0, maxLenght-1) + '...'
-            : this.issue.fields.summary;
+        return (this.issue?.fields.summary.length && this.issue.fields.summary.length > maxLenght)
+            ? this.issue?.fields.summary.slice(0, maxLenght-1) + '...'
+            : this.issue?.fields.summary;
+    }
+
+    public sanitazeUrl(url: any) {
+        return this.domSanitizer.bypassSecurityTrustUrl(url);
     }
 
     private showConfirmationNotification(): void {
-        const issueUrl = `<a href="${this.jiraUrl}/browse/${this.issue.key}" target="_blank" rel="noreferrer noopener">
-             ${this.issue.key}
+        const issueUrl = `<a href="${this.jiraUrl}/browse/${this.issue?.key}" target="_blank" rel="noreferrer noopener">
+             ${this.issue?.key}
              </a>`;
 
         this.notificationService.notifySuccess(`Comment was added to ${issueUrl}`)

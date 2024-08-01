@@ -15,8 +15,8 @@ import {
     styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent implements OnInit {
-    public username: string;
-    private jiraUrl: string;
+    public username: string | any;
+    private jiraUrl: string | any;
 
     constructor(
         private router: Router,
@@ -35,7 +35,7 @@ export class SettingsComponent implements OnInit {
         try {
             await this.setUserSettings();
         } catch (error) {
-            this.errorService.showDefaultError(error);
+            this.errorService.showDefaultError(error as any);
         }
     }
 

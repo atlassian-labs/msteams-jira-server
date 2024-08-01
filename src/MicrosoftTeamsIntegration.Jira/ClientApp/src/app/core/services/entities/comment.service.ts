@@ -12,12 +12,12 @@ export class IssueCommentService {
     public addComment(options: IssueAddCommentOptions): Promise<JiraComment> {
         return this.http
             .post<JiraComment>('/api/addCommentAndGetItBack', options)
-            .toPromise();
+            .toPromise() as any;
     }
 
     public updateComment(options: IssueUpdateCommentOptions): Promise<JiraComment> {
         return this.http
             .put<JiraComment>('/api/updateComment', options)
-            .toPromise();
+            .toPromise() as any;
     }
 }

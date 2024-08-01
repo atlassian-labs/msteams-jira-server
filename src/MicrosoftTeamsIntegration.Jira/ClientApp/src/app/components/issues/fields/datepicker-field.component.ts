@@ -19,7 +19,7 @@ import { UntypedFormGroup } from '@angular/forms';
 			  <input [matDatepicker]="datePicker"
                      placeholder="{{data.placeholder}}"
                      formControlName="{{data.formControlName}}"
-                     class="input-date-picker" disabled>
+                     class="input-date-picker" [disabled]="false">
 			  <mat-datepicker-toggle [for]="datePicker"></mat-datepicker-toggle>
 			  <mat-datepicker #datePicker disabled="false"></mat-datepicker>
 			</div>
@@ -30,5 +30,5 @@ import { UntypedFormGroup } from '@angular/forms';
 
 export class DatePickerFieldComponent implements FieldComponent {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 }

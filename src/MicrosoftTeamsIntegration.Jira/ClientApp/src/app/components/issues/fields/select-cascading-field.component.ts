@@ -53,13 +53,13 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
-    public children: UntypedFormControl;
-    public parent: UntypedFormControl;
+    public children: UntypedFormControl | undefined;
+    public parent: UntypedFormControl | undefined;
 
-    public allowedParentOptions: any[];
-    public allowedChildrenOptions: any[];
+    public allowedParentOptions: any[] | any;
+    public allowedChildrenOptions: any[] | any;
 
     public selectedParentId: any;
     public selectedChildId: any;
@@ -87,7 +87,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
                 this.selectedParentId = defaultValue.id || defaultValue;
 
                 // get allowed children values for default parent
-                const defaultParentOption = this.allowedParentOptions.find(x => x.id === this.selectedParentId);
+                const defaultParentOption = this.allowedParentOptions?.find((x: { id: any }) => x.id === this.selectedParentId);
 
                 if (defaultParentOption) {
                     this.allowedChildrenOptions = defaultParentOption.children.map(this.dropdownUtilService.mapAllowedValueToSelectOption);
@@ -101,7 +101,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
         }
     }
 
-    public onParentChange($event) {
+    public onParentChange($event: any) {
         const selectedValue = $event;
         this.selectedChildId = []; // clear child options
 
@@ -115,7 +115,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
         }
     }
 
-    public onChildrenChange($event) {
+    public onChildrenChange($event: any) {
         const selectedValue = $event;
 
         if (selectedValue) {

@@ -20,16 +20,16 @@ export class AuthInterceptor implements HttpInterceptor {
     public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const adalService = this.injector.get(AdalService);
         let token: string;
-
-        if (adalService.settings.clientId) {
-            token = adalService.getCachedToken();
-        }
-
         let headers = new HttpHeaders();
 
-        if (token) {
-            headers = headers.set('Authorization', `Bearer ${token}`);
+        if (adalService.settings['clientId']) {
+            token = adalService.getCachedToken();
+
+            if (token) {
+                headers = headers.set('Authorization', `Bearer ${token}`);
+            }
         }
+
 
         const request = req.clone({ headers });
         return next.handle(request)
@@ -45,6 +45,7 @@ export class AuthInterceptor implements HttpInterceptor {
                             logger(error);
                             return throwError(error);
                         }
+                        return error;
                     }
                 )
             );

@@ -14,7 +14,7 @@ import { DomSanitizer } from '@angular/platform-browser';
     styleUrls: ['./issue-comment.component.scss']
 })
 export class IssueCommentComponent {
-    public error: Error;
+    public error: Error | undefined;
 
     public showEditIcon = false;
     public showEditField = false;
@@ -22,11 +22,11 @@ export class IssueCommentComponent {
     public ValueChangeState = ValueChangeState;
     public commentUpdateState = ValueChangeState.None;
 
-    @Input() public comment: JiraComment;
-    @Input() public jiraUrl: string;
-    @Input() public issueId: string;
-    @Input() public user: JiraUser;
-    @Input() public permissions: JiraPermissions;
+    @Input() public comment: JiraComment | any;
+    @Input() public jiraUrl: string | any;
+    @Input() public issueId: string | any;
+    @Input() public user: JiraUser | any;
+    @Input() public permissions: JiraPermissions | any;
 
     @Output() public change = new EventEmitter<{ oldValue: JiraComment; newValue: JiraComment }>();
 
@@ -95,7 +95,7 @@ export class IssueCommentComponent {
             this.commentUpdateState = ValueChangeState.Success;
             this.showEditField = false;
         } catch (error) {
-            this.error = error;
+            this.error = error as any;
 
             if (error instanceof HttpErrorResponse) {
                 this.commentUpdateState = ValueChangeState.ServerError;

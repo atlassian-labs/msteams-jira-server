@@ -16,25 +16,25 @@ import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-opt
 })
 export class AssigneeDropdownComponent implements OnInit {
 
-    public error: HttpErrorResponse | Error;
-    public errorMessage: string;
+    public error: HttpErrorResponse | Error | undefined;
+    public errorMessage: string | undefined;
 
     public loading = false;
 
     public options: DropDownOption<string>[] = [];
-    public selectedOption: DropDownOption<string>;
+    public selectedOption: DropDownOption<string> | undefined;
 
-    public currentUserAccountId: string;
+    public currentUserAccountId: string | undefined;
 
-    @Input() public issue: Issue;
-    @Input() public projectKey: string;
-    @Input() public issueKey: string;
-    @Input() public assignee: JiraUser | null;
-    @Input() public jiraUrl: string;
+    @Input() public issue: Issue | any;
+    @Input() public projectKey: string| any;
+    @Input() public issueKey: string| any;
+    @Input() public assignee: JiraUser | null | any;
+    @Input() public jiraUrl: string| any;
 
     @Output() public assigneeChange = new EventEmitter<JiraUser | null>();
 
-    @ViewChild(DropDownComponent, {static: false}) public dropdown: DropDownComponent<string>;
+    @ViewChild(DropDownComponent, {static: false}) public dropdown: DropDownComponent<string> | any;
 
     private assignees: JiraUser[] = [];
 
@@ -60,7 +60,7 @@ export class AssigneeDropdownComponent implements OnInit {
     }
 
     public async assignToMe(): Promise<void> {
-        await this.setAssignee(this.currentUserAccountId);
+        await this.setAssignee(this.currentUserAccountId as string);
     }
 
     /**

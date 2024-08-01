@@ -19,11 +19,11 @@ interface Settings {
 export class AppLoadService {
     constructor(private httpClient: HttpClient) { }
 
-    public getSettings(): Promise<void | Settings> {
+    public getSettings(): Promise<void | Settings | any> {
         return this.httpClient
             .get('/api/app-settings')
             .toPromise()
-            .then((settings: Settings) => {
+            .then((settings: Settings | any) => {
                 logger('Settings from API: ', settings);
                 localStorage.setItem('userClientId', settings.clientId);
                 localStorage.setItem('instrumentationKey', settings.instrumentationKey);

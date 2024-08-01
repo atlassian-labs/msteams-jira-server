@@ -34,7 +34,7 @@ import { UntypedFormGroup } from '@angular/forms';
 
 export class SelectFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
     public selectedOptionIds: any;
 

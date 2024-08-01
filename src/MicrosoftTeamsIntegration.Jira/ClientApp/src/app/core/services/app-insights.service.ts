@@ -17,8 +17,10 @@ export class AppInsightsService {
                 'AppInsightsService::constructor downloading and setting up library'
             );
 
-            const instrumentationKey = localStorage.getItem('instrumentationKey');
-            AppInsights.downloadAndSetup({ instrumentationKey });
+            const instrumentationKey = localStorage.getItem('instrumentationKey') as string;
+            if (AppInsights?.downloadAndSetup) {
+                AppInsights?.downloadAndSetup({ instrumentationKey });
+            }
         }
     }
 
@@ -103,8 +105,8 @@ export class AppInsightsService {
         });
     }
 
-    private stringifyValuesOf(eventDetails: object = {}): { [name: string]: string } {
-        const stringifiedEventDetailsObj = {};
+    private stringifyValuesOf(eventDetails: { [key: string]: any } = {} = {}): { [name: string]: string } {
+        const stringifiedEventDetailsObj: { [key: string]: string } = {};
         for (const eventDetailsKey of Object.keys(eventDetails)) {
             stringifiedEventDetailsObj[eventDetailsKey] = JSON.stringify(
                 eventDetails[eventDetailsKey]

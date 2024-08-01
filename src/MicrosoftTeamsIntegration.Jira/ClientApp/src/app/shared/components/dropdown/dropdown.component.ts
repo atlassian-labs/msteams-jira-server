@@ -2,7 +2,7 @@ import { Component, Input, Output, OnInit, EventEmitter, forwardRef, OnDestroy, 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Subject, noop } from 'rxjs';
+import { Subject, Subscription, noop } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { UtilService } from '@core/services';
 import { DropDownOption } from '@shared/models/dropdown-option.model';
@@ -68,10 +68,10 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     protected _options: DropDownOption<T>[] = [];
 
     @Input()
-    get selected(): DropDownOption<T> {
-        return this._selected;
+    get selected(): DropDownOption<T> | any {
+        return (this._selected as any);
     }
-    set selected(option: DropDownOption<T>) {
+    set selected(option: DropDownOption<T> | any) {
         if (!option) {
             return;
         }
@@ -81,7 +81,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
 
         this._onChange(option.value);
     }
-    protected _selected: DropDownOption<T>;
+    protected _selected: DropDownOption<T> | any;
 
     @Input()
     get filteredOptions(): DropDownOption<T>[] {
@@ -100,25 +100,26 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     }
     protected _filteredOptions: DropDownOption<T>[] = [];
 
-    @Input() public label: string;
-    @Input() public optionsHeader: string;
-    @Input() public optionsFooter: string;
-    @Input() public errorMessage: string;
+    @Input() public label: string | undefined;
+    @Input() public optionsHeader: string | undefined;
+    @Input() public optionsFooter: string | undefined;
+    @Input() public errorMessage: string | undefined;
 
     @Input() public loading = false;
     @Input() public required = false;
 
     @Input() public searchable = false;
+    @Input() public hideIcon = false;
 
     /**
-	 * If true then searching array is this.options.
-	 * In other case filteredOptions should be set from outside via this.filteredOptions property
-	 */
+     * If true then searching array is this.options.
+     * In other case filteredOptions should be set from outside via this.filteredOptions property
+     */
     @Input() public isInnerSearch = false;
 
     /**
-	 * Search input debounce time in milliseconds
-	 */
+     * Search input debounce time in milliseconds
+     */
     @Input() public debounceTime = 150;
 
     @Input() public iconSize: 'sm' | 'md' = 'md';
@@ -130,7 +131,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     @Output() public searchChange = new EventEmitter<string>();
 
     private searchChangeDebouncer = new Subject<string>();
-    private searchChangeDebouncerSubscription = null;
+    private searchChangeDebouncerSubscription: Subscription | undefined;
 
     private _onChange: Function = noop;
     private _onTouched: Function = noop;
@@ -141,7 +142,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
         label: 'Loading...'
     };
 
-    private previouslySelected: DropDownOption<T>;
+    private previouslySelected: DropDownOption<T> | undefined;
 
     @HostListener('blur') ontouchend(): void {
         this._onTouched();
@@ -173,7 +174,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
 
     // Implementation of ControlValueAccessor
     public writeValue(value: T): void {
-        this.selected = this.options.find(opt => this.utilService.jsonEqual(opt.value, value));
+        (this.selected as any) = this.options.find(opt => this.utilService.jsonEqual(opt.value, value));
     }
 
     public registerOnChange(fn: (_: any) => void): void {
@@ -202,7 +203,8 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
         this.close();
     }
 
-    public onSearchInput(input: string): void {
+    public onSearchInput(event: Event): void {
+        const input: string = (event?.target as HTMLInputElement)?.value;
         if (!input || !input.trim().length) {
             this.filteredOptions = this.isInnerSearch ? this.options : [];
             return;
@@ -218,7 +220,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     }
 
     public setPreviousValue(): void {
-        this.selected = this.previouslySelected;
+        (this.selected as any) = this.previouslySelected;
     }
 
     public open(): void {
@@ -229,11 +231,14 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
         if (this.searchable) {
             this.filteredOptions = this.options;
 
-            // change label to force change detection
-            if (this.selected.label.endsWith(' ')) {
-                this.selected.label = this.selected.label.trim();
-            } else {
-                this.selected.label += ' ';
+            if (this.selected) {
+                // change label to force change detection
+                if (this.selected?.label.endsWith(' ')) {
+                    this.selected.label =
+                        this.selected.label.trim();
+                } else {
+                    this.selected.label += ' ';
+                }
             }
         }
 
@@ -250,7 +255,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
 
     public ngOnDestroy(): void {
         if (this.searchChangeDebouncerSubscription) {
-            this.searchChangeDebouncerSubscription.unsubscribe();
+            this.searchChangeDebouncerSubscription?.unsubscribe();
         }
     }
 }

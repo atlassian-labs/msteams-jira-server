@@ -23,7 +23,7 @@ import * as microsoftTeams from '@microsoft/teams-js';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-    private subscription: Subscription;
+    private subscription: Subscription | undefined;
 
     constructor(
         private readonly router: Router,
@@ -43,7 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
             document.body.classList.remove('mobile');
         }
 
-        this.subscription = this.router.events.subscribe((event: RouterEvent) => {
+        this.subscription = this.router.events.pipe().subscribe((event) => {
             if (event instanceof NavigationStart) {
                 this.loadingIndicatorService.show();
                 return;
@@ -71,7 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
             dark: { backgroundColor: '#2D2C2C', color: '#FFFFFF' },
             contrast: { backgroundColor: '#000000', color: '#FFFFFF' },
             default: { backgroundColor: '#FFFFFF', color: '#2B2B30' }
-        };
+        } as any;
 
         const addThemeClassToBody = (theme: string): void => {
             const { body } = document;
@@ -110,18 +110,18 @@ export class AppComponent implements OnInit, OnDestroy {
             applyTheme(themeColors, themeFromParams);
         }
 
-        microsoftTeams.getContext(function (context: microsoftTeams.Context) {
+        microsoftTeams.getContext(function (context: microsoftTeams.Context | undefined) {
             // set msteams context user info to use it after in authentication process
             localStorage.setItem('msTeamsContext', JSON.stringify({
-                tid: context.tid,
-                loginHint: context.loginHint,
-                userObjectId: context.userObjectId,
-                locale: context.locale
+                tid: context?.tid,
+                loginHint: context?.loginHint,
+                userObjectId: context?.userObjectId,
+                locale: context?.locale
             }));
 
-            const themeColors = colors[context.theme];
-            addThemeClassToBody(context.theme);
-            applyTheme(themeColors, context.theme);
+            const themeColors = colors[context?.theme as any];
+            addThemeClassToBody(context?.theme as any);
+            applyTheme(themeColors, context?.theme as any);
         });
 
         microsoftTeams.registerOnThemeChangeHandler(function (theme: string) {

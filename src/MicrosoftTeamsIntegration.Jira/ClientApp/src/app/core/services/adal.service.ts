@@ -39,7 +39,7 @@ export class AdalService {
                 this.init();
 
                 this.authContext.acquireToken(
-                    this.settings.clientId,
+                    this.settings['clientId'],
                     (error: any, token: string) => {
                         logger(`AdalService::acquireToken result: error: ${error}, token: ${token}`);
 
@@ -55,7 +55,7 @@ export class AdalService {
 
     public getCachedToken(): string {
         this.init();
-        return this.authContext.getCachedToken(this.settings.clientId);
+        return this.authContext.getCachedToken(this.settings['clientId']);
     }
 
     public renewToken(): Promise<string> {
@@ -79,15 +79,15 @@ export class AdalService {
 
     private init(): void {
         const context = this.utilService.getMsTeamsContext();
-        this.settings.clientId = this.utilService.getUserClientId();
+        this.settings['clientId'] = this.utilService.getUserClientId();
 
         if (context && context.tid) {
-            this.settings.tenant = context.tid;
+            this.settings['tenant'] = context.tid;
         }
 
-        this.settings.extraQueryParameters = 'scope=openid+profile';
+        this.settings['extraQueryParameters'] = 'scope=openid+profile';
         if (context && context.loginHint) {
-            this.settings.extraQueryParameters += `&login_hint=${encodeURIComponent(context.loginHint)}`;
+            this.settings['extraQueryParameters'] += `&login_hint=${encodeURIComponent(context.loginHint)}`;
         }
 
         this.authContext = new AuthenticationContext(this.settings);

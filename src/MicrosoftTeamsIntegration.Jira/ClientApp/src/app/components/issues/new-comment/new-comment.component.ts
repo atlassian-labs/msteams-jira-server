@@ -11,12 +11,12 @@ import { DomSanitizer } from '@angular/platform-browser';
     styleUrls: ['./new-comment.component.scss']
 })
 export class NewCommentComponent {
-    public error: Error;
+    public error: Error | any;
     public serverErrorMessage = '';
 
-    @Input() public jiraUrl: string;
-    @Input() public issueId: string;
-    @Input() public user: JiraUser;
+    @Input() public jiraUrl: string | any;
+    @Input() public issueId: string | any;
+    @Input() public user: JiraUser | any;
 
     @Output() public created = new EventEmitter<JiraComment>();
 
@@ -28,7 +28,7 @@ export class NewCommentComponent {
         public domSanitizer: DomSanitizer
     ) { }
 
-    public async sendComment(text: string, inputElRef: HTMLTextAreaElement): Promise<void> {
+    public async sendComment(text: string, inputElRef: HTMLTextAreaElement | any): Promise<void> {
         if (!text || !text.replace(/ /g, '').length) {
             this.commentSendState = ValueChangeState.InvalidEmpty;
             return;
@@ -41,7 +41,7 @@ export class NewCommentComponent {
                 jiraUrl: this.jiraUrl,
                 issueIdOrKey: this.issueId,
                 comment: text,
-                metadataRef: null
+                metadataRef: null as any
             });
 
             newComment.author = this.user;
@@ -52,7 +52,8 @@ export class NewCommentComponent {
             inputElRef.value = '';
         } catch (error) {
             this.error = error;
-            this.serverErrorMessage = error.errorMessage || 'An error occured. Please check your permissions to perform this action.';
+            this.serverErrorMessage = (error as any).errorMessage ||
+                'An error occured. Please check your permissions to perform this action.';
 
             this.commentSendState = ValueChangeState.ServerError;
         } finally {

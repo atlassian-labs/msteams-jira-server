@@ -28,5 +28,5 @@ import { UntypedFormGroup } from '@angular/forms';
 
 export class TextFieldMultiComponent implements FieldComponent {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 }

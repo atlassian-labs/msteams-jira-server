@@ -38,7 +38,7 @@ import { UntypedFormGroup } from '@angular/forms';
 
 export class RadioSelectFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
     public selectedOptionId: any;
 

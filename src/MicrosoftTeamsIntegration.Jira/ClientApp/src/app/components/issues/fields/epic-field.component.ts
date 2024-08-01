@@ -63,12 +63,12 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class EpicFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
-    public loading: boolean;
-    public jiraUrl: string;
-    public projectKeyOrId: string;
-    public dataInitialized: boolean;
+    public loading: boolean | any;
+    public jiraUrl: string | undefined;
+    public projectKeyOrId: string | undefined;
+    public dataInitialized: boolean | undefined;
     public epicOptions: any[] = [];
 
     constructor(
@@ -94,7 +94,7 @@ export class EpicFieldComponent implements FieldComponent, OnInit {
             // remove empty field before getting real values
             this.epicOptions = [];
             // try to get all epics for selected project
-            const epicsData = await this.apiService.getEpics(this.jiraUrl, this.projectKeyOrId);
+            const epicsData = await this.apiService.getEpics(this.jiraUrl as string, this.projectKeyOrId as string);
             this.epicOptions = epicsData.map(this.dropdownUtilService.mapEpicDataToSelectOption);
             this.dataInitialized = true;
 

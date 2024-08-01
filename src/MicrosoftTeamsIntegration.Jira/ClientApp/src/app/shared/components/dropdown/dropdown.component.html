@@ -23,9 +23,9 @@
                 <input #searchInput
                     type="text" 
                     class="face__search-input"
-                    [value]="selected?.label || ''" 
+                    [value]="selected.label || ''" 
                     onclick="this.select()" 
-                    (keyup)="onSearchInput($event.target.value)"
+                    (keyup)="onSearchInput($event)"
                     (focus)="hideIcon = true"
                     (blur)="hideIcon = false"
                     [attr.disabled]="disabled ? true : null">

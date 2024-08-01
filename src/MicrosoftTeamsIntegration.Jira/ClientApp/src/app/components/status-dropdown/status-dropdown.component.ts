@@ -17,41 +17,43 @@ import { IssueStatus } from '@core/models';
 export class StatusDropdownComponent implements OnInit {
 
     public loading = false;
-    public statusOptions: DropDownOption<JiraTransition>[];
-    public selectedOption: DropDownOption<JiraTransition>;
-    public errorMessage: string;
+    public statusOptions: DropDownOption<JiraTransition>[] | any;
+    public selectedOption: DropDownOption<JiraTransition> | any;
+    public errorMessage: string | any;
 
-    @Input() public jiraUrl: string;
-    @Input() public projectKey: string;
-    @Input() public issueKey: string;
-    @Input() public initialStatus: IssueStatus;
+    @Input() public jiraUrl: string | any;
+    @Input() public projectKey: string | any;
+    @Input() public issueKey: string | any;
+    @Input() public initialStatus: IssueStatus | any;
 
     @Output() statusChange = new EventEmitter<string>();
 
-    @ViewChild(DropDownComponent, {static: false}) dropdown: DropDownComponent<string>;
+    @ViewChild(DropDownComponent, { static: false }) dropdown: DropDownComponent<string> | any;
 
     constructor(
         private transitionService: IssueTransitionService,
         private dropdownUtilService: DropdownUtilService,
         private appInsightsService: AppInsightsService
-    ) { }
+    ) {
+    }
 
     public async ngOnInit(): Promise<void> {
         this.loadingOn();
 
-        const jiraTransitionsResponse = await this.transitionService.getTransitions(this.jiraUrl, this.issueKey);
+        const jiraTransitionsResponse = await this.transitionService.getTransitions(this.jiraUrl as string, this.issueKey as string);
 
         const initOption = {
-            id: this.initialStatus.id,
+            id: this.initialStatus?.id,
             value: {
-                id: this.initialStatus.id
+                id: this.initialStatus?.id
             },
-            label: this.initialStatus.name
+            label: this.initialStatus?.name
         } as DropDownOption<JiraTransition>;
 
         this.statusOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdonwOption);
 
-        const initOptionInTransitions = this.statusOptions.find(option => option.value.to.id === this.initialStatus.id);
+        const initOptionInTransitions = this.statusOptions.find((option: { value: { to: { id: any } } }) =>
+            option?.value?.to.id === this.initialStatus?.id);
         if (initOptionInTransitions) {
             this.selectedOption = initOptionInTransitions;
         } else {
@@ -66,26 +68,27 @@ export class StatusDropdownComponent implements OnInit {
         this.loadingOn();
 
         try {
-            const response = await this.transitionService.doTransition(this.jiraUrl, this.issueKey, option.value.id);
+            const response =
+                await this.transitionService.doTransition(this.jiraUrl as string, this.issueKey as string, option?.value?.id as string);
 
             if (response.isSuccess) {
                 this.selectedOption = option;
-                this.statusChange.emit(option.value.to.id);
+                this.statusChange.emit(option?.value?.to.id);
 
                 await this.loadTransitions();
             } else {
-                this.dropdown.setPreviousValue();
+                this.dropdown?.setPreviousValue();
 
                 this.errorMessage = response.errorMessage || 'Error occured.';
             }
-        } catch (error) {
+        } catch (error: any) {
             this.appInsightsService.trackException(
                 new Error(error),
                 'StatusDropdwonComponent::onStatusOptionSelected',
                 option
             );
 
-            this.dropdown.setPreviousValue();
+            this.dropdown?.setPreviousValue();
             this.errorMessage = error.errorMessage || error.message || 'Error occured.';
         } finally {
             this.loadingOff();
@@ -95,9 +98,11 @@ export class StatusDropdownComponent implements OnInit {
     private async loadTransitions(): Promise<void> {
         this.loadingOn();
 
-        const jiraTransitionsResponse = await this.transitionService.getTransitions(this.jiraUrl, this.issueKey);
+        const jiraTransitionsResponse = await this.transitionService.getTransitions(this.jiraUrl as string, this.issueKey as string);
         this.statusOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdonwOption);
-        this.statusOptions.unshift(this.selectedOption);
+        if (this.selectedOption) {
+            this.statusOptions.unshift(this.selectedOption);
+        }
 
         this.loadingOff();
     }

@@ -43,16 +43,16 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class LabelsFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
     private readonly LABEL_MAX_LENGTH: number = 255;
 
-    public loading: boolean;
-    public labelsError: boolean;
-    public jiraUrl: string;
+    public loading: boolean | any;
+    public labelsError: boolean | undefined;
+    public jiraUrl: string | undefined;
     public labelOptions: any;
     public selectedOptionIds: any;
-    public dataInitialized: boolean;
+    public dataInitialized: boolean | undefined;
 
     constructor(
         private apiService: ApiService,
@@ -74,7 +74,7 @@ export class LabelsFieldComponent implements FieldComponent, OnInit {
         return ({id: term, name: term});
     }
 
-    public onSearch($event) {
+    public onSearch($event: any) {
         if (/\s/.test($event.term) || $event.term.length > this.LABEL_MAX_LENGTH) {
             this.labelsError = true;
         } else {
@@ -86,7 +86,7 @@ export class LabelsFieldComponent implements FieldComponent, OnInit {
         if (!this.dataInitialized) {
             this.loadingOn();
 
-            const labelsAutocompleteData = await this.apiService.getAutocompleteData(this.jiraUrl, 'labels');
+            const labelsAutocompleteData = await this.apiService.getAutocompleteData(this.jiraUrl as string, 'labels');
             this.labelOptions = labelsAutocompleteData.map(this.dropdownUtilService.mapAutocompleteDataToSelectOption);
             this.dataInitialized = true;
 

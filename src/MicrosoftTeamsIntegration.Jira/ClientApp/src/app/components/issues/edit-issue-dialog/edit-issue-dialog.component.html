@@ -128,7 +128,7 @@
                     <app-dropdown              
                       optionsHeader="Suggestions"
                       optionsFooter="Start Typing for Users"
-                      searchable="true"
+                      [searchable]="true"
                       [loading]="assigneesLoading"
                       [options]="assigneesOptions"
                       [filteredOptions]="assigneesFilteredOptions"
@@ -160,7 +160,7 @@
                 <div class="field-group__body">
                   <app-dropdown
                     *ngIf="allowEditStatus; else readonlyStatus" 
-                    isInnerSearch="true"
+                    [isInnerSearch]="true"
                     [options]="statusesOptions"
                     formControlName="status"
                     (optionSelect)="setUpdatedFormFields()">
@@ -181,7 +181,7 @@
                 <div class="field-group__body">
                   <app-dropdown
                     *ngIf="allowEditPriority; else readonlyPriority"               
-                    isInnerSearch="true"
+                    [isInnerSearch]="true"
                     [options]="prioritiesOptions"
                     formControlName="priorityId"
                     (optionSelect)="setUpdatedFormFields()">

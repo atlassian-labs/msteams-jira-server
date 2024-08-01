@@ -37,6 +37,6 @@ export class PermissionService {
 
         return this.http
             .get<JiraPermissionsResponse>(link)
-            .toPromise();
+            .toPromise() as any;
     }
 }

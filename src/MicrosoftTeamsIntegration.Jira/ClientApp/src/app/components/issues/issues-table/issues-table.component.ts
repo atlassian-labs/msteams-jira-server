@@ -45,56 +45,58 @@ export class IssuesComponent implements OnInit {
     readonly defaultActiveColumn = 'updated';
     readonly defaultSortDirection = JiraSortDirection.Desc;
 
-    public loading: boolean;
+    public loading: boolean | undefined;
     public isMobile = false;
 
-    public loadingTableData: boolean;
+    public loadingTableData: boolean | undefined;
 
     public expandedElementIndex: any;
     public displayedColumns: string[] = [];
 
-    public dataSource: MatTableDataSource<NormalizedIssue>;
+    public dataSource: MatTableDataSource<NormalizedIssue> | any;
 
-    public jiraUrl: string;
+    public jiraUrl: string | undefined;
     public issues: NormalizedIssue[] = [];
 
-    public displayName: string;
-    public accountId: string;
-    public projectName: string;
-    public showStaticTabElements: boolean;
+    public displayName: string | undefined;
+    public accountId: string | undefined;
+    public projectName: string | undefined;
+    public showStaticTabElements: boolean | undefined;
 
     public sortDirection: JiraSortDirection = this.defaultSortDirection;
     public activeColumn = this.defaultActiveColumn;
     public defaultPriorityValue = 9999999;
 
-    public selectedJiraFilter: SelectOption;
-    public jiraFilters: SelectOption[];
+    public selectedJiraFilter: SelectOption | undefined;
+    public jiraFilters: SelectOption[] | undefined;
 
-    public label: string;
-    public error: string;
+    public label: string | undefined;
+    public error: string | undefined;
 
-    public transformedJql: string;
-    public decodedTransformedJqlQuery: string;
-    public filters: string;
-    public currentFilter: string;
+    public transformedJql: string | undefined;
+    public decodedTransformedJqlQuery: string | undefined;
+    public filters: string | undefined;
+    public currentFilter: string | undefined;
 
-    public jiraLink: string;
-    public jiraLinkWithJql: string;
+    public jiraLink: string | undefined;
+    public jiraLinkWithJql: string | undefined;
 
-    public permissions: JiraPermissions;
+    public permissions: JiraPermissions | undefined;
 
-    private page: string;
-    private projectKey: string;
-    private application: string;
-    private jqlQuery: string;
+    public filtersLoading = false;
+    public searchableFilters = false;
+
+    private page: string | undefined;
+    private projectKey: string | undefined;
+    private application: string | undefined;
+    private jqlQuery: string | undefined;
     // a value to be added to the end of jql query
     private initialJqlOrderBySuffix = ` order by ${this.defaultActiveColumn} ${this.defaultSortDirection}`;
     private jqlOrderBySuffix = ` order by ${this.activeColumn} ${this.sortDirection}`;
     private sortedColumnsState = new Map<string, JiraSortDirection>();
-    private filtersLoading = false;
-    private searchableFilters = false;
 
-    @ViewChild('filtersDropdown', { static: false }) filtersDropdown: DropDownComponent<string>;
+
+    @ViewChild('filtersDropdown', { static: false }) filtersDropdown: DropDownComponent<string> | any;
 
     public get isJiraServerApplication(): boolean {
         return this.application === ApplicationType.JiraServerStaticTab ||
@@ -162,14 +164,14 @@ export class IssuesComponent implements OnInit {
 
         this.label = this.page === 'MyFilters' ? 'Saved filter' : '';
 
-        this.filters = await this.getConfigurationFiltersForHeader(decodeURIComponent(this.jqlQuery), this.jiraUrl);
+        this.filters = await this.getConfigurationFiltersForHeader(decodeURIComponent(this.jqlQuery as string), this.jiraUrl as string);
 
         this.showStaticTabElements = this.application === ApplicationType.JiraServerStaticTab;
 
         await this.startAuthFlow();
 
         if (this.jiraUrl) {
-            const { permissions } = await this.permissionService.getMyPermissions(this.jiraUrl, 'CREATE_ISSUES', null, this.projectKey);
+            const { permissions } = await this.permissionService.getMyPermissions(this.jiraUrl, 'CREATE_ISSUES', '', this.projectKey);
             this.permissions = permissions;
             this.jiraLink = this.createJiraLink();
         }
@@ -195,7 +197,7 @@ export class IssuesComponent implements OnInit {
 
     public openEditDialog(issueId: string): void {
         const application = this.application || ApplicationType.JiraServerStaticTab;
-        const url = `${localStorage.getItem('baseUrl')}/#/issues/edit;jiraUrl=${encodeURIComponent(this.jiraUrl)};` +
+        const url = `${localStorage.getItem('baseUrl')}/#/issues/edit;jiraUrl=${encodeURIComponent(this.jiraUrl as string)};` +
             `application=${application};issueId=${issueId};source=issuesTab`;
 
         const taskInfo = {
@@ -223,7 +225,7 @@ export class IssuesComponent implements OnInit {
 
     public openIssueCreateDialog(): void {
         const application = this.application || ApplicationType.JiraServerStaticTab;
-        const url = `${localStorage.getItem('baseUrl')}/#/issues/create;jiraUrl=${encodeURIComponent(this.jiraUrl)};` +
+        const url = `${localStorage.getItem('baseUrl')}/#/issues/create;jiraUrl=${encodeURIComponent(this.jiraUrl as string)};` +
                         `application=${application};source=issuesTab`;
 
         const taskInfo = {
@@ -265,12 +267,12 @@ export class IssuesComponent implements OnInit {
         return Array(length).fill(1);
     }
 
-    public getScrollWidth(elRef: ElementRef): number {
+    public getScrollWidth(elRef: ElementRef | any): number {
         if (!elRef) {
             throw new Error('Element is not defined');
         }
 
-        const elem = (elRef.nativeElement || elRef['_elementRef'].nativeElement) as HTMLElement;
+        const elem = (elRef.nativeElement || (elRef as any)['_elementRef'].nativeElement) as HTMLElement;
         return elem.offsetWidth - elem.clientWidth;
     }
 
@@ -292,7 +294,7 @@ export class IssuesComponent implements OnInit {
         this.jqlQuery = jqlQuery;
         this.projectKey = projectKey;
         this.projectName = this.utilService.convertStringToNull(decodeURIComponent(projectName));
-        this.page = this.route.snapshot.params.page;
+        this.page = this.route.snapshot.params['page'];
         this.application = application;
     }
 
@@ -339,12 +341,12 @@ export class IssuesComponent implements OnInit {
                 return;
             }
 
-            this.errorService.showDefaultError(error);
+            this.errorService.showDefaultError(error as any);
         }
     }
 
     private createJiraLink(): string {
-        this.jiraUrl = this.utilService.convertStringToNull(decodeURIComponent(this.jiraUrl));
+        this.jiraUrl = this.utilService.convertStringToNull(decodeURIComponent(this.jiraUrl as string));
 
         if (!this.jiraUrl) {
             return '';
@@ -380,7 +382,7 @@ export class IssuesComponent implements OnInit {
             this.issues = await this.getIssues(transformedJqlQuery);
             this.setDisplayedColumns();
         } catch (error) {
-            this.appInsightService.trackException(error, 'Issue-table.component::loadData');
+            this.appInsightService.trackException(error as any, 'Issue-table.component::loadData');
 
             if (error instanceof HttpErrorResponse) {
                 if (error.status === StatusCode.NotFound || error.status === StatusCode.Forbidden) {
@@ -467,7 +469,7 @@ export class IssuesComponent implements OnInit {
         const issue = this.issues[0];
 
         this.displayedColumns = this.avaialableToDisplayColumns
-            .filter(fieldColumnName => issue[fieldColumnName] !== undefined);
+            .filter(fieldColumnName => (issue as any)[fieldColumnName] !== undefined);
     }
 
     private async onUserAuthenticated(): Promise<void> {
@@ -482,9 +484,9 @@ export class IssuesComponent implements OnInit {
         let options = {} as JqlOptions;
         if (this.page) {
             const selectedJiraFilter = this.selectedJiraFilter && this.selectedJiraFilter.value;
-            options = { jql: selectedJiraFilter, jqlSuffix: this.jqlOrderBySuffix, accountId: this.accountId, page: this.page };
+            options = { jql: selectedJiraFilter as string, jqlSuffix: this.jqlOrderBySuffix, accountId: this.accountId, page: this.page };
         } else {
-            options = { jql: this.jqlQuery, jqlSuffix: this.jqlOrderBySuffix, projectKey: this.projectKey };
+            options = { jql: this.jqlQuery as string, jqlSuffix: this.jqlOrderBySuffix, projectKey: this.projectKey };
         }
 
         return this.issuesService.createJqlQuery(options);
@@ -492,7 +494,7 @@ export class IssuesComponent implements OnInit {
 
     private async getIssues(jqlQuery: string): Promise<NormalizedIssue[]> {
         const { issues, prioritiesIdsInOrder, errorMessages, total, pageSize } =
-                await this.apiService.getIssues(this.jiraUrl, jqlQuery, this.startAt);
+                await this.apiService.getIssues(this.jiraUrl as string, jqlQuery, this.startAt);
         this.pageCount = total;
         this.pageSize = pageSize;
 
@@ -530,7 +532,7 @@ export class IssuesComponent implements OnInit {
             return;
         }
 
-        const page = this.route.snapshot.params.page;
+        const page = this.route.snapshot.params['page'];
         if (page === PageName.IssuesAssigned || page === PageName.IssuesReported || page === PageName.IssuesWatched) {
             this.initialJqlOrderBySuffix = ` order by ${this.defaultActiveColumn} ${this.defaultSortDirection}`;
             this.jiraFilters = await this.getJiraStatusFilters();
@@ -545,10 +547,10 @@ export class IssuesComponent implements OnInit {
         this.selectedJiraFilter = this.jiraFilters && this.jiraFilters.length ? this.jiraFilters[0] : undefined;
     }
 
-    private async getJiraFilters(skipEmptyResult: boolean = false): Promise<SelectOption[] | never> {
+    private async getJiraFilters(skipEmptyResult: boolean = false): Promise<SelectOption[] | never | undefined> {
         this.filtersLoading = true;
 
-        const filters = await this.apiService.getFavouriteFilters(this.jiraUrl);
+        const filters = await this.apiService.getFavouriteFilters(this.jiraUrl as string);
 
         this.filtersLoading = false;
         if ((!filters || !filters.length) && !skipEmptyResult) {
@@ -566,7 +568,7 @@ export class IssuesComponent implements OnInit {
     }
 
     private async getJiraStatusFilters(): Promise<SelectOption[]> {
-        const statuses = await this.apiService.getStatuses(this.jiraUrl);
+        const statuses = await this.apiService.getStatuses(this.jiraUrl as string);
 
         const defaultFilter = { id: 0, label: 'All issues', value: '' };
         const jiraFilters = statuses.map((status, index) => ({
@@ -589,13 +591,13 @@ export class IssuesComponent implements OnInit {
             // try to find saved filter in list of all filters. Used for backward compatibility with older addons
             if (!savedFilter) {
                 const savedFilters = await this.apiService.getFavouriteFilters(jiraUrl);
-                savedFilter = savedFilters.find((x) => x.id === id);
+                (savedFilter as any) = savedFilters.find((x) => x.id === id);
             }
 
             if (savedFilter && savedFilter.jql) {
                 // for saved filters we keep sorting from Jira and we don't add our 'order by' sequence
                 this.jqlOrderBySuffix = '';
-                this.jqlQuery = this.issuesService.createFullFilterJql(this.jqlQuery, savedFilter.jql);
+                this.jqlQuery = this.issuesService.createFullFilterJql(this.jqlQuery as string, savedFilter.jql);
             }
             return savedFilter ? savedFilter.name : '';
         }

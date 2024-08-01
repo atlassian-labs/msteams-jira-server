@@ -58,7 +58,7 @@ export class AuthService {
             return Promise.resolve();
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve: any, reject: any): Promise<void> | any => {
             try {
                 const authenticateParameters: AuthenticateParameters = {
                     url,
@@ -83,8 +83,8 @@ export class AuthService {
     }
 
     public getAuthorizationUrl(
-        jiraUrl: string = null,
-        application: string = null,
+        jiraUrl: string = '',
+        application: string = '',
         staticTabChangeUrl = false
     ): Promise<JiraAuthUrl> {
         let url = `/api/auth/url?application=${application}`;
@@ -97,6 +97,6 @@ export class AuthService {
             url += `&staticTabChangeUrl=${staticTabChangeUrl}`;
         }
 
-        return this.http.get<JiraAuthUrl>(url).toPromise();
+        return (this.http.get<JiraAuthUrl>(url).toPromise() as any);
     }
 }

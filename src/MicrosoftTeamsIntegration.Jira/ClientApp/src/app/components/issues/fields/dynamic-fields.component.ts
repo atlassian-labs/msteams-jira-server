@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ComponentFactoryResolver, OnChanges} from '@angular/core';
+import {Component, Input, ViewChild, ComponentFactoryResolver, OnChanges, Type} from '@angular/core';
 
 import { DynamicFieldsDirective } from './dynamic-fields.directive';
 import { FieldItem } from './field-item';
@@ -15,9 +15,9 @@ import { UntypedFormGroup } from '@angular/forms';
 })
 
 export class DynamicFieldsComponent implements OnChanges{
-    @Input() dynamicFields: FieldItem[];
-    @Input() formGroup: UntypedFormGroup;
-    @ViewChild(DynamicFieldsDirective, {static: true}) dynamicFieldsHost: DynamicFieldsDirective;
+    @Input() dynamicFields: FieldItem[] | any;
+    @Input() formGroup: UntypedFormGroup | any;
+    @ViewChild(DynamicFieldsDirective, {static: true}) dynamicFieldsHost: DynamicFieldsDirective | any;
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
@@ -31,7 +31,7 @@ export class DynamicFieldsComponent implements OnChanges{
         const viewContainerRef = this.dynamicFieldsHost.viewContainerRef;
         viewContainerRef.clear();
 
-        dynamicFieldTemplates.forEach(field => {
+        dynamicFieldTemplates.forEach((field: { component: Type<unknown>; data: any }) => {
             const componentFactory = this.componentFactoryResolver.resolveComponentFactory(field.component);
 
             const componentRef = viewContainerRef.createComponent(componentFactory);

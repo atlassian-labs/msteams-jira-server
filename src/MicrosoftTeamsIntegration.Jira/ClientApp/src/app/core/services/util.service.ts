@@ -49,11 +49,11 @@ export class UtilService {
     }
 
     public getMsTeamsContext = (): { tid: string; loginHint: string; userObjectId: string; locale: string } =>
-        JSON.parse(localStorage.getItem('msTeamsContext'));
+        JSON.parse(localStorage.getItem('msTeamsContext') as string);
 
     public setTeamsContext = (tenantId: string): void => localStorage.setItem('msTeamsContext', JSON.stringify({ tid: tenantId }));
 
-    public getUserClientId = (): string => localStorage.getItem('userClientId');
+    public getUserClientId = (): string => localStorage.getItem('userClientId') as string;
 
     public getAADInstance = (): string => {
         const microsoftLoginBaseUrl = localStorage.getItem('microsoftLoginBaseUrl');
@@ -102,7 +102,7 @@ export class UtilService {
         return encodeURI(link);
     }
 
-    public getJiraServerId = (): string => localStorage.getItem('jiraServer.jiraId');
+    public getJiraServerId = (): string => localStorage.getItem('jiraServer.jiraId') as string;
 
     public getQueryParam(paramName: string) {
         const result = '';

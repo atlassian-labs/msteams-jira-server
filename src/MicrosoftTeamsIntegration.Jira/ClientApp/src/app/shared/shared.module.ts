@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ClickOutsideModule } from 'ng-click-outside';
-import { SpinnerModule } from 'angular2-spinner/dist';
 import { MatLegacyButtonModule as MatButtonModule} from '@angular/material/legacy-button';
 import { MatLegacyDialogModule as MatDialogModule} from '@angular/material/legacy-dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,7 +20,6 @@ import { TruncatedTextComponent } from '@shared/truncated-text/truncated-text.co
     imports: [
         CommonModule,
         FormsModule,
-        SpinnerModule,
         MatDialogModule,
         MatButtonModule,
         MatTooltipModule,

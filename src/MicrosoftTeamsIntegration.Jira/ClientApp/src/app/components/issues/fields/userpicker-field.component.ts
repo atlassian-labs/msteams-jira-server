@@ -23,7 +23,7 @@ import { DropDownComponent } from '@shared/components/dropdown/dropdown.componen
 
         <div class="field-group__body">
             <app-dropdown
-                searchable="true"
+                [searchable]="true"
                 [loading]="loading"
                 [options]="options"
                 [filteredOptions]="filteredOptions"
@@ -39,9 +39,9 @@ import { DropDownComponent } from '@shared/components/dropdown/dropdown.componen
 
 export class UserPickerFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
-    @ViewChild(DropDownComponent, {static: false}) public dropdown: DropDownComponent<string>;
+    @ViewChild(DropDownComponent, {static: false}) public dropdown: DropDownComponent<string> | any;
 
     public readonly noneOption: DropDownOption<string> = {
         id: -1,
@@ -54,7 +54,7 @@ export class UserPickerFieldComponent implements FieldComponent, OnInit {
     private users: JiraUser[] = [];
     public options: DropDownOption<string>[] = [];
     public filteredOptions: DropDownOption<string>[] = [];
-    public jiraUrl: string;
+    public jiraUrl: string | undefined;
 
     constructor(
         private apiService: ApiService,
@@ -78,7 +78,7 @@ export class UserPickerFieldComponent implements FieldComponent, OnInit {
     private async getUserOptions(username: string = ''): Promise<DropDownOption<string>[]> {
 
         // try to get users on search
-        this.users = await this.apiService.searchUsers(this.jiraUrl, username);
+        this.users = await this.apiService.searchUsers(this.jiraUrl as string, username);
 
         return this.users.map(this.dropdownUtilService.mapUserToDropdownOption);
     }

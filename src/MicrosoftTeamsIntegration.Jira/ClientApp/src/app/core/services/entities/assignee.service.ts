@@ -48,19 +48,19 @@ export class AssigneeService {
 
         return this.http
             .put<JiraApiActionCallResponseWithContent<string | null>>(link, null)
-            .toPromise();
+            .toPromise() as any;
     }
 
     public searchAssignable(options: SearchAssignableOptions): Promise<JiraUser[]> {
         const link = this.utilService.appendParamsToLink('/api/issue/searchAssignable', options);
 
-        return this.http.get<JiraUser[]>(link).toPromise();
+        return this.http.get<JiraUser[]>(link).toPromise() as any;
     }
 
     public searchAssignableMultiProject(jiraUrl: string, projectKey: string, username: string = ''): Promise<JiraUser[]> {
         const link = this.utilService.appendParamsToLink('/api/user/assignable/multiProjectSearch', { jiraUrl, projectKey, username });
 
-        return this.http.get<JiraUser[]>(link).toPromise();
+        return this.http.get<JiraUser[]>(link).toPromise() as any;
     }
 
     public assigneesToDropdownOptions(assignees: JiraUser[], username: string = ''): DropDownOption<string>[] {

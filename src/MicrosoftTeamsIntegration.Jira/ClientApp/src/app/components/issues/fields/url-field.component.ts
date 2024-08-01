@@ -27,9 +27,9 @@ import { UntypedFormGroup } from '@angular/forms';
 
 export class UrlFieldComponent implements FieldComponent {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
-    public validationError: boolean;
+    public validationError: boolean | undefined;
 
     public onChange($event: any) {
         const value = $event.target ? $event.target.value : null;

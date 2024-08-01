@@ -38,12 +38,12 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class SprintFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: UntypedFormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
-    public loading: boolean;
-    public jiraUrl: string;
-    public projectKeyOrId: string;
-    public dataInitialized: boolean;
+    public loading: boolean | any;
+    public jiraUrl: string | undefined;
+    public projectKeyOrId: string | undefined;
+    public dataInitialized: boolean | undefined;
     public sprintOptions: any[] = [];
 
     constructor(
@@ -69,7 +69,7 @@ export class SprintFieldComponent implements FieldComponent, OnInit {
             // remove empty field before getting real values
             this.sprintOptions = [];
             // try to get all sprints for selected project
-            const sprintsData = await this.apiService.getSprints(this.jiraUrl, this.projectKeyOrId);
+            const sprintsData = await this.apiService.getSprints(this.jiraUrl as string, this.projectKeyOrId as string);
             this.sprintOptions = sprintsData.map(this.dropdownUtilService.mapSprintDataToSelectOption);
             this.dataInitialized = true;
 
