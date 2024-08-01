@@ -254,7 +254,7 @@ export class EditIssueDialogComponent implements OnInit {
             return this.currentUser.groups.items.some(x => x.name === UserGroup.JiraServicedeskUsers) &&
                 this.permissions.ASSIGN_ISSUES.havePermission;
         }
-        return this.permissions.ASSIGN_ISSUES.havePermission;
+        return this.permissions.ASSIGN_ISSUES.havePermission && this.issue.assignee !== undefined;
     }
 
     public get allowEditStatus(): boolean {
@@ -450,7 +450,7 @@ export class EditIssueDialogComponent implements OnInit {
         this.assigneesFilteredOptions = this.assigneesOptions;
 
         const assignee = this.issue.assignee;
-        if (assignee === null) {
+        if (assignee === null || assignee === undefined) {
             this.selectedAssigneeOption = this.assigneeService.unassignedOption;
         }
 

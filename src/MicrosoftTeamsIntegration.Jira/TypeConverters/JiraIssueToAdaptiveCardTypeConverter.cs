@@ -54,6 +54,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
 
             var watchOrUnwatchActionColumn = GetWatchOrUnwatchAdaptiveColumn(model);
             var assignActionColumn = GetAssignAdaptiveColumn(model);
+            var priorityColumn = GetPriorityColumn(model);
 
             card.Body = new List<AdaptiveElement>
             {
@@ -173,78 +174,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                                                         }
                                                     }
                                                 },
-                                                new AdaptiveColumn
-                                                {
-                                                    Width = "3",
-                                                    Spacing = AdaptiveSpacing.Small,
-                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
-                                                    Items = new List<AdaptiveElement>
-                                                    {
-                                                        new AdaptiveColumnSet
-                                                        {
-                                                            Spacing = AdaptiveSpacing.Small,
-                                                            Columns = new List<AdaptiveColumn>
-                                                            {
-                                                                new AdaptiveColumn
-                                                                {
-                                                                    Width = "4",
-                                                                    Spacing = AdaptiveSpacing.Small,
-                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
-                                                                    Items = new List<AdaptiveElement>
-                                                                    {
-                                                                        new AdaptiveTextBlock
-                                                                        {
-                                                                            Text = "Priority",
-                                                                            Wrap = true,
-                                                                            Spacing = AdaptiveSpacing.None,
-                                                                            Size = AdaptiveTextSize.Small
-                                                                        },
-                                                                        new AdaptiveColumnSet
-                                                                        {
-                                                                            Spacing = AdaptiveSpacing.Small,
-                                                                            Columns = new List<AdaptiveColumn>
-                                                                            {
-                                                                                new AdaptiveColumn
-                                                                                {
-                                                                                    Width = "16px",
-                                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
-                                                                                    Items = new List<AdaptiveElement>
-                                                                                    {
-                                                                                        new AdaptiveImage
-                                                                                        {
-                                                                                            UrlString = PrepareIconUrl(model.JiraIssue?.Fields?.Priority?.IconUrl),
-                                                                                            Size = AdaptiveImageSize.Small,
-                                                                                            PixelWidth = 16,
-                                                                                            PixelHeight = 16,
-                                                                                            Spacing = AdaptiveSpacing.None
-                                                                                        }
-                                                                                    }
-                                                                                },
-                                                                                new AdaptiveColumn
-                                                                                {
-                                                                                    VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
-                                                                                    Width = "6",
-                                                                                    Spacing = AdaptiveSpacing.Small,
-                                                                                    Items = new List<AdaptiveElement>
-                                                                                    {
-                                                                                        new AdaptiveTextBlock
-                                                                                        {
-                                                                                            Text = model.JiraIssue?.Fields?.Priority?.Name,
-                                                                                            Spacing = AdaptiveSpacing.None,
-                                                                                            Wrap = true,
-                                                                                            HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
-                                                                                            Weight = AdaptiveTextWeight.Bolder
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
+                                                priorityColumn,
                                                 new AdaptiveColumn
                                                 {
                                                     Width = "3",
@@ -423,6 +353,91 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
             }
 
             return card;
+        }
+
+        private static AdaptiveColumn GetPriorityColumn(BotAndMessagingExtensionJiraIssue model)
+        {
+            if (model.JiraIssue?.Fields?.Priority == null)
+            {
+                return new AdaptiveColumn()
+                {
+                    Width = "3",
+                };
+            }
+
+            return new AdaptiveColumn
+            {
+                Width = "3",
+                Spacing = AdaptiveSpacing.Small,
+                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                Items = new List<AdaptiveElement>
+                {
+                    new AdaptiveColumnSet
+                    {
+                        Spacing = AdaptiveSpacing.Small,
+                        Columns = new List<AdaptiveColumn>
+                        {
+                            new AdaptiveColumn
+                            {
+                                Width = "4",
+                                Spacing = AdaptiveSpacing.Small,
+                                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                Items = new List<AdaptiveElement>
+                                {
+                                    new AdaptiveTextBlock
+                                    {
+                                        Text = "Priority",
+                                        Wrap = true,
+                                        Spacing = AdaptiveSpacing.None,
+                                        Size = AdaptiveTextSize.Small
+                                    },
+                                    new AdaptiveColumnSet
+                                    {
+                                        Spacing = AdaptiveSpacing.Small,
+                                        Columns = new List<AdaptiveColumn>
+                                        {
+                                            new AdaptiveColumn
+                                            {
+                                                Width = "16px",
+                                                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                Items = new List<AdaptiveElement>
+                                                {
+                                                    new AdaptiveImage
+                                                    {
+                                                        UrlString = PrepareIconUrl(model.JiraIssue?.Fields?.Priority
+                                                            ?.IconUrl),
+                                                        Size = AdaptiveImageSize.Small,
+                                                        PixelWidth = 16,
+                                                        PixelHeight = 16,
+                                                        Spacing = AdaptiveSpacing.None
+                                                    }
+                                                }
+                                            },
+                                            new AdaptiveColumn
+                                            {
+                                                VerticalContentAlignment = AdaptiveVerticalContentAlignment.Top,
+                                                Width = "6",
+                                                Spacing = AdaptiveSpacing.Small,
+                                                Items = new List<AdaptiveElement>
+                                                {
+                                                    new AdaptiveTextBlock
+                                                    {
+                                                        Text = model.JiraIssue?.Fields?.Priority?.Name,
+                                                        Spacing = AdaptiveSpacing.None,
+                                                        Wrap = true,
+                                                        HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
+                                                        Weight = AdaptiveTextWeight.Bolder
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         private static string PrepareIconUrl(string iconUrl)
