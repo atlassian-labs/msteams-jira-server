@@ -69,7 +69,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
 
     @Input()
     get selected(): DropDownOption<T> | any {
-        return (this._selected as any);
+        return this._selected;
     }
     set selected(option: DropDownOption<T> | any) {
         if (!option) {
@@ -174,7 +174,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
 
     // Implementation of ControlValueAccessor
     public writeValue(value: T): void {
-        (this.selected as any) = this.options.find(opt => this.utilService.jsonEqual(opt.value, value));
+        this.selected = this.options.find(opt => this.utilService.jsonEqual(opt.value, value));
     }
 
     public registerOnChange(fn: (_: any) => void): void {
@@ -220,7 +220,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
     }
 
     public setPreviousValue(): void {
-        (this.selected as any) = this.previouslySelected;
+        this.selected = this.previouslySelected;
     }
 
     public open(): void {

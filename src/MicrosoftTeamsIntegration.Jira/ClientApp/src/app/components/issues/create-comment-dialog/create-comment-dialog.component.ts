@@ -213,7 +213,7 @@ export class CreateCommentDialogComponent implements OnInit {
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     public handleListFocusOut() {

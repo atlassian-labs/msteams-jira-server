@@ -6,14 +6,14 @@ import {
     HttpRequest,
     HttpErrorResponse
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {catchError, Observable, throwError} from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { ErrorService, AppInsightsService } from '@core/services';
 import { logger } from '@core/services/logger.service';
 
 import { StatusCode } from '@core/enums';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 @Injectable({ providedIn: 'root' })
 export class ErrorResponseInterceptor implements HttpInterceptor {
@@ -32,15 +32,11 @@ export class ErrorResponseInterceptor implements HttpInterceptor {
         next: HttpHandler
     ): Observable<HttpEvent<any>> {
         return next.handle(req).pipe(
-            tap(
-                event => { },
-                error => {
-                    if (error instanceof HttpErrorResponse) {
-                        this.logErrorResponse(error);
-                        this.handleHttpError(error);
-                    }
-                }
-            )
+            catchError((error: HttpErrorResponse) => {
+                this.logErrorResponse(error);
+                this.handleHttpError(error);
+                return throwError(() => error);
+            })
         );
     }
 

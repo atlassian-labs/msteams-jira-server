@@ -1,4 +1,4 @@
-﻿import { ApplicationType } from './../../../core/enums/application-type.enum';
+﻿import { ApplicationType } from '@core/enums';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -15,7 +15,6 @@ import { DropDownOption } from '@shared/models/dropdown-option.model';
 
 import {
     Project,
-    Filter,
     IssueType,
     Priority,
     IssueStatus
@@ -27,8 +26,8 @@ import { SelectOption } from '@shared/models/select-option.model';
 import { SelectChange } from '@shared/models/select-change.model';
 
 import * as microsoftTeams from '@microsoft/teams-js';
-import { DropdownUtilService } from '../../../shared/services/dropdown.util.service';
-import { MatLegacySnackBar as MatSnackBar} from '@angular/material/legacy-snack-bar';
+import { DropdownUtilService } from '@shared/services/dropdown.util.service';
+import { MatSnackBar} from '@angular/material/snack-bar';
 import {NotificationService} from '@shared/services/notificationService';
 
 enum FilterType {

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import {inject, NgModule} from '@angular/core';
+import {Routes, RouterModule, ActivatedRouteSnapshot} from '@angular/router';
 
 import {
     LoginComponent, StaticTabComponent,
@@ -15,7 +15,7 @@ import {
 } from '@app/components';
 
 import { AuthGuard } from '@core/guards/auth.guard';
-import { SignoutDialogComponent } from './components/settings/signout-dialog/signout-dialog.component';
+import { SignoutDialogComponent } from '@app/components';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
@@ -23,22 +23,22 @@ export const routes: Routes = [
     {
         path: 'config',
         component: ConnectJiraComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'issues/create',
         component: CreateIssueDialogComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'issues/edit',
         component: EditIssueDialogComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'issues',
         component: IssuesComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'static-tab',
@@ -47,17 +47,17 @@ export const routes: Routes = [
     {
         path: 'favorite-filters-empty',
         component: FavoriteFiltersEmptyComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'settings',
         component: SettingsComponent,
-        canActivate: [AuthGuard],
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)],
         children: [
             {
                 path: '',
                 component: SettingsFiltersComponent,
-                canActivate: [AuthGuard],
+                canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)],
                 outlet: 'settingsOutlet',
             }
         ]
@@ -65,7 +65,7 @@ export const routes: Routes = [
     {
         path: 'settings/signout-dialog',
         component: SignoutDialogComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'connect-jira-server',
@@ -74,12 +74,12 @@ export const routes: Routes = [
     {
         path: 'issues/createComment',
         component: CreateCommentDialogComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'issues/commentIssue',
         component: CommentIssueDialogComponent,
-        canActivate: [AuthGuard]
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     },
     {
         path: 'go-to-website',

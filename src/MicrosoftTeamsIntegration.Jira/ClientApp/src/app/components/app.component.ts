@@ -4,7 +4,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
     Router,
-    RouterEvent,
     NavigationStart,
     NavigationEnd,
     NavigationCancel,

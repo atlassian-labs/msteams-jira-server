@@ -43,7 +43,7 @@ export class AuthInterceptor implements HttpInterceptor {
                             }
 
                             logger(error);
-                            return throwError(error);
+                            return throwError(() => error);
                         }
                         return error;
                     }

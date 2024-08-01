@@ -12,7 +12,7 @@ describe('Service: Issues',
                 providers: [IssuesService]
             });
 
-            service = TestBed.get(IssuesService);
+            service = TestBed.inject(IssuesService);
         });
 
         const filtersSet = [

@@ -26,6 +26,7 @@ import { JiraIssueFieldMeta } from '@core/models/Jira/jira-issue-field-meta.mode
 import { JiraFieldAutocomplete } from '@core/models/Jira/jira-field-autocomplete-data.model';
 import { JiraIssueSprint } from '@core/models/Jira/jira-issue-sprint.model';
 import { JiraIssueEpic } from '@core/models/Jira/jira-issue-epic.model';
+import {firstValueFrom} from 'rxjs';
 
 export interface JiraAddonStatus {
     addonStatus: number;
@@ -58,127 +59,107 @@ export class ApiService {
 
     public getIssues(jiraUrl: string, jqlQuery: string, startAt: number = 0): Promise<JiraIssuesSearch> {
         const url = `/api/search?jiraUrl=${jiraUrl}&startAt=${startAt}&jql=${encodeURIComponent(jqlQuery)}`;
-        return this.http
-            .get<JiraIssuesSearch>(url)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraIssuesSearch>(url));
     }
 
     public getProjects(jiraUrl: string, getAvatars: boolean = false): Promise<Project[]> {
-        return this.http
-            .get<Project[]>(`/api/projects-all?jiraUrl=${jiraUrl}&getAvatars=${getAvatars}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Project[]>(`/api/projects-all?jiraUrl=${jiraUrl}&getAvatars=${getAvatars}`));
     }
 
     public getProject(jiraUrl: string, projectKey: string): Promise<Project> {
-        return this.http
-            .get<Project>(`/api/project?jiraUrl=${jiraUrl}&projectKey=${projectKey}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Project>(`/api/project?jiraUrl=${jiraUrl}&projectKey=${projectKey}`));
     }
 
     public findProjects(jiraUrl: string, filterName: string = '', getAvatars: boolean = false): Promise<Project[]> {
-        return this.http
-            .get<Project[]>(`/api/projects-search?jiraUrl=${jiraUrl}&filterName=${filterName}&getAvatars=${getAvatars}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Project[]>(`/api/projects-search?jiraUrl=${jiraUrl}&filterName=${filterName}&getAvatars=${getAvatars}`));
     }
 
     public getPriorities(jiraUrl: string): Promise<Priority[]> {
-        return this.http
-            .get<Priority[]>(`/api/priorities?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Priority[]>(`/api/priorities?jiraUrl=${jiraUrl}`));
     }
 
     public getTypes(jiraUrl: string): Promise<IssueType[]> {
-        return this.http
-            .get<IssueType[]>(`/api/types?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<IssueType[]>(`/api/types?jiraUrl=${jiraUrl}`));
     }
 
     public getStatuses(jiraUrl: string): Promise<IssueStatus[]> {
-        return this.http
-            .get<IssueStatus[]>(`/api/statuses?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<IssueStatus[]>(`/api/statuses?jiraUrl=${jiraUrl}`));
     }
 
     public getStatusesByProject(jiraUrl: string, projectIdOrKey: string): Promise<IssueStatus[]> {
-        return this.http
-            .get<IssueStatus[]>(`/api/project-statuses?jiraUrl=${jiraUrl}&projectIdOrKey=${projectIdOrKey}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<IssueStatus[]>(`/api/project-statuses?jiraUrl=${jiraUrl}&projectIdOrKey=${projectIdOrKey}`));
     }
 
     public getSavedFilters(jiraUrl: string): Promise<Filter[]> {
-        return this.http
-            .get<Filter[]>(`/api/filters?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Filter[]>(`/api/filters?jiraUrl=${jiraUrl}`));
     }
 
     public searchSavedFilters(jiraUrl: string, filterName: string = ''): Promise<Filter[]> {
-        return this.http
-            .get<Filter[]>(`/api/filters-search?jiraUrl=${jiraUrl}&filterName=${filterName}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Filter[]>(`/api/filters-search?jiraUrl=${jiraUrl}&filterName=${filterName}`));
     }
 
     public getFavouriteFilters(jiraUrl: string): Promise<Filter[]> {
-        return this.http
-            .get<Filter[]>(`/api/favourite-filters?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Filter[]>(`/api/favourite-filters?jiraUrl=${jiraUrl}`));
     }
 
     public getFilter(jiraUrl: string, filterId: string): Promise<Filter> {
-        return this.http
-            .get<Filter>(`/api/filter?jiraUrl=${jiraUrl}&filterId=${filterId}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Filter>(`/api/filter?jiraUrl=${jiraUrl}&filterId=${filterId}`));
     }
 
     public getAddonStatus(jiraUrl: string): Promise<JiraAddonStatus> {
-        return this.http
-            .get<JiraAddonStatus>(`/api/addon-status?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraAddonStatus>(`/api/addon-status?jiraUrl=${jiraUrl}`));
     }
 
     public getMyselfData(jiraUrl: string): Promise<MyselfInfo> {
-        return this.http
-            .get<MyselfInfo>(`/api/myself?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<MyselfInfo>(`/api/myself?jiraUrl=${jiraUrl}`));
     }
 
     public getCurrentUserData(jiraUrl: string): Promise<CurrentJiraUser> {
-        return this.http
-            .get<CurrentJiraUser>(`/api/myself/?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<CurrentJiraUser>(`/api/myself/?jiraUrl=${jiraUrl}`));
     }
 
     public async getJiraUrlForPersonalScope(): Promise<JiraUrlData> {
-        return this.http
-            .get<JiraUrlData>('/api/personalScope/url')
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraUrlData>('/api/personalScope/url'));
     }
 
     public getJiraTenantInfo(jiraUrl: string): Promise<JiraTenantInfo> {
-        return this.http
-            .get<JiraTenantInfo>(`/api/tenant-info/?jiraUrl=${jiraUrl}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraTenantInfo>(`/api/tenant-info/?jiraUrl=${jiraUrl}`));
     }
 
     public getIssueByIdOrKey(jiraUrl: string, issueIdOrKey: string): Promise<Issue> {
-        return this.http
-            .get<Issue>(`/api/issue?jiraUrl=${jiraUrl}&issueIdOrKey=${issueIdOrKey}`)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<Issue>(`/api/issue?jiraUrl=${jiraUrl}&issueIdOrKey=${issueIdOrKey}`));
     }
 
     public getIssueTypeFieldsByProjectAndIssueIdOrKey(jiraUrl: string, projectKey: string, issueIdOrKey: string): Promise<any> {
         const link = this.utilService.appendParamsToLink('/api/issue/fields', { jiraUrl, projectKey, issueIdOrKey });
 
-        return this.http
-            .get<string[]>(link)
-            .toPromise();
+        return firstValueFrom(this.http
+            .get<string[]>(link));
     }
 
     public getCreateMetaIssueTypes(jiraUrl: string, projectKeyOrId: string): Promise<CreateMeta.JiraIssueTypeMeta[]> {
         const link = this.utilService.appendParamsToLink('/api/issue/createmeta/issuetypes', { jiraUrl, projectKeyOrId });
 
-        return this.http
-            .get<CreateMeta.JiraIssueTypeMeta[]>(link)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<CreateMeta.JiraIssueTypeMeta[]>(link));
     }
 
     public getCreateMetaFields(jiraUrl: string, projectKeyOrId: string, issueTypeId: string, issueTypeName: string):
@@ -187,115 +168,100 @@ export class ApiService {
             this.utilService.appendParamsToLink('/api/issue/createmeta/fields',
                 { jiraUrl, projectKeyOrId, issueTypeId, issueTypeName });
 
-        return this.http
-            .get<JiraIssueFieldMeta<any>[]>(link)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraIssueFieldMeta<any>[]>(link));
     }
 
     public getEditIssueMetadata(jiraUrl: string, issueIdOrKey: string): Promise<EditIssueMetadata> {
         const link = this.utilService.appendParamsToLink('/api/issue/editmeta', { jiraUrl, issueIdOrKey });
 
-        return this.http
-            .get<EditIssueMetadata>(link)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<EditIssueMetadata>(link));
     }
 
     public createIssue(jiraUrl: string, createIssueModel: IssueCreateOptions): Promise<JiraApiActionCallResponseWithContent<Issue>> {
-        return this.http
-            .post<JiraApiActionCallResponse>(`/api/issue?jiraUrl=${jiraUrl}`, createIssueModel)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .post<JiraApiActionCallResponse>(`/api/issue?jiraUrl=${jiraUrl}`, createIssueModel));
     }
 
     public updateIssue(jiraUrl: string, issueIdOrKey: string, editIssueModel: Partial<IssueFields>): Promise<JiraApiActionCallResponse> {
-        return this.http
-            .put<JiraApiActionCallResponse>(`/api/issue?jiraUrl=${jiraUrl}&issueIdOrKey=${issueIdOrKey}`, editIssueModel)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .put<JiraApiActionCallResponse>(`/api/issue?jiraUrl=${jiraUrl}&issueIdOrKey=${issueIdOrKey}`, editIssueModel));
     }
 
     public updateIssueDescription(jiraUrl: string, issueIdOrKey: string, description: string): Promise<JiraApiActionCallResponse> {
         const link = this.utilService.appendParamsToLink('/api/issue/description', { jiraUrl, issueIdOrKey });
 
-        return this.http
-            .put<JiraApiActionCallResponse>(link, { description })
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .put<JiraApiActionCallResponse>(link, { description }));
     }
 
     public updateIssueSummary(jiraUrl: string, issueIdOrKey: string, summary: string): Promise<JiraApiActionCallResponse> {
         const link = this.utilService.appendParamsToLink('/api/issue/summary', { jiraUrl, issueIdOrKey, summary });
 
-        return this.http
-            .put<JiraApiActionCallResponse>(link, null)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .put<JiraApiActionCallResponse>(link, null));
     }
 
     public updatePriority(jiraUrl: string, issueIdOrKey: string, priority: Priority): Promise<JiraApiActionCallResponse> {
         const link = this.utilService.appendParamsToLink('/api/issue/updatePriority', { jiraUrl, issueIdOrKey });
 
-        return this.http
-            .put<JiraApiActionCallResponse>(link, priority)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .put<JiraApiActionCallResponse>(link, priority));
     }
 
     public submitLoginInfo(jiraId: string, requestToken: string = '', verificationCode: string = ''):
     Promise<{ isSuccess: boolean; message: string }> {
-        return this.http
-            .post<any>('/api/submit-login-info', { atlasId: jiraId, verificationCode: verificationCode, requestToken: requestToken })
-            .toPromise();
+        return firstValueFrom(this.http
+            .post<any>('/api/submit-login-info', { atlasId: jiraId, verificationCode: verificationCode, requestToken: requestToken }));
     }
 
     public logOut(jiraId: string): Promise<{isSuccess: boolean}> {
-        return this.http
-            .post<any>(`/api/logout?jiraId=${jiraId}`, {})
-            .toPromise();
+        return firstValueFrom(this.http
+            .post<any>(`/api/logout?jiraId=${jiraId}`, {}));
     }
 
     public searchUsers(jiraUrl: string, username: string = ''): Promise<JiraUser[]> {
 
         const link = this.utilService.appendParamsToLink('/api/user/search', { jiraUrl, username });
 
-        return this.http
-            .get<JiraUser[]>(link)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraUser[]>(link));
     }
 
     public getAutocompleteData(jiraUrl: string, fieldName: string = ''): Promise<JiraFieldAutocomplete[]> {
 
         const link = this.utilService.appendParamsToLink('/api/issue/autocompletedata', { jiraUrl, fieldName });
 
-        return this.http
-            .get<JiraFieldAutocomplete[]>(link)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraFieldAutocomplete[]>(link));
     }
 
     public getSprints(jiraUrl: string, projectKeyOrId: string): Promise<JiraIssueSprint[]> {
 
         const link = this.utilService.appendParamsToLink('/api/issue/sprint', { jiraUrl, projectKeyOrId });
 
-        return this.http
-            .get<JiraIssueSprint[]>(link)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraIssueSprint[]>(link));
     }
 
     public getEpics(jiraUrl: string, projectKeyOrId: string): Promise<JiraIssueEpic[]> {
 
         const link = this.utilService.appendParamsToLink('/api/issue/epic', { jiraUrl, projectKeyOrId });
 
-        return this.http
-            .get<JiraIssueEpic[]>(link)
-            .toPromise() as any;
+        return firstValueFrom(this.http
+            .get<JiraIssueEpic[]>(link));
     }
 
     /* saves jira Data Center id for personal scope using
        returns jiraInstanceUrl */
     public saveJiraServerId(jiraServerId: string): Promise<{ isSuccess: boolean; message: string }> {
-        return this.http
-            .post<any>(`/api/save-jira-server-id?jiraServerId=${jiraServerId}`, {})
-            .toPromise();
+        return firstValueFrom(this.http
+            .post<any>(`/api/save-jira-server-id?jiraServerId=${jiraServerId}`, {}));
     }
 
     public validateConnection(jiraServerId: string): Promise<{ isSuccess: boolean }> {
-        return this.http
-            .get<any>(`/api/validate-connection?jiraServerId=${jiraServerId}`)
-            .toPromise();
+        return firstValueFrom(this.http
+            .get<any>(`/api/validate-connection?jiraServerId=${jiraServerId}`));
     }
 }

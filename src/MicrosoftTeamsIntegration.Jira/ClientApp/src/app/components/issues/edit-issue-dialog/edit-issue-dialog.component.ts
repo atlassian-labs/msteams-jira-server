@@ -4,10 +4,10 @@ import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } fro
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
 import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
-import {Issue, IssueFields, Priority, ProjectType} from '@core/models';
+import {Issue, IssueFields, ProjectType} from '@core/models';
 import { IssueStatus, JiraComment } from '@core/models';
 import { JiraPermissionName, JiraPermissions } from '@core/models/Jira/jira-permission.model';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig} from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogConfig} from '@angular/material/dialog';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssigneeService } from '@core/services/entities/assignee.service';
@@ -264,7 +264,7 @@ export class EditIssueDialogComponent implements OnInit {
     /**
      * @returns {true} if the field is in the edit issue metadata
      */
-    public canEditField = (fieldName: string): boolean | undefined => !!((this.editIssueMetadata?.fields as any)[fieldName]);
+    public canEditField = (fieldName: string): boolean | undefined => !!(this.editIssueMetadata?.fields[fieldName]);
 
     public assignToMe(): void {
         this.assigneeAccountId.setValue(this.currentUserAccountId);
@@ -360,8 +360,7 @@ export class EditIssueDialogComponent implements OnInit {
         const currentForm = this.issueForm;
         const initialForm = this.initialIssueForm;
 
-        for (let i = 0; i < Object.keys(currentForm?.value).length; i++) {
-            const key = Object.keys(currentForm?.value)[i];
+        for (const key of Object.keys(currentForm?.value)) {
             const currentValue = currentForm?.value[key];
             const initialValue = initialForm.value[key];
 
@@ -372,7 +371,6 @@ export class EditIssueDialogComponent implements OnInit {
             } else {
                 this.updatedFormFields = this.updatedFormFields.filter(x => x !== key);
             }
-
         }
     }
 

@@ -6,7 +6,7 @@ import {ApiService, AppInsightsService, ErrorService} from '@core/services';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
 import {Issue} from '@core/models';
-import {MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig} from '@angular/material/legacy-dialog';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 
 import {AssigneeService} from '@core/services/entities/assignee.service';
 import {DropDownComponent} from '@shared/components/dropdown/dropdown.component';
@@ -345,7 +345,7 @@ export class CreateIssueDialogComponent implements OnInit {
         this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
         this.projectFilteredOptions = this.availableProjectsOptions;
 
-        await this.onProjectSelected((this.availableProjectsOptions as any)[0].value);
+        await this.onProjectSelected(this.availableProjectsOptions[0].value);
 
         const defaultAssignee = this.defaultAssignee && this.assigneesOptions ?
             this.assigneesOptions.find((x: { label: string }) =>
@@ -469,12 +469,14 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     private async canCreateIssueForProject(projectIdOrKey: string): Promise<boolean> {
-        const result = await this.permissionService.getMyPermissions(this.jiraUrl as string, 'CREATE_ISSUES', undefined, projectIdOrKey);
+        const result =
+            await this.permissionService.getMyPermissions(this.jiraUrl as string, 'CREATE_ISSUES', undefined, projectIdOrKey);
         return result.permissions.CREATE_ISSUES.havePermission;
     }
 
     private async hasCreateIssuePermission(): Promise<boolean> {
-        const result = await this.permissionService.getMyPermissions(this.jiraUrl as string, 'CREATE_ISSUES', undefined, undefined);
+        const result =
+            await this.permissionService.getMyPermissions(this.jiraUrl as string, 'CREATE_ISSUES', undefined as any, undefined as any);
         return result.permissions.CREATE_ISSUES.havePermission;
     }
 }

@@ -11,7 +11,7 @@ import { logger } from '@core/services/logger.service';
 import { StatusCode } from '@core/enums';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard {
     constructor(
         private readonly router: Router,
         private readonly authService: AuthService,

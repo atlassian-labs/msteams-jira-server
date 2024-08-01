@@ -4,11 +4,11 @@
 import { Injectable, Injector, NgZone } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 
 import { AppInsightsService } from '@core/services/app-insights.service';
 import { StatusCode } from '@core/enums';
-import { ApplicationType } from './../enums/application-type.enum';
+import { ApplicationType } from '@core/enums';
 import { NotificationService } from '@shared/services/notificationService';
 
 @Injectable({ providedIn: 'root' })

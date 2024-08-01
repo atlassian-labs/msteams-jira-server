@@ -7,6 +7,7 @@ import * as microsoftTeams from '@microsoft/teams-js';
 
 import { AdalService } from '@core/services/adal.service';
 import { DOCUMENT } from '@angular/common';
+import {firstValueFrom} from 'rxjs';
 
 interface AuthenticateParameters {
     /**
@@ -97,6 +98,6 @@ export class AuthService {
             url += `&staticTabChangeUrl=${staticTabChangeUrl}`;
         }
 
-        return (this.http.get<JiraAuthUrl>(url).toPromise() as any);
+        return firstValueFrom(this.http.get<JiraAuthUrl>(url));
     }
 }

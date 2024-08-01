@@ -18,7 +18,7 @@ export class LoadingIndicatorService implements OnDestroy {
         error?: (error?: any) => void,
         complete?: () => void
     ): Subscription {
-        return this.loading$.subscribe(next, error, complete);
+        return this.loading$.subscribe({next, error, complete});
     }
 
     public getState(): boolean {

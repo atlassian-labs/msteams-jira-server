@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { logger } from '@core/services/logger.service';
+import {firstValueFrom} from 'rxjs';
 
 interface Settings {
     clientId: string;
@@ -20,9 +21,8 @@ export class AppLoadService {
     constructor(private httpClient: HttpClient) { }
 
     public getSettings(): Promise<void | Settings | any> {
-        return this.httpClient
-            .get('/api/app-settings')
-            .toPromise()
+        return firstValueFrom(this.httpClient
+            .get('/api/app-settings'))
             .then((settings: Settings | any) => {
                 logger('Settings from API: ', settings);
                 localStorage.setItem('userClientId', settings.clientId);

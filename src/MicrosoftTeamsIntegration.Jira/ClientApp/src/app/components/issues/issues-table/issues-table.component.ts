@@ -7,8 +7,8 @@ import {
     OnInit,
     ViewChild
 } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SignoutMaterialDialogComponent } from '@app/components/issues/signout-material-dialog/signout-material-dialog.component';
@@ -272,7 +272,7 @@ export class IssuesComponent implements OnInit {
             throw new Error('Element is not defined');
         }
 
-        const elem = (elRef.nativeElement || (elRef as any)['_elementRef'].nativeElement) as HTMLElement;
+        const elem = (elRef.nativeElement || elRef['_elementRef'].nativeElement) as HTMLElement;
         return elem.offsetWidth - elem.clientWidth;
     }
 

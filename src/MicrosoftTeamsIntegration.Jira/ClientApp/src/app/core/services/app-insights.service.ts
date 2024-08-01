@@ -105,7 +105,7 @@ export class AppInsightsService {
         });
     }
 
-    private stringifyValuesOf(eventDetails: { [key: string]: any } = {} = {}): { [name: string]: string } {
+    private stringifyValuesOf(eventDetails: { [key: string]: any } = {}): { [name: string]: string } {
         const stringifiedEventDetailsObj: { [key: string]: string } = {};
         for (const eventDetailsKey of Object.keys(eventDetails)) {
             stringifiedEventDetailsObj[eventDetailsKey] = JSON.stringify(
