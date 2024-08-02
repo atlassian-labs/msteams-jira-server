@@ -13,19 +13,19 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "16.2.12",
+    "@angular/animations": "17.3.12",
     "@angular/cdk": "16.2.14",
-    "@angular/cli": "16.2.14",
-    "@angular/common": "16.2.12",
-    "@angular/compiler": "16.2.12",
-    "@angular/compiler-cli": "16.2.12",
-    "@angular/core": "16.2.12",
-    "@angular/forms": "16.2.12",
+    "@angular/cli": "17.3.8",
+    "@angular/common": "17.3.12",
+    "@angular/compiler": "17.3.12",
+    "@angular/compiler-cli": "17.3.12",
+    "@angular/core": "17.3.12",
+    "@angular/forms": "17.3.12",
     "@angular/material": "16.2.14",
     "@angular/material-moment-adapter": "16.2.14",
-    "@angular/platform-browser": "16.2.12",
-    "@angular/platform-browser-dynamic": "16.2.12",
-    "@angular/router": "16.2.12",
+    "@angular/platform-browser": "17.3.12",
+    "@angular/platform-browser-dynamic": "17.3.12",
+    "@angular/router": "17.3.12",
     "@microsoft/teams-js": "1.5.2",
     "@ng-select/ng-select": "11.2.0",
     "@types/applicationinsights-js": "1.0.9",
@@ -36,10 +36,10 @@
     "ng-click-outside2": "^11.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.13.3"
+    "zone.js": "~0.14.8"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "16.2.14",
+    "@angular-devkit/build-angular": "17.3.8",
     "@angular-eslint/builder": "15.2.1",
     "@angular-eslint/eslint-plugin": "15.2.1",
     "@types/jasmine": "~3.6.0",
@@ -62,6 +62,6 @@
     "prettier": "1.18.2",
     "protractor": "~7.0.0",
     "ts-node": "8.4.1",
-    "typescript": "~4.9.3"
+    "typescript": "~5.4.5"
   }
 }

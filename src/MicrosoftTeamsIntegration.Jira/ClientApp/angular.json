@@ -59,14 +59,14 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "jira:build"
+            "buildTarget": "jira:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "jira:build:production"
+              "buildTarget": "jira:build:production"
             },
             "development": {
-              "browserTarget": "jira:build:development"
+              "buildTarget": "jira:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -74,7 +74,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "jira:build"
+            "buildTarget": "jira:build"
           }
         },
         "test": {
