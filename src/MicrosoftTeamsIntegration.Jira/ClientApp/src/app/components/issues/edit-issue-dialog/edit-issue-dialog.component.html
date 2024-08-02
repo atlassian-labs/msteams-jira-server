@@ -26,9 +26,9 @@
         </div>   
 
         <div class="issue-form__content">
-          <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="20px">
+          <div class="flex-row flex-gap-20 flex-space-between">
             <!-- Main data section -->
-            <div fxFlex="66">
+            <div class="flex-6">
               <!-- Summary section -->
               <div class="field-group">
                 <div class="field-group__header">
@@ -112,11 +112,12 @@
                     </div>
                     <!--  -->
                 </div>
+                
               </div>
 
             </div>
             <!-- Additional data section -->
-            <div fxFlex="33">
+            <div class="flex-3">
 
               <!-- Assignee section -->
               <div class="field-group">
@@ -213,12 +214,12 @@
               </div> 
               
               <!-- Modifications section -->
-              <div fxLayout="row" fxLayoutAlign="space-between" class="field-group date-info">
-                  <div fxFlex>
+              <div class="flex-row flex-space-between field-group date-info">
+                  <div class="flex-1">
                       <span class="field-group__text--label">Updated</span>
                       <span class="field-group__text--label">Created</span>
                   </div>
-                  <div fxFlex>
+                  <div class="flex-1">
                       <span class="field-group__text--small">{{ issue.updated | date: 'MM/dd/yy' }}</span>
                       <span class="field-group__text--small">{{ issue.created | date: 'MM/dd/yy' }}</span>
                   </div>

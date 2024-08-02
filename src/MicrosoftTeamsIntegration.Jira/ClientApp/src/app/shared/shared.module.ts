@@ -5,7 +5,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { ClickOutsideModule } from 'ng-click-outside';
+import { NgClickOutsideDirective } from 'ng-click-outside2';
 import { MatButtonModule} from '@angular/material/button';
 import { MatDialogModule} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,7 +24,7 @@ import { TruncatedTextComponent } from '@shared/truncated-text/truncated-text.co
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatIconModule,
-        ClickOutsideModule
+        NgClickOutsideDirective
     ],
     declarations: [
         SharedComponents,
