@@ -19,7 +19,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CdkTableModule } from '@angular/cdk/table';
-import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { CoreModule } from '@core/core.module';
 import { SharedModule } from '@shared/shared.module';
@@ -78,7 +77,6 @@ import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-
         MatTableModule,
         NgSelectModule,
         CdkTableModule,
-        FlexLayoutModule,
         MatSortModule,
         MatPaginatorModule,
         CoreModule,
