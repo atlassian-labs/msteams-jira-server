@@ -272,7 +272,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
 
             var commentIssueTaskModuleAction = new JiraBotTeamsDataWrapper
             {
-                FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, model.JiraIssue.Id, model.JiraIssue.Key),
+                FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, model.JiraIssue?.Id, model.JiraIssue?.Key),
                 TeamsData = new TeamsData
                 {
                     Type = "task/fetch"
