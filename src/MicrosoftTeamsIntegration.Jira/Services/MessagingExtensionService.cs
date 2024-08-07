@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -435,7 +435,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (UnauthorizedException ex)
             {
-                // Jira Server addon is not installed or access token was revoked
+                // Jira Data Center addon is not installed or access token was revoked
                 return BuildCardAction("auth", ex.Message, turnContext.Activity.Conversation.TenantId);
             }
             catch (Exception exception)
@@ -616,14 +616,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
                 if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.CreateNewIssueDialogCommand, StringComparison.OrdinalIgnoreCase))
                 {
-                    url = $"{_appSettings.BaseUrl}/#/issues/create;jiraUrl={Uri.EscapeDataString(jiraId)};application={application};returnIssueOnSubmit=false;source=bot;replyToActivityId={turnContext.Activity.ReplyToId}";
+                    url = $"{_appSettings.BaseUrl}/#/issues/create;jiraUrl={jiraId};application={application};returnIssueOnSubmit=false;source=bot;replyToActivityId={turnContext.Activity.ReplyToId}";
                     taskModuleTitle = "Create an issue";
                 }
 
                 if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, StringComparison.OrdinalIgnoreCase))
                 {
-                    string jiraUrl = user?.JiraInstanceUrl;
-                    url = $"{_appSettings.BaseUrl}/#/issues/commentIssue;jiraUrl={Uri.EscapeDataString(jiraUrl)};jiraId={Uri.EscapeDataString(jiraId)};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};returnIssueOnSubmit=false;source=bot";
+                    string jiraUrl = !string.IsNullOrEmpty(user?.JiraInstanceUrl) ? Uri.EscapeDataString(user.JiraInstanceUrl) : null;
+                    url = $"{_appSettings.BaseUrl}/#/issues/commentIssue;jiraUrl={jiraUrl};jiraId={jiraId};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};returnIssueOnSubmit=false;source=bot";
                     taskModuleTitle = "Comment issue";
                     taskModuleHeight = 250;
                 }

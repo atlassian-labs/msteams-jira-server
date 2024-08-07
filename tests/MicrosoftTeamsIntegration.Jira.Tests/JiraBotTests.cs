@@ -50,7 +50,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
 
             // Execute the test case
             var reply = await testClient.SendActivityAsync<IMessageActivity>("help");
-            Assert.Contains("Jira Server instance", reply.Text);
+            Assert.Contains("Jira Data Center instance", reply.Text);
         }
     }
 }

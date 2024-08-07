@@ -78,7 +78,7 @@ export class SettingsFiltersComponent implements OnInit {
     private filters = new Map<FilterSetting, string[]>();
     private cachedSettings = new Map<string, string>();
 
-    private readonly SERVER_TAB_NAME = 'Jira Server';
+    private readonly SERVER_TAB_NAME = 'Jira Data Center';
     private readonly ISSUES_PAGE_URL = `https://${window.location.host}/#/issues`;
     private readonly FILTERS_PAGE = 'https://confluence.atlassian.com/jiracorecloud/saving-your-search-as-a-filter-765593721.html';
     private readonly CACHED_FILTER_KEY = 'cachedFilter';
@@ -340,7 +340,7 @@ export class SettingsFiltersComponent implements OnInit {
         });
 
         const application = ApplicationType.JiraServerTab;
-        // set application in order to detect is this app Jira Server
+        // set application in order to detect is this app Jira Data Center
         contentUrl += `;application=${application}`;
 
         return contentUrl;

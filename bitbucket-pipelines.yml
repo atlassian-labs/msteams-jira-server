@@ -86,7 +86,7 @@ definitions:
     - step: &createTag
         name: Create tag
         script:
-          - TAG_NAME=$(date +%Y.%m.%d)
+          - TAG_NAME=$(echo "$BITBUCKET_BRANCH" | sed 's/release\///')
           - echo "Creating new tag ${TAG_NAME}"
           - git tag -am "Tag ${TAG_NAME}" $TAG_NAME
           - git push origin $TAG_NAME
@@ -125,6 +125,13 @@ definitions:
           - dotnet build --no-incremental
           - dotnet dotcover test --dcReportType=HTML
           - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+          - |
+            ENCODED_BRANCH=$(echo "$BITBUCKET_BRANCH" | jq -sRr @uri)
+            STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonar-enterprise.internal.atlassian.com/api/qualitygates/project_status?projectKey=msteams-jira-onprem&branch=$ENCODED_BRANCH" | jq -r .projectStatus.status)
+            if [ "$STATUS" != "OK" ]; then
+               echo "Quality gate failed: https://sonar-enterprise.internal.atlassian.com/dashboard?branch=$ENCODED_BRANCH&id=msteams-jira-onprem"
+               exit 1
+            fi
 pipelines:
   default:
     - step:
@@ -134,6 +141,7 @@ pipelines:
             includePaths:
               - 'docker/**'
     - step: *build
+    - step: *staticAnalysis
   custom:
     buildDockerImage:
       - step: *dockerImage

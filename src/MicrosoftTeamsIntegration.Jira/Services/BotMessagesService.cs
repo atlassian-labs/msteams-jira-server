@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -222,15 +222,33 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
         }
 
-        private async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
+        private static async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
         {
             string welcomeText =
-                "- **View your work** in a tab via a Jira filter or see issues that are assigned to, reported by or watched by you.\n- **Search** for Jira issues right within message extension or bot command\n- **Update issues** or **add comments** right in your conversation with a bot so you can focus on your work and avoid context switching between your web browser and Teams";
+                "- **View your work** in a tab via a Jira filter or see issues that are assigned to, reported by " +
+                "or watched by you.\n- **Search** for Jira issues right within message extension or bot command\n- " +
+                "**Update issues** or **add comments** right in your conversation with a bot so you can focus on your " +
+                "work and avoid context switching between your web browser and Teams";
             if (isGroupConversation)
             {
                 welcomeText =
-                    "- Add a Jira filter within a **tab** in a chat or team channel to easily reference issues within your projects\n- **Search** for Jira issues right within a Teams chat in the message extension and send it as card to the chat\n- **Update issues** or **add comments** right in your conversation so you can focus on your work and avoid context switching between your web browser and Teams\n- **Add messages as comments** to update issues right when collaboration is happening\n- **Create new issues** from messages within a chat";
+                    "- Add a Jira filter within a **tab** in a chat or team channel to easily reference issues" +
+                    " within your projects\n- **Search** for Jira issues right within a Teams chat in the message" +
+                    " extension and send it as card to the chat\n- **Update issues** or **add comments** right in" +
+                    " your conversation so you can focus on your work and avoid context switching between your web " +
+                    "browser and Teams\n- **Add messages as comments** to update issues right when collaboration is " +
+                    "happening\n- **Create new issues** from messages within a chat";
             }
+
+            string installAddonMessage =
+                "To use messaging extension, bot, or tabs, you'll need to install the " +
+                "**[Microsoft Teams for Jira Data Center](https://marketplace.atlassian.com/apps/1217836?tab=overview&hosting=datacenter)** app to your Jira Data Center. " +
+                "Ensure you have admin permissions within your Jira instance to install and configure the app. " +
+                "If you don't have admin permissions, contact your Jira admin.\n\n" +
+                "When the app is installed, it'll generate and assign a unique " +
+                "Jira ID to your Jira Data Center instance. Share the generated Jira ID" +
+                " with the team so your teammates can connect Microsoft Teams to Jira.\n\n" +
+                "For detailed instructions on configuring Jira Data Center for Teams app, please visit our [help page](https://confluence.atlassian.com/msteamsjiraserver/microsoft-teams-for-jira-server-documentation-1027116656.html).";
 
             var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 5));
             adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
@@ -248,7 +266,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     Size = AdaptiveTextSize.Large,
                     Weight = AdaptiveTextWeight.Bolder,
-                    Text = "Get started using Jira in Teams"
+                    Text = "Get started using Jira Data Center"
                 },
                 new AdaptiveTextBlock
                 {
@@ -268,6 +286,17 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     Items = new List<AdaptiveElement>
                     {
+                        new AdaptiveTextBlock
+                        {
+                            Size = AdaptiveTextSize.Medium,
+                            Weight = AdaptiveTextWeight.Bolder,
+                            Text = "Important:"
+                        },
+                        new AdaptiveTextBlock
+                        {
+                            Text = installAddonMessage,
+                            Wrap = true
+                        },
                         new AdaptiveRichTextBlock
                         {
                             Inlines = new List<AdaptiveInline>
@@ -275,7 +304,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                                 new AdaptiveTextRun
                                 {
                                     Text =
-                                        "Ready to get started? Connect your Jira account!\nWant to learn more about this application? Click 'Help' button."
+                                        "Ready to get started? Connect your Jira account!\nWant to learn more about " +
+                                        "this application? Click 'Help' button."
                                 }
                             }
                         },

@@ -241,7 +241,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         public Task<JiraTenantInfo> GetJiraTenantInfo(IntegratedUser user)
         {
-            // Jira Server does not have the concept of tenant info (i.e., cloud ID)
+            // Jira Data Center does not have the concept of tenant info (i.e., cloud ID)
             throw new NotSupportedException();
         }
 
@@ -531,7 +531,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception ex)
             {
-                // createmeta was not found, try to use endpoint available in Jira Server API < v8
+                // createmeta was not found, try to use endpoint available in Jira Data Center API < v8
                 if (ex is NotFoundException)
                 {
                     var requestUrl = $"{endpointUrl}?projectKeys={projectKeyOrId}&expand=projects.issuetypes";
@@ -568,7 +568,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception ex)
             {
-                // createmeta was not found, try to use endpoint available in Jira Server API < v8
+                // createmeta was not found, try to use endpoint available in Jira Data Center API < v8
                 if (ex is NotFoundException)
                 {
                     var requestUrl = $"{endpointUrl}?projectKeys={projectKeyOrId}&issuetypeNames={issueTypeName}&expand=projects.issuetypes.fields";
@@ -601,7 +601,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             if (responseObj == null)
             {
-                _logger.LogDebug($"Jira server response returned incorrect object. Expected object: {typeof(T)}. Response: {response}");
+                _logger.LogDebug($"Jira Data Center response returned incorrect object. Expected object: {typeof(T)}. Response: {response}");
                 return default;
             }
 

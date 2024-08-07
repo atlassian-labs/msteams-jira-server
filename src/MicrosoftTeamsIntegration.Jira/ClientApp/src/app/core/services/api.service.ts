@@ -285,7 +285,7 @@ export class ApiService {
             .toPromise();
     }
 
-    /* saves jira server id for personal scope using
+    /* saves jira Data Center id for personal scope using
        returns jiraInstanceUrl */
     public saveJiraServerId(jiraServerId: string): Promise<{ isSuccess: boolean; message: string }> {
         return this.http
