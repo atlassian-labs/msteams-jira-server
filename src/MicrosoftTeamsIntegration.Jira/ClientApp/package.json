@@ -77,7 +77,6 @@
     "tough-cookie": "4.1.4",
     "minimatch": "3.1.2",
     "micromatch": "4.0.7"
-    "unset-value": "2.0.1"
   },
   "engines": {
     "node": "16"
