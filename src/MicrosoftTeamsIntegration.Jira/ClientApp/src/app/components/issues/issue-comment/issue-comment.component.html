@@ -14,8 +14,8 @@
   <div class="comment__body">
     <div class="comment__details">
 	  <app-truncated-text [text]="comment.author.displayName"></app-truncated-text>
-      <span class="comment__details-date-label">{{ comment.created | date: 'MM/dd/yy HH:mm' }}</span>
-      <span *ngIf="comment.created !== comment.updated" class="comment__edited-label text-danger"> - edited</span>
+      <span class="comment__details-date-label">{{ comment.created | date: 'MM/dd/yy HH:mm' }} </span>
+      <span *ngIf="comment.created !== comment.updated" class="comment__edited-label"> - edited</span>
     </div>
 
     <div *ngIf="!showEditField; else editingTemplate">

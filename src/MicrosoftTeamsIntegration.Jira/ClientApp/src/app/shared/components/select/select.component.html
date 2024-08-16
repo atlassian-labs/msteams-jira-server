@@ -7,32 +7,23 @@
         </div>
     </div>
     <div class="select__options" *ngIf="isOpened">
-        <ng-container *ngIf="mutliple">
+        <ng-container *ngIf="multiple">
             <div class="select__option" *ngFor="let option of options">
                 <div class="checkbox__container">
-                    <input class="checkbox__input"
-                           type="checkbox"
-                           name="checkbox"
-                           [checked]="isOptionSelected(option)"
-                           readonly/>
-                    <button role="checkbox"
-                            class="checkbox__button"
-                            (click)="onCheckboxClicked(option)">
+                    <input class="checkbox__input" type="checkbox" name="checkbox" [checked]="isOptionSelected(option)"
+                        readonly />
+                    <button role="checkbox" class="checkbox__button" (click)="onCheckboxClicked(option)">
                     </button>
-                    <label
-                        [hidden]="isOptionSelected(option)"
-                        class="checkbox__label">
+                    <label [hidden]="isOptionSelected(option)" class="checkbox__label">
                     </label>
                 </div>
                 <div class="select__label">{{ option.label }}</div>
             </div>
         </ng-container>
-        
-        <ng-container *ngIf="!mutliple">
-            <div class="dropdown__option"
-                 *ngFor="let option of options"
-                 [ngClass]="{'active': isOptionSelected(option)}"
-                 (click)="optionClicked(option)">
+
+        <ng-container *ngIf="!multiple">
+            <div class="dropdown__option" *ngFor="let option of options"
+                [ngClass]="{'active': isOptionSelected(option)}" (click)="optionClicked(option)">
                 <div class="dropdown__label" title="{{option.label}}">{{ option.label }}</div>
             </div>
         </ng-container>

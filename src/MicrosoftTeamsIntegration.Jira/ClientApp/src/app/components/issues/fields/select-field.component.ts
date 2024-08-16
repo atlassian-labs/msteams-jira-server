@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FieldComponent } from './field.component';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 
 @Component({
     styleUrls: ['./dynamic-fields-styles.scss'],
@@ -34,7 +34,7 @@ import { FormGroup } from '@angular/forms';
 
 export class SelectFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
     public selectedOptionIds: any;
 

@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
-import {
-    HttpEvent,
-    HttpInterceptor,
-    HttpHandler,
-    HttpRequest,
-    HttpErrorResponse
-} from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse } from '@angular/common/http';
+import {catchError, Observable, throwError} from 'rxjs';
 
 import { ErrorService, AppInsightsService } from '@core/services';
 import { logger } from '@core/services/logger.service';
@@ -32,15 +25,11 @@ export class ErrorResponseInterceptor implements HttpInterceptor {
         next: HttpHandler
     ): Observable<HttpEvent<any>> {
         return next.handle(req).pipe(
-            tap(
-                event => { },
-                error => {
-                    if (error instanceof HttpErrorResponse) {
-                        this.logErrorResponse(error);
-                        this.handleHttpError(error);
-                    }
-                }
-            )
+            catchError((error: HttpErrorResponse) => {
+                this.logErrorResponse(error);
+                this.handleHttpError(error);
+                return throwError(() => error);
+            })
         );
     }
 

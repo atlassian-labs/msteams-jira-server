@@ -1,8 +1,6 @@
-﻿import { ApplicationType } from './../../../core/enums/application-type.enum';
+﻿import { ApplicationType } from '@core/enums';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-
 import {
     ApiService,
     ErrorService,
@@ -17,7 +15,6 @@ import { DropDownOption } from '@shared/models/dropdown-option.model';
 
 import {
     Project,
-    Filter,
     IssueType,
     Priority,
     IssueStatus
@@ -29,10 +26,8 @@ import { SelectOption } from '@shared/models/select-option.model';
 import { SelectChange } from '@shared/models/select-change.model';
 
 import * as microsoftTeams from '@microsoft/teams-js';
-import { StatusCode } from '@core/enums';
-import { logger } from '@core/services/logger.service';
-import { DropdownUtilService } from '../../../shared/services/dropdown.util.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { DropdownUtilService } from '@shared/services/dropdown.util.service';
+import { MatSnackBar} from '@angular/material/snack-bar';
 import {NotificationService} from '@shared/services/notificationService';
 
 enum FilterType {
@@ -56,23 +51,23 @@ export class SettingsFiltersComponent implements OnInit {
     public savedFiltersOptions: SelectOption[] = [];
     public savedFilteredFiltersOptions: SelectOption[] = [];
 
-    public availableProjectsOptions: DropDownOption<string>[];
-    public projectFilteredOptions: DropDownOption<string>[];
+    public availableProjectsOptions: DropDownOption<string>[] | any;
+    public projectFilteredOptions: DropDownOption<string>[] | any;
 
     public FilterType = FilterType;
     public filter: FilterType = FilterType.Saved;
 
-    public selectedProject: Project = undefined;
+    public selectedProject: Project | undefined = undefined;
 
     public savedFiltersIsDisabled = false;
     public projectsDataLoaded = false;
     public filtersLoading = false;
     public isFetchingProjects = false;
 
-    private jiraUrl: string;
-    public projects: Project[];
+    private jiraUrl: string | undefined;
+    public projects: Project[] | undefined;
 
-    public isAddonUpdated: boolean;
+    public isAddonUpdated: boolean | undefined;
 
     private settings = new Map<string, string>();
     private filters = new Map<FilterSetting, string[]>();
@@ -83,8 +78,8 @@ export class SettingsFiltersComponent implements OnInit {
     private readonly FILTERS_PAGE = 'https://confluence.atlassian.com/jiracorecloud/saving-your-search-as-a-filter-765593721.html';
     private readonly CACHED_FILTER_KEY = 'cachedFilter';
 
-    @ViewChild('filtersDropdown', { static: false }) filtersDropdown: DropDownComponent<string>;
-    @ViewChild('projectsDropdown', { static: false }) projectsDropdown: DropDownComponent<string>;
+    @ViewChild('filtersDropdown', { static: false }) filtersDropdown: DropDownComponent<string> | any;
+    @ViewChild('projectsDropdown', { static: false }) projectsDropdown: DropDownComponent<string> | any;
 
     constructor(
         private route: ActivatedRoute,
@@ -102,8 +97,8 @@ export class SettingsFiltersComponent implements OnInit {
 
     public async ngOnInit(): Promise<void> {
         this.appInsightsService.logNavigation('SettingsProjectComponent', this.route);
-        this.jiraUrl = this.route.snapshot.params.jiraUrl;
-        this.settings.set('jiraUrl', this.jiraUrl);
+        this.jiraUrl = this.route.snapshot.params['jiraUrl'];
+        this.settings.set('jiraUrl', this.jiraUrl as string);
 
         await this.loadData();
     }
@@ -112,14 +107,14 @@ export class SettingsFiltersComponent implements OnInit {
         filterName = filterName.trim().toLowerCase();
         this.isFetchingProjects = true;
         try {
-            this.projects = await this.findProjects(this.jiraUrl, filterName);
+            this.projects = await this.findProjects(this.jiraUrl as string, filterName);
             const filteredProjects = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
             this.projectsDropdown.filteredOptions = filteredProjects;
         } catch(error) {
             this.appInsightsService.trackException(
                 new Error('Error while searching projects'),
                 'Settings Filter Component',
-                { originalErrorMessage: error.message }
+                { originalErrorMessage: (error as any).message }
             );
         } finally {
             this.isFetchingProjects = false;
@@ -134,20 +129,20 @@ export class SettingsFiltersComponent implements OnInit {
         const projectId = typeof optionOrValue === 'string' ? optionOrValue : optionOrValue.value;
         this.loadingIndicatorService.show();
 
-        const project = this.projects.find(proj => proj.id === projectId);
+        const project = this.projects?.find(proj => proj.id === projectId);
         this.selectedProject = project;
 
         this.filters.clear();
         this.settings.delete('jqlQuery');
 
-        this.settings.set('projectKey', this.utilService.encode(encodeURIComponent(project.key)));
-        this.settings.set('projectName', this.utilService.encode(encodeURIComponent(project.name)));
+        this.settings.set('projectKey', this.utilService.encode(encodeURIComponent(project?.key as string)));
+        this.settings.set('projectName', this.utilService.encode(encodeURIComponent(project?.name as string)));
 
-        const statuses = await this.apiService.getStatusesByProject(this.jiraUrl, project.key);
+        const statuses = await this.apiService.getStatusesByProject(this.jiraUrl as string, project?.key as string);
         this.statusesOptions = this.settingsService.buildOptionsFor<IssueStatus>(statuses);
 
-        if (!this.selectedProject.issueTypes) {
-            this.selectedProject = await this.apiService.getProject(this.jiraUrl, project.key);
+        if (!this.selectedProject?.issueTypes) {
+            this.selectedProject = await this.apiService.getProject(this.jiraUrl as string, project?.key as string);
         }
 
         this.issueTypesOptions = this.settingsService.buildOptionsFor<IssueType>(this.selectedProject.issueTypes);
@@ -166,7 +161,7 @@ export class SettingsFiltersComponent implements OnInit {
             this.filters.delete(field);
             this.settings.delete('jqlQuery');
         } else {
-            this.filters.set(field, values);
+            this.filters.set(field, values as any);
         }
 
         this.getQueryAndRegisterTeamsHandler();
@@ -194,12 +189,10 @@ export class SettingsFiltersComponent implements OnInit {
         }
 
         if (filter === FilterType.Custom && !this.projectsDataLoaded) {
-            const { addonVersion } = await this.apiService.getAddonStatus(this.jiraUrl);
-            this.isAddonUpdated = this.utilService.isAddonUpdated(addonVersion);
             await this.loadProjectsData();
         }
 
-        microsoftTeams.settings.setValidityState(false);
+        microsoftTeams.pages.config.setValidityState(false);
 
         this.selectedProject = undefined;
         this.filter = filter;
@@ -218,7 +211,7 @@ export class SettingsFiltersComponent implements OnInit {
     private async getFilterOptions(): Promise<DropDownOption<string>[]> {
         this.filtersLoading = true;
 
-        const filters = await this.apiService.getFavouriteFilters(this.jiraUrl);
+        const filters = await this.apiService.getFavouriteFilters(this.jiraUrl as string);
 
         this.filtersLoading = false;
 
@@ -244,8 +237,11 @@ export class SettingsFiltersComponent implements OnInit {
             if (this.savedFiltersIsDisabled) {
                 await this.loadProjectsData();
             }
+
+            const { addonVersion } = await this.apiService.getAddonStatus(this.jiraUrl as string);
+            this.isAddonUpdated = this.utilService.isAddonUpdated(addonVersion);
         } catch (error) {
-            this.errorService.showDefaultError(error);
+            this.errorService.showDefaultError(error as any);
         } finally {
             this.loadingIndicatorService.hide();
         }
@@ -256,10 +252,10 @@ export class SettingsFiltersComponent implements OnInit {
             this.loadingIndicatorService.show();
 
             const [priorities] = await Promise.all([
-                this.apiService.getPriorities(this.jiraUrl)
+                this.apiService.getPriorities(this.jiraUrl as string)
             ]);
 
-            this.projects = await this.apiService.getProjects(this.jiraUrl, true);
+            this.projects = await this.apiService.getProjects(this.jiraUrl as string, true);
             this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
             this.projectFilteredOptions = this.availableProjectsOptions;
 
@@ -268,7 +264,7 @@ export class SettingsFiltersComponent implements OnInit {
             this.prioritiesOptions = this.settingsService.buildOptionsFor<Priority>(priorities);
 
         } catch (error) {
-            this.errorService.showDefaultError(error);
+            this.errorService.showDefaultError(error as any);
         } finally {
             this.loadingIndicatorService.hide();
             this.projectsDataLoaded = true;
@@ -303,8 +299,8 @@ export class SettingsFiltersComponent implements OnInit {
         const ordering = {
             type: 0,
             priorioty: 1,
-            status: 2
-        };
+            status: 2,
+        } as any;
 
         const jqlQuery = Array
             .from(this.filters)
@@ -352,7 +348,7 @@ export class SettingsFiltersComponent implements OnInit {
 
     private getSavedFilterFromCache(): void {
         if (localStorage.getItem(this.CACHED_FILTER_KEY)) {
-            this.filters.set('filter', [localStorage.getItem(this.CACHED_FILTER_KEY)]);
+            this.filters.set('filter', [localStorage.getItem(this.CACHED_FILTER_KEY) as string]);
             localStorage.removeItem(this.CACHED_FILTER_KEY);
         }
     }
@@ -369,7 +365,7 @@ export class SettingsFiltersComponent implements OnInit {
 
     private cacheFilterSettings(): void {
         if (this.filters.has('filter')) {
-            localStorage.setItem(this.CACHED_FILTER_KEY, this.filters.get('filter')[0]);
+            localStorage.setItem(this.CACHED_FILTER_KEY, (this.filters.get('filter') as any)[0]);
             this.filters.delete('filter');
         }
     }
@@ -381,22 +377,22 @@ export class SettingsFiltersComponent implements OnInit {
 
     private registerHandler(contentUrl: string, jql: string): void {
         // base user's repository url e.g. `userrepository.atlassian.net`
-        let websiteUrl = `${decodeURIComponent(this.jiraUrl)}`;
+        let websiteUrl = `${decodeURIComponent(this.jiraUrl as string)}`;
 
         websiteUrl += `/issues/?jql=${decodeURIComponent(jql)}`;
 
-        const settings = {
+        const config = {
             entityId: contentUrl,
             contentUrl,
             suggestedDisplayName: this.SERVER_TAB_NAME,
             websiteUrl: null
-        };
+        } as any;
 
-        microsoftTeams.settings.registerOnSaveHandler((saveEvent: microsoftTeams.settings.SaveEvent) => {
-            microsoftTeams.settings.setSettings(settings);
+        microsoftTeams.pages.config.registerOnSaveHandler(async (saveEvent: microsoftTeams.pages.config.SaveEvent) => {
+            await microsoftTeams.pages.config.setConfig(config);
             saveEvent.notifySuccess();
         });
 
-        microsoftTeams.settings.setValidityState(true);
+        microsoftTeams.pages.config.setValidityState(true);
     }
 }

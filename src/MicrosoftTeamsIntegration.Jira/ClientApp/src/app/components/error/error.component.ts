@@ -22,12 +22,10 @@ import { UtilService } from '@core/services';
     `]
 })
 export class ErrorComponent implements OnInit {
-    public message: string;
+    public message: string | undefined;
     public wrapperClass = '';
     public showRetryButton = false;
-    public status: number;
-
-    private jiraUrl: string;
+    public status: number | undefined;
 
     constructor(
         private router: Router,
@@ -41,9 +39,8 @@ export class ErrorComponent implements OnInit {
         this.appInsightService.logNavigation('ErrorComponent', this.route);
 
         this.showRetryButton = this.errorService.showRetryButton;
-        this.message = this.route.snapshot.queryParams.message;
-        this.jiraUrl = this.route.snapshot.queryParams.jiraUrl;
-        this.status = this.route.snapshot.queryParams.status;
+        this.message = this.route.snapshot.queryParams['message'];
+        this.status = this.route.snapshot.queryParams['status'];
     }
 
     public retry(): void {

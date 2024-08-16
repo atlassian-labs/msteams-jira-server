@@ -8,9 +8,9 @@ export class RoutingState {
     get previousUrl(): string {
         return this._previousUrl || '/issues';
     }
-    private _previousUrl: string;
+    private _previousUrl: string | any;
 
-    private currentUrl: string;
+    private currentUrl: string | any;
 
     constructor(
         private router: Router
@@ -23,7 +23,7 @@ export class RoutingState {
             .pipe(
                 filter(event => event instanceof NavigationStart)
             )
-            .subscribe((event: NavigationStart) => {
+            .subscribe((event: any) => {
                 const url = this.extractCurrentRouteFromUrl(event.url);
 
                 if (this.currentUrl !== url) {

@@ -79,7 +79,7 @@
                 [pageIndex]="pageIndex"
                 [hidePageSize]="true"
                 [showFirstLastButtons]="true"                         
-                (page)="pageEvent = changePage($event)">
+                (page)="changePage($event)">
             </mat-paginator>
         </div>    
     
@@ -273,7 +273,7 @@
                             <i [ngClass]="getChevronClass('summary')" aria-hidden="true"></i>
                         </mat-header-cell>
                         <mat-cell class="summary-cell" *cdkCellDef="let element">
-                            <app-truncated-text [text]="element.summary" showDelay="500"></app-truncated-text>
+                            <app-truncated-text [text]="element.summary" [showDelay]="500"></app-truncated-text>
                         </mat-cell>
                     </ng-container>
     
@@ -288,7 +288,7 @@
                             <i [ngClass]="getChevronClass('assignee')" aria-hidden="true"></i>
                         </mat-header-cell>
                         <mat-cell *cdkCellDef="let element" class="assignee-cell">
-                            <app-truncated-text [text]="element.assignee" showDelay="500"></app-truncated-text>
+                            <app-truncated-text [text]="element.assignee" [showDelay]="500"></app-truncated-text>
                         </mat-cell>
                     </ng-container>
     
@@ -303,7 +303,7 @@
                             <i [ngClass]="getChevronClass('reporter')" aria-hidden="true"></i>
                         </mat-header-cell>
                         <mat-cell *cdkCellDef="let element">
-                            <app-truncated-text [text]="element.reporter" showDelay="500"></app-truncated-text>
+                            <app-truncated-text [text]="element.reporter" [showDelay]="500"></app-truncated-text>
                         </mat-cell>
                     </ng-container>
     
@@ -415,7 +415,7 @@
             </div>        
         </div>
     
-        <div class="table-loading" [hidden]="!loadingTableData">
+        <div class="table-loading" [hidden]="!loadingTableData" *ngIf="loadingTableData">
             <mat-spinner [diameter]="50"></mat-spinner>
         </div>
     

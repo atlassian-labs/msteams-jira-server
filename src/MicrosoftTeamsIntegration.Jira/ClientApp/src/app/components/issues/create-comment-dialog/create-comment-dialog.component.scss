@@ -62,7 +62,8 @@
   }
 
   &__comment-textarea {
-    height: 9.2rem;
+    height: 130px;
+    max-height: 130px;
   }
 
   &__search-input {
@@ -86,7 +87,7 @@
 input, textarea {
   box-shadow: none;
   outline: none;
-  resize: vertical;
+  resize: none; 
   border: none;
   border-radius: 3px;
   border-bottom: solid 0.2rem transparent;
@@ -157,3 +158,26 @@ hr {
 
 /* add padding  */
 .right-addon input { padding-right: 30px; }
+
+:host-context(.default) {
+  ::ng-deep h5 {
+    color: $black !important;
+  }
+}
+
+:host-context(.dark) {
+  ::ng-deep h5 {
+    color: $white !important;
+  }
+}
+
+.issue-loading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 275px;
+  max-height: 275px;
+  margin: 0 0 1rem 0;
+}

@@ -1,11 +1,13 @@
-@import 'icons', 'app-colors', 'variables';
+@import "variables";
+@import "icons";
+@import "app-colors";
 
 $icon-color-breached: #de350b;
 $icon-color-expired: #ffab00;
 $icon-color-workhours: #00a3bf;
 $icon-color-success: #36b37e;
 
-$srollbar-width: 17px;
+$srollbar-width: 13px;
 
 .issues {
     height: 100vh;
@@ -177,7 +179,7 @@ $srollbar-width: 17px;
   width: 100%;
 }
 
-.mat-header-row {    
+.mat-mdc-header-row {    
     position: absolute;   
     top: 0;
     left: 0;
@@ -186,7 +188,12 @@ $srollbar-width: 17px;
     z-index: 1;   
 }
 
-.mat-table {
+.mat-mdc-table mat-header-row.mat-mdc-header-row {
+  font-family: $font-family;
+  font-size: 12px !important;
+}
+
+.mat-mdc-table {
   font-family: $font-family;
   background-color: inherit;  
   height: calc(100vh - 130px);
@@ -199,7 +206,7 @@ $srollbar-width: 17px;
 }
 
 :host-context(.jira-cc-banner-present) {
-    .mat-table {
+    .mat-mdc-table {
         height: calc(100vh - 182px);
 
         &.show-paginator {
@@ -208,23 +215,22 @@ $srollbar-width: 17px;
     }    
 }
 
-::ng-deep .mat-paginator-container {
+::ng-deep .mat-mdc-paginator-container {
   padding: 0 20px 0 8px !important;
   min-height: 45px !important;
 
-  .mat-icon-button {     
-    width: 30px;
-    height: 30px;      
+  .mat-mdc-icon-button {
     line-height: 0;      
   }
 
-  .mat-paginator-range-label {
+  .mat-mdc-paginator-range-label {
     margin: 0 24px;
   }
 }
 
-.mat-row {
+.mat-mdc-row {
   cursor: pointer;
+  font-family: $font-family;
 }
 
 mat-header-cell {
@@ -236,7 +242,7 @@ mat-header-cell {
   display: none !important;
 }
 
-.mat-cell, .mat-header-cell {
+.mat-mdc-cell, .mat-mdc-header-cell {
   padding: 17px 12px 19px 0px;
 
   &:first-of-type {
@@ -320,7 +326,7 @@ mat-header-cell {
     flex: 1 1 100px;
   }
 
-  &-components.mat-cell {
+  &-components.mat-mdc-cell {
     display: flex;
     flex-direction: column;
     word-break: break-all;
@@ -363,11 +369,11 @@ img.priority-icon, img.issuetype-icon {
   border: 1px solid #ccc;
 }
 
-::ng-deep .mat-tooltip {
+::ng-deep .mat-mdc-tooltip {
   font-size: 12px !important;
 }
 
-.mat-header-cell {
+.mat-mdc-header-cell {
     vertical-align: bottom;
     cursor: default;
     
@@ -429,37 +435,53 @@ img.priority-icon, img.issuetype-icon {
 }
 
 :host-context(.dark) {
-  .mat-header-row {
+  .mat-mdc-header-row {
     background-color: $app-gray-14-dark;
   }
   
-  .mat-paginator {
+  .mat-mdc-paginator {
     background-color: $app-gray-14-dark;
     color: $app-gray-02-dark;    
   }  
 }
 
 ::ng-deep .dark {
-  .mat-icon-button[disabled] {
+  .mat-mdc-icon-button[disabled] {
     color: $app-gray-02-light;
-  } 
+  }
+
+  .mat-mdc-icon-button[disabled] svg {
+    fill: $app-gray-02-light;
+  }
+
+  .mat-mdc-icon-button svg {
+    fill: $white;
+  }
 }
 
 :host-context(.contrast) {
-  .mat-header-row {
+  .mat-mdc-header-row {
     background-color: $black;
   }
   
-  .mat-paginator {
+  .mat-mdc-paginator {
     background-color: $black;
     color: $white;
   }  
 }
 
 ::ng-deep .contrast {
-  .mat-icon-button[disabled] {
+  .mat-mdc-icon-button[disabled] {
     color: $app-gray-02-light;
-  } 
+  }
+
+  .mat-mdc-icon-button[disabled] svg {
+    fill: $app-gray-02-light;
+  }
+
+  .mat-mdc-icon-button svg {
+    fill: $white;
+  }
 }
 
 .scroll-container {
@@ -477,11 +499,5 @@ img.priority-icon, img.issuetype-icon {
       overflow-x: auto;
       display: table;
     }    
-  }
-}
-
-:host-context(.jira-cc-banner-present) {
-  .mat-table {   
-    height: calc(100vh - 180px);    
   }
 }

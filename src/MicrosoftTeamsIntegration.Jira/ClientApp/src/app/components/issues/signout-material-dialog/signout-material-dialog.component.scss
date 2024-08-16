@@ -1,8 +1,19 @@
+@import "app-colors";
+
 .signout {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  
+  .mat-mdc-dialog-title {
+    display: flex;
+    padding: 10px;
+  }
+  
+  .signout-title-icon {
+    margin-right: 10px;
+  }
 
   .actions {
     align-self: flex-end;
@@ -22,5 +33,45 @@
   
   p {
     overflow: auto;
+  }
+}
+
+::ng-deep.mat-mdc-dialog-container .mat-mdc-dialog-surface {
+  box-shadow: none !important;
+  border-radius: unset !important;
+}
+
+::ng-deep.default {
+  .mat-mdc-dialog-container {
+    .signout {
+      background-color: $white;
+    }
+
+    .mat-mdc-dialog-title, .mat-mdc-dialog-content {
+      color: $black-light;
+    }
+  }
+}
+
+::ng-deep.dark {
+  .mat-mdc-dialog-container {
+    .signout {
+      background-color: $app-gray-14-dark;
+    }
+    .mat-mdc-dialog-title, .mat-mdc-dialog-content {
+      color: $white;
+    }
+  }
+}
+
+::ng-deep.contrast {
+  .mat-mdc-dialog-container {
+    .signout {
+      background-color: $black;
+      border: 1px solid $white;
+    }
+    .mat-mdc-dialog-title, .mat-mdc-dialog-content {
+      color: $white;
+    }
   }
 }

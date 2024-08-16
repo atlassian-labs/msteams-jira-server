@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FieldComponent } from './field.component';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 @Component({
@@ -53,13 +53,13 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 
 export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 
-    public children: FormControl;
-    public parent: FormControl;
+    public children: UntypedFormControl | undefined;
+    public parent: UntypedFormControl | undefined;
 
-    public allowedParentOptions: any[];
-    public allowedChildrenOptions: any[];
+    public allowedParentOptions: any[] | any;
+    public allowedChildrenOptions: any[] | any;
 
     public selectedParentId: any;
     public selectedChildId: any;
@@ -73,9 +73,9 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
 
         this.formGroup.addControl(this.data.formControlName + '_parent',
             this.data.required ?
-                new FormControl(null, [Validators.required]) :
-                new FormControl());
-        this.formGroup.addControl(this.data.formControlName + '_children', new FormControl());
+                new UntypedFormControl(null, [Validators.required]) :
+                new UntypedFormControl());
+        this.formGroup.addControl(this.data.formControlName + '_children', new UntypedFormControl());
 
         if (this.data.allowedValues) {
             // get allowed values for cascading including all child values
@@ -87,7 +87,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
                 this.selectedParentId = defaultValue.id || defaultValue;
 
                 // get allowed children values for default parent
-                const defaultParentOption = this.allowedParentOptions.find(x => x.id === this.selectedParentId);
+                const defaultParentOption = this.allowedParentOptions?.find((x: { id: any }) => x.id === this.selectedParentId);
 
                 if (defaultParentOption) {
                     this.allowedChildrenOptions = defaultParentOption.children.map(this.dropdownUtilService.mapAllowedValueToSelectOption);
@@ -101,7 +101,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
         }
     }
 
-    public onParentChange($event) {
+    public onParentChange($event: any) {
         const selectedValue = $event;
         this.selectedChildId = []; // clear child options
 
@@ -115,7 +115,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
         }
     }
 
-    public onChildrenChange($event) {
+    public onChildrenChange($event: any) {
         const selectedValue = $event;
 
         if (selectedValue) {

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { UtilService } from '@core/services/util.service';
 
 import { JiraPermissionsResponse, JiraPermissionName } from '@core/models/Jira/jira-permission.model';
+import {firstValueFrom} from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class PermissionService {
@@ -35,8 +36,7 @@ export class PermissionService {
             { jiraUrl, permissions: finalPermissions, issueId, projectKey }
         );
 
-        return this.http
-            .get<JiraPermissionsResponse>(link)
-            .toPromise();
+        return firstValueFrom(this.http
+            .get<JiraPermissionsResponse>(link));
     }
 }

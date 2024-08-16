@@ -8,6 +8,7 @@ import { JiraUser } from '@core/models/Jira/jira-user.model';
 import { DropDownOption } from '@shared/models/dropdown-option.model';
 import { JiraApiActionCallResponseWithContent } from '@core/models/Jira/jira-api-action-call-response-with-content.model';
 import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-options';
+import {firstValueFrom} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -46,21 +47,20 @@ export class AssigneeService {
     ): Promise<JiraApiActionCallResponseWithContent<string | null>> {
         const link = this.utilService.appendParamsToLink('/api/issue/assignee', { jiraUrl, issueIdOrKey, assigneeAccountIdOrName });
 
-        return this.http
-            .put<JiraApiActionCallResponseWithContent<string | null>>(link, null)
-            .toPromise();
+        return firstValueFrom(this.http
+            .put<JiraApiActionCallResponseWithContent<string | null>>(link, null));
     }
 
     public searchAssignable(options: SearchAssignableOptions): Promise<JiraUser[]> {
         const link = this.utilService.appendParamsToLink('/api/issue/searchAssignable', options);
 
-        return this.http.get<JiraUser[]>(link).toPromise();
+        return firstValueFrom(this.http.get<JiraUser[]>(link));
     }
 
     public searchAssignableMultiProject(jiraUrl: string, projectKey: string, username: string = ''): Promise<JiraUser[]> {
         const link = this.utilService.appendParamsToLink('/api/user/assignable/multiProjectSearch', { jiraUrl, projectKey, username });
 
-        return this.http.get<JiraUser[]>(link).toPromise();
+        return firstValueFrom(this.http.get<JiraUser[]>(link));
     }
 
     public assigneesToDropdownOptions(assignees: JiraUser[], username: string = ''): DropDownOption<string>[] {

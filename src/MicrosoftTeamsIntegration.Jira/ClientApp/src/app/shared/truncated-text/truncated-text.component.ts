@@ -23,7 +23,7 @@ import { Component, Input, AfterViewInit, ChangeDetectorRef } from '@angular/cor
     `]
 })
 export class TruncatedTextComponent implements AfterViewInit {
-    @Input() text: string;
+    @Input() text: string | undefined;
     @Input() showDelay = 100;
     constructor(private readonly changeDetectorRef: ChangeDetectorRef) { }
 

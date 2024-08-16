@@ -9,7 +9,7 @@ import { SelectChange } from '@shared/models/select-change.model';
     styleUrls: ['./select.component.scss']
 })
 export class SelectComponent {
-    protected _options: SelectOption[];
+    protected _options: SelectOption[] = [];
     protected _multiple = false;
 
     @Input()
@@ -72,7 +72,7 @@ export class SelectComponent {
     }
 
     public isOptionSelected(option: SelectOption): boolean {
-        return this.selectedOptions.length && !!this.selectedOptions.some(opt => opt.id === option.id);
+        return (this.selectedOptions.length && !!this.selectedOptions.some(opt => opt.id === option.id)) as boolean;
     }
 
     public toggle(): void {

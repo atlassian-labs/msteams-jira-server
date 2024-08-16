@@ -1,4 +1,5 @@
-@import 'icons', 'app-colors';
+@import "icons";
+@import "app-colors";
 
 :host-context(.default) {
     .issues {
@@ -6,11 +7,11 @@
         color: $black-light;
     }
   
-    .mat-header-cell {
+    .mat-mdc-header-cell {
         color: $black-light;
     }
   
-    .mat-row:hover {
+    .mat-mdc-row:hover {
         background-color: $app-brand-14;
     }
 }
@@ -25,7 +26,7 @@
         }
     }
 
-    .mat-row {
+    .mat-mdc-row {
         border-color: $black-dark;
 
         &:hover {
@@ -33,8 +34,8 @@
         }
     }
 
-    .mat-header-cell, 
-    .mat-cell {
+    .mat-mdc-header-cell, 
+    .mat-mdc-cell {
         color: $white;
     }
 }
@@ -49,20 +50,20 @@
         }
     }
 
-    .mat-row {
+    .mat-mdc-row {
         border-color: $white;
 
         &:hover {
             background-color: $yellow;
 
-            .mat-cell {
+            .mat-mdc-cell {
                 color: $black;
             }
         }
     }
 
-    .mat-header-cell,
-    .mat-cell {
+    .mat-mdc-header-cell,
+    .mat-mdc-cell {
         color: $white;
     }
 }

@@ -65,52 +65,52 @@ export class IssuesService {
     private readonly slaIconMappingOngoingCycle: SlaIconMapping[] = [
         {
             breached: true, paused: false, withinCalendarHours: true, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.clockBreached
+            class: this.SLA_ICONS_CLASSES['clockBreached']
         },
         {
             breached: false, paused: false, withinCalendarHours: true, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.clockWorkHours
+            class: this.SLA_ICONS_CLASSES['clockWorkHours']
         },
         {
             breached: false, paused: false, withinCalendarHours: true, halfHourRemain: true,
-            class: this.SLA_ICONS_CLASSES.clockHalfHourRemain
+            class: this.SLA_ICONS_CLASSES['clockHalfHourRemain']
         },
         {
             breached: false, paused: false, withinCalendarHours: false, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.pausedNotBreached
+            class: this.SLA_ICONS_CLASSES['pausedNotBreached']
         },
         {
             breached: false, paused: true, withinCalendarHours: true, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.pausedNotBreached
+            class: this.SLA_ICONS_CLASSES['pausedNotBreached']
         },
         {
             breached: false, paused: true, withinCalendarHours: true, halfHourRemain: true,
-            class: this.SLA_ICONS_CLASSES.pausedNotBreached
+            class: this.SLA_ICONS_CLASSES['pausedNotBreached']
         },
         {
             breached: false, paused: true, withinCalendarHours: false, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.pausedNotBreached
+            class: this.SLA_ICONS_CLASSES['pausedNotBreached']
         },
         {
             breached: true, paused: false, withinCalendarHours: false, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.pauseBreached
+            class: this.SLA_ICONS_CLASSES['pauseBreached']
         },
         {
             breached: true, paused: true, withinCalendarHours: false, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.pauseBreached
+            class: this.SLA_ICONS_CLASSES['pauseBreached']
         },
         {
             breached: true, paused: true, withinCalendarHours: true, halfHourRemain: false,
-            class: this.SLA_ICONS_CLASSES.pauseBreached
+            class: this.SLA_ICONS_CLASSES['pauseBreached']
         }
     ];
 
     private readonly statusIconMappingComplete: SlaIconMapping[] = [
         {
-            breached: true, class: this.SLA_ICONS_CLASSES.crossBreached
+            breached: true, class: this.SLA_ICONS_CLASSES['crossBreached']
         },
         {
-            breached: false, class: this.SLA_ICONS_CLASSES.succesArrow
+            breached: false, class: this.SLA_ICONS_CLASSES['succesArrow']
         }
     ];
 
@@ -160,7 +160,7 @@ export class IssuesService {
                     id: Number(fields.status.id),
                     name: fields.status && fields.status.name
                 },
-                statusCategory: fields.status && this.getStatusClass(fields.status.statusCategory.colorName),
+                statusCategory: fields.status && this.getStatusClass(fields?.status?.statusCategory?.colorName as string),
 
                 resolution: fields.resolution ? fields.resolution.name : 'Unresolved',
                 created: fields.created,
@@ -233,15 +233,15 @@ export class IssuesService {
 
     public getNormalizedSlaField(jiraField: JiraSlaField): NormalizedSlaField {
         const normalizedField: NormalizedSlaField = {
-            remainingTimeMillis: this.getMillisecondsOfTimeToField(jiraField),
-            remainingTimeFriendly: this.getFriendlyTimeOfTimeToField(jiraField),
+            remainingTimeMillis: this.getMillisecondsOfTimeToField(jiraField) as any,
+            remainingTimeFriendly: this.getFriendlyTimeOfTimeToField(jiraField) as any,
             iconClassesName: this.resolveIconsInSlaFields(jiraField)
         };
 
         return normalizedField;
     }
 
-    public resolveIconsInSlaFields(field: JiraSlaField): string {
+    public resolveIconsInSlaFields(field: JiraSlaField): string | undefined {
         const millisInMinute = 60000;
 
         if (!field) {
@@ -258,7 +258,7 @@ export class IssuesService {
                 rule.halfHourRemain === halfHourRemain);
 
             if (result) {
-                return this.SLA_ICONS_CLASSES.jiraIconsClasses + ' ' + result.class;
+                return this.SLA_ICONS_CLASSES['jiraIconsClasses'] + ' ' + result.class;
             } else {
                 return '';
             }
@@ -268,7 +268,7 @@ export class IssuesService {
             const breached = field.completedCycles[field.completedCycles.length - 1].breached;
             const result = this.statusIconMappingComplete.find( (rule) => rule.breached === breached);
             if (result) {
-                return this.SLA_ICONS_CLASSES.jiraIconsClasses + ' ' + result.class;
+                return this.SLA_ICONS_CLASSES['jiraIconsClasses'] + ' ' + result.class;
             } else {
                 return '';
             }
@@ -328,7 +328,7 @@ export class IssuesService {
 
     // to determine time issue status: whether enough time to
     // resolution/first response, expiring time to resolution/first response, breached time
-    public getMillisecondsOfTimeToField(timeToField: JiraSlaField): number | undefined {
+    public getMillisecondsOfTimeToField(timeToField: JiraSlaField): number | undefined | null {
         if (!timeToField) {
             return undefined;
         }

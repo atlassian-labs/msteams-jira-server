@@ -17,7 +17,7 @@ import {
 })
 export class SignoutDialogComponent implements OnInit {
 
-    private jiraUrl: string;
+    private jiraUrl: string | any;
 
     public isSigningOut = false;
 
@@ -45,7 +45,7 @@ export class SignoutDialogComponent implements OnInit {
             this.appInsightsService.trackException(
                 new Error('Error while signout from Jira'),
                 'SignoutComponent::signOut',
-                { originalErrorMessage: error.message }
+                { originalErrorMessage: (error as any).message }
             );
         } finally {
             this.isSigningOut = false;

@@ -1,3 +1,7 @@
+@import "variables";
+@import "icons";
+@import "app-colors";
+
 @mixin md-icon-size($size: 24px) {
   font-size: 14px;
   line-height: $size;
@@ -17,35 +21,12 @@
   justify-content: center;
 }
 
-.mat-dialog-container {
-  padding: 29px !important;
-  overflow-x: hidden !important;
-}
-
-body.default {
-  .mat-dialog-container {
-    background-color: $white;
-    color: $black-light;
-  }
-}
-
-body.dark {
-  .mat-dialog-container {
-    background-color: $app-gray-14-dark;
-    color: $white;
-  }
-}
-
-body.contrast {
-  .mat-dialog-container {
-    background-color: $black;
-    color: $white;
-    border: 1px solid $white;
-  }
-}
-
 .ng-select .ng-select-container .ng-value-container .ng-input>input {
   box-sizing: border-box !important;
+}
+
+.mdc-checkbox {
+  box-sizing: content-box !important;
 }
 
 .ng-dropdown-panel.ng-select-bottom {
@@ -53,17 +34,69 @@ body.contrast {
 }
 
 .ng-select {
-  padding-bottom: 0em !important;
+  padding-bottom: 0 !important;
 }
 
 .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
   background-color: $app-brand !important;
-  margin: 0 0.4375em 0.2em 0 !important;
+  border-color: $app-brand-dark-16 !important;
+}
+
+.ng-option .mat-mdc-checkbox .mdc-label, .mdc-checkbox__background {
+  color: $black !important;
+}
+
+.ng-option.ng-option-marked .mat-mdc-checkbox .mdc-label,
+.ng-option.ng-option-selected .mat-mdc-checkbox .mdc-label {
+  color: $white !important;
+}
+
+.ng-option .mat-mdc-checkbox .mdc-checkbox__background {
+  border-color: $app-brand-17 !important;
+}
+
+.ng-option.ng-option-marked.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
+.ng-option.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
+.ng-option.ng-option-marked .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark
+{
+  background-color: $app-brand !important;
+  color: $white;
+}
+
+.mat-mdc-radio-button.mat-mdc-radio-checked .mat-ripple-element {
+  background-color: $app-brand !important;
+}
+
+.ng-option.ng-option-marked  {
+  background: $app-brand;
+}
+
+.ng-option.ng-option-marked .mat-mdc-radio-button .mdc-label,
+.ng-option.ng-option-selected .mat-mdc-radio-button .mdc-label {
+  color: $white;
+}
+
+.ng-option.ng-option-marked .mat-mdc-radio-button .mdc-radio__outer-circle {
+  border-color: $white !important;
+}
+
+.ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
+.ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
+  border-color: $white !important;
+}
+
+.ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
+.ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
+  border-color: $white !important;
+}
+
+.mat-button-focus-overlay {
+  background-color: $app-brand;
 }
 
 .ng-select .ng-select-container {
   background-color: $app-gray-10-light !important;
-  padding: 0px 0px 0px 12px !important;
+  padding: 0 0 0 12px !important;
   min-height: 32px !important;
   border-radius: 2px !important;
   height: auto;
@@ -72,13 +105,12 @@ body.contrast {
 }
 
 .ng-select .ng-select-container .ng-value-container {
-  border-top: 0px !important;
+  border-top: 0 !important;
 }
 
 .ng-select.ng-select-multiple .ng-select-container.ng-has-value {
   background-color: $app-gray-10-light !important;
-  padding: 0px 0px 0px 12px !important;
-  padding-top: 0px !important;
+  padding: 0 0 0 12px !important;
 }
 
 .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value {
@@ -94,26 +126,26 @@ body.contrast {
 }
 
 .ng-select.ng-select-multiple .ng-select-container.ng-has-value .ng-clear-wrapper,.ng-select.ng-select-multiple .ng-select-container.ng-has-value .ng-arrow-wrapper {
-  border-top: 0px !important;
+  border-top: 0 !important;
 }
 
 .ng-select.ng-select-single .ng-select-container .ng-arrow-wrapper {
-  bottom: 0px !important;
+  bottom: 0 !important;
   align-self: center !important;
 }
 
 .ng-select.ng-select-single .ng-select-container .ng-clear-wrapper {
-  bottom: 0px !important;
+  bottom: 0 !important;
   align-self: center !important;
 }
 
 .ng-select .ng-arrow-wrapper {
   padding: 8px;
-  bottom: 0px !important;
+  bottom: 0 !important;
 }
 
 .ng-select input[type=text] {
-  padding: 0px 0px 0px 12px !important;
+  padding: 0 0 0 12px !important;
 }
 
 .ng-select .ng-select-container:after {
@@ -121,10 +153,10 @@ body.contrast {
 }
 
 .ng-select .ng-arrow-wrapper .ng-arrow {
-  border-left: 0px !important;
-  border-right: 0px !important;
-  border-top: 0px !important;
-  margin: 0px !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-top: 0 !important;
+  margin: 0 !important;
   height: auto !important;
   width: auto !important;
   display: block !important;
@@ -180,14 +212,6 @@ body.contrast {
   color: $white;
 }
 
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-outer-circle {
-  border-color: rgba(0,0,0,.54) !important;
-}
-
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-button.mat-accent .mat-radio-inner-circle {
-  background-color: rgba(0,0,0,.54) !important;
-}
-
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
   line-height: 2em !important;
   min-height: 2em !important;
@@ -199,59 +223,29 @@ body.contrast {
 }
 
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-  padding: 0px 10px !important;
+  padding: 0 10px !important;
 }
 
-.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+.mat-mdc-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
   border-color:  $app-brand !important;
 }
 
-.mat-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
+.mat-mdc-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
 .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,.mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
   background-color: $app-brand !important;
 }
 
 .mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
   background: $app-brand !important;
-  border-radius: 0px !important;
+  border-radius: 0 !important;
 }
 
-.mat-checkbox-checked:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element,.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element {
+.mat-mdc-checkbox-checked:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element,.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element {
   background: $app-brand;
 }
 
-.mat-checkbox .mat-checkbox-ripple {
-  left: calc(50% - 12px) !important;
-  top: calc(50% - 12px) !important;
-  height: 25px !important;
-  width: 25px !important;
-}
-
-.mat-checkbox {
+.mat-mdc-checkbox {
   font-family: inherit !important;
-}
-
-.mat-radio-container {
-  width: 15px !important;
-  height: 15px !important;
-}
-
-.mat-radio-outer-circle {
-  height: 15px !important;
-  width: 15px !important;
-}
-
-.mat-radio-inner-circle {
-  border-radius: 100% !important;
-  height: 15px !important;
-  width: 15px !important;
-}
-
-.mat-radio-button .mat-radio-ripple {
-  left: calc(50% - 10px) !important;
-  top: calc(50% - 10px) !important;
-  height: 15px !important;
-  width: 15px !important;
 }
 
 .mat-calendar-body-selected {
@@ -295,6 +289,42 @@ body.contrast {
   border-color: $app-brand;
 }
 
+.mdc-snackbar.mat-mdc-snack-bar-container {
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  min-height: auto !important;
+  background-color: transparent !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.mdc-snackbar .mdc-snackbar__surface.mat-mdc-snackbar-surface {
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  max-width: 100% !important;
+}
+
+.mdc-snackbar .mat-mdc-snack-bar-label {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,
+.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {
+  stroke: $app-brand !important;
+}
+
 body.dark {
   .ng-select .ng-select-container {
     background-color: $black-dark !important;
@@ -304,7 +334,33 @@ body.dark {
   .ng-select.ng-select-multiple .ng-select-container.ng-has-value {
     background-color: $black-dark !important;
     color: $white !important;
-    }
+  }
+
+  .mat-mdc-checkbox .mdc-label {
+    color: $app-gray-01-dark !important;
+  }
+
+  .mat-mdc-radio-button .mdc-label {
+    color: $app-gray-01-dark;
+  }
+
+  .ng-option .mat-mdc-radio-button .mdc-radio__outer-circle {
+    border-color: $app-gray-01-dark !important;
+  }
+
+  .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-radio__outer-circle {
+    border-color: $white !important;
+  }
+
+  .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
+  .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
+    border-color: $white !important;
+  }
+
+  .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
+  .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
+    border-color: $white !important;
+  }
     
   .ng-dropdown-panel {
     background-color: $black-dark !important;
@@ -369,6 +425,14 @@ body.dark {
 
   .mat-calendar-arrow {
     border-top-color: $white;
+  }
+
+  .mat-calendar-table-header .ng-star-inserted{
+    color: $app-gray-04-dark !important;
+  }
+
+  .mat-calendar-period-button.mdc-button.mat-mdc-button {
+    color: $white !important;
   }
 
   .input-date-picker {
@@ -437,8 +501,79 @@ body.contrast {
   .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
     background-color: $yellow !important;
     color: $black !important;
+    border-color: $black !important;
   }
 
+  .ng-option .mat-mdc-checkbox .mdc-label, .mdc-checkbox__background {
+    color: $white !important;
+  }
+
+  .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-label {
+    color: $black !important;
+  }
+
+  .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-label {
+    color: $black !important;
+  }
+
+  .ng-option .mat-mdc-checkbox .mdc-checkbox__background {
+    border-color: $white !important;
+  }
+  
+  .ng-option.ng-option-marked.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background {
+    border-color: $black !important;
+    background-color: $yellow !important;
+  }
+
+  .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background {
+    border-color: $black !important;
+    background-color: $app-brand-contrast !important;
+  }
+
+  .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-checkbox__background {
+    border-color: $black !important;
+    background-color: $yellow !important;
+  }
+
+  .mat-mdc-radio-button.mat-mdc-radio-checked .mat-ripple-element {
+    background-color: $yellow !important;
+  }
+
+  .ng-option.ng-option-marked  {
+    background: $yellow;
+  }
+
+  .ng-option .mat-mdc-radio-button .mdc-label {
+    color: $white;
+  }
+
+  .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-label, 
+  .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-label {
+    color: $black;
+  }
+  
+  .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-label {
+    color: $black;
+  }
+
+  .ng-option .mat-mdc-radio-button .mdc-radio__outer-circle {
+    border-color: $white !important;
+  }
+
+  .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-radio__outer-circle {
+    border-color: $black !important;
+  }
+  
+  .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle, 
+  .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
+    border-color: $black !important;
+  }
+
+  .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle, 
+  .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
+    border-color: $black !important;
+  }
+  
   .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon {
     color: $black !important;
   }
@@ -455,12 +590,19 @@ body.contrast {
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover {
     background: $yellow !important;
   }
-  
-  .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+
+  .ng-option.ng-option-marked.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
+  .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
+  .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark {
+    background-color: transparent !important;
+    color: $black !important;
+  }
+
+  .mat-mdc-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
     border-color:  $yellow !important;
   }
   
-  .mat-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
+  .mat-mdc-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
   .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,.mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
     background-color: $yellow !important;
   }
@@ -468,22 +610,6 @@ body.contrast {
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
     background: $app-brand-contrast;
     color: $blue;
-  }
-
-  .mat-checkbox-frame, .mat-radio-outer-circle {
-    border-color: $app-brand-contrast;
-  }
-
-  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-outer-circle {
-    border-color: $app-brand-contrast !important;
-  }
-  
-  .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover .mat-radio-button.mat-accent .mat-radio-inner-circle {
-    background-color: $app-brand-contrast !important;
-  }
-
-  .mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
-    background: $blue !important;
   }
 
   .ng-dropdown-panel.ng-select-bottom {
@@ -498,13 +624,13 @@ body.contrast {
     background-color: $yellow !important;
     color: $black !important;
   }
-
+  
   .mat-datepicker-content {
     background-color: $black !important;
     color: $white !important;
     border: 1px solid $white
   }
-
+  
   .mat-calendar-body-cell-content, 
   .mat-calendar-body-label, 
   .mat-calendar-table-header, 
@@ -512,13 +638,27 @@ body.contrast {
     color: $white !important;
   }
 
-  .mat-calendar-table-header {
+  .mat-calendar-table-header .ng-star-inserted{
     color: $app-gray-04-dark !important;
   }
 
   .mat-calendar-body-today:not(.mat-calendar-body-selected) {
     border-color: $app-gray-04-dark !important;
   }
+  
+  .mat-calendar-period-button.mdc-button.mat-mdc-button {
+    color: $white !important;
+  }
+
+  .mat-calendar-body-cell-content.mat-focus-indicator.mat-calendar-body-selected {
+    color: $black !important;
+  }
+
+  .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-comparison-identical) {
+    background-color: $app-brand-contrast !important;
+    color: $black !important;
+  }
+  
 
   .mat-datepicker-content .mat-calendar-next-button, .mat-datepicker-content .mat-calendar-previous-button, .mat-datepicker-toggle {
     color: $white !important;
@@ -556,5 +696,3 @@ body.contrast {
     color: #8F8F8F;
   }
 }
-
-

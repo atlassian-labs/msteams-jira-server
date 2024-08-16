@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, Validators, UntypedFormControl, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     ApiService,
@@ -28,33 +28,33 @@ export class ConnectJiraComponent implements OnInit {
         private loadingIndicatorService: LoadingIndicatorService
     ) { }
 
-    public get jiraId(): AbstractControl {
-        return this.connectForm.get('jiraId');
+    public get jiraId(): AbstractControl | any {
+        return this.connectForm?.get('jiraId');
     }
 
-    public get verificationCode(): AbstractControl {
-        return this.loginForm.get('verificationCode');
+    public get verificationCode(): AbstractControl | any {
+        return this.loginForm?.get('verificationCode');
     }
 
     public static JIRA_ID_STORAGE_KEY = 'jira.jiraId';
-    private endpoint: string;
+    private endpoint: string | undefined;
 
     private readonly SETTINGS_PAGE_ROUTE = '/settings';
 
-    public connectForm: FormGroup;
-    public loginForm: FormGroup;
+    public connectForm: UntypedFormGroup | any;
+    public loginForm: UntypedFormGroup | any;
     public showAddonStatusError = false;
-    public jiraServerId: string;
-    public displayedUrl: string;
+    public jiraServerId: string | undefined;
+    public displayedUrl: string | undefined;
     public loading = false;
     public showLoginForm = false;
-    public errorMessage: string;
+    public errorMessage: string | undefined;
     public addonVersion = '';
     public jiraAuthUrl = '';
     public authClicked = false;
     public authDisabled = false;
 
-    private application: string;
+    private application: string | undefined;
     private enabledLoadingIndicatorHiding = true;
 
     public async ngOnInit(): Promise<void> {
@@ -125,12 +125,12 @@ export class ConnectJiraComponent implements OnInit {
         this.loadingIndicatorService.show();
 
         try {
-            const oauthToken: string = new RegExp('[\?&]oauth_token=([^&#]*)').exec(this.jiraAuthUrl)[1];
+            const oauthToken: string = (new RegExp('[\?&]oauth_token=([^&#]*)').exec(this.jiraAuthUrl) as any)[1];
             const { isSuccess, message } =
-                await this.apiService.submitLoginInfo(this.jiraServerId, oauthToken, this.verificationCode.value);
+                await this.apiService.submitLoginInfo(this.jiraServerId as string, oauthToken, this.verificationCode.value);
 
             if (isSuccess) {
-                const savingResult = await this.apiService.saveJiraServerId(this.jiraServerId);
+                const savingResult = await this.apiService.saveJiraServerId(this.jiraServerId as string);
                 if (savingResult.isSuccess) {
                     this.jiraAuthUrl = savingResult.message;
                     this.moveForward();
@@ -156,16 +156,16 @@ export class ConnectJiraComponent implements OnInit {
     }
 
     private buildConnectForm(): void {
-        this.connectForm = new FormGroup({
-            jiraId: new FormControl( null, Validators.required)
+        this.connectForm = new UntypedFormGroup({
+            jiraId: new UntypedFormControl( null, Validators.required)
         });
 
         this.jiraId.setValue(localStorage.getItem(ConnectJiraComponent.JIRA_ID_STORAGE_KEY));
     }
 
     private buildLoginForm(): void {
-        this.loginForm = new FormGroup({
-            verificationCode: new FormControl(null, Validators.required)
+        this.loginForm = new UntypedFormGroup({
+            verificationCode: new UntypedFormControl(null, Validators.required)
         });
     }
 
@@ -177,13 +177,13 @@ export class ConnectJiraComponent implements OnInit {
             }
             await this.authService.authenticate('./login.html', false);
         } catch (error) {
-            this.errorService.showDefaultError(error);
+            this.errorService.showDefaultError(error as any);
         }
     }
 
     private async handleTab(): Promise<void> {
         try {
-            const { displayName } = await this.apiService.getMyselfData(this.jiraServerId);
+            const { displayName } = await this.apiService.getMyselfData(this.jiraServerId as string);
             if (!this.endpoint || this.endpoint === 'undefined') {
                 this.endpoint = this.SETTINGS_PAGE_ROUTE;
             }

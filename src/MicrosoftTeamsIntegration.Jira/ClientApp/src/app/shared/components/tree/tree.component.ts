@@ -9,7 +9,7 @@ import { SelectChange } from '@shared/models/select-change.model';
     styleUrls: ['./tree.component.scss']
 })
 export class TreeComponent {
-    @Input() public title: string;
+    @Input() public title: string | undefined;
     @Input() public options: SelectOption[] = [];
     @Output() public optionSelect = new EventEmitter<SelectChange>();
 

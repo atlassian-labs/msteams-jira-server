@@ -10,9 +10,9 @@
     selector: '[timeToResolution]'
 })
 export class TimeToResolutionIconDirective implements OnInit {
-    @Input() timeValue: number;
-    @Input() isWorkHours: boolean;
-    @Input() isBreached: boolean;
+    @Input() timeValue: number | undefined;
+    @Input() isWorkHours: boolean | undefined;
+    @Input() isBreached: boolean | undefined;
 
     private readonly cutOfTimeInMilliseconds = 1800000; // 1 800 000 ms = 30 minutes critical time to resolution
 
@@ -50,7 +50,7 @@ export class TimeToResolutionIconDirective implements OnInit {
     private getStateColor(): string {
         return this.isBreached ?
             this.breachedStateColor :
-            this.timeValue <= this.cutOfTimeInMilliseconds ? this.expiredStateColor : this.workStateColor;
+            this.timeValue && (this.timeValue <= this.cutOfTimeInMilliseconds) ? this.expiredStateColor : this.workStateColor;
     }
 }
 

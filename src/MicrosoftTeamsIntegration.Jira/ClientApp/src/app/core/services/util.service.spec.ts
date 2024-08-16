@@ -12,7 +12,7 @@ describe('Service: Util',
                 providers: [UtilService]
             });
 
-            service = TestBed.get(UtilService);
+            service = TestBed.inject(UtilService);
         });
 
         it('should convert string to null or return string value',

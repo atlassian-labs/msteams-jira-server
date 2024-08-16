@@ -25,8 +25,11 @@
   margin-top: 0.2rem;
 
   &__content {
-    max-height: 43rem;
     overflow: auto;
+
+    // styles to make scrollbar shifted to the right
+    padding-right: 3.2rem;
+    margin-right: -3rem;
   }
 
   &__footer {
@@ -34,6 +37,10 @@
     bottom: 3.2rem;
     right: 3.2rem;
   }
+}
+
+.issue-form {
+  height: calc(100vh - 120px);
 }
 
 .summary__text-area {
@@ -113,6 +120,10 @@
     margin-top: 1.3rem;
     display: flex;
   }
+  
+  &__additional-data {
+    max-width: 200px !important;
+  }
 }
 
 .issue-types-dropdown {
@@ -186,4 +197,39 @@ hr {
   .main {
     padding: 0;
   }
+}
+
+// Flex layout styles
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-gap-20 {
+  gap: 20px;
+}
+
+.flex-space-between {
+  justify-content: space-between;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-6 {
+  flex: 6;
+}
+
+.flex-3 {
+  flex: 3;
+}
+
+.flex-grow-6 {
+  flex-grow: 6;
 }
