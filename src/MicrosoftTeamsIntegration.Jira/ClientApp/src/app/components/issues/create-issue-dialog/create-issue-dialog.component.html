@@ -13,15 +13,15 @@
             </div>
             <div class="field-group__body">
                 <app-dropdown #projectsDropdown 
-                  required="true" 
-                  searchable="true" 
+                  [required]="true" 
+                  [searchable]="true" 
                   [options]="availableProjectsOptions" 
                   [filteredOptions]="projectFilteredOptions"
                   [loading]="isFetchingProjects" 
                   (optionSelect)="onProjectSelected($event)" 
                   formControlName="project" 
                   (searchChange)="onSearchChanged($event)" 
-                  debounceTime="700"
+                  [debounceTime]="700"
                   (click)="handleProjectClick()"></app-dropdown>
             </div>
           </div>
@@ -36,7 +36,7 @@
 
             <div class="field-group__body">
               <div class="issue-types-dropdown">
-                <app-dropdown #issueTypeDropdown required="true" [options]="availableIssueTypesOptions"
+                <app-dropdown #issueTypeDropdown [required]="true" [options]="availableIssueTypesOptions"
                 (optionSelect)="onIssueTypeSelected($event)" formControlName="issuetype" [disabled]="!canCreateIssue"></app-dropdown>
               </div>
             </div>
@@ -103,7 +103,7 @@
             </div>
 
             <div class="field-group__body">
-              <app-dropdown searchable="true" isInnerSearch="true" [options]="prioritiesOptions"
+              <app-dropdown [searchable]="true" [isInnerSearch]="true" [options]="prioritiesOptions"
                 formControlName="priority" [disabled]="fetching || !canCreateIssue"></app-dropdown>
             </div>
           </div>
@@ -122,7 +122,7 @@
 
             <div class="field-group__body">
               <app-dropdown #assigneesDropdown optionsHeader="Suggestions" optionsFooter="Start Typing for Users"
-                searchable="true" [loading]="assigneesLoading && !fetching" [options]="assigneesOptions"
+                [searchable]="true" [loading]="assigneesLoading && !fetching" [options]="assigneesOptions"
                 [filteredOptions]="assigneesFilteredOptions" (searchChange)="onAssigneeSearchChanged($event)"
                 formControlName="assignee"  [disabled]="fetching || !canCreateIssue"></app-dropdown>
 

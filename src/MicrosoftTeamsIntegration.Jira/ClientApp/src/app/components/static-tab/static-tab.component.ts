@@ -9,7 +9,7 @@ import { ActivatedRoute, Router, ParamMap } from '@angular/router';
     template: ''
 })
 export class StaticTabComponent implements OnInit {
-    private page: string;
+    private page: string | any;
 
     constructor(
         private router: Router,

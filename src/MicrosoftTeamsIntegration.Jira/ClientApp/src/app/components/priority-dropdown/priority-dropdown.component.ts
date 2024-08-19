@@ -14,17 +14,17 @@ import { DropDownOption } from '@shared/models/dropdown-option.model';
 export class PriorityDropdownComponent implements OnInit {
 
     public priorityOptions: DropDownOption<string>[] = [];
-    public selectedOption: DropDownOption<string>;
+    public selectedOption: DropDownOption<string> | any;
     public loading = false;
-    public errorMessage: string;
+    public errorMessage: string | undefined;
 
-    private priorities: Priority[];
+    private priorities: Priority[] | undefined;
 
-    @ViewChild(DropDownComponent, {static: false}) dropdown: DropDownComponent<string>;
+    @ViewChild(DropDownComponent, {static: false}) dropdown: DropDownComponent<string> | any;
 
-    @Input() jiraUrl: string;
-    @Input() issuePriorityId: string;
-    @Input() issueId: string;
+    @Input() jiraUrl: string | any;
+    @Input() issuePriorityId: string | any;
+    @Input() issueId: string | any;
 
     @Output() priorityChange: EventEmitter<string> = new EventEmitter<string>();
 
@@ -49,7 +49,7 @@ export class PriorityDropdownComponent implements OnInit {
         this.loading = true;
 
         try {
-            const priority = this.priorities.find(prt => prt.id === option.id);
+            const priority = this.priorities?.find(prt => prt.id === option.id) as any;
             const response = await this.apiService.updatePriority(this.jiraUrl, this.issueId, priority);
 
             if (response.isSuccess) {
@@ -60,7 +60,7 @@ export class PriorityDropdownComponent implements OnInit {
             }
         } catch (error) {
             this.dropdown.setPreviousValue();
-            this.errorMessage = error.errorMessage || error.message || 'Error occured.';
+            this.errorMessage = (error as any).errorMessage || (error as any).message || 'Error occured.';
         }
 
         this.loading = false;

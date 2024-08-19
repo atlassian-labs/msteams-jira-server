@@ -14,7 +14,7 @@ import { LoadingIndicatorService } from '@shared/services/loading-indicator.serv
 export class LoadingIndicatorComponent implements OnInit, OnDestroy {
     public loading = false;
 
-    private subscription: Subscription;
+    private subscription: Subscription | undefined;
 
     constructor(
         private readonly loadingIndicatorService: LoadingIndicatorService
@@ -25,6 +25,6 @@ export class LoadingIndicatorComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy(): void {
-        this.subscription.unsubscribe();
+        this.subscription?.unsubscribe();
     }
 }

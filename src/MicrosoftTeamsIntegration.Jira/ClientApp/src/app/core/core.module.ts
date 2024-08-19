@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { NgModule, APP_INITIALIZER } from '@angular/core';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AuthGuard } from '@core/guards/auth.guard';
 import { AuthInterceptor } from '@core/interceptors/auth.interceptor';
@@ -14,11 +14,8 @@ export function getSettingsFactory(appLoadService: AppLoadService): Function {
     return () => appLoadService.getSettings();
 }
 
-@NgModule({
-    imports: [
-        HttpClientModule
-    ],
-    providers: [
+@NgModule(
+    { imports: [], providers: [
         AuthGuard,
         {
             provide: APP_INITIALIZER,
@@ -35,7 +32,7 @@ export function getSettingsFactory(appLoadService: AppLoadService): Function {
             provide: HTTP_INTERCEPTORS,
             useClass: AuthInterceptor,
             multi: true
-        }
-    ]
-})
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class CoreModule { }

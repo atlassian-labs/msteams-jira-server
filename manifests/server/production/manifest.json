@@ -194,28 +194,6 @@
             "compose",
             "commandBox",
             "message"
-          ],
-          "parameters": [
-            {
-              "name": "summary",
-              "title": "Issue summary"
-            },
-            {
-              "name": "description",
-              "title": "Issue description"
-            },
-            {
-              "name": "issueType",
-              "title": "Issue type"
-            },
-            {
-              "name": "assignee",
-              "title": "Issue assignee"
-            },
-            {
-              "name": "priority",
-              "title": "Issue priority"
-            }
           ]
         },
         {
@@ -226,16 +204,6 @@
           "fetchTask": true,
           "context": [
             "message"
-          ],
-          "parameters": [
-            {
-              "name": "comment",
-              "title": "Issue comment"
-            },
-            {
-              "name": "issueUrl",
-              "title": "Issue url"
-            }
           ]
         }
       ]

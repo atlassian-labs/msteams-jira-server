@@ -11,8 +11,8 @@ import { PageName } from '@core/enums';
     template: ''
 })
 export class GoToWebsiteComponent implements OnInit {
-    private page: string;
-    private jiraInstanceUrl: string;
+    private page: string | undefined;
+    private jiraInstanceUrl: string | undefined;
 
     constructor(
         private apiService: ApiService,
@@ -23,7 +23,7 @@ export class GoToWebsiteComponent implements OnInit {
 
     public async ngOnInit(): Promise<void> {
         this.route.paramMap.subscribe((params: ParamMap) => {
-            this.page = params.get('page');
+            this.page = params.get('page') as any;
         });
 
         if (!this.authService.isAuthenticated) {
@@ -35,7 +35,7 @@ export class GoToWebsiteComponent implements OnInit {
         const { jiraServerInstanceUrl } = await this.apiService.getCurrentUserData(jiraUrl);
         this.jiraInstanceUrl = jiraServerInstanceUrl;
 
-        const url = this.buildRedirectUrl(this.page);
+        const url = this.buildRedirectUrl(this.page as any);
 
         if (url) {
             window.location.replace(url);
@@ -45,7 +45,7 @@ export class GoToWebsiteComponent implements OnInit {
         }
     }
 
-    private buildRedirectUrl(page: string): string {
+    private buildRedirectUrl(page: string): string | null {
         if (!this.jiraInstanceUrl) {
             return null;
         }

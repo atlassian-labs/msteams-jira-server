@@ -22,20 +22,17 @@ import { StatusCode, ApplicationType } from '@core/enums';
 })
 export class LoginComponent implements OnInit {
     public isLoginButtonVisible = false;
-    public buttonTitle: string;
+    public buttonTitle: string | undefined;
 
     public get isJiraServerComposeApplication(): boolean {
         return this.application === ApplicationType.JiraServerCompose;
     }
 
-    private jiraUrl: string;
-    private status: number;
-    private application: string;
-    private staticTabChangeUrl = false;
-    private authorizationUrl: string;
-
-    private readonly JIRA_SERVER_TAB_AUTH_REDIRECT_URL =
-        `/#/config;application=jiraServerTab;endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl}`;
+    private jiraUrl: string | undefined;
+    private status: number | undefined;
+    private application: string | undefined;
+    private authorizationUrl: string | undefined;
+    private staticTabChangeUrl: boolean | undefined;
 
     constructor(
         private router: Router,
@@ -61,7 +58,9 @@ export class LoginComponent implements OnInit {
         try {
             this.authorizationUrl = `/#/config;application=${this.application}`;
             if (this.application === ApplicationType.JiraServerTab) {
-                this.authorizationUrl = this.JIRA_SERVER_TAB_AUTH_REDIRECT_URL;
+                this.authorizationUrl =
+                    '/#/config;application=jiraServerTab;' +
+                    `endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl as string}`;
             }
 
             localStorage.setItem('redirectUri', this.authorizationUrl);
@@ -124,7 +123,7 @@ export class LoginComponent implements OnInit {
         try {
             await this.getJiraUserDataAndNavigateToView();
         } catch (error) {
-            this.errorService.showDefaultError(error);
+            this.errorService.showDefaultError(error as any);
         }
     }
 
@@ -140,7 +139,7 @@ export class LoginComponent implements OnInit {
 
         // Handle case if user finished microsoft authorization but has closed a window.
         if (error === 'CancelledByUser' && this.authService.isAuthenticated) {
-            this.jiraUrl = this.route.snapshot.params.previousJiraUrl || this.jiraUrl;
+            this.jiraUrl = this.route.snapshot.params['previousJiraUrl'] || this.jiraUrl;
 
             await this.getJiraUserDataAndNavigateToView();
             return;
@@ -150,7 +149,7 @@ export class LoginComponent implements OnInit {
     }
 
     private async getJiraUserDataAndNavigateToView(): Promise<void> {
-        const endpoint = this.route.snapshot.params.endpoint;
+        const endpoint = this.route.snapshot.params['endpoint'];
         let redirectRoute: string;
         let params = {};
 
@@ -177,7 +176,7 @@ export class LoginComponent implements OnInit {
             ]);
         } catch (error) {
             this.appInsightsService.trackException(
-                error,
+                error as any,
                 'LoginComponent::GetJiraUserDataAndNavigateToView',
                 {
                     redirectRoute,

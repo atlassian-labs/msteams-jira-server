@@ -17,7 +17,7 @@ import {
 })
 export class SignoutMaterialDialogComponent implements OnInit {
 
-    private jiraUrl: string;
+    private jiraUrl: string | undefined;
 
     public isSigningOut = false;
 
@@ -35,11 +35,11 @@ export class SignoutMaterialDialogComponent implements OnInit {
             this.jiraUrl = this.utilService.convertStringToNull(this.data.jiraUrl);
         } catch (error) {
             this.appInsightsService.trackException(
-                new Error(error),
+                new Error(error as any),
                 'SignoutMaterialDialogComponent::ngOnInit'
             );
 
-            if (error.status && error.status === 401) {
+            if ((error as any).status && (error as any).status === 401) {
                 this.dialogRef.close(false);
             }
         }
@@ -48,12 +48,12 @@ export class SignoutMaterialDialogComponent implements OnInit {
     public async signOut(): Promise<void> {
         try {
             this.isSigningOut = true;
-            await this.apiService.logOut(this.jiraUrl);
+            await this.apiService.logOut(this.jiraUrl as string);
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error('Error while signout from Jira'),
                 'SignoutMaterialDialogComponent::signOut',
-                { originalErrorMessage: error.message }
+                { originalErrorMessage: (error as any).message }
             );
         } finally {
             this.isSigningOut = false;

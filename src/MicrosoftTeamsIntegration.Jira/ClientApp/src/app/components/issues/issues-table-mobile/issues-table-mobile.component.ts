@@ -7,6 +7,6 @@ import { NormalizedIssue } from '@core/models';
     templateUrl: './issues-table-mobile.component.html'
 })
 export class IssuesTableMobileComponent {
-    @Input() public data: NormalizedIssue[];
+    @Input() public data: NormalizedIssue[] | any;
     @Output() public issueClicked = new EventEmitter<string>();
 }

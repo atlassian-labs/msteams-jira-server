@@ -56,10 +56,7 @@
 
   &__content {
     overflow: auto;
-
-    // note: overall height of the task module in desktop is 522px
-    // so the main part is 100vh(522px) - 56px(32px footer>buttons>button + 12px margin-bottom from content + 12px margin-bottom from footer)
-    max-height: calc(100vh - 56px);
+    max-height: calc(100vh - 48px);
     margin-bottom: 12px;
     
     // styles to make scrollbar shifted to the right

@@ -245,6 +245,7 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("*.atlassian.net")
                         .From("secure.aadcdn.microsoftonline-p.com")
                         .From("statics.teams.cdn.office.net")
+                        .From("res.cdn.office.net")
                         .From("cdnjs.cloudflare.com")
                         .From("statics.teams.microsoft.com")
                         .From("connect-cdn.atl-paas.net")
@@ -313,11 +314,15 @@ namespace MicrosoftTeamsIntegration.Jira
 
             app.UseSpa(spa =>
             {
+                const int port = 4200;
                 spa.Options.SourcePath = "ClientApp";
+                spa.Options.DevServerPort = port;
+                spa.Options.PackageManagerCommand = "npm";
 
                 if (env.IsDevelopment() && !_configuration.GetValue<bool>("DisableAngularCliServer"))
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseAngularCliServer("start");
+                    spa.UseProxyToSpaDevelopmentServer($"http://localhost:{port}");
                 }
             });
         }

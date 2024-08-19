@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { Injectable } from '@angular/core';
-import { HostClientType, getContext } from '@microsoft/teams-js';
-import { compare } from 'compare-versions';
+import {Injectable} from '@angular/core';
+import * as microsoftTeams from '@microsoft/teams-js';
+import {HostClientType} from '@microsoft/teams-js';
+import {compare} from 'compare-versions';
 
 interface PredefinedFilters {
     id: number;
@@ -29,11 +30,11 @@ export class UtilService {
         'Please upgrade Jira Server for Microsoft Teams app on your Jira Data Center to perform projects search.';
     private readonly ADDON_VERSION = '2022.08.103';
 
-    public isMobile = (): Promise<boolean> =>
-        new Promise(resolve =>
-            getContext(({ hostClientType }) =>
-                resolve(hostClientType === HostClientType.ios || hostClientType === HostClientType.android))
-        );
+    public isMobile = async (): Promise<boolean> => {
+        const context = await microsoftTeams.app.getContext();
+        return context.app.host.clientType === HostClientType.ios ||
+            context.app.host.clientType === HostClientType.android;
+    };
 
     public getFilters = (): PredefinedFilters[] => this.PREDEFINED_FILTERS;
 
@@ -49,11 +50,11 @@ export class UtilService {
     }
 
     public getMsTeamsContext = (): { tid: string; loginHint: string; userObjectId: string; locale: string } =>
-        JSON.parse(localStorage.getItem('msTeamsContext'));
+        JSON.parse(localStorage.getItem('msTeamsContext') as string);
 
     public setTeamsContext = (tenantId: string): void => localStorage.setItem('msTeamsContext', JSON.stringify({ tid: tenantId }));
 
-    public getUserClientId = (): string => localStorage.getItem('userClientId');
+    public getUserClientId = (): string => localStorage.getItem('userClientId') as string;
 
     public getAADInstance = (): string => {
         const microsoftLoginBaseUrl = localStorage.getItem('microsoftLoginBaseUrl');
@@ -102,7 +103,7 @@ export class UtilService {
         return encodeURI(link);
     }
 
-    public getJiraServerId = (): string => localStorage.getItem('jiraServer.jiraId');
+    public getJiraServerId = (): string => localStorage.getItem('jiraServer.jiraId') as string;
 
     public getQueryParam(paramName: string) {
         const result = '';

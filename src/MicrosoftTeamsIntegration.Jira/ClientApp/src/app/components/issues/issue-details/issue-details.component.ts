@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Issue } from '@core/models';
 import { DomSanitizer } from '@angular/platform-browser';
-import { isNullOrUndefined } from 'util';
 
 @Component({
     selector: 'app-issue-details',
@@ -9,14 +8,14 @@ import { isNullOrUndefined } from 'util';
     styleUrls: ['./issue-details.component.scss']
 })
 export class IssueDetailsComponent implements OnInit {
-    public title: string;
-    public subtitle: string;
-    public issueTypeImg: string;
-    public priorityImg: string;
+    public title: string | any;
+    public subtitle: string | any;
+    public issueTypeImg: string | any;
+    public priorityImg: string | any;
 
-    @Input() issue: Issue;
+    @Input() issue: Issue | any;
 
-    constructor(private sanitizer: DomSanitizer) { }
+    constructor(public sanitizer: DomSanitizer) { }
 
     ngOnInit() {
         if (this.issue) {
@@ -24,15 +23,22 @@ export class IssueDetailsComponent implements OnInit {
             this.subtitle = this.getSubtittle(this.issue);
 
             if (this.issue.fields && this.issue.fields.issuetype) {
-                this.issueTypeImg = !isNullOrUndefined(this.issue.fields.issuetype.iconUrl)
+                this.issueTypeImg = !(this.issue.fields.issuetype.iconUrl === undefined ||
+                    this.issue.fields.issuetype.iconUrl === null)
                     ? this.issue.fields.issuetype.iconUrl : null;
             }
 
             if (this.issue.fields && this.issue.fields.priority) {
-                this.priorityImg = !isNullOrUndefined(this.issue.fields.priority.iconUrl)
+                this.priorityImg = !(this.issue.fields.priority.iconUrl === undefined ||
+                    this.issue.fields.priority.iconUrl === null
+                )
                     ? this.issue.fields.priority.iconUrl : null;
             }
         }
+    }
+
+    public sanitizeUrl(url: string | any): any {
+        return this.sanitizer?.bypassSecurityTrustUrl(url);
     }
 
     private getSubtittle(issue: Issue): string {

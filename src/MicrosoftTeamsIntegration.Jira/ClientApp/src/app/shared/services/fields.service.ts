@@ -14,7 +14,6 @@ import { LabelsFieldComponent } from '@app/components/issues/fields/labels-field
 import { SprintFieldComponent } from '@app/components/issues/fields/sprint-field.component';
 import { EpicFieldComponent } from '@app/components/issues/fields/epic-field.component';
 import { UrlFieldComponent } from '@app/components/issues/fields/url-field.component';
-import { FormControl } from '@angular/forms';
 import { SelectCascadingFieldComponent } from '@app/components/issues/fields/select-cascading-field.component';
 
 @Injectable({
@@ -23,21 +22,24 @@ import { SelectCascadingFieldComponent } from '@app/components/issues/fields/sel
 export class FieldsService {
     // list of allowed fields with display order
     private allowedDynamicFields = [
-        {id: 'project', order: 0},
-        {id: 'issuetype', order: 1},
-        {id: 'summary', order: 2},
-        {id: 'description', order: 3},
-        {id: 'priority', order: 4},
-        {id: 'assignee', order: 5},
-        {id: 'labels', order: 6},
-        {id: 'duedate', order: 7},
-        {id: 'versions', order: 8},
-        {id: 'fixVersions', order: 9},
-        {id: 'components', order: 10},
-        {id: 'environment', order: 11},
-        {id: 'sprint', order: 12}, // sprint is a custom field in Jira, so we need set the order to it separately. Reserve order number
-        {id: 'epic', order: 13}, // epic link is a custom field in Jira, so we need set the order to it separately. Reserve order number
-        {id: 'epicName', order: 14}, // epic name is a custom field in Jira, so we need set the order to it separately. Reserve order number
+        { id: 'project', order: 0 },
+        { id: 'issuetype', order: 1 },
+        { id: 'summary', order: 2 },
+        { id: 'description', order: 3 },
+        { id: 'priority', order: 4 },
+        { id: 'assignee', order: 5 },
+        { id: 'labels', order: 6 },
+        { id: 'duedate', order: 7 },
+        { id: 'versions', order: 8 },
+        { id: 'fixVersions', order: 9 },
+        { id: 'components', order: 10 },
+        { id: 'environment', order: 11 },
+        // sprint is a custom field in Jira, so we need set the order to it separately. Reserve order number
+        { id: 'sprint', order: 12 },
+        // epic link is a custom field in Jira, so we need set the order to it separately. Reserve order number
+        { id: 'epic', order: 13 },
+        // epic name is a custom field in Jira, so we need set the order to it separately. Reserve order number
+        { id: 'epicName', order: 14 },
     ];
 
     private allowedCustomFiledTypes = [
@@ -71,9 +73,9 @@ export class FieldsService {
         const result = Object.keys(fields).
             filter(x => this.allowedDynamicFields.
                 find(f => f.id === x) ||
-        (customRequiredOnly ?
-            x.includes('customfield_') && this.allowedCustomFiledTypes.includes(fields[x].schema.custom) && fields[x].required :
-            x.includes('customfield_') && this.allowedCustomFiledTypes.includes(fields[x].schema.custom))).
+                (customRequiredOnly ?
+                    x.includes('customfield_') && this.allowedCustomFiledTypes.includes(fields[x].schema.custom) && fields[x].required :
+                    x.includes('customfield_') && this.allowedCustomFiledTypes.includes(fields[x].schema.custom))).
             map(x => {
                 const rObj = fields[x];
                 rObj.key = fields[x].key || x;
@@ -112,7 +114,8 @@ export class FieldsService {
 
         // get allowed fields (including custom fields), and sort them by predefined order
         const dynamicFields = Object.keys(fields).filter(x =>
-            this.allowedDynamicFields.find(f => f.id === x) || x.includes('customfield_')).map(x => {
+            this.allowedDynamicFields.find(f => f.id === x) ||
+            x.includes('customfield_')).map(x => {
             const rObj = fields[x];
             rObj.key = fields[x].key || x;
             return rObj;
@@ -125,10 +128,10 @@ export class FieldsService {
             // get templates for:
             // Custom Select list (multiline), Fix Versions, Affected Versions, Components
             if ((dynamicField.schema.custom && dynamicField.schema.custom ===
-                    'com.atlassian.jira.plugin.system.customfieldtypes:multiselect') ||
-      dynamicField.schema.system === 'versions' ||
-      dynamicField.schema.system === 'fixVersions' ||
-      dynamicField.schema.system === 'components') {
+                'com.atlassian.jira.plugin.system.customfieldtypes:multiselect') ||
+                dynamicField.schema.system === 'versions' ||
+                dynamicField.schema.system === 'fixVersions' ||
+                dynamicField.schema.system === 'components') {
                 dynamicFieldsData.push(new FieldItem(SelectFieldComponent, {
                     name: dynamicField.name,
                     allowedValues: dynamicField.allowedValues.map(this.dropdownUtilService.mapAllowedValueToSelectOption),
@@ -137,7 +140,8 @@ export class FieldsService {
                     formControlName: dynamicField.key,
                     disabled: null,
                     multiple: true,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Select list (single choice)
             if (dynamicField.schema.custom && dynamicField.schema.custom ===
@@ -150,7 +154,8 @@ export class FieldsService {
                     formControlName: dynamicField.key,
                     disabled: null,
                     multiple: false,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Select list (cascading)
             if (dynamicField.schema.custom && dynamicField.schema.custom ===
@@ -162,42 +167,46 @@ export class FieldsService {
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Text field (single line)
-            if (dynamicField.schema.custom && ( dynamicField.schema.custom ===
+            if (dynamicField.schema.custom && (dynamicField.schema.custom ===
                 'com.atlassian.jira.plugin.system.customfieldtypes:textfield' ||
-        dynamicField.schema.custom === 'com.pyxis.greenhopper.jira:gh-epic-label')) {
+                dynamicField.schema.custom === 'com.pyxis.greenhopper.jira:gh-epic-label')) {
                 dynamicFieldsData.push(new FieldItem(TextFieldSingleComponent, {
                     name: dynamicField.name,
                     defaultValue: this.getDefaultValue(dynamicField),
                     placeholder: 'Enter value',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Text field (multiline)
             if ((dynamicField.schema.custom && dynamicField.schema.custom ===
-                    'com.atlassian.jira.plugin.system.customfieldtypes:textarea') ||
-        dynamicField.schema.system === 'environment') {
+                'com.atlassian.jira.plugin.system.customfieldtypes:textarea') ||
+                dynamicField.schema.system === 'environment') {
                 dynamicFieldsData.push(new FieldItem(TextFieldMultiComponent, {
                     name: dynamicField.name,
                     defaultValue: this.getDefaultValue(dynamicField),
                     placeholder: 'Enter value',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Date picker, Due Date
             if ((dynamicField.schema.custom && dynamicField.schema.custom ===
-                    'com.atlassian.jira.plugin.system.customfieldtypes:datepicker') ||
-        dynamicField.schema.system === 'duedate') {
+                'com.atlassian.jira.plugin.system.customfieldtypes:datepicker') ||
+                dynamicField.schema.system === 'duedate') {
                 dynamicFieldsData.push(new FieldItem(DatePickerFieldComponent, {
                     name: dynamicField.name,
                     placeholder: 'Choose a date',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Radio button
             if (dynamicField.schema.custom && dynamicField.schema.custom ===
@@ -209,7 +218,8 @@ export class FieldsService {
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Checkboxes
             if (dynamicField.schema.custom && dynamicField.schema.custom ===
@@ -221,7 +231,8 @@ export class FieldsService {
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom Number field
             if (dynamicField.schema.custom && dynamicField.schema.custom ===
@@ -232,7 +243,8 @@ export class FieldsService {
                     placeholder: 'Enter value',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom User picker (single user)
             if (dynamicField.schema.custom && dynamicField.schema.custom ===
@@ -243,7 +255,8 @@ export class FieldsService {
                     formControlName: dynamicField.key,
                     jiraUrl: jiraUrl,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Labels
             if (dynamicField.schema.system === 'labels') {
@@ -254,10 +267,12 @@ export class FieldsService {
                     addTagText: '(New label)',
                     jiraUrl: jiraUrl,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Sprints
-            if (dynamicField.schema.custom && dynamicField.schema.custom === 'com.pyxis.greenhopper.jira:gh-sprint') {
+            if (dynamicField.schema.custom && dynamicField.schema.custom ===
+                'com.pyxis.greenhopper.jira:gh-sprint') {
 
                 const projectId = fields['project'] && fields['project'].allowedValues && fields['project'].allowedValues.length > 0 ?
                     fields['project'].allowedValues[0].id :
@@ -270,10 +285,12 @@ export class FieldsService {
                     jiraUrl: jiraUrl,
                     projectKeyOrId: projectId,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Epic Link
-            if (dynamicField.schema.custom && dynamicField.schema.custom === 'com.pyxis.greenhopper.jira:gh-epic-link') {
+            if (dynamicField.schema.custom && dynamicField.schema.custom ===
+                'com.pyxis.greenhopper.jira:gh-epic-link') {
 
                 const projectId = fields['project'] && fields['project'].allowedValues && fields['project'].allowedValues.length > 0 ?
                     fields['project'].allowedValues[0].id :
@@ -286,17 +303,20 @@ export class FieldsService {
                     jiraUrl: jiraUrl,
                     projectKeyOrId: projectId,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
             // Custom URL field
-            if (dynamicField.schema.custom && dynamicField.schema.custom === 'com.atlassian.jira.plugin.system.customfieldtypes:url') {
+            if (dynamicField.schema.custom && dynamicField.schema.custom ===
+                'com.atlassian.jira.plugin.system.customfieldtypes:url') {
                 dynamicFieldsData.push(new FieldItem(UrlFieldComponent, {
                     name: dynamicField.name,
                     defaultValue: this.getDefaultValue(dynamicField),
                     placeholder: 'Enter URL',
                     formControlName: dynamicField.key,
                     disabled: null,
-                    required: dynamicField.required}));
+                    required: dynamicField.required
+                }));
             }
         });
 
@@ -308,7 +328,7 @@ export class FieldsService {
         try {
             if (dynamicField.hasDefaultValue) {
                 if (Array.isArray(dynamicField.defaultValue)) {
-                    defaultValue = dynamicField.defaultValue.map(x => x.id ? x.id : x);
+                    defaultValue = dynamicField.defaultValue.map((x: { id: any }) => x.id ? x.id : x);
                 } else if (dynamicField.defaultValue && dynamicField.defaultValue.id) {
                     if (dynamicField.defaultValue.child) {
                         defaultValue = dynamicField.defaultValue;
@@ -325,8 +345,8 @@ export class FieldsService {
         return defaultValue;
     }
 
-    private orderDynamicFields(a, b) {
-    // order by order filed, then by name
+    private orderDynamicFields(a: any, b: any) {
+        // order by order filed, then by name
         if (a.order < b.order) {
             return -1;
         }

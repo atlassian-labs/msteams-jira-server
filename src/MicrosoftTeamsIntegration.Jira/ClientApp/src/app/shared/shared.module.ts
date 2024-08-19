@@ -5,13 +5,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { ClickOutsideModule } from 'ng-click-outside';
-import { SpinnerModule } from 'angular2-spinner/dist';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule } from '@angular/material/dialog';
+import { NgClickOutsideDirective } from 'ng-click-outside2';
+import { MatButtonModule} from '@angular/material/button';
+import { MatDialogModule} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule, MatSpinner } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule, MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatTooltipModule} from '@angular/material/tooltip';
 
 import { SharedComponents } from '@shared/components';
 import { TruncatedTextComponent } from '@shared/truncated-text/truncated-text.component';
@@ -20,13 +19,12 @@ import { TruncatedTextComponent } from '@shared/truncated-text/truncated-text.co
     imports: [
         CommonModule,
         FormsModule,
-        SpinnerModule,
         MatDialogModule,
         MatButtonModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatIconModule,
-        ClickOutsideModule
+        NgClickOutsideDirective
     ],
     declarations: [
         SharedComponents,
@@ -35,7 +33,7 @@ import { TruncatedTextComponent } from '@shared/truncated-text/truncated-text.co
     exports: [
         SharedComponents,
         MatIconModule,
-        MatSpinner,
+        MatProgressSpinner,
         TruncatedTextComponent
     ]
 })

@@ -48,14 +48,14 @@
 
                 <app-dropdown #projectsDropdown
                     placeholder="Select or start typing to search"
-                    required="true" 
-                    searchable="true" 
+                    [required]="true" 
+                    [searchable]="true" 
                     [loading]="isFetchingProjects" 
                     [options]="availableProjectsOptions" 
                     [filteredOptions]="projectFilteredOptions"
                     (optionSelect)="onProjectSelected($event)" 
                     (searchChange)="onSearchChanged($event)" 
-                    debounceTime="700"
+                    [debounceTime]="700"
                     (click)="handleProjectClick()"></app-dropdown>
 
                 <div *ngIf="selectedProject">

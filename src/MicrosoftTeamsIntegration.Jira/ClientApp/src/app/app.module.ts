@@ -3,7 +3,7 @@
 
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,7 +19,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CdkTableModule } from '@angular/cdk/table';
-import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { CoreModule } from '@core/core.module';
 import { SharedModule } from '@shared/shared.module';
@@ -59,100 +58,71 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SuccessSnackbarComponent } from './components/snack-bars/success-bar/success-snackbar.component';
 import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-snackbar.component';
 
-@NgModule({
-    imports: [
-        BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RoutingModule,
-        BrowserModule,
-        HttpClientModule,
-        MatCheckboxModule,
-        MatDialogModule,
-        MatDatepickerModule,
-        MatInputModule,
-        MatRadioModule,
-        MatMomentDateModule,
-        MatButtonModule,
-        MatTooltipModule,
-        MatTableModule,
-        NgSelectModule,
-        CdkTableModule,
-        FlexLayoutModule,
-        MatSortModule,
-        MatPaginatorModule,
-        CoreModule,
-        SharedModule,
-        MatSnackBarModule
-    ],
-    declarations: [
-        AppComponent,
-        LoginComponent,
-        StaticTabComponent,
-        IssuesComponent,
-        ErrorComponent,
-        FavoriteFiltersEmptyComponent,
-        SettingsComponent,
-        SettingsProjectComponent,
-        EditIssueDialogComponent,
-        AssigneeDropdownComponent,
-        PriorityDropdownComponent,
-        StatusDropdownComponent,
-        CreateIssueDialogComponent,
-        IssueCommentComponent,
-        NewCommentComponent,
-        TimeToResolutionIconDirective,
-        IssuesTableMobileComponent,
-        ConnectJiraComponent,
-        CreateCommentDialogComponent,
-        CommentIssueDialogComponent,
-        IssueDetailsComponent,
-        SignoutMaterialDialogComponent,
-        SignoutDialogComponent,
-        GoToWebsiteComponent,
-        DynamicFieldsDirective,
-        DynamicFieldsComponent,
-        SelectFieldComponent,
-        TextFieldSingleComponent,
-        TextFieldMultiComponent,
-        DatePickerFieldComponent,
-        RadioSelectFieldComponent,
-        CheckboxSelectFieldComponent,
-        TextFieldNumberComponent,
-        UserPickerFieldComponent,
-        LabelsFieldComponent,
-        SprintFieldComponent,
-        EpicFieldComponent,
-        UrlFieldComponent,
-        SelectCascadingFieldComponent,
-        SuccessSnackbarComponent,
-        ErrorSnackbarComponent
-    ],
-    entryComponents: [
-        EditIssueDialogComponent,
-        CreateIssueDialogComponent,
-        CreateCommentDialogComponent,
-        CommentIssueDialogComponent,
-        SignoutMaterialDialogComponent,
-        SelectFieldComponent,
-        TextFieldSingleComponent,
-        TextFieldMultiComponent,
-        DatePickerFieldComponent,
-        RadioSelectFieldComponent,
-        CheckboxSelectFieldComponent,
-        TextFieldNumberComponent,
-        UserPickerFieldComponent,
-        LabelsFieldComponent,
-        SprintFieldComponent,
-        EpicFieldComponent,
-        UrlFieldComponent,
-        SelectCascadingFieldComponent,
-        SuccessSnackbarComponent,
-        ErrorSnackbarComponent
-    ],
-    bootstrap: [AppComponent],
-    providers: [
-        { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true} }
-    ]
-})
+@NgModule({ declarations: [
+    AppComponent,
+    LoginComponent,
+    StaticTabComponent,
+    IssuesComponent,
+    ErrorComponent,
+    FavoriteFiltersEmptyComponent,
+    SettingsComponent,
+    SettingsProjectComponent,
+    EditIssueDialogComponent,
+    AssigneeDropdownComponent,
+    PriorityDropdownComponent,
+    StatusDropdownComponent,
+    CreateIssueDialogComponent,
+    IssueCommentComponent,
+    NewCommentComponent,
+    TimeToResolutionIconDirective,
+    IssuesTableMobileComponent,
+    ConnectJiraComponent,
+    CreateCommentDialogComponent,
+    CommentIssueDialogComponent,
+    IssueDetailsComponent,
+    SignoutMaterialDialogComponent,
+    SignoutDialogComponent,
+    GoToWebsiteComponent,
+    DynamicFieldsDirective,
+    DynamicFieldsComponent,
+    SelectFieldComponent,
+    TextFieldSingleComponent,
+    TextFieldMultiComponent,
+    DatePickerFieldComponent,
+    RadioSelectFieldComponent,
+    CheckboxSelectFieldComponent,
+    TextFieldNumberComponent,
+    UserPickerFieldComponent,
+    LabelsFieldComponent,
+    SprintFieldComponent,
+    EpicFieldComponent,
+    UrlFieldComponent,
+    SelectCascadingFieldComponent,
+    SuccessSnackbarComponent,
+    ErrorSnackbarComponent
+],
+bootstrap: [AppComponent], imports: [BrowserAnimationsModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RoutingModule,
+    BrowserModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatDatepickerModule,
+    MatInputModule,
+    MatRadioModule,
+    MatMomentDateModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatTableModule,
+    NgSelectModule,
+    CdkTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    CoreModule,
+    SharedModule,
+    MatSnackBarModule], providers: [
+    { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } },
+    provideHttpClient(withInterceptorsFromDi())
+] })
 export class AppModule { }

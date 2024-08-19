@@ -18,8 +18,12 @@
                             placeholder="Search issues" class="field-group__search-input" type="text"/>
                         </div>
                     </div>
-
-                    <div class="search-result">
+                    
+                    <div class="issue-loading" *ngIf="isSearching">
+                        <mat-spinner [diameter]="50"></mat-spinner>
+                    </div>
+                    
+                    <div class="search-result" [hidden]="isSearching">
                         <ng-template [ngIf]="issues.length > 0" [ngIfElse]="noSearchResults">
                             <ul class="issues-list" tabindex="0" (keyup)="handleListKeyUp($event)" (focusout)="handleListFocusOut()" (mouseover)="handleListFocusOut()">
                                 <li *ngFor="let issue of issues"

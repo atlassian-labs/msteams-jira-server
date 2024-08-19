@@ -1,6 +1,6 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.16",
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.7",
   "version": "255.255.255",
   "id": "e52889b0-9b26-4f1c-b3db-4211be72d164",
   "packageName": "com.msteams-atlassian.jira-server-staging",
@@ -179,28 +179,6 @@
             "compose",
             "commandBox",
             "message"
-          ],
-          "parameters": [
-            {
-              "name": "summary",
-              "title": "Issue summary"
-            },
-            {
-              "name": "description",
-              "title": "Issue description"
-            },
-            {
-              "name": "issueType",
-              "title": "Issue type"
-            },
-            {
-              "name": "assignee",
-              "title": "Issue assignee"
-            },
-            {
-              "name": "priority",
-              "title": "Issue priority"
-            }
           ]
         },
         {
@@ -211,16 +189,6 @@
           "fetchTask": true,
           "context": [
             "message"
-          ],
-          "parameters": [
-            {
-              "name": "comment",
-              "title": "Issue comment"
-            },
-            {
-              "name": "issueUrl",
-              "title": "Issue url"
-            }
           ]
         }
       ]

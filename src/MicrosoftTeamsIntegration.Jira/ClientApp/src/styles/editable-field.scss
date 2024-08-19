@@ -25,8 +25,21 @@ body.default .editable-field:hover {
   color: $black;
 }
 
-body.contrast .editable-field:hover, body.dark .editable-field:hover  {
-    background-color: $black;
+body.dark .editable-field:hover  {
+    background-color: $app-brand;
     color: $white;
+}
+
+body.dark .editable-field:hover a {
+  color: $white;
+}
+
+body.contrast .editable-field:hover {
+  background-color: $yellow;
+  color: $black;
+}
+
+body.contrast .editable-field:hover a {
+  color: $black;
 }
   

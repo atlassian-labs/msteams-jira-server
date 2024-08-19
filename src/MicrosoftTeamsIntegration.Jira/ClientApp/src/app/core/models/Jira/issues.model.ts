@@ -1,4 +1,4 @@
-﻿import { NormalizedStatusField } from './issues.model';
+﻿
 import { Project } from '@core/models/Jira/project.model';
 import { JiraUser } from '@core/models/Jira/jira-user.model';
 import { JiraSlaField } from '@core/models/Jira/jira-sla-field.model';
@@ -48,6 +48,7 @@ export interface IssueRequestTypeInner {
 }
 
 export interface IssueFields extends IssueCustomFields {
+    [key: string]: any;
     issuetype: IssueType;
     timespent?: any;
     project: Project;

@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0
 
-RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash -
 RUN apt-get -y install nodejs
 # install zip command to compress the output of build
 RUN apt-get -y install zip

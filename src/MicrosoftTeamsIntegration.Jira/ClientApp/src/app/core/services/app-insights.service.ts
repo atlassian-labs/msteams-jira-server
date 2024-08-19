@@ -4,74 +4,75 @@
 
 import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AppInsights } from 'applicationinsights-js';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 
 import { logger } from '@core/services/logger.service';
+import {IEventTelemetry, IExceptionTelemetry, IPageViewTelemetry} from '@microsoft/applicationinsights-common';
 
 @Injectable({ providedIn: 'root' })
 export class AppInsightsService {
+    private appInsights: ApplicationInsights | undefined;
 
     constructor() {
-        if (!AppInsights.config) {
-            logger(
-                'AppInsightsService::constructor downloading and setting up library'
-            );
+        logger(
+            'AppInsightsService::constructor setting up AppInsights'
+        );
 
-            const instrumentationKey = localStorage.getItem('instrumentationKey');
-            AppInsights.downloadAndSetup({ instrumentationKey });
+        try {
+            const instrumentationKey = localStorage.getItem('instrumentationKey') as string;
+            this.appInsights = new ApplicationInsights({
+                config: {
+                    connectionString: instrumentationKey
+                }
+            });
+            this.appInsights.loadAppInsights();
+        } catch (e) {
+            logger('AppInsightsService::cannot set up AppInsights', e);
         }
     }
 
     public trackPageView(
         name: string,
         properties: object = {},
-        url?: string,
-        measurements?: { [name: string]: number },
-        duration?: number
+        uri?: string,
     ): void {
         logger('AppInsightsService::trackPageView', name);
-        AppInsights.trackPageView(
+        this.appInsights?.trackPageView({
             name,
-            url,
-            this.stringifyValuesOf(properties),
-            measurements,
-            duration
-        );
+            uri,
+            properties: this.stringifyValuesOf(properties)
+        } as IPageViewTelemetry);
     }
 
     public trackException(
         exception: Error,
         handledAt: string,
         errorDetails: object = {},
-        measurements?: { [name: string]: number },
-        severityLevel: number = 3
     ): void {
         logger('AppInsightsService::trackException: ', {
             exception,
             handledAt,
             errorDetails
         });
-        AppInsights.trackException(
-            exception,
-            handledAt,
+        this.appInsights?.trackException(
             {
+                id: handledAt,
+                exception,
+                severityLevel: 3
+            } as IExceptionTelemetry, {
                 handledAt,
                 ...this.stringifyValuesOf(errorDetails)
-            },
-            measurements,
-            severityLevel
+            }
         );
     }
 
     public trackEvent(
         name: string,
         properties?: object,
-        measurements?: { [name: string]: number }
     ): void {
-        AppInsights.trackEvent(
-            name,
+        this.appInsights?.trackEvent(
+            {name} as IEventTelemetry,
             this.stringifyValuesOf(properties),
-            measurements
         );
     }
 
@@ -85,15 +86,13 @@ export class AppInsightsService {
             exception,
             properties
         });
-        AppInsights.trackException(
-            exception,
-            handledAt,
+        this.appInsights?.trackException(
             {
-                ...this.stringifyValuesOf(properties),
-                handledAt
-            },
-            undefined,
-            2
+                id: handledAt,
+                exception,
+                severityLevel: 2
+            } as IExceptionTelemetry,
+            properties
         );
     }
 
@@ -103,13 +102,13 @@ export class AppInsightsService {
         });
     }
 
-    private stringifyValuesOf(eventDetails: object = {}): { [name: string]: string } {
-        const stringifiedEventDetailsObj = {};
+    private stringifyValuesOf(eventDetails: { [key: string]: any } = {}): { [name: string]: string } {
+        const stringifierEventDetailsObj: { [key: string]: string } = {};
         for (const eventDetailsKey of Object.keys(eventDetails)) {
-            stringifiedEventDetailsObj[eventDetailsKey] = JSON.stringify(
+            stringifierEventDetailsObj[eventDetailsKey] = JSON.stringify(
                 eventDetails[eventDetailsKey]
             );
         }
-        return stringifiedEventDetailsObj;
+        return stringifierEventDetailsObj;
     }
 }

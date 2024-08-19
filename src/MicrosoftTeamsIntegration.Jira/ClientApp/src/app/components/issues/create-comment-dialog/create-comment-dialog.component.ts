@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
 import { UP_ARROW, DOWN_ARROW, ENTER, TAB } from '@angular/cdk/keycodes';
@@ -21,20 +21,21 @@ import { NotificationService } from '@shared/services/notificationService';
 export class CreateCommentDialogComponent implements OnInit {
 
     public issues: Issue[] = [];
-    public selectedIssue: Issue;
-    public activeIssue: Issue;
-    public searchTerm: string;
+    public selectedIssue: Issue | undefined;
+    public activeIssue: Issue | undefined;
+    public searchTerm: string | undefined;
     public loading = false;
     public formDisabled = false;
-    public commentForm: FormGroup;
+    public commentForm: UntypedFormGroup | undefined;
+    public isSearching = false;
 
-    private keyboardEventsManager: ListKeyManager<any>;
-    private metadataRef: string;
+    private keyboardEventsManager: ListKeyManager<any> | undefined;
+    private metadataRef: string | undefined;
 
-    @Input() public defaultComment: string;
-    @Input() public jiraUrl: string;
-    @Input() public jiraId: string;
-    @Input() public defaultSearchTerm: string;
+    @Input() public defaultComment: string | any;
+    @Input() public jiraUrl: string | any;
+    @Input() public jiraId: string | any;
+    @Input() public defaultSearchTerm: string | any;
 
     constructor(
         private apiService: ApiService,
@@ -63,7 +64,7 @@ export class CreateCommentDialogComponent implements OnInit {
             }
         } catch (error) {
             this.appInsightsService.trackException(
-                new Error(error),
+                new Error(error as any),
                 'CreateCommentDialogData::ngOnInit'
             );
         }
@@ -72,15 +73,15 @@ export class CreateCommentDialogComponent implements OnInit {
     }
 
     public async onSubmit(): Promise<void> {
-        if (this.commentForm.invalid) {
+        if (this.commentForm?.invalid) {
             return;
         }
 
         const options: IssueAddCommentOptions = {
             jiraUrl: this.jiraId,
-            issueIdOrKey: this.selectedIssue.id,
-            comment: this.commentForm.value.comment,
-            metadataRef: this.metadataRef
+            issueIdOrKey: this.selectedIssue?.id as string,
+            comment: this.commentForm?.value.comment,
+            metadataRef: this.metadataRef as string
         };
 
         try {
@@ -88,12 +89,12 @@ export class CreateCommentDialogComponent implements OnInit {
             const response = await this.commentService.addComment(options);
 
             if (response && response.body) {
-                this.showConfirmationNotification(this.selectedIssue);
+                this.showConfirmationNotification(this.selectedIssue as any);
                 return;
             }
         } catch (error) {
             this.formDisabled = false;
-            const errorMessage = this.errorService.getHttpErrorMessage(error);
+            const errorMessage = this.errorService.getHttpErrorMessage(error as any);
             this.notificationService.notifyError(errorMessage ||
                 'Comment cannot be added. Issue does not exist or you do not have permission to see it.');
         }
@@ -103,17 +104,19 @@ export class CreateCommentDialogComponent implements OnInit {
         this.selectedIssue = issue;
     }
 
-    public get comment(): AbstractControl {
-        return this.commentForm.get('comment');
+    public get comment(): AbstractControl | any {
+        return this.commentForm?.get('comment');
     }
 
-    private async search(searchTerm: string) {
-        this.selectedIssue = null;
+    public async search(searchTerm: string) {
+        this.selectedIssue = undefined;
         const jqlQuery = this.getSearchJql(searchTerm);
         await this.getIssues(jqlQuery);
     }
 
     private async getIssues(jqlQuery?: string) {
+        this.isSearching = true;
+
         try {
             const { issues } = await this.apiService.getIssues(this.jiraId, jqlQuery ? jqlQuery : 'order by updated DESC');
 
@@ -130,6 +133,8 @@ export class CreateCommentDialogComponent implements OnInit {
 
         } catch (error) {
             this.notificationService.notifyError('Cannot retrieve issue. Please try again later.');
+        } finally {
+            this.isSearching = false;
         }
     }
 
@@ -159,13 +164,13 @@ export class CreateCommentDialogComponent implements OnInit {
         const message = `Comment was added to ${issueUrl}`;
 
         this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
-            microsoftTeams.tasks.submitTask();
+            microsoftTeams.dialog.url.submit();
         });
     }
 
-    private getIssueKey(issueURL: string): string {
+    private getIssueKey(issueURL: string): string | undefined {
         if (!issueURL) {
-            return null;
+            return undefined;
         }
 
         try {
@@ -177,24 +182,25 @@ export class CreateCommentDialogComponent implements OnInit {
                 const groups = (parts as any).groups;
                 return groups['idOrKey'];
             }
-            return null;
+            return undefined;
         } catch (err) {
             console.error('Cannot get issue id from URL', err);
+            return undefined;
         }
     }
 
     private async createForm(): Promise<void> {
         await this.getIssues();
 
-        this.commentForm = new FormGroup({
-            comment: new FormControl(
+        this.commentForm = new UntypedFormGroup({
+            comment: new UntypedFormControl(
                 this.defaultComment,
                 [Validators.required, StringValidators.isNotEmptyString]
             )
         });
     }
 
-    private handleListKeyUp(event: KeyboardEvent) {
+    public handleListKeyUp(event: KeyboardEvent) {
         event.stopImmediatePropagation();
         if (this.keyboardEventsManager && this.issues.length > 0) {
             if(event.keyCode === TAB) {
@@ -212,13 +218,14 @@ export class CreateCommentDialogComponent implements OnInit {
                 return false;
             }
         }
+        return true;
     }
 
-    private handleListFocusOut() {
+    public handleListFocusOut() {
         this.disableActiveListItem();
     }
 
     private disableActiveListItem() {
-        this.activeIssue = null;
+        this.activeIssue = undefined;
     }
 }

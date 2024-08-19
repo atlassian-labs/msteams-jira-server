@@ -7,6 +7,7 @@ import * as microsoftTeams from '@microsoft/teams-js';
 
 import { AdalService } from '@core/services/adal.service';
 import { DOCUMENT } from '@angular/common';
+import {firstValueFrom} from 'rxjs';
 
 interface AuthenticateParameters {
     /**
@@ -58,7 +59,7 @@ export class AuthService {
             return Promise.resolve();
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve: any, reject: any): Promise<Promise<void> | any> => {
             try {
                 const authenticateParameters: AuthenticateParameters = {
                     url,
@@ -68,7 +69,7 @@ export class AuthService {
                     failureCallback: reject
                 };
 
-                microsoftTeams.authentication.authenticate(authenticateParameters);
+                await microsoftTeams.authentication.authenticate(authenticateParameters);
             } catch (e) {
                 // in general is true only for mobile
                 // as far as microsoftTeams.authentication.authenticate() can not be called from the inside of 'authorization' context,
@@ -83,8 +84,8 @@ export class AuthService {
     }
 
     public getAuthorizationUrl(
-        jiraUrl: string = null,
-        application: string = null,
+        jiraUrl: string = '',
+        application: string = '',
         staticTabChangeUrl = false
     ): Promise<JiraAuthUrl> {
         let url = `/api/auth/url?application=${application}`;
@@ -97,6 +98,6 @@ export class AuthService {
             url += `&staticTabChangeUrl=${staticTabChangeUrl}`;
         }
 
-        return this.http.get<JiraAuthUrl>(url).toPromise();
+        return firstValueFrom(this.http.get<JiraAuthUrl>(url));
     }
 }

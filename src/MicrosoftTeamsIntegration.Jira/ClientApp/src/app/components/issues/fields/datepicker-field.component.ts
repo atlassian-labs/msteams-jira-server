@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FieldComponent } from './field.component';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 
 @Component({
     styleUrls: ['./dynamic-fields-styles.scss'],
@@ -15,11 +15,11 @@ import { FormGroup } from '@angular/forms';
               </span>
 			</div>
 
-			<div class="field-group__body">
+			<div class="field-group__body date-picker-container">
 			  <input [matDatepicker]="datePicker"
                      placeholder="{{data.placeholder}}"
                      formControlName="{{data.formControlName}}"
-                     class="input-date-picker" disabled>
+                     class="input-date-picker" [disabled]="false">
 			  <mat-datepicker-toggle [for]="datePicker"></mat-datepicker-toggle>
 			  <mat-datepicker #datePicker disabled="false"></mat-datepicker>
 			</div>
@@ -30,5 +30,5 @@ import { FormGroup } from '@angular/forms';
 
 export class DatePickerFieldComponent implements FieldComponent {
     @Input() data: any;
-    @Input() formGroup: FormGroup;
+    @Input() formGroup: UntypedFormGroup | any;
 }
