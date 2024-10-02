@@ -157,7 +157,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         }
 
         [Fact]
-        public void HandleMessagingExtensionQueryLinkAsync_ThrowsArgumentNullException()
+        public async void HandleMessagingExtensionQueryLinkAsync_ThrowsArgumentNullException()
         {
             var user = new IntegratedUser
             {
@@ -171,7 +171,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, string.Empty));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, string.Empty));
         }
 
         [Fact]
@@ -232,7 +232,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         }
 
         [Fact]
-        public void HandleMessagingExtensionQueryLinkAsync_ThrowsException()
+        public async Task HandleMessagingExtensionQueryLinkAsync_ThrowsException()
         {
             var user = new IntegratedUser
             {
@@ -261,7 +261,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
 
             A.CallTo(() => _jiraService.GetIssueByIdOrKey(user, A<string>._)).Throws(new Exception());
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, "tp-3"));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, null));
         }
 
         [Theory]

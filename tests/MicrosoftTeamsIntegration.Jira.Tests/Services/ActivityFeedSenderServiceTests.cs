@@ -39,14 +39,14 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         public async Task GenerateActivityNotification_ThrowsArgumentNullException_WhenNotificationNull()
         {
             var service = CreateActivityFeedSenderService();
-            Assert.ThrowsAsync<ArgumentNullException>(() => service.GenerateActivityNotification(null, null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => service.GenerateActivityNotification(null, null));
         }
 
         [Fact]
         public async Task GenerateActivityNotification_ThrowsArgumentNullException_WhenUserNull()
         {
             var service = CreateActivityFeedSenderService();
-            Assert.ThrowsAsync<ArgumentNullException>(() => service.GenerateActivityNotification(null, new NotificationFeedEvent()));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => service.GenerateActivityNotification(null, new NotificationFeedEvent()));
         }
 
         [Fact]

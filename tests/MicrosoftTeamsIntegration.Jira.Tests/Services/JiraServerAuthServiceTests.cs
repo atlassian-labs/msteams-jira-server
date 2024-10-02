@@ -86,7 +86,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var result =  service.SubmitOauthLoginInfo("msTeamsId", string.Empty, "token", "jiraId",
                 string.Empty, string.Empty);
 
-            Assert.ThrowsAsync<ForbiddenException>(() => result);
+            await Assert.ThrowsAsync<ForbiddenException>(() => result);
         }
 
         [Fact]
