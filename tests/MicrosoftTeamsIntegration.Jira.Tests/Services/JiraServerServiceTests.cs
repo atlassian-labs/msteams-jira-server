@@ -1549,7 +1549,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         }
 
         [Fact]
-        public async void GetJiraTenantInfo_ThrowsNotSupportedException()
+        public async Task GetJiraTenantInfo_ThrowsNotSupportedException()
         {
             var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
 

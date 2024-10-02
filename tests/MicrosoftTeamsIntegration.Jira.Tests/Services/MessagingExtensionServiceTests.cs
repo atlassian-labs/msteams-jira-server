@@ -157,7 +157,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         }
 
         [Fact]
-        public async void HandleMessagingExtensionQueryLinkAsync_ThrowsArgumentNullException()
+        public async Task HandleMessagingExtensionQueryLinkAsync_ThrowsArgumentNullException()
         {
             var user = new IntegratedUser
             {
