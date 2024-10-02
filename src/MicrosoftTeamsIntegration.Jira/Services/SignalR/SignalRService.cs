@@ -83,7 +83,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
                         var completedTask = await Task.WhenAny(originalTask, delayTask);
                         if (completedTask == originalTask)
                         {
-                            timeoutCancellation.Cancel();
+                            await timeoutCancellation.CancelAsync();
                             return new SignalRResponse
                             {
                                 Received = true,
