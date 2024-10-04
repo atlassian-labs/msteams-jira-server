@@ -4,6 +4,7 @@ using AutoMapper;
 using Microsoft.Bot.Schema;
 using MicrosoftTeamsIntegration.Jira.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
+using MicrosoftTeamsIntegration.Jira.Models.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -17,7 +18,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
             _appSettings = appSettings;
         }
 
-        public ThumbnailCard Convert(BotAndMessagingExtensionJiraIssue model, ThumbnailCard card, ResolutionContext context)
+        public ThumbnailCard Convert(BotAndMessagingExtensionJiraIssue model, ThumbnailCard card, IResolutionContext context)
         {
             if (model?.JiraIssue is null)
             {
@@ -50,6 +51,11 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
             }
 
             return card;
+        }
+
+        public ThumbnailCard Convert(BotAndMessagingExtensionJiraIssue model, ThumbnailCard card, ResolutionContext context)
+        {
+            return Convert(model, card, new ResolutionContextWrapper(context));
         }
 
         private static string GetPreviewText(JiraIssue jiraIssue)

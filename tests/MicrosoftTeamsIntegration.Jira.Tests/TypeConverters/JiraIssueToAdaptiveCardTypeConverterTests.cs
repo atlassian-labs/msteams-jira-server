@@ -3,6 +3,7 @@ using AdaptiveCards;
 using AutoMapper;
 using FakeItEasy;
 using MicrosoftTeamsIntegration.Jira.Models;
+using MicrosoftTeamsIntegration.Jira.Models.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Settings;
@@ -14,7 +15,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
     public class JiraIssueToAdaptiveCardTypeConverterTests
     {
         private readonly AppSettings _appSettings = new AppSettings();
-        private readonly ResolutionContext _resolutionContext = A.Fake<ResolutionContext>();
+        private readonly IResolutionContext _resolutionContext = A.Fake<IResolutionContext>();
 
         [Fact]
         public void Convert_ReturnsNull_WhenJiraIssueNull()

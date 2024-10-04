@@ -1,15 +1,15 @@
-﻿using AutoMapper;
+﻿using MicrosoftTeamsIntegration.Jira.Models.Interfaces;
 
 namespace MicrosoftTeamsIntegration.Jira.Extensions
 {
     public static class ResolutionContextExtensions
     {
-        public static MappingOptions ExtractMappingOptions(this ResolutionContext context)
+        public static MappingOptions ExtractMappingOptions(this IResolutionContext context)
         {
             var isQueryLinkRequest = false;
             var previewIconPath = default(string);
 
-            if (context.Options.Items.TryGetValue("isQueryLinkRequest", out var val1))
+            if (context.Items.TryGetValue("isQueryLinkRequest", out var val1))
             {
                 if (val1 != null)
                 {
@@ -17,7 +17,7 @@ namespace MicrosoftTeamsIntegration.Jira.Extensions
                 }
             }
 
-            if (context.Options.Items.TryGetValue("previewIconPath", out var val2))
+            if (context.Items.TryGetValue("previewIconPath", out var val2))
             {
                 if (val2 != null)
                 {

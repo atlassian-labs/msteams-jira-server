@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using FakeItEasy;
 using Microsoft.Bot.Schema;
 using MicrosoftTeamsIntegration.Jira.Models;
+using MicrosoftTeamsIntegration.Jira.Models.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Settings;
@@ -15,7 +17,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
     public class JiraIssueToThumbnailCardTypeConverterTests
     {
         private readonly AppSettings _appSettings = new AppSettings();
-        private readonly ResolutionContext _resolutionContext = A.Fake<ResolutionContext>();
+        private readonly IResolutionContext _resolutionContext = A.Fake<IResolutionContext>();
 
         [Fact]
         public void Convert_ReturnsNull_WhenJiraIssueNull()
@@ -41,14 +43,14 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.TypeConverters
 
             var expectedSubtitle = "Status | Assignee User";
 
-            var isQueryLinkRequest = new object();
-            var previewIconPath = new object();
+            object isQueryLinkRequest = new object();
+            object previewIconPath = new object();
 
-            A.CallTo(() => _resolutionContext.Options.Items.TryGetValue("isQueryLinkRequest", out isQueryLinkRequest))
+            A.CallTo(() => _resolutionContext.Items.TryGetValue("isQueryLinkRequest", out isQueryLinkRequest))
                 .Returns(true)
                 .AssignsOutAndRefParameters("true");
 
-            A.CallTo(() => _resolutionContext.Options.Items.TryGetValue("previewIconPath", out previewIconPath))
+            A.CallTo(() => _resolutionContext.Items.TryGetValue("previewIconPath", out previewIconPath))
                 .Returns(true)
                 .AssignsOutAndRefParameters("iconUrl");
 
