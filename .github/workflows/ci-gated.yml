@@ -33,7 +33,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: "6.0.x"
+          dotnet-version: "8.0.x"
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -44,7 +44,7 @@ jobs:
         run: dotnet restore
 
       - name: Run build powershell script
-        run: ./build/build.ps1 --isGatedBuild=True --no-restore
+        run: dotnet build -c Release --isGatedBuild=True --no-restore
         shell: powershell
 
       - name: Run tests
