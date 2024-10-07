@@ -28,9 +28,9 @@ jobs:
         popd
         
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
+      uses: actions/upload-artifact@v4.4.0
       with:
-        name: myartifact
+        name: myartifact-integration
         path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Integration.zip
         
     - name: Update config.json
@@ -43,9 +43,9 @@ jobs:
         popd
         
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
+      uses: actions/upload-artifact@v4.4.0
       with:
-        name: myartifact
+        name: myartifact-staging
         path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Staging.zip
         
     - name: Update config.json
@@ -58,8 +58,8 @@ jobs:
         popd
         
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
+      uses: actions/upload-artifact@v4.4.0
       with:
-        name: myartifact
+        name: myartifact-production
         path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Production.zip
 
