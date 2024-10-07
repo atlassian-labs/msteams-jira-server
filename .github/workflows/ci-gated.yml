@@ -44,7 +44,7 @@ jobs:
         run: dotnet restore
 
       - name: Run build powershell script
-        run: dotnet build -c Release --isGatedBuild=True --no-restore
+        run: dotnet build -c Release --no-restore
         shell: powershell
 
       - name: Run tests
