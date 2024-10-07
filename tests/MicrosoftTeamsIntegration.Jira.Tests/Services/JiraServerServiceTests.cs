@@ -897,11 +897,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 .Returns(new SignalRResponse
                 {
                     Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraAgileResultFor<JiraIssueSprint>>
+                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraPaginatedResponse<JiraIssueSprint>>
                     {
                         ResponseCode = 200,
-                        Response = new JiraAgileResultFor<JiraIssueSprint>()
+                        Response = new JiraPaginatedResponse<JiraIssueSprint>()
                         {
+                            IsLast = true,
                             Values = new List<JiraIssueSprint>()
                             {
                                 new JiraIssueSprint()
@@ -986,11 +987,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 .Returns(new SignalRResponse
                 {
                     Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraAgileResultFor<JiraIssueSprint>>
+                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraPaginatedResponse<JiraIssueSprint>>
                     {
                         ResponseCode = 200,
-                        Response = new JiraAgileResultFor<JiraIssueSprint>()
+                        Response = new JiraPaginatedResponse<JiraIssueSprint>()
                         {
+                            IsLast = true,
                             Values = new List<JiraIssueSprint>()
                             {
                                 new JiraIssueSprint()
