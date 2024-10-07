@@ -51,7 +51,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
             // Create an entry in the dictionary that will be used to track the client response
             var tcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
             var identifier = Guid.NewGuid();
-            ClientResponses.Add(identifier, tcs);
+            ClientResponses.TryAdd(identifier, tcs);
 
             _logger.LogTrace(
                 "SignalRClient SendRequest started: {Identifier} | {Message} | {CurrentThreadId} | {ClientResponses.Keys}",
@@ -96,7 +96,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
             finally
             {
                 // Remove the tcs from the dictionary so that we don't leak memory
-                var removeResult = ClientResponses.Remove(identifier);
+                ClientResponses.TryRemove(identifier, out TaskCompletionSource<string> removeResult);
 
                 _logger.LogTrace(
                     "SignalRClient SendRequest request sent: {Identifier} | {Message} | {CurrentThreadId} | {RemoveResult} | {ClientResponses.Keys}",

@@ -8,6 +8,7 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MicrosoftTeamsIntegration.Artifacts.Bots.Middleware;
 
@@ -16,7 +17,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots
     public class TeamsBotHttpAdapter : CloudAdapter
     {
         public TeamsBotHttpAdapter(
-            IHostingEnvironment env,
+            IWebHostEnvironment env,
             IConfiguration configuration,
             ILogger<TeamsBotHttpAdapter> logger,
             TelemetryInitializerMiddleware telemetryInitializerMiddleware,

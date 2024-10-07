@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Extensions.Hosting;
 using MicrosoftTeamsIntegration.Artifacts.Bots.Dialogs;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
 
@@ -28,7 +29,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
                 dialogRoute.Dialog = dialog;
             }
 
-            var hostingEnvironment = serviceProvider.GetService(typeof(IHostingEnvironment)) as IHostingEnvironment;
+            var hostingEnvironment = serviceProvider.GetService(typeof(IWebHostEnvironment)) as IWebHostEnvironment;
             var routes = new List<DialogRoute>
             {
                 new DialogRoute(typeof(AmbiguousActionDialog), string.Empty, isAuthenticationRequired: false)

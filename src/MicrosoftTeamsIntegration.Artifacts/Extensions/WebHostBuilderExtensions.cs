@@ -13,13 +13,13 @@ namespace MicrosoftTeamsIntegration.Artifacts.Extensions
             {
                 var settings = builder.Build();
                 var appConfigurationConnectionString = settings["AppConfiguration:ConnectionString"];
-                if (appConfigurationConnectionString.HasValue())
+                if (appConfigurationConnectionString != null && appConfigurationConnectionString.HasValue())
                 {
                     builder.AddAzureAppConfiguration(options =>
                     {
                         options.Connect(appConfigurationConnectionString);
                         var labelFilter = settings["AppConfiguration:Environment"];
-                        if (labelFilter.HasValue())
+                        if (labelFilter != null && labelFilter.HasValue())
                         {
                             options
                                 .Select(KeyFilter.Any)

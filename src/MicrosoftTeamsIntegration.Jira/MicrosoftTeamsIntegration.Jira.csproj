@@ -9,7 +9,7 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
     <Version>255.255.255.255</Version>
     <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
-    <LangVersion>8</LangVersion>
+    <LangVersion>12</LangVersion>
     <UserSecretsId>MicrosoftTeamsIntegration.Jira-f6bd5c32-9b7d-4081-9d32-575d17a6cb77</UserSecretsId>
     <CodeAnalysisRuleSet>../../StyleCop.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

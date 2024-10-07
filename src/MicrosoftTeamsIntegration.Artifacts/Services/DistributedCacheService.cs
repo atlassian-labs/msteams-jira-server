@@ -22,7 +22,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
         {
             _distributedCache = distributedCache;
             _logger = logger;
-            _wireSerializer = new Serializer(new SerializerOptions());
+            _wireSerializer = new Serializer();
             _memoryStreamManager = new RecyclableMemoryStreamManager();
         }
 

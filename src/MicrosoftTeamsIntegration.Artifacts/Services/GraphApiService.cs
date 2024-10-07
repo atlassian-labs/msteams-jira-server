@@ -49,7 +49,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
                     .GetAsync(cancellationToken),
                 new Dictionary<string, object>() { { MethodNameParam, nameof(GetApplicationAsync) } });
 
-            return teamsApps.FirstOrDefault();
+            return teamsApps.FirstOrDefault()!;
         }
 
         public async Task SendActivityNotificationAsync(IGraphServiceClient graphClient, ActivityNotification notification, string userId, CancellationToken cancellationToken)
