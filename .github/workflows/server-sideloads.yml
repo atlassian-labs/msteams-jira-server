@@ -28,7 +28,7 @@ jobs:
         popd
         
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: myartifact
         path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Integration.zip
@@ -58,7 +58,7 @@ jobs:
         popd
         
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: myartifact
         path: ${{ github.workspace }}/Jira.Server.Sideload.${{ github.run_number }}-Production.zip
