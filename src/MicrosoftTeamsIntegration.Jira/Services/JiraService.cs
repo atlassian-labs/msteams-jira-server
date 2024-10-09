@@ -475,11 +475,10 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         public async Task<List<JiraIssueEpic>> GetAllEpics(IntegratedUser user, string boardId)
         {
-            var result = await ProcessRequest<JiraAgileResultFor<JiraIssueEpic>>(
+           return await ProcessPaginatedRequestRecursively<JiraIssueEpic>(
                 user,
                 $"agile/1.0/board/{boardId}/epic",
                 "GET");
-            return result.Values;
         }
 
         public async Task<List<JiraIssueSprint>> GetAllSprintsForProject(IntegratedUser user, string projectKeyOrId)
