@@ -8,6 +8,7 @@ import {
     AppInsightsService,
     UtilService
 } from '@core/services';
+import * as microsoftTeams from '@microsoft/teams-js';
 
 @Component({
     selector: 'app-settings',
@@ -34,6 +35,7 @@ export class SettingsComponent implements OnInit {
 
         try {
             await this.setUserSettings();
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.errorService.showDefaultError(error as any);
         }

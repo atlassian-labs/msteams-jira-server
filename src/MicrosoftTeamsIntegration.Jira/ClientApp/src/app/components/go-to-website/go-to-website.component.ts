@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { ApiService, AuthService } from '@core/services';
 import { PageName } from '@core/enums';
+import * as microsoftTeams from '@microsoft/teams-js';
 
 @Component({
     selector: 'app-go-to-website',
@@ -34,6 +35,8 @@ export class GoToWebsiteComponent implements OnInit {
         const { jiraUrl } = await this.apiService.getJiraUrlForPersonalScope();
         const { jiraServerInstanceUrl } = await this.apiService.getCurrentUserData(jiraUrl);
         this.jiraInstanceUrl = jiraServerInstanceUrl;
+
+        microsoftTeams.app.notifySuccess();
 
         const url = this.buildRedirectUrl(this.page as any);
 

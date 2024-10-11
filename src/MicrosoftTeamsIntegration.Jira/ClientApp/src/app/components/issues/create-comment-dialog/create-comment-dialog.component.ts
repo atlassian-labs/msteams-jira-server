@@ -62,6 +62,8 @@ export class CreateCommentDialogComponent implements OnInit {
             if (this.defaultSearchTerm) {
                 await this.search(this.defaultSearchTerm);
             }
+
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),

@@ -197,6 +197,7 @@ export class EditIssueDialogComponent implements OnInit {
 
             await this.createForm();
 
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.error = error as any;
             this.appInsightsService.trackException(
