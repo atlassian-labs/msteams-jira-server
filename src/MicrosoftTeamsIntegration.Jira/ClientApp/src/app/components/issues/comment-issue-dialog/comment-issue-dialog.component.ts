@@ -62,6 +62,8 @@ export class CommentIssueDialogComponent implements OnInit {
 
             this.issue = await this.apiService.getIssueByIdOrKey(this.jiraId as string, this.issueId as string);
             await this.createForm();
+
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),

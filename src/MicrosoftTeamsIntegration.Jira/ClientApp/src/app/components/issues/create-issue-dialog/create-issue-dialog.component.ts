@@ -126,7 +126,7 @@ export class CreateIssueDialogComponent implements OnInit {
             this.isAddonUpdated = this.utilService.isAddonUpdated(addonVersion);
             this.currentUser = await this.apiService.getCurrentUserData(this.jiraUrl as string);
             this.currentUserAccountId = this.currentUser.name;
-
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),

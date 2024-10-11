@@ -9,6 +9,7 @@ import {
 } from '@core/services';
 import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
 import { ApplicationType, AddonStatus } from '@core/enums';
+import * as microsoftTeams from '@microsoft/teams-js';
 
 @Component({
     selector: 'app-connect-jira',
@@ -67,6 +68,8 @@ export class ConnectJiraComponent implements OnInit {
         this.buildConnectForm();
 
         this.loadingIndicatorService.hide();
+
+        microsoftTeams.app.notifySuccess();
     }
 
     public async onSubmitConnectForm(): Promise<void> {

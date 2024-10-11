@@ -177,6 +177,8 @@ export class IssuesComponent implements OnInit {
         }
         this.loadingOff();
 
+        microsoftTeams.app.notifySuccess();
+
         const issueTableComponent = this;
 
         // open edit issue dialog if context contains sub entity ID and user is authorized
