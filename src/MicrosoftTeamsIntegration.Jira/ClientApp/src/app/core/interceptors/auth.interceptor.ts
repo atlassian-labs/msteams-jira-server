@@ -1,46 +1,48 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpEvent, HttpErrorResponse, HttpInterceptor, HttpHandler, HttpHeaders, HttpRequest } from '@angular/common/http';
-import { throwError, empty, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import {throwError, Observable, from, EMPTY, catchError, lastValueFrom} from 'rxjs';
 
-import { AdalService } from '@core/services';
+import {AuthService, ErrorService} from '@core/services';
 import { logger } from '@core/services/logger.service';
+import {StatusCode} from '@core/enums';
+
+export const ALLOW_ANONYMOUS_ENDPOINTS = ['/api/app-settings'];
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    constructor(private readonly injector: Injector) { }
+    constructor(private readonly injector: Injector) {
+    }
 
     public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const adalService = this.injector.get(AdalService);
-        let token: string;
+        return from(this.handle(req, next));
+    }
+
+    async handle(req: HttpRequest<any>, next: HttpHandler) {
+        const authService = this.injector.get(AuthService);
+        const errorService = this.injector.get(ErrorService);
+
         let headers = new HttpHeaders();
 
-        if (adalService.settings['clientId']) {
-            token = adalService.getCachedToken();
+        if(!ALLOW_ANONYMOUS_ENDPOINTS.includes(req.url)) {
+            const token = await authService.getToken();
 
             if (token) {
                 headers = headers.set('Authorization', `Bearer ${token}`);
             }
         }
 
-
-        const request = req.clone({ headers });
-        return next.handle(request)
+        const request = req.clone({headers});
+        return lastValueFrom(next.handle(request)
             .pipe(
-                tap(
-                    null,
-                    error => {
-                        if (error instanceof HttpErrorResponse) {
-                            if (error.status === 401) {
-                                return empty();
-                            }
-
-                            logger(error);
-                            return throwError(() => error);
-                        }
-                        return error;
+                catchError((error: HttpErrorResponse) => {
+                    if (error.status === StatusCode.Unauthorized) {
+                        errorService.goToLoginWithStatusCode(StatusCode.Unauthorized);
+                        return EMPTY;
                     }
-                )
-            );
+
+                    logger(error);
+                    return throwError(() => error);
+                })
+            ));
     }
 }

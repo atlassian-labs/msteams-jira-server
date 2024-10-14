@@ -227,7 +227,7 @@ namespace MicrosoftTeamsIntegration.Jira
             if (accessToken is null)
             {
                 var link = (await userTokenClient.GetSignInResourceAsync(_appSettings.OAuthConnectionName, turnContext.Activity, null, cancellationToken).ConfigureAwait(false)).SignInLink;
-                link += "&width=800&height=600";
+                link += "&width=460&height=640";
 
                 var response = MessagingExtensionHelper.BuildCardActionResponse("auth", "Sign in with Microsoft account", link);
                 await BuildInvokeResponse(turnContext, HttpStatusCode.OK, response, cancellationToken);
@@ -374,6 +374,8 @@ namespace MicrosoftTeamsIntegration.Jira
 
             if (!isValid)
             {
+                await _botMessagesService.SendConnectCard(turnContext, cancellationToken);
+
                 // if validation response is not null - return it in response, do nothing otherwise
                 // since teams ignores any other type of response except of task and auth
                 if (validationResponse != null)

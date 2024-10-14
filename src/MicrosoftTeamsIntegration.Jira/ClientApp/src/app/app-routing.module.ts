@@ -10,7 +10,7 @@ import {
     SettingsComponent, SettingsFiltersComponent,
     ConnectJiraComponent,
     CreateIssueDialogComponent, EditIssueDialogComponent,
-    CreateCommentDialogComponent, GoToWebsiteComponent,
+    CreateCommentDialogComponent,
     CommentIssueDialogComponent, SignoutDialogComponent
 } from '@app/components';
 
@@ -79,10 +79,6 @@ export const routes: Routes = [
         path: 'issues/commentIssue',
         component: CommentIssueDialogComponent,
         canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
-    },
-    {
-        path: 'go-to-website',
-        component: GoToWebsiteComponent
     }
 ];
 

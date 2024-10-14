@@ -2,7 +2,6 @@ export * from '@app/components/error/error.component';
 export * from '@app/components/favorite-filters-empty/favorite-filters-empty.component';
 export * from '@app/components/login/login.component';
 export * from '@app/components/static-tab/static-tab.component';
-export * from '@app/components/go-to-website/go-to-website.component';
 
 export * from '@app/components/issues/issues-table/issues-table.component';
 export * from '@app/components/issues/edit-issue-dialog/edit-issue-dialog.component';

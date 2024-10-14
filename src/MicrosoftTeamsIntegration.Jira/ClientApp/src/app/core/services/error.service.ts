@@ -78,17 +78,22 @@ export class ErrorService {
                 (application === ApplicationType.JiraServerCompose || application === ApplicationType.JiraServerTab) &&
                     error instanceof HttpErrorResponse
             )
-                ? error.error.error
+                ? error?.error?.error
                 : message;
 
             router.navigate(['/error'], { queryParams: { message, ...params } });
         });
 
-        message = error instanceof HttpErrorResponse && error.error && error.error.error ?
+        message = error instanceof HttpErrorResponse && error?.error?.error ?
             error.error.error
-            : '';
+            : this.DEFAULT_ERROR_MESSAGE;
 
-        router.navigate(['error'], { queryParams: { message } });
+        router.navigate(['/error'], { queryParams: { message } });
+    }
+
+    public showErrorMessage(message: string) {
+        const router = this.injector.get(Router);
+        router.navigate(['/error'], {queryParams: { message }});
     }
 
     public showErrorModal(error: Error | HttpErrorResponse): void {
@@ -99,9 +104,13 @@ export class ErrorService {
 
     public goToLoginWithStatusCode(status: StatusCode): void {
         const router = this.injector.get(Router);
-        router.routerState.root.children[0].params.subscribe(params => {
-            router.navigate(['/login', { ...params, status: status }]);
-        });
+        if(router.routerState.root.children[0]?.params) {
+            router.routerState.root.children[0]?.params.subscribe(params => {
+                router.navigate(['/login', { ...params, status: status }]);
+            });
+        } else {
+            router.navigate(['/login', {status: status}]);
+        }
     }
 
     public async showMyFiltersEmptyError(): Promise<boolean> {
@@ -111,7 +120,7 @@ export class ErrorService {
 
     public getHttpErrorMessage(error: Error | HttpErrorResponse): string {
         let message = this.getErrorMessage(error);
-        message = error instanceof HttpErrorResponse && error.error && error.error.error ?
+        message = error instanceof HttpErrorResponse && error?.error?.error ?
             error.error.error
             : message;
 

@@ -24,10 +24,6 @@ export class LoginComponent implements OnInit {
     public isLoginButtonVisible = false;
     public buttonTitle: string | undefined;
 
-    public get isJiraServerComposeApplication(): boolean {
-        return this.application === ApplicationType.JiraServerCompose;
-    }
-
     private jiraUrl: string | undefined;
     private status: number | undefined;
     private application: string | undefined;
@@ -56,15 +52,18 @@ export class LoginComponent implements OnInit {
 
     public async getAuthentication(): Promise<void> {
         try {
-            this.authorizationUrl = `/#/config;application=${this.application}`;
-            if (this.application === ApplicationType.JiraServerTab) {
-                this.authorizationUrl =
-                    '/#/config;application=jiraServerTab;' +
-                    `endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl as string}`;
-            }
+            if (!(await this.isJiraUserAuthorized())) {
+                this.authorizationUrl = `/#/config;application=${this.application}`;
 
-            localStorage.setItem('redirectUri', this.authorizationUrl);
-            await this.authService.authenticate('./login.html');
+                if (this.application === ApplicationType.JiraServerTab) {
+                    this.authorizationUrl =
+                        '/#/config;application=jiraServerTab;' +
+                        `endpoint=${encodeURIComponent('/loginResult.html')};jiraUrl=${this.jiraUrl as string}`;
+                }
+                await this.authService.authenticateJiraAccount(this.authorizationUrl);
+            } else {
+                await this.authService.authenticateMicrosoftAccount();
+            }
             await this.onAuthenticationSucceeded();
 
         } catch (error) {
@@ -73,10 +72,7 @@ export class LoginComponent implements OnInit {
     }
 
     private async getButtonTitle(): Promise<string> {
-        const isAuthenticated = this.authService.isAuthenticated;
-
-        if (this.status === StatusCode.Forbidden ||
-            (this.status === StatusCode.Unauthorized && isAuthenticated)) {
+        if (!(await this.isJiraUserAuthorized())) {
             return 'Authorize in Jira';
         }
 
@@ -96,7 +92,7 @@ export class LoginComponent implements OnInit {
 
         this.status = Number(status);
 
-        this.application = application || ApplicationType.JiraServerTab;
+        this.application = application || ApplicationType.JiraServerStaticTab;
 
         this.staticTabChangeUrl = staticTabChangeUrl ? !!staticTabChangeUrl : false;
         this.jiraUrl = this.utilService.convertStringToNull(jiraUrl);
@@ -106,17 +102,11 @@ export class LoginComponent implements OnInit {
         }
     }
 
-    private async getAuthorizationUrl(staticTabChangeUrl: boolean = false): Promise<string> {
+    private async isJiraUserAuthorized(): Promise<boolean> {
+        const isMicrosoftUserAuthenticated = await this.authService.isAuthenticated();
 
-        const { jiraAuthUrl } = await this.authService.getAuthorizationUrl(
-            this.jiraUrl,
-            this.application,
-            staticTabChangeUrl
-        );
-
-        logger(`LoginComponent::getAuthorizationUrl called: authorizationUrl: ${jiraAuthUrl}`);
-
-        return decodeURIComponent(jiraAuthUrl);
+        return this.status !== StatusCode.Forbidden &&
+            (this.status !== StatusCode.Unauthorized || !isMicrosoftUserAuthenticated);
     }
 
     private async onAuthenticationSucceeded(): Promise<void> {
@@ -138,7 +128,7 @@ export class LoginComponent implements OnInit {
         );
 
         // Handle case if user finished microsoft authorization but has closed a window.
-        if (error === 'CancelledByUser' && this.authService.isAuthenticated) {
+        if (error === 'CancelledByUser' && await this.authService.isAuthenticated()) {
             this.jiraUrl = this.route.snapshot.params['previousJiraUrl'] || this.jiraUrl;
 
             await this.getJiraUserDataAndNavigateToView();

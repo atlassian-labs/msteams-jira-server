@@ -129,7 +129,7 @@ definitions:
             ENCODED_BRANCH=$(echo "$BITBUCKET_BRANCH" | jq -sRr @uri)
             STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonar-enterprise.internal.atlassian.com/api/qualitygates/project_status?projectKey=msteams-jira-onprem&branch=$ENCODED_BRANCH" | jq -r .projectStatus.status)
             if [ "$STATUS" != "OK" ]; then
-               echo "Quality gate failed: https://sonar-enterprise.internal.atlassian.com/dashboard?branch=$ENCODED_BRANCH&id=msteams-jira-onprem"
+               echo "Quality gate failed: https://sonar-enterprise.internal.atlassian.com/dashboard?id=msteams-jira-onprem&branch=$ENCODED_BRANCH"
                exit 1
             fi
 pipelines:

@@ -1,5 +1,4 @@
 ﻿export * from '@core/services/api.service';
-export * from '@core/services/adal.service';
 export * from '@core/services/auth.service';
 export * from '@core/services/util.service';
 export * from '@core/services/error.service';

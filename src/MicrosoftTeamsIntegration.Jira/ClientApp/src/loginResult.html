@@ -5,98 +5,66 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Jira for Microsoft Teams - Login Result</title>
     <script
-            src="https://res.cdn.office.net/teams-js/2.25.0/js/MicrosoftTeams.min.js"
-            integrity="sha384-6royw0i5cEmf/8pzbTX9dVy1pjjJA8PQOaQbGvoL/m39OdjrlcWluhQZxqy5KbJA"
+            src="https://res.cdn.office.net/teams-js/2.18.0/js/MicrosoftTeams.min.js"
+            integrity="sha384-g8DoRkiR0ECQ9rwKIgY8GjQ5h0d2jp1347CmU/IRlyUHPjJZiFWEOYc+hFtT9MGL"
             crossorigin="anonymous"
     ></script>
-    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.17/js/adal.min.js"></script>
     <link rel="stylesheet" href="https://aui-cdn.atlassian.com/aui-adg/6.0.9/css/aui.min.css">
 </head>
 <body class="aui-page-notification aui-page-size-large" data-aui-version="6.0.6">
-    <div id="page">
-        <div class="aui-page-panel">
-            <div class="aui-page-panel-inner">
-                <section id="content" class="aui-page-panel-content"></section>
-            </div>
+<div id="page">
+    <div class="aui-page-panel" style="width: 460px; height: 640px;">
+        <div class="aui-page-panel-inner">
+            <section id="content" class="aui-page-panel-content"></section>
         </div>
     </div>
+</div>
 
-    <script type="text/javascript">
-        const encoded = encodeURI(window.location.href);
-        window.history.replaceState({}, document.title, encoded);
+<script type="text/javascript">
+    const encoded = encodeURI(window.location.href);
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = encodeURI(urlParams.get('error'));
+    window.history.replaceState({}, document.title, encoded);
 
-        microsoftTeams.initialize();
+    microsoftTeams.app.initialize();
+    
+    if(!code && error) {
+        displayError();
+    } else {
+        displaySuccess();
+    }
 
-        const clientId = localStorage.getItem('userClientId');
+    function displaySuccess() {
+        document.getElementById('content')
+            .innerHTML =
+            '<h2>Authentication Successful</h2>' +
+            '<p>Microsoft Teams has been successfully authenticated. You may now close this page.</p>';
 
-        if (!clientId) {
-            displayError();
-        }
-        else {
-            const microsoftLoginBaseUrl = window.localStorage.getItem('microsoftLoginBaseUrl');
-            const loginBaseUrl = microsoftLoginBaseUrl ? microsoftLoginBaseUrl : 'https://login.microsoftonline.com';
-            
-            const config = {
-                instance: `${loginBaseUrl}/`,
-                redirectUri: "https://" + window.location.host + "/loginResult.html",
-                cacheLocation: "localStorage",
-                navigateToLoginRequestUrl: false,
-                clientId: clientId
-            };
-
-            const authContext = new AuthenticationContext(config);
-
-            if (authContext.isCallback(window.location.hash)) {
-                authContext.handleWindowCallback(window.location.hash);
+        setTimeout(function () {
+            try {
+                // 'Uncaught Error: This call is not allowed in the 'settings' context'
+                // error may occur when notifySuccess is called on 'settings' page in a hidden iframe and it is not allowed in that context of the page
+                microsoftTeams.authentication.notifySuccess();
+            } catch (e) {
+                console.log('LoginResult::Notify success error: ', e);
             }
+        }, 500);
+    }
 
-            const user = authContext.getCachedUser();
+    function displayError() {
 
-            if (!user) {
-                displayError();
-            }
-            else {
-                const redirectUri = window.localStorage.getItem('redirectUri');
-                if (redirectUri) {
-                    window.localStorage.removeItem('redirectUri');
-                    window.location.replace(redirectUri);
-                } else {
-                    displaySuccess();
-                }
-            }
-        }
+        document.getElementById('content')
+            .innerHTML =
+            '<h2>Error occured</h2>' +
+            '<p>' + (error) + '</p>';
 
-        function displaySuccess() {
-            document.getElementById('content')
-                .innerHTML =
-                '<h2>Authentication Successful</h2>' +
-                '<p>Microsoft Teams has been successfully authenticated. You may now close this page.</p>';
-
-            setTimeout(function () {
-                try {
-                    // 'Uncaught Error: This call is not allowed in the 'settings' context'
-                    // error may occur when notifySuccess is called on 'settings' page in a hidden iframe and it is not allowed in that context of the page
-                    microsoftTeams.authentication.notifySuccess("success");
-                } catch (e) {
-                    console.log('LoginResult::Notify success error: ', e);
-                }
-            }, 500);
-        }
-
-        function displayError() {
-            const error = localStorage.getItem('adal.login.error') || localStorage.getItem('adal.error');
-
-            document.getElementById('content')
-                .innerHTML =
-                '<h2>' + (error || 'Error occured') + '</h2>' +
-                '<p>' + (localStorage.getItem('adal.error.description') || 'Error while authorization') + '</p>';
-
-            window.onbeforeunload = function () {
-                if (error) {
-                    microsoftTeams.authentication.notifyFailure(error);
-                }
+        window.onbeforeunload = function () {
+            if (error) {
+                microsoftTeams.authentication.notifyFailure(error);
             }
         }
-    </script>
+    }
+</script>
 </body>
 </html>

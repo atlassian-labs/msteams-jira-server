@@ -10,6 +10,8 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.Middleware
 {
     public class EventDebuggerMiddleware : IMiddleware
     {
+        private static readonly string[] EventSeparator = new string[] { "/event:" };
+
         public async Task OnTurnAsync(ITurnContext turnContext, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
         {
             var activity = turnContext.Activity;
@@ -21,7 +23,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.Middleware
 
                 if (!string.IsNullOrEmpty(text) && text.StartsWith("/event:"))
                 {
-                    var json = text.Split(new string[] { "/event:" }, StringSplitOptions.None)[1];
+                    var json = text.Split(EventSeparator, StringSplitOptions.None)[1];
                     var body = JsonConvert.DeserializeObject<Activity>(json);
 
                     turnContext.Activity.Type = ActivityTypes.Event;

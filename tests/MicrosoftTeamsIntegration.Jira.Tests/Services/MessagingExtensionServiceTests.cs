@@ -341,7 +341,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, user, out MessagingExtensionResponse response);
+            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, user, out FetchTaskResponseEnvelope response);
 
             Assert.Null(response);
             Assert.True(result);
@@ -369,7 +369,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, user, out MessagingExtensionResponse response);
+            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, user, out FetchTaskResponseEnvelope response);
 
             Assert.Null(response);
             Assert.False(result);
@@ -397,7 +397,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, user, out MessagingExtensionResponse response);
+            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, user, out FetchTaskResponseEnvelope response);
 
             Assert.Null(response);
             Assert.False(result);
@@ -425,7 +425,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, null, out MessagingExtensionResponse response);
+            var result = _target.TryValidateMessageExtensionFetchTask(turnContext, null, out FetchTaskResponseEnvelope response);
 
             Assert.NotNull(response);
             Assert.False(result);
@@ -624,11 +624,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             using var turnContext = new TurnContext(testAdapter, activity);
 
             var result = await _target.HandleMessagingExtensionQuery(turnContext, null);
-            var cardAction = result.ComposeExtension.SuggestedActions.Actions.FirstOrDefault() as CardAction;
 
             Assert.IsType<MessagingExtensionResponse>(result);
-            Assert.Equal(ActionTypes.OpenUrl, cardAction.Type);
-            Assert.Equal("Authorize in Jira", cardAction.Title);
+            Assert.Equal(ActivityTypes.Message, result.ComposeExtension.Type);
         }
 
         [Fact]
@@ -647,11 +645,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             using var turnContext = new TurnContext(testAdapter, activity);
 
             var result = await _target.HandleMessagingExtensionQuery(turnContext, null);
-            var cardAction = result.ComposeExtension.SuggestedActions.Actions.FirstOrDefault() as CardAction;
 
             Assert.IsType<MessagingExtensionResponse>(result);
-            Assert.Equal(ActionTypes.OpenUrl, cardAction.Type);
-            Assert.Equal("Authorize in Jira", cardAction.Title);
+            Assert.Equal(ActivityTypes.Message, result.ComposeExtension.Type);
         }
 
         [Fact]

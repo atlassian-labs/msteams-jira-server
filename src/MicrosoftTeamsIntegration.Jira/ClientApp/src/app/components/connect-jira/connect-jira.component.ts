@@ -178,7 +178,7 @@ export class ConnectJiraComponent implements OnInit {
                 await this.handleTab();
                 return;
             }
-            await this.authService.authenticate('./login.html', false);
+            await this.authService.authenticateMicrosoftAccount();
         } catch (error) {
             this.errorService.showDefaultError(error as any);
         }

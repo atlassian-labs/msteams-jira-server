@@ -26,13 +26,13 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.Middleware
         {
             foreach (var response in activities)
             {
-                this.LogActivity(string.Empty, response);
+                LogActivity(string.Empty, response);
             }
 
             return await next().ConfigureAwait(false);
         }
 
-        private void LogActivity(string prefix, Activity contextActivity)
+        private static void LogActivity(string prefix, Activity contextActivity)
         {
             Console.WriteLine(string.Empty);
             if (contextActivity.Type == ActivityTypes.Message)

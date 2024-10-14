@@ -37,7 +37,7 @@ import {
     IssueCommentComponent, NewCommentComponent,
     IssuesTableMobileComponent, ConnectJiraComponent, CreateCommentDialogComponent,
     IssueDetailsComponent, SignoutMaterialDialogComponent, SignoutDialogComponent,
-    GoToWebsiteComponent, CommentIssueDialogComponent
+    CommentIssueDialogComponent
 } from '@app/components';
 import { DynamicFieldsDirective } from './components/issues/fields/dynamic-fields.directive';
 import { SelectFieldComponent } from './components/issues/fields/select-field.component';
@@ -82,7 +82,6 @@ import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-
     IssueDetailsComponent,
     SignoutMaterialDialogComponent,
     SignoutDialogComponent,
-    GoToWebsiteComponent,
     DynamicFieldsDirective,
     DynamicFieldsComponent,
     SelectFieldComponent,

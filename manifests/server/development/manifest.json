@@ -201,8 +201,7 @@
   ],
   "validDomains": [
     "*.msteams-atlassian.com",
-    "*.ngrok.io",
     "token.botframework.com",
-    "*.atlastunnel.com"
+    "*.public.atlastunnel.com"
   ]
 }

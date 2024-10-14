@@ -41,6 +41,9 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         private const string CreateIssueCommand = "composeCreateCmd";
         private const string CreateCommentCommand = "composeCreateCommentCmd";
         private const int RegexTimeoutInSeconds = 2;
+        private const string ConnectJiraMessage =
+            "To use Jira integration you need to link your Jira account with Microsoft Teams first. " +
+                                               "Please follow the instructions sent by the bot.";
 
         private readonly AppSettings _appSettings;
         private readonly ILogger<MessagingExtensionService> _logger;
@@ -86,7 +89,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             if (composeExtensionQuery.CommandId.Equals(CreateIssueCommand, StringComparison.OrdinalIgnoreCase))
             {
-                var jiraId = user.JiraServerId;
+                var jiraId = user?.JiraServerId ?? string.Empty;
                 var application = "jiraServerCompose";
 
                 // the url has this format (domain/#/segment/segment;param1=value1;param2=value2) since we read params as snapshot.params on the client side
@@ -133,8 +136,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             if (composeExtensionQuery.CommandId.Equals(CreateCommentCommand, StringComparison.OrdinalIgnoreCase))
             {
-                var jiraUrl = user.JiraInstanceUrl;
-                var jiraId = user.JiraServerId;
+                var jiraUrl = user?.JiraInstanceUrl;
+                var jiraId = user?.JiraServerId;
                 var application = "jiraServerCompose";
 
                 MessageActionPayload createCommentActionPayload = GetRequestsContent(turnContext.Activity);
@@ -240,13 +243,29 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return true;
         }
 
-        public bool TryValidateMessageExtensionFetchTask(ITurnContext turnContext, IntegratedUser user, out MessagingExtensionResponse response)
+        public bool TryValidateMessageExtensionFetchTask(ITurnContext turnContext, IntegratedUser user, out FetchTaskResponseEnvelope response)
         {
             response = null;
 
             if (user == null)
             {
-                response = BuildCardAction("auth", "Authorize in Jira", turnContext.Activity.Conversation.TenantId);
+                string url = $"{_appSettings.BaseUrl}/#/error?message={ConnectJiraMessage}&iconType=connect";
+
+                response = new FetchTaskResponseEnvelope
+                {
+                    Task = new FetchTaskResponse
+                    {
+                        Type = FetchTaskType.Continue,
+                        Value = new FetchTaskResponseInfo
+                        {
+                            Title = "Connect Jira",
+                            Height = 460,
+                            Width = 460,
+                            Url = url,
+                            FallbackUrl = url
+                        }
+                    }
+                };
 
                 return false;
             }
@@ -378,7 +397,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             if (user == null
                 || string.Equals(turnContext.Activity.Name, "composeExtension/querySettingUrl", StringComparison.InvariantCultureIgnoreCase))
             {
-                return BuildCardAction("auth", "Authorize in Jira", turnContext.Activity.Conversation.TenantId);
+                await _botMessagesService.SendConnectCard(turnContext);
+                return MessagingExtensionHelper.BuildMessageResponse(ConnectJiraMessage);
             }
 
             var composeExtensionQuery = SafeCast<MessagingExtensionQuery>(turnContext.Activity.Value);
@@ -622,8 +642,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
                 if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, StringComparison.OrdinalIgnoreCase))
                 {
-                    string jiraUrl = !string.IsNullOrEmpty(user?.JiraInstanceUrl) ? Uri.EscapeDataString(user.JiraInstanceUrl) : null;
-                    url = $"{_appSettings.BaseUrl}/#/issues/commentIssue;jiraUrl={jiraUrl};jiraId={jiraId};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};returnIssueOnSubmit=false;source=bot";
+                    url = $"{_appSettings.BaseUrl}/#/issues/commentIssue;jiraUrl={jiraId};jiraId={jiraId};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};returnIssueOnSubmit=false;source=bot";
                     taskModuleTitle = "Comment issue";
                     taskModuleHeight = 250;
                 }
