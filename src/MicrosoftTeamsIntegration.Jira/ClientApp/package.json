@@ -8,6 +8,7 @@
     "start": "echo open your browser on http://localhost:4200/ && ng serve",
     "build": "ng lint && ng build",
     "test": "ng test --no-watch",
+    "test:pipeline": "ng test --karma-config ./src/karma.conf.js --browsers=ChromeHeadlessNoSandbox --watch=false --code-coverage",
     "lint": "eslint -c .eslintrc.js --ext .ts 'src/**/*.ts' --fix",
     "watch": "ng build --watch --configuration development"
   },

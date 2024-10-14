@@ -6,35 +6,44 @@ module.exports = function (config) {
         basePath: '',
         frameworks: ['jasmine', '@angular-devkit/build-angular'],
         plugins: [
-            require('@angular-devkit/build-angular/plugins/karma'),
             require('karma-jasmine'),
             require('karma-chrome-launcher'),
             require('karma-jasmine-html-reporter'),
-            require('karma-coverage-istanbul-reporter'),
-            require('karma-trx-reporter')
+            require('karma-coverage'),
+            require('@angular-devkit/build-angular/plugins/karma')
         ],
         client: {
             clearContext: false // leave Jasmine Spec Runner output visible in browser
         },
-        coverageIstanbulReporter: {
+        coverageReporter: {
             dir: require('path').join(__dirname, '../coverage'),
-            reports: ['html', 'lcovonly'],
+            reporters: [
+                { type: 'html', subdir: 'html-report' },
+                { type: 'lcovonly', subdir: 'lcov-report' },
+                { type: 'text-summary' },
+            ],
             fixWebpackSourcePaths: true
         },
-        reporters: ['progress', 'trx'],
-        trxReporter: { outputFile: '../../../tests/MicrosoftTeamsIntegration.Jira.Tests/TestResults/test-results.trx', shortTestName: false },
+        reporters: ['progress', 'coverage'],
         port: 9876,
         colors: true,
         logLevel: config.LOG_ERROR,
         autoWatch: true,
         browsers: ['ChromeHeadless'],
         customLaunchers: {
-            HeadlessChrome: {
+            ChromeHeadlessNoSandbox: {
                 base: 'ChromeHeadless',
-                flags: ['--no-sandbox']
+                flags: [
+                    '--no-sandbox',
+                    '--disable-gpu',
+                    '--headless',
+                    '--disable-dev-shm-usage',
+                    '--disable-software-rasterizer',
+                    '--remote-debugging-port=9222'
+                ]
             }
         },
-        singleRun: false,
+        singleRun: true,
         browserNoActivityTimeout: 120000
     });
 };
