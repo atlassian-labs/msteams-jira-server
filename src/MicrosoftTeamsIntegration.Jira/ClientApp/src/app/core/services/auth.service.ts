@@ -47,57 +47,53 @@ export class AuthService {
         return !!(await this.getToken());
     }
 
-    public authenticateMicrosoftAccount(useReplaceMethod?: boolean): Promise<void | string> {
+    public authenticateMicrosoftAccount(): Promise<void | string> {
         return new Promise((resolve, reject) => {
             this.appService.getSettings().then(async (settings: any) => {
-                if (settings) {
-                    const microsoftAuthScopes = 'openid profile offline_access';
-                    const params = {
-                        client_id: settings.clientId,
-                        response_type: 'code',
-                        response_mode: 'query',
-                        scope: microsoftAuthScopes,
-                        redirect_uri: `${window.location.origin}/loginResult.html`,
-                    };
+                if (!settings) {
+                    logger('Cannot get Microsoft authentication URL');
+                    return Promise.resolve();
+                }
 
-                    const loginBaseUrl = settings.microsoftLoginBaseUrl ?
-                        settings.microsoftLoginBaseUrl :
-                        'https://login.microsoftonline.com';
+                const microsoftAuthScopes = 'openid profile offline_access';
+                const params = {
+                    client_id: settings.clientId,
+                    response_type: 'code',
+                    response_mode: 'query',
+                    scope: microsoftAuthScopes,
+                    redirect_uri: `${window.location.origin}/loginResult.html`,
+                };
 
-                    const microsoftAuthUrl = `${loginBaseUrl}/common/oauth2/v2.0/authorize?${new URLSearchParams(params)}`;
+                const loginBaseUrl = settings.microsoftLoginBaseUrl ?
+                    settings.microsoftLoginBaseUrl :
+                    'https://login.microsoftonline.com';
 
-                    if (useReplaceMethod || window.opener) {
-                        window.location.replace(microsoftAuthUrl);
+                const microsoftAuthUrl = `${loginBaseUrl}/common/oauth2/v2.0/authorize?${new URLSearchParams(params)}`;
+
+                const authenticateParameters: AuthenticateParameters = {
+                    url: microsoftAuthUrl,
+                    width: 460,
+                    height: 640,
+                    successCallback: resolve,
+                    failureCallback: reject
+                };
+
+                try {
+                    await microsoftTeams.authentication.authenticate(authenticateParameters);
+
+                    // force redirect to calling page
+                    window.history.back();
+                } catch (e) {
+                    // in general is true only for mobile
+                    // as far as microsoftTeams.authentication.authenticate()
+                    // can not be called from the inside of 'authorization' context,
+                    // try to redirect to another page in the same frame
+                    if (this.document?.location) {
+
+                        this.document.location.href = microsoftAuthUrl;
                         return Promise.resolve();
                     }
-
-                    const authenticateParameters: AuthenticateParameters = {
-                        url: microsoftAuthUrl,
-                        width: 460,
-                        height: 640,
-                        successCallback: resolve,
-                        failureCallback: reject
-                    };
-
-                    try {
-                        await microsoftTeams.authentication.authenticate(authenticateParameters);
-
-                        // force redirect to calling page
-                        window.history.back();
-                    } catch (e) {
-                        // in general is true only for mobile
-                        // as far as microsoftTeams.authentication.authenticate()
-                        // can not be called from the inside of 'authorization' context,
-                        // try to redirect to another page in the same frame
-                        if (this.document && this.document.location) {
-
-                            this.document.location.href = microsoftAuthUrl;
-                            return Promise.resolve();
-                        }
-                        return Promise.reject();
-                    }
-                } else {
-                    logger('Cannot get Microsoft authentication URL');
+                    return Promise.reject();
                 }
                 return Promise.resolve();
             });
@@ -116,42 +112,14 @@ export class AuthService {
 
             try {
                 await microsoftTeams.authentication.authenticate(authenticateParameters);
-                // window.location.reload();
             } catch (e) {
                 // in general is true only for mobile
                 // as far as microsoftTeams.authentication.authenticate()
                 // can not be called from the inside of 'authorization' context,
                 // try to redirect to another page in the same frame
-                if (this.document && this.document.location) {
+                if (this.document?.location) {
 
                     this.document.location.href = authorizationUrl;
-                    return Promise.resolve();
-                }
-                return Promise.reject();
-            }
-        });
-    }
-
-    private authenticate(url: string) {
-        return new Promise(async (resolve, reject) => {
-            const authenticateParameters: AuthenticateParameters = {
-                url: url,
-                width: 640,
-                height: 640,
-                successCallback: resolve,
-                failureCallback: reject
-            };
-
-            try {
-                await microsoftTeams.authentication.authenticate(authenticateParameters);
-            } catch (e) {
-                // in general is true only for mobile
-                // as far as microsoftTeams.authentication.authenticate()
-                // can not be called from the inside of 'authorization' context,
-                // try to redirect to another page in the same frame
-                if (this.document && this.document.location) {
-
-                    this.document.location.href = url;
                     return Promise.resolve();
                 }
                 return Promise.reject();

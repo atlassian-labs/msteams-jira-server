@@ -55,7 +55,7 @@ export class CommentIssueDialogComponent implements OnInit {
             }
 
             const { permissions } = await this.permissionService
-                .getMyPermissions(this.jiraUrl as string, commentRelatedPermissions, this.issueId);
+                .getMyPermissions(this.jiraUrl, commentRelatedPermissions, this.issueId);
 
             if (!permissions.ADD_COMMENTS.havePermission) {
                 const message = 'You don\'t have permissions to add comments';
@@ -63,7 +63,7 @@ export class CommentIssueDialogComponent implements OnInit {
                 return;
             }
 
-            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraUrl as string, this.issueId as string);
+            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraUrl, this.issueId as string);
             await this.createForm();
 
             microsoftTeams.app.notifySuccess();
