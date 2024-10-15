@@ -110,7 +110,7 @@ namespace MicrosoftTeamsIntegration.Jira
             // Client notifying this bot took to long to respond (timed out)
             if (turnContext.Activity?.Code == EndOfConversationCodes.BotTimedOut)
             {
-                _logger.LogTrace($"Timeout in {turnContext.Activity.ChannelId} channel: Bot took too long to respond.");
+                _logger.LogTrace("Timeout in {ChannelId} channel: Bot took too long to respond.", turnContext.Activity.ChannelId);
                 return;
             }
 

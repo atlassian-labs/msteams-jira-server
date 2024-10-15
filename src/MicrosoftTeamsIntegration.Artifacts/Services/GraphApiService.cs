@@ -33,7 +33,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
                     {
                         if (retryAttempt == DefaultPolicyRetryCount)
                         {
-                            _logger.LogError(exception, $"{context[MethodNameParam]}.");
+                            _logger.LogError(exception, "{MethodName}.", context[MethodNameParam]);
                         }
                     });
         }

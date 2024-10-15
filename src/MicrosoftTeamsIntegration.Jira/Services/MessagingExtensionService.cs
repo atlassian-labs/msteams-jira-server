@@ -82,7 +82,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             {
                 errorMessage = "ComposeExtension/fetchTask request does not contain a command id.";
 
-                _logger.LogError(errorMessage);
+                _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
 
                 return BuildSubmitActionMessageResponse(errorMessage);
             }
@@ -180,7 +180,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
 
             errorMessage = "ComposeExtension/fetchTask command id is invalid.";
-            _logger.LogError(errorMessage);
+            _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
 
             return BuildSubmitActionMessageResponse(errorMessage);
         }
@@ -203,7 +203,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
 
             var errorMessage = "Bot task/fetch command id is invalid.";
-            _logger.LogError(errorMessage);
+            _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
 
             return BuildSubmitActionMessageResponse(errorMessage);
         }
@@ -280,7 +280,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             if (!(composeExtensionQuery.CommandId.Equals(CreateIssueCommand, StringComparison.OrdinalIgnoreCase) ||
                 composeExtensionQuery.CommandId.Equals(CreateCommentCommand, StringComparison.OrdinalIgnoreCase)))
             {
-                _logger.LogError($"ComposeExtension/fetchTask request contains an invalid command id: \"{composeExtensionQuery.CommandId}\".");
+                _logger.LogError("ComposeExtension/fetchTask request contains an invalid command id: \"{CommandId}\".", composeExtensionQuery.CommandId);
 
                 return false;
             }
@@ -296,7 +296,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             if (composeExtensionQuery?.CommandId == null)
             {
                 errorMessage = "ComposeExtension/submitAction request does not contain a command id.";
-                _logger.LogError(errorMessage);
+                _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
 
                 return BuildSubmitActionMessageResponse(errorMessage);
             }
@@ -311,7 +311,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, ex.Message);
+                    _logger.LogError("An error occurred: {ErrorMessage}", ex);
 
                     return BuildSubmitActionMessageResponse("ComposeExtension/submitAction request data is invalid.");
                 }
@@ -320,7 +320,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     errorMessage = "ComposeExtension/submitAction request data issue key is invalid.";
 
-                    _logger.LogError(errorMessage);
+                    _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
 
                     return BuildSubmitActionMessageResponse(errorMessage);
                 }
@@ -338,7 +338,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, exception.Message);
+                    _logger.LogError(exception, "An error occurred: {ErrorMessage}", exception.Message);
 
                     return BuildSubmitActionMessageResponse("Something went wrong while fetching the issue.");
                 }
@@ -346,7 +346,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             errorMessage = "ComposeExtension/submitAction command id is invalid.";
 
-            _logger.LogError(errorMessage);
+            _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
 
             return BuildSubmitActionMessageResponse(errorMessage);
         }
@@ -373,7 +373,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
                 _telemetry.TrackPageView("IssueQueryLink");
 
-                _logger.LogError($"ComposeExtensionQueryLink: Try to create card for user {user?.JiraUserAccountId}");
+                _logger.LogError("ComposeExtensionQueryLink: Try to create card for user {JiraUserAccountId}", user?.JiraUserAccountId);
 
                 return TranslateJiraIssueToMessagingExtensionResponse(issue, user, true);
             }
@@ -386,7 +386,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"ComposeExtensionQueryLink: Error: {exception.Message}");
+                _logger.LogError(exception, "ComposeExtensionQueryLink: Error: {Message}", exception.Message);
             }
 
             return MessagingExtensionHelper.BuildMessageResponse($"We didn't find an issue with id or key \"{jiraIssueIdOrKey}\".");
@@ -460,7 +460,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, exception.Message);
+                _logger.LogError(exception, "An error occurred: {ErrorMessage}", exception.Message);
             }
 
             return MessagingExtensionHelper.BuildMessageResponse("We didn't find any matches.");
@@ -677,7 +677,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, exception.Message);
+                _logger.LogError(exception, "An error occurred: {ErrorMessage}", exception.Message);
             }
 
             return request?.Payload;
@@ -727,7 +727,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     _logger.LogWarning(
                         regexException,
-                        $"Matching of regex took longer then expected. String to match: {content}");
+                        "Matching of regex took longer than expected. String to match: {Content}",
+                        content);
                 }
 
                 // if content of message action payload is more than the limit, crop it
@@ -753,7 +754,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, exception.Message);
+                _logger.LogError(exception, "An error occurred: {ErrorMessage}", exception.Message);
             }
 
             // get message creation timestamp
@@ -767,7 +768,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Cannot get metadata timestamp." + e.Message);
+                    _logger.LogError(e, "Cannot get metadata timestamp. {ErrorMessage}", e.Message);
                 }
             }
 
@@ -784,7 +785,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, exception.Message);
+                _logger.LogError(exception, "An error occurred: {ErrorMessage}", exception.Message);
             }
 
             if (request?.Payload?.CreatedDateTime != null)
@@ -805,7 +806,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError(e, "An error occurred: {ErrorMessage}", e.Message);
             }
 
             // get message author
@@ -827,7 +828,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError(e, "An error occurred: {ErrorMessage}", e.Message);
             }
 
             if (string.IsNullOrWhiteSpace(request?.Payload?.From?.Application?.DisplayName))
@@ -848,7 +849,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError(e, "An error occurred: {ErrorMessage}", e.Message);
             }
 
             if (string.IsNullOrWhiteSpace(request?.Payload?.LinkToMessage))
@@ -900,7 +901,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError(e, "An error occurred: {ErrorMessage}", e.Message);
             }
 
             return messageMetadata;

@@ -21,7 +21,7 @@ namespace MicrosoftTeamsIntegration.Jira.Models
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Cannot deserialize object. Expected object: {typeof(T)}. Response: {input}. Original message: {e.Message}");
+                _logger.LogError(e, "Cannot deserialize object. Expected object: {ExpectedType}. Response: {Input}. Original message: {ErrorMessage}", typeof(T), input, e.Message);
                 return default;
             }
         }

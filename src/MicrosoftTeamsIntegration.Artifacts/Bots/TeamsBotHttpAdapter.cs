@@ -29,7 +29,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots
             OnTurnError = async (turnContext, exception) =>
             {
                 // Log any leaked exception from the application.
-                logger.LogCritical(exception, $"[OnTurnError] unhandled error : {exception.Message}");
+                logger.LogCritical(exception, "[OnTurnError] unhandled error: {ErrorMessage}", exception.Message);
 
                 try
                 {
@@ -48,7 +48,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots
                 {
                     // In case if application has ME and doesn't have Bot turnContext.SendActivityAsync
                     // is throwing exception. We don't want to prevent app executing in this scenario.
-                    logger.LogWarning($"Exception caught on attempting to SendActivityAsync : {e.Message}");
+                    logger.LogWarning("Exception caught on attempting to SendActivityAsync : {Message}", e.Message);
                 }
 
                 // Delete the conversationState and userState for the current conversation to prevent the
@@ -62,7 +62,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots
                     }
                     catch (Exception e)
                     {
-                        logger.LogError($"Exception caught on attempting to Delete ConversationState : {e.Message}");
+                        logger.LogError("Exception caught on attempting to Delete ConversationState : {Message}", e.Message);
                     }
                 }
 
@@ -74,7 +74,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots
                     }
                     catch (Exception e)
                     {
-                        logger.LogError($"Exception caught on attempting to Delete UserState : {e.Message}");
+                        logger.LogError("Exception caught on attempting to Delete UserState : {Message}", e.Message);
                     }
                 }
             };

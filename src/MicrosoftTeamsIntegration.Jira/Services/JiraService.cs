@@ -599,7 +599,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             if (responseObj == null)
             {
-                _logger.LogDebug($"Jira Data Center response returned incorrect object. Expected object: {typeof(T)}. Response: {response}");
+                _logger.LogDebug("Jira Data Center response returned incorrect object. Expected object: {ExpectedType}. Response: {Response}", typeof(T), response);
                 return default;
             }
 

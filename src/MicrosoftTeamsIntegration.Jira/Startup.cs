@@ -222,7 +222,7 @@ namespace MicrosoftTeamsIntegration.Jira
 
                                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-                                logger.LogCritical(exception, exception.Message);
+                                logger.LogCritical(exception, "An error occurred: {ErrorMessage}", exception.Message);
                                 break;
                             }
                     }
