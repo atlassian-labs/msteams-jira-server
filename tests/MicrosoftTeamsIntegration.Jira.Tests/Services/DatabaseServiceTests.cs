@@ -16,14 +16,14 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
     public class DatabaseServiceTests
     {
         private readonly IMongoDBContext _fakeContext;
-        private IMongoCollection<IntegratedUser> _userCollection;
-        private IMongoCollection<JiraAddonSettings> _addonCollection;
-        private List<IntegratedUser> _userList;
-        private List<JiraAddonSettings> _addonSettingsList;
         private readonly IOptions<AppSettings> _appSettings = new OptionsManager<AppSettings>(
             new OptionsFactory<AppSettings>(
                 new List<IConfigureOptions<AppSettings>>(),
                 new List<IPostConfigureOptions<AppSettings>>()));
+        private IMongoCollection<IntegratedUser> _userCollection;
+        private IMongoCollection<JiraAddonSettings> _addonCollection;
+        private List<IntegratedUser> _userList;
+        private List<JiraAddonSettings> _addonSettingsList;
 
         public DatabaseServiceTests()
         {
@@ -34,7 +34,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             user.JiraUserAccountId = "jiraid";
             user.IsUsedForPersonalScope = true;
 
-            var addonSetting = new JiraAddonSettings() {JiraId = "id"};
+            var addonSetting = new JiraAddonSettings() { JiraId = "id" };
 
             _addonSettingsList = new List<JiraAddonSettings>();
             _addonSettingsList.Add(addonSetting);
@@ -59,8 +59,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var result = await service.GetJiraServerAddonSettingsByJiraId(string.Empty);
 
             Assert.IsType<JiraAddonSettings>(result);
-            A.CallTo(() => _addonCollection.FindAsync(A<FilterDefinition<JiraAddonSettings>>._,
-                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _addonCollection.FindAsync(
+                A<FilterDefinition<JiraAddonSettings>>._,
+                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._,
+                CancellationToken.None)).MustHaveHappened();
         }
 
         [Fact]
@@ -71,8 +73,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var result = await service.GetUserByTeamsUserIdAndJiraUrl(string.Empty, string.Empty);
 
             Assert.IsType<IntegratedUser>(result);
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
         }
 
         [Fact]
@@ -84,8 +88,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             Assert.IsType<IntegratedUser>(result);
             Assert.Equal("id", result.Id);
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
         }
 
         [Fact]
@@ -99,8 +105,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             Assert.IsType<IntegratedUser>(result);
             Assert.Equal(string.Empty, result.JiraInstanceUrl);
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
             A.CallTo(() => _userCollection.InsertOne(A<IntegratedUser>._, null, CancellationToken.None))
                 .MustHaveHappened();
         }
@@ -110,10 +118,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         {
             _userList[0].JiraInstanceUrl = null;
 
-            A.CallTo(() => _userCollection.FindOneAndUpdateAsync(A<FilterDefinition<IntegratedUser>>._,
-                    A<UpdateDefinition<IntegratedUser>>._, A<FindOneAndUpdateOptions<IntegratedUser, IntegratedUser>>._,
+            A.CallTo(() => _userCollection.FindOneAndUpdateAsync(
+                    A<FilterDefinition<IntegratedUser>>._,
+                    A<UpdateDefinition<IntegratedUser>>._,
+                    A<FindOneAndUpdateOptions<IntegratedUser, IntegratedUser>>._,
                     CancellationToken.None))
-                .Returns(new IntegratedUser() {JiraInstanceUrl = "url"});
+                .Returns(new IntegratedUser() { JiraInstanceUrl = "url" });
 
             var service = CreateDatabaseService();
 
@@ -122,10 +132,14 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             Assert.IsType<IntegratedUser>(result);
             Assert.Equal("url", result.JiraInstanceUrl);
 
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
-            A.CallTo(() => _userCollection.FindOneAndUpdateAsync(A<FilterDefinition<IntegratedUser>>._,
-                    A<UpdateDefinition<IntegratedUser>>._, A<FindOneAndUpdateOptions<IntegratedUser, IntegratedUser>>._,
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.FindOneAndUpdateAsync(
+                    A<FilterDefinition<IntegratedUser>>._,
+                    A<UpdateDefinition<IntegratedUser>>._,
+                    A<FindOneAndUpdateOptions<IntegratedUser, IntegratedUser>>._,
                     CancellationToken.None))
                 .MustHaveHappened();
         }
@@ -138,10 +152,14 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var result = await service.GetOrCreateJiraServerUser(string.Empty, string.Empty, string.Empty);
 
             Assert.IsType<IntegratedUser>(result);
-            A.CallTo(() => _addonCollection.FindAsync(A<FilterDefinition<JiraAddonSettings>>._,
-                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._, CancellationToken.None)).MustHaveHappened();
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _addonCollection.FindAsync(
+                A<FilterDefinition<JiraAddonSettings>>._,
+                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._,
+                CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
             A.CallTo(() => _userCollection.InsertOne(A<IntegratedUser>._, null, CancellationToken.None))
                 .MustHaveHappened();
         }
@@ -155,13 +173,19 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => fakeUpdateResult.IsAcknowledged).Returns(true);
             A.CallTo(() => fakeUpdateResult.ModifiedCount).Returns(1);
 
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).Returns(fakeUpdateResult);
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).Returns(fakeUpdateResult);
 
             await service.UpdateUserActiveJiraInstanceForPersonalScope(string.Empty, string.Empty);
 
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).MustHaveHappened(2, Times.Exactly);
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).MustHaveHappened(2, Times.Exactly);
         }
 
         [Fact]
@@ -207,16 +231,24 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => fakeUpdateResult.IsAcknowledged).Returns(true);
             A.CallTo(() => fakeUpdateResult.ModifiedCount).Returns(1);
 
-            A.CallTo(() => _addonCollection.UpdateOneAsync(A<FilterDefinition<JiraAddonSettings>>._,
-                A<UpdateDefinition<JiraAddonSettings>>._, A<UpdateOptions>._, CancellationToken.None)).Returns(fakeUpdateResult);
+            A.CallTo(() => _addonCollection.UpdateOneAsync(
+                A<FilterDefinition<JiraAddonSettings>>._,
+                A<UpdateDefinition<JiraAddonSettings>>._,
+                A<UpdateOptions>._,
+                CancellationToken.None)).Returns(fakeUpdateResult);
 
             await service.CreateOrUpdateJiraServerAddonSettings(string.Empty, string.Empty, string.Empty, string.Empty);
 
-            A.CallTo(() => _addonCollection.FindAsync(A<FilterDefinition<JiraAddonSettings>>._,
-                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _addonCollection.FindAsync(
+                A<FilterDefinition<JiraAddonSettings>>._,
+                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._,
+                CancellationToken.None)).MustHaveHappened();
 
-            A.CallTo(() => _addonCollection.UpdateOneAsync(A<FilterDefinition<JiraAddonSettings>>._,
-                A<UpdateDefinition<JiraAddonSettings>>._, A<UpdateOptions>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _addonCollection.UpdateOneAsync(
+                A<FilterDefinition<JiraAddonSettings>>._,
+                A<UpdateDefinition<JiraAddonSettings>>._,
+                A<UpdateOptions>._,
+                CancellationToken.None)).MustHaveHappened();
         }
 
         [Fact]
@@ -227,10 +259,14 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var result = await service.GetJiraServerAddonStatus(string.Empty, string.Empty);
 
             Assert.IsType<AtlassianAddonStatus>(result);
-            A.CallTo(() => _addonCollection.FindAsync(A<FilterDefinition<JiraAddonSettings>>._,
-                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._, CancellationToken.None)).MustHaveHappened();
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _addonCollection.FindAsync(
+                A<FilterDefinition<JiraAddonSettings>>._,
+                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._,
+                CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
         }
 
         [Fact]
@@ -242,16 +278,24 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => fakeUpdateResult.IsAcknowledged).Returns(true);
             A.CallTo(() => fakeUpdateResult.ModifiedCount).Returns(1);
 
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).Returns(fakeUpdateResult);
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).Returns(fakeUpdateResult);
 
             var result = await service.GetJiraServerUserWithConfiguredPersonalScope("test");
 
             Assert.IsType<IntegratedUser>(result);
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).MustNotHaveHappened();
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).MustNotHaveHappened();
         }
 
         [Fact]
@@ -263,16 +307,24 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => fakeUpdateResult.IsAcknowledged).Returns(true);
             A.CallTo(() => fakeUpdateResult.ModifiedCount).Returns(1);
 
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).Returns(fakeUpdateResult);
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).Returns(fakeUpdateResult);
 
             var result = await service.GetJiraServerUserWithConfiguredPersonalScope(null);
 
             Assert.Null(result);
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustNotHaveHappened();
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).MustNotHaveHappened();
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustNotHaveHappened();
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).MustNotHaveHappened();
         }
 
         [Fact]
@@ -284,33 +336,45 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => fakeUpdateResult.IsAcknowledged).Returns(true);
             A.CallTo(() => fakeUpdateResult.ModifiedCount).Returns(1);
 
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).Returns(fakeUpdateResult);
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).Returns(fakeUpdateResult);
 
             var result = await service.UpdateJiraServerUserActiveJiraInstanceForPersonalScope(string.Empty, string.Empty);
 
             Assert.IsType<IntegratedUser>(result);
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).MustHaveHappened();
-            A.CallTo(() => _userCollection.UpdateOneAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<UpdateDefinition<IntegratedUser>>._, null, CancellationToken.None)).MustHaveHappened(2, Times.Exactly);
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).MustHaveHappened();
+            A.CallTo(() => _userCollection.UpdateOneAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<UpdateDefinition<IntegratedUser>>._,
+                null,
+                CancellationToken.None)).MustHaveHappened(2, Times.Exactly);
         }
 
         private DatabaseService CreateDatabaseService()
         {
-            var _userCursor = A.Fake<IAsyncCursor<IntegratedUser>>();
-            A.CallTo(() => _userCursor.Current).Returns(_userList);
-            A.CallTo(() => _userCursor.MoveNext(CancellationToken.None)).ReturnsNextFromSequence(true, false);
-            A.CallTo(() => _userCursor.MoveNextAsync(CancellationToken.None)).ReturnsNextFromSequence(Task.FromResult(true), Task.FromResult(false));
-            A.CallTo(() => _userCollection.FindAsync(A<FilterDefinition<IntegratedUser>>._,
-                A<FindOptions<IntegratedUser, IntegratedUser>>._, CancellationToken.None)).Returns(_userCursor);
+            var userCursor = A.Fake<IAsyncCursor<IntegratedUser>>();
+            A.CallTo(() => userCursor.Current).Returns(_userList);
+            A.CallTo(() => userCursor.MoveNext(CancellationToken.None)).ReturnsNextFromSequence(true, false);
+            A.CallTo(() => userCursor.MoveNextAsync(CancellationToken.None)).ReturnsNextFromSequence(Task.FromResult(true), Task.FromResult(false));
+            A.CallTo(() => _userCollection.FindAsync(
+                A<FilterDefinition<IntegratedUser>>._,
+                A<FindOptions<IntegratedUser, IntegratedUser>>._,
+                CancellationToken.None)).Returns(userCursor);
 
-            var _addonCursor = A.Fake<IAsyncCursor<JiraAddonSettings>>();
-            A.CallTo(() => _addonCursor.Current).Returns(_addonSettingsList);
-            A.CallTo(() => _addonCursor.MoveNext(CancellationToken.None)).ReturnsNextFromSequence(true, false);
-            A.CallTo(() => _addonCursor.MoveNextAsync(CancellationToken.None)).ReturnsNextFromSequence(Task.FromResult(true), Task.FromResult(false));
-            A.CallTo(() => _addonCollection.FindAsync(A<FilterDefinition<JiraAddonSettings>>._,
-                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._, CancellationToken.None)).Returns(_addonCursor);
+            var addonCursor = A.Fake<IAsyncCursor<JiraAddonSettings>>();
+            A.CallTo(() => addonCursor.Current).Returns(_addonSettingsList);
+            A.CallTo(() => addonCursor.MoveNext(CancellationToken.None)).ReturnsNextFromSequence(true, false);
+            A.CallTo(() => addonCursor.MoveNextAsync(CancellationToken.None)).ReturnsNextFromSequence(Task.FromResult(true), Task.FromResult(false));
+            A.CallTo(() => _addonCollection.FindAsync(
+                A<FilterDefinition<JiraAddonSettings>>._,
+                A<FindOptions<JiraAddonSettings, JiraAddonSettings>>._,
+                CancellationToken.None)).Returns(addonCursor);
 
             A.CallTo(() => _fakeContext.GetCollection<IntegratedUser>("Users")).Returns(_userCollection);
             A.CallTo(() => _fakeContext.GetCollection<JiraAddonSettings>("AddonSettings")).Returns(_addonCollection);
