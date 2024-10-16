@@ -175,7 +175,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             }
         }
 
-        private async Task HandleFailedAssignment(DialogContext dc, string errorMessage, bool invokedFromCard)
+        private static async Task HandleFailedAssignment(DialogContext dc, string errorMessage, bool invokedFromCard)
         {
             if (invokedFromCard)
             {
