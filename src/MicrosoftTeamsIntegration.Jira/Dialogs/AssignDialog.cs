@@ -54,33 +54,48 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             AddDialog(new TextPrompt(MentionUserToAssignIssuePrompt, JiraIssueKeyValidatorAsync));
         }
 
-        protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext dc, IntegratedUser user, JiraIssue jiraIssue)
+        protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(
+            DialogContext dc,
+            IntegratedUser user,
+            JiraIssue jiraIssue)
         {
             return await dc.ReplaceDialogAsync(AssignJiraIssueWaterfall);
         }
 
-        private async Task<DialogTurnResult> OnStartAssigningProcessingAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default)
+        private async Task<DialogTurnResult> OnStartAssigningProcessingAsync(
+            WaterfallStepContext stepContext,
+            CancellationToken cancellationToken = default)
         {
             _telemetry.TrackPageView("AssignDialog");
 
             var jiraIssueState =
-                await _accessors.JiraIssueState.GetAsync(stepContext.Context, () => new JiraIssueState(), cancellationToken);
+                await _accessors.JiraIssueState.GetAsync(
+                    stepContext.Context,
+                    () => new JiraIssueState(),
+                    cancellationToken);
 
             var jiraIssue = jiraIssueState.JiraIssue;
 
             return await AssignJiraIssueToUser(stepContext, CurrentUser, jiraIssue);
         }
 
-        private async Task<DialogTurnResult> OnHandleMentionedUserAssigningAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default)
+        private async Task<DialogTurnResult> OnHandleMentionedUserAssigningAsync(
+            WaterfallStepContext stepContext,
+            CancellationToken cancellationToken = default)
         {
             var user = MentionedUser;
             if (user == null)
             {
-                await stepContext.Context.SendActivityAsync(BotMessages.OperationCancelled, cancellationToken: cancellationToken);
+                await stepContext.Context.SendActivityAsync(
+                    BotMessages.OperationCancelled,
+                    cancellationToken: cancellationToken);
             }
             else
             {
-                var jiraIssueState = await _accessors.JiraIssueState.GetAsync(stepContext.Context, () => new JiraIssueState(), cancellationToken);
+                var jiraIssueState = await _accessors.JiraIssueState.GetAsync(
+                    stepContext.Context,
+                    () => new JiraIssueState(),
+                    cancellationToken);
 
                 var jiraIssue = jiraIssueState.JiraIssue;
 
@@ -93,7 +108,10 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
 
-        private async Task<DialogTurnResult> AssignJiraIssueToUser(DialogContext dc, IntegratedUser user, JiraIssue jiraIssue)
+        private async Task<DialogTurnResult> AssignJiraIssueToUser(
+            DialogContext dc,
+            IntegratedUser user,
+            JiraIssue jiraIssue)
         {
             CurrentUser = await JiraBotAccessorsHelper.GetUser(_accessors, dc.Context, _appSettings);
 
@@ -104,62 +122,94 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 
             if (!jiraIssue.IsAssignedToUser(userNameOrAccountId))
             {
-                var response = await _jiraService.Assign(CurrentUser, issueKey, userNameOrAccountId);
-                if (response.IsSuccess)
-                {
-                    if (CurrentUser.MsTeamsUserId == user.MsTeamsUserId)
-                    {
-                        // if command is sent by clicking the button - re-render adaptive card
-                        if (invokedFromCard)
-                        {
-                            await _botMessagesService.BuildAndUpdateJiraIssueCard(dc.Context, user, issueKey);
-                        }
-                        else
-                        {
-                            await dc.Context.SendActivityAsync($"You have been assigned {issueKey}.");
-                        }
-                    }
-                    else
-                    {
-                        await dc.Context.SendActivityAsync($"{issueKey} has been assigned.");
-                    }
-                }
-                else
-                {
-                    if (invokedFromCard)
-                    {
-                        await dc.Context.SendToDirectConversationAsync(response.ErrorMessage);
-                    }
-                    else
-                    {
-                        await dc.Context.SendActivityAsync(response.ErrorMessage);
-                    }
-                }
+                await HandleIssueAssignment(dc, user, jiraIssue, userNameOrAccountId, invokedFromCard);
             }
             else
             {
-                if (CurrentUser.MsTeamsUserId == user.MsTeamsUserId)
-                {
-                    var replyText = $"You're already assigned to {issueKey}.";
-                    if (invokedFromCard)
-                    {
-                        await dc.Context.SendToDirectConversationAsync(replyText);
-                    }
-                    else
-                    {
-                        await dc.Context.SendActivityAsync(replyText);
-                    }
-                }
-                else
-                {
-                    await dc.Context.SendActivityAsync($"{issueKey} is already assigned.");
-                }
+                await HandleAlreadyAssignedIssue(dc, user, issueKey, invokedFromCard);
             }
 
             return await dc.EndDialogAsync();
         }
 
-        private async Task<bool> JiraIssueKeyValidatorAsync(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
+        private async Task HandleIssueAssignment(
+            DialogContext dc,
+            IntegratedUser user,
+            JiraIssue jiraIssue,
+            string userNameOrAccountId,
+            bool invokedFromCard)
+        {
+            var issueKey = jiraIssue.Key;
+            var response = await _jiraService.Assign(CurrentUser, issueKey, userNameOrAccountId);
+
+            if (response.IsSuccess)
+            {
+                await HandleSuccessfulAssignment(dc, user, issueKey, invokedFromCard);
+            }
+            else
+            {
+                await HandleFailedAssignment(dc, response.ErrorMessage, invokedFromCard);
+            }
+        }
+
+        private async Task HandleSuccessfulAssignment(
+            DialogContext dc,
+            IntegratedUser user,
+            string issueKey,
+            bool invokedFromCard)
+        {
+            if (CurrentUser.MsTeamsUserId == user.MsTeamsUserId)
+            {
+                if (invokedFromCard)
+                {
+                    await _botMessagesService.BuildAndUpdateJiraIssueCard(dc.Context, user, issueKey);
+                }
+                else
+                {
+                    await dc.Context.SendActivityAsync($"You have been assigned {issueKey}.");
+                }
+            }
+            else
+            {
+                await dc.Context.SendActivityAsync($"{issueKey} has been assigned.");
+            }
+        }
+
+        private async Task HandleFailedAssignment(DialogContext dc, string errorMessage, bool invokedFromCard)
+        {
+            if (invokedFromCard)
+            {
+                await dc.Context.SendToDirectConversationAsync(errorMessage);
+            }
+            else
+            {
+                await dc.Context.SendActivityAsync(errorMessage);
+            }
+        }
+
+        private async Task HandleAlreadyAssignedIssue(
+            DialogContext dc,
+            IntegratedUser user,
+            string issueKey,
+            bool invokedFromCard)
+        {
+            var replyText = CurrentUser.MsTeamsUserId == user.MsTeamsUserId
+                ? $"You're already assigned to {issueKey}."
+                : $"{issueKey} is already assigned.";
+
+            if (invokedFromCard)
+            {
+                await dc.Context.SendToDirectConversationAsync(replyText);
+            }
+            else
+            {
+                await dc.Context.SendActivityAsync(replyText);
+            }
+        }
+
+        private async Task<bool> JiraIssueKeyValidatorAsync(
+            PromptValidatorContext<string> promptContext,
+            CancellationToken cancellationToken)
         {
             // Check whether the input could be recognized
             if (!promptContext.Recognized.Succeeded)
@@ -170,7 +220,12 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 return false;
             }
 
-            var currentUser = await JiraBotAccessorsHelper.GetUser(_accessors, promptContext.Context, _appSettings, cancellationToken);
+            var currentUser =
+                await JiraBotAccessorsHelper.GetUser(
+                    _accessors,
+                    promptContext.Context,
+                    _appSettings,
+                    cancellationToken);
 
             // trim bot mention to compare for myself assigning. Users mentioning will be taking in GetMsTeamsUserIdFromMentions method
             var mention = promptContext.Context.Activity.RemoveRecipientMention();
@@ -187,7 +242,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 
             if (mentionedUser is null)
             {
-                var couldNotFindMessage = "I couldn't find this person. Make sure they have the right permissions or try someone new.";
+                var couldNotFindMessage =
+                    "I couldn't find this person. Make sure they have the right permissions or try someone new.";
                 await promptContext.Context.SendActivityAsync(
                     couldNotFindMessage,
                     cancellationToken: cancellationToken);
