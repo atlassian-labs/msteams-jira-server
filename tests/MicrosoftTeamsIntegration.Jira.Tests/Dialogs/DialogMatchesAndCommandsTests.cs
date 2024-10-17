@@ -38,7 +38,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             Assert.Equal("cancel", DialogMatchesAndCommands.CancelCommand);
 
             Assert.Equal("o365connector.card.", DialogMatchesAndCommands.O365ConnectorCardPrefix);
-            Assert.Equal(DialogMatchesAndCommands.O365ConnectorCardPrefix + "post.action.",
+            Assert.Equal(
+                DialogMatchesAndCommands.O365ConnectorCardPrefix + "post.action.",
                 DialogMatchesAndCommands.O365ConnectorCardPostActionPrefix);
 
             Assert.Equal("editIssue", DialogMatchesAndCommands.EditIssueTaskModuleCommand);

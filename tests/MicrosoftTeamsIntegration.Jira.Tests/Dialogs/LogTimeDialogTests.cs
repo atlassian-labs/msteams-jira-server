@@ -29,12 +29,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
 
-        private const string TimeFormat =
-            "2w 4d 6h 45m (w = weeks, d = days, h = hours, m = minutes).";
-
         public LogTimeDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
@@ -46,7 +43,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task LogTimeDialog_ChecksIfCommandHasJiraIssueKey()
         {
-            var sut = new LogTimeDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry );
+            var sut = new LogTimeDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("log");
@@ -75,7 +72,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     }
                 });
 
-            A.CallTo(() => _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._, CancellationToken.None))
+            A.CallTo(() =>
+                    _fakeAccessors.JiraIssueState.GetAsync(
+                        A<ITurnContext>._,
+                        A<Func<JiraIssueState>>._,
+                        CancellationToken.None))
                 .Returns(new JiraIssueState()
                 {
                     JiraIssue = new JiraIssue()
@@ -86,9 +87,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             var customTimeSlot = await testClient.SendActivityAsync<IMessageActivity>("2hours");
 
             Assert.NotNull(reply);
-            Assert.Equal("Please enter a time duration in the following format: 2w 4d 6h 45m (w = weeks, d = days, h = hours, m = minutes).",
+            Assert.Equal(
+                "Please enter a time duration in the following format: 2w 4d 6h 45m (w = weeks, d = days, h = hours, m = minutes).",
                 timeSlot.Text);
-            Assert.Equal("Invalid time duration entered. Please use the format: 2w 4d 6h 45m (w = weeks, d = days, h = hours, m = minutes) or type cancel to interrupt the dialog.",
+            Assert.Equal(
+                "Invalid time duration entered. Please use the format: 2w 4d 6h 45m (w = weeks, d = days, h = hours, m = minutes) or type cancel to interrupt the dialog.",
                 customTimeSlot.Text);
             Assert.Equal(DialogTurnStatus.Waiting, testClient.DialogTurnResult.Status);
         }
@@ -111,7 +114,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     }
                 });
 
-            A.CallTo(() => _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._, CancellationToken.None))
+            A.CallTo(() =>
+                    _fakeAccessors.JiraIssueState.GetAsync(
+                        A<ITurnContext>._,
+                        A<Func<JiraIssueState>>._,
+                        CancellationToken.None))
                 .Returns(new JiraIssueState()
                 {
                     JiraIssue = new JiraIssue()
@@ -130,7 +137,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
                 .MustHaveHappened();
-            A.CallTo(() => _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._, CancellationToken.None))
+            A.CallTo(() =>
+                    _fakeAccessors.JiraIssueState.GetAsync(
+                        A<ITurnContext>._,
+                        A<Func<JiraIssueState>>._,
+                        CancellationToken.None))
                 .MustHaveHappened();
             A.CallTo(() => _fakeJiraService.AddIssueWorklog(A<IntegratedUser>._, A<string>._, A<string>._))
                 .MustHaveHappened();
@@ -154,7 +165,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     }
                 });
 
-            A.CallTo(() => _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._, CancellationToken.None))
+            A.CallTo(() =>
+                    _fakeAccessors.JiraIssueState.GetAsync(
+                        A<ITurnContext>._,
+                        A<Func<JiraIssueState>>._,
+                        CancellationToken.None))
                 .Returns(new JiraIssueState()
                 {
                     JiraIssue = new JiraIssue()
@@ -174,7 +189,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
                 .MustHaveHappened();
-            A.CallTo(() => _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._, CancellationToken.None))
+            A.CallTo(() =>
+                    _fakeAccessors.JiraIssueState.GetAsync(
+                        A<ITurnContext>._,
+                        A<Func<JiraIssueState>>._,
+                        CancellationToken.None))
                 .MustHaveHappened();
             A.CallTo(() => _fakeJiraService.AddIssueWorklog(A<IntegratedUser>._, A<string>._, A<string>._))
                 .MustHaveHappened();
