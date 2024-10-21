@@ -43,7 +43,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         private const int RegexTimeoutInSeconds = 2;
         private const string ConnectJiraMessage =
             "To use Jira integration you need to link your Jira account with Microsoft Teams first. " +
-                                               "Please follow the instructions sent by the bot.";
+            "Please follow the instructions sent by the bot.";
 
         private readonly AppSettings _appSettings;
         private readonly ILogger<MessagingExtensionService> _logger;
@@ -71,118 +71,26 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             _telemetry = telemetry;
         }
 
-        public async Task<FetchTaskResponseEnvelope> HandleMessagingExtensionFetchTask(ITurnContext turnContext, IntegratedUser user)
+        public async Task<FetchTaskResponseEnvelope> HandleMessagingExtensionFetchTask(
+            ITurnContext turnContext,
+            IntegratedUser user)
         {
             var composeExtensionQuery = SafeCast<MessagingExtensionQuery>(turnContext.Activity.Value);
-            string errorMessage;
-            StringBuilder urlStringBuilder = new StringBuilder();
-            string url;
-
             if (composeExtensionQuery?.CommandId == null)
             {
-                errorMessage = "ComposeExtension/fetchTask request does not contain a command id.";
-
-                _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
-
-                return BuildSubmitActionMessageResponse(errorMessage);
+                return await HandleInvalidCommandId(
+                    "ComposeExtension/fetchTask request does not contain a command id.");
             }
 
-            if (composeExtensionQuery.CommandId.Equals(CreateIssueCommand, StringComparison.OrdinalIgnoreCase))
+            switch (composeExtensionQuery.CommandId)
             {
-                var jiraId = user?.JiraServerId ?? string.Empty;
-                var application = "jiraServerCompose";
-
-                // the url has this format (domain/#/segment/segment;param1=value1;param2=value2) since we read params as snapshot.params on the client side
-                urlStringBuilder.Append($"{_appSettings.BaseUrl}/#/issues/create;jiraUrl={Uri.EscapeDataString(jiraId)};application={application};returnIssueOnSubmit=true;source=messagingExtension");
-                MessageActionPayload createIssueActionPayload = GetRequestsContent(turnContext.Activity);
-                string issueDescription = EscapeDataString(createIssueActionPayload?.Body?.Content, createIssueActionPayload?.Body?.ContentType ?? MessageActionContentType.Text);
-                if (!string.IsNullOrEmpty(issueDescription))
-                {
-                    urlStringBuilder.Append($";description={issueDescription}");
-                }
-
-                if (createIssueActionPayload?.Parameters?.Count > 0)
-                {
-                    AppendUrlWithParameters(urlStringBuilder, createIssueActionPayload.Parameters);
-                }
-
-                // get comment metadata only in case we have initial description
-                var msgMetadata = !string.IsNullOrEmpty(issueDescription) ? await GetMessageMetadata(turnContext) : null;
-                if (msgMetadata != null)
-                {
-                    var metadataRef = Guid.NewGuid().ToString();
-                    await _distributedCacheService.Set(metadataRef, msgMetadata);
-                    urlStringBuilder.Append($";metadataRef={metadataRef}");
-                }
-
-                url = urlStringBuilder.ToString();
-
-                return new FetchTaskResponseEnvelope
-                {
-                    Task = new FetchTaskResponse
-                    {
-                        Type = FetchTaskType.Continue,
-                        Value = new FetchTaskResponseInfo
-                        {
-                            Title = "Create an issue",
-                            Height = 522,
-                            Width = 610,
-                            Url = url,
-                            FallbackUrl = url
-                        }
-                    }
-                };
+                case CreateIssueCommand:
+                    return await HandleCreateIssueCommand(turnContext, user);
+                case CreateCommentCommand:
+                    return await HandleCreateCommentCommand(turnContext, user);
+                default:
+                    return await HandleInvalidCommandId("ComposeExtension/fetchTask command id is invalid.");
             }
-
-            if (composeExtensionQuery.CommandId.Equals(CreateCommentCommand, StringComparison.OrdinalIgnoreCase))
-            {
-                var jiraUrl = user?.JiraInstanceUrl;
-                var jiraId = user?.JiraServerId;
-                var application = "jiraServerCompose";
-
-                MessageActionPayload createCommentActionPayload = GetRequestsContent(turnContext.Activity);
-                var issueComment = EscapeDataString(createCommentActionPayload.Body.Content, createCommentActionPayload.Body.ContentType);
-
-                // get comment metadata only in case we have original comment
-                var msgMetadata = !string.IsNullOrEmpty(issueComment) ? await GetMessageMetadata(turnContext) : null;
-
-                urlStringBuilder.Append($"{_appSettings.BaseUrl}/#/issues/createComment;jiraUrl={Uri.EscapeDataString(jiraUrl)};jiraId={jiraId};application={application};comment={issueComment};source=messagingExtension");
-
-                if (createCommentActionPayload.Parameters?.Count > 0)
-                {
-                    AppendUrlWithParameters(urlStringBuilder, createCommentActionPayload.Parameters);
-                }
-
-                if (msgMetadata != null)
-                {
-                    var metadataRef = Guid.NewGuid().ToString();
-                    await _distributedCacheService.Set(metadataRef, msgMetadata);
-                    urlStringBuilder.Append($";metadataRef={metadataRef}");
-                }
-
-                url = urlStringBuilder.ToString();
-
-                return new FetchTaskResponseEnvelope
-                {
-                    Task = new FetchTaskResponse
-                    {
-                        Type = FetchTaskType.Continue,
-                        Value = new FetchTaskResponseInfo
-                        {
-                            Title = "Add a comment from the message",
-                            Height = 600,
-                            Width = 600,
-                            Url = url,
-                            FallbackUrl = url
-                        }
-                    }
-                };
-            }
-
-            errorMessage = "ComposeExtension/fetchTask command id is invalid.";
-            _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
-
-            return BuildSubmitActionMessageResponse(errorMessage);
         }
 
         public FetchTaskResponseEnvelope HandleBotFetchTask(ITurnContext turnContext, IntegratedUser user)
@@ -208,14 +116,18 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return BuildSubmitActionMessageResponse(errorMessage);
         }
 
-        public bool TryValidateMessagingExtensionQueryLink(ITurnContext turnContext, IntegratedUser user, out string jiraIssueIdOrKey)
+        public bool TryValidateMessagingExtensionQueryLink(
+            ITurnContext turnContext,
+            IntegratedUser user,
+            out string jiraIssueIdOrKey)
         {
             AppBasedLinkQuery request;
             jiraIssueIdOrKey = null;
 
             try
             {
-                request = JsonConvert.DeserializeObject<AppBasedLinkQuery>(turnContext.Activity?.Value?.ToString());
+                request = JsonConvert.DeserializeObject<AppBasedLinkQuery>(turnContext.Activity?.Value?.ToString() ??
+                                                                           string.Empty);
             }
             catch
             {
@@ -223,7 +135,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
 
             // return false if url is null or empty or cannot be normalized
-            if (string.IsNullOrWhiteSpace(request.Url) || !request.Url.TryToNormalizeJiraUrl(out var normalziedUrl))
+            if (string.IsNullOrWhiteSpace(request?.Url) || !request.Url.TryToNormalizeJiraUrl(out var normalziedUrl))
             {
                 return false;
             }
@@ -243,7 +155,10 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return true;
         }
 
-        public bool TryValidateMessageExtensionFetchTask(ITurnContext turnContext, IntegratedUser user, out FetchTaskResponseEnvelope response)
+        public bool TryValidateMessageExtensionFetchTask(
+            ITurnContext turnContext,
+            IntegratedUser user,
+            out FetchTaskResponseEnvelope response)
         {
             response = null;
 
@@ -278,9 +193,11 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
 
             if (!(composeExtensionQuery.CommandId.Equals(CreateIssueCommand, StringComparison.OrdinalIgnoreCase) ||
-                composeExtensionQuery.CommandId.Equals(CreateCommentCommand, StringComparison.OrdinalIgnoreCase)))
+                  composeExtensionQuery.CommandId.Equals(CreateCommentCommand, StringComparison.OrdinalIgnoreCase)))
             {
-                _logger.LogError("ComposeExtension/fetchTask request contains an invalid command id: \"{CommandId}\".", composeExtensionQuery.CommandId);
+                _logger.LogError(
+                    "ComposeExtension/fetchTask request contains an invalid command id: \"{CommandId}\".",
+                    composeExtensionQuery.CommandId);
 
                 return false;
             }
@@ -288,7 +205,9 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return true;
         }
 
-        public async Task<object> HandleMessagingExtensionSubmitActionAsync(ITurnContext turnContext, IntegratedUser user)
+        public async Task<object> HandleMessagingExtensionSubmitActionAsync(
+            ITurnContext turnContext,
+            IntegratedUser user)
         {
             var composeExtensionQuery = SafeCast<MessagingExtensionQuery>(turnContext.Activity.Value);
             string errorMessage;
@@ -307,7 +226,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
                 try
                 {
-                    request = JsonConvert.DeserializeObject<CreateIssueSubmitActionRequest>(turnContext.Activity?.Value?.ToString());
+                    request = JsonConvert.DeserializeObject<CreateIssueSubmitActionRequest>(turnContext.Activity?.Value
+                        ?.ToString() ?? string.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -332,9 +252,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     return TranslateJiraIssueToMessagingExtensionResponse(issue, user, true);
                 }
                 catch (ApiException apiException)
-                    when (apiException.StatusCode == HttpStatusCode.Unauthorized || apiException.StatusCode == HttpStatusCode.Forbidden)
+                    when (apiException.StatusCode == HttpStatusCode.Unauthorized ||
+                          apiException.StatusCode == HttpStatusCode.Forbidden)
                 {
-                    return BuildCardAction("auth", "Authorize in Jira", turnContext.Activity.Conversation.TenantId, user.JiraInstanceUrl);
+                    return BuildCardAction(
+                        "auth",
+                        "Authorize in Jira",
+                        turnContext.Activity?.Conversation.TenantId,
+                        user.JiraInstanceUrl);
                 }
                 catch (Exception exception)
                 {
@@ -351,12 +276,12 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return BuildSubmitActionMessageResponse(errorMessage);
         }
 
-        public async Task<MessagingExtensionResponse> HandleMessagingExtensionQueryLinkAsync(ITurnContext turnContext, IntegratedUser user, string jiraIssueIdOrKey)
+        public async Task<MessagingExtensionResponse> HandleMessagingExtensionQueryLinkAsync(
+            ITurnContext turnContext,
+            IntegratedUser user,
+            string jiraIssueIdOrKey)
         {
-            if (string.IsNullOrWhiteSpace(jiraIssueIdOrKey))
-            {
-                throw new ArgumentNullException(nameof(jiraIssueIdOrKey));
-            }
+            ValidateParameters(turnContext, jiraIssueIdOrKey);
 
             var tenantId = turnContext.Activity.Conversation.TenantId;
 
@@ -365,37 +290,18 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 return BuildCardAction("auth", "Authorize in Jira", tenantId);
             }
 
-            var userJiraInstanceUrl = user.JiraInstanceUrl;
-
-            try
-            {
-                var issue = await _jiraService.GetIssueByIdOrKey(user, jiraIssueIdOrKey);
-
-                _telemetry.TrackPageView("IssueQueryLink");
-
-                _logger.LogError("ComposeExtensionQueryLink: Try to create card for user {JiraUserAccountId}", user?.JiraUserAccountId);
-
-                return TranslateJiraIssueToMessagingExtensionResponse(issue, user, true);
-            }
-            catch (ApiException apiException)
-                when (apiException.StatusCode == HttpStatusCode.Unauthorized || apiException.StatusCode == HttpStatusCode.Forbidden)
-            {
-                _logger.LogError($"ComposeExtensionQueryLink: Authorizaton error");
-
-                return BuildCardAction("auth", "Authorize in Jira", tenantId, userJiraInstanceUrl);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "ComposeExtensionQueryLink: Error: {Message}", exception.Message);
-            }
-
-            return MessagingExtensionHelper.BuildMessageResponse($"We didn't find an issue with id or key \"{jiraIssueIdOrKey}\".");
+            return await HandleQueryLinkAsync(user, jiraIssueIdOrKey, tenantId);
         }
 
-        public async Task<MessagingExtensionResponse> HandleMessagingExtensionQuery(ITurnContext turnContext, IntegratedUser user)
+        public async Task<MessagingExtensionResponse> HandleMessagingExtensionQuery(
+            ITurnContext turnContext,
+            IntegratedUser user)
         {
             if (user == null
-                || string.Equals(turnContext.Activity.Name, "composeExtension/querySettingUrl", StringComparison.InvariantCultureIgnoreCase))
+                || string.Equals(
+                    turnContext.Activity.Name,
+                    "composeExtension/querySettingUrl",
+                    StringComparison.InvariantCultureIgnoreCase))
             {
                 await _botMessagesService.SendConnectCard(turnContext);
                 return MessagingExtensionHelper.BuildMessageResponse(ConnectJiraMessage);
@@ -410,7 +316,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
 
             var isInitialRun = false;
-            var initialRunParameter = MessagingExtensionHelper.GetQueryParameterByName(composeExtensionQuery, "initialRun");
+            var initialRunParameter =
+                MessagingExtensionHelper.GetQueryParameterByName(composeExtensionQuery, "initialRun");
 
             // situation where the incoming payload was received from the config popup
             if (composeExtensionQuery.State.HasValue())
@@ -426,7 +333,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             var userJiraInstanceUrl = user.JiraInstanceUrl;
             try
             {
-                var searchForIssuesRequest = JiraIssueSearchHelper.PrepareSearchParameter(composeExtensionQuery, isInitialRun);
+                var searchForIssuesRequest =
+                    JiraIssueSearchHelper.PrepareSearchParameter(composeExtensionQuery, isInitialRun);
 
                 var maxResults = composeExtensionQuery.QueryOptions?.Count ?? 25;
                 if (isInitialRun)
@@ -442,16 +350,22 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     return MessagingExtensionHelper.BuildMessageResponse(apiResponse.ErrorMessages.FirstOrDefault());
                 }
 
-                var messagingExtensionResponse = TranslateSearchApiResponseToMessagingExtensionResponse(apiResponse, user);
+                var messagingExtensionResponse =
+                    TranslateSearchApiResponseToMessagingExtensionResponse(apiResponse, user);
                 if (messagingExtensionResponse != null)
                 {
                     return messagingExtensionResponse;
                 }
             }
             catch (ApiException apiException)
-                when (apiException.StatusCode == HttpStatusCode.Unauthorized || apiException.StatusCode == HttpStatusCode.Forbidden)
+                when (apiException.StatusCode == HttpStatusCode.Unauthorized ||
+                      apiException.StatusCode == HttpStatusCode.Forbidden)
             {
-                return BuildCardAction("auth", "Authorize in Jira", turnContext.Activity.Conversation.TenantId, userJiraInstanceUrl);
+                return BuildCardAction(
+                    "auth",
+                    "Authorize in Jira",
+                    turnContext.Activity.Conversation.TenantId,
+                    userJiraInstanceUrl);
             }
             catch (UnauthorizedException ex)
             {
@@ -466,7 +380,9 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return MessagingExtensionHelper.BuildMessageResponse("We didn't find any matches.");
         }
 
-        public async Task<FetchTaskResponseEnvelope> HandleTaskSubmitActionAsync(ITurnContext turnContext, IntegratedUser user)
+        public async Task<FetchTaskResponseEnvelope> HandleTaskSubmitActionAsync(
+            ITurnContext turnContext,
+            IntegratedUser user)
         {
             FetchTaskBotCommand fetchTaskCommand = null;
             var value = turnContext.Activity?.Value as JObject;
@@ -501,7 +417,10 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                             await turnContext.UpdateActivityAsync(updatedMessage);
                             break;
                         case "showIssueCard":
-                            var card = await _botMessagesService.SearchIssueAndBuildIssueCard(turnContext, user, fetchTaskCommand.IssueKey);
+                            var card = await _botMessagesService.SearchIssueAndBuildIssueCard(
+                                turnContext,
+                                user,
+                                fetchTaskCommand.IssueKey);
                             if (card != null)
                             {
                                 var message = turnContext.Activity.CreateReply();
@@ -510,8 +429,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                                 await turnContext.UpdateActivityAsync(message);
                             }
 
-                            break;
-                        default:
                             break;
                     }
                 }
@@ -524,6 +441,154 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
         }
 
+        private Task<FetchTaskResponseEnvelope> HandleInvalidCommandId(string errorMessage)
+        {
+            _logger.LogError("An error occurred: {ErrorMessage}", errorMessage);
+            return Task.FromResult(BuildSubmitActionMessageResponse(errorMessage));
+        }
+
+        private async Task<FetchTaskResponseEnvelope> HandleCreateIssueCommand(
+            ITurnContext turnContext,
+            IntegratedUser user)
+        {
+            var jiraId = user?.JiraServerId ?? string.Empty;
+            var application = "jiraServerCompose";
+            var urlStringBuilder = new StringBuilder();
+
+            string baseUrl = new JiraUrlQueryBuilder(_appSettings.BaseUrl).Create().JiraUrl(jiraId)
+                .Application(application).ReturnIssueOnSubmit(true).Source("messagingExtension").Build();
+            urlStringBuilder.Append(baseUrl);
+
+            var createIssueActionPayload = GetRequestsContent(turnContext.Activity);
+            var issueDescription = EscapeDataString(
+                createIssueActionPayload?.Body?.Content,
+                createIssueActionPayload?.Body?.ContentType ?? MessageActionContentType.Text);
+
+            if (!string.IsNullOrEmpty(issueDescription))
+            {
+                urlStringBuilder.Append($";description={issueDescription}");
+            }
+
+            if (createIssueActionPayload?.Parameters?.Count > 0)
+            {
+                AppendUrlWithParameters(urlStringBuilder, createIssueActionPayload.Parameters);
+            }
+
+            var msgMetadata = !string.IsNullOrEmpty(issueDescription) ? await GetMessageMetadata(turnContext) : null;
+            if (msgMetadata != null)
+            {
+                var metadataRef = Guid.NewGuid().ToString();
+                await _distributedCacheService.Set(metadataRef, msgMetadata);
+                urlStringBuilder.Append($";metadataRef={metadataRef}");
+            }
+
+            var url = urlStringBuilder.ToString();
+
+            return BuildFetchTaskResponseEnvelope("Create an issue", 522, 610, url);
+        }
+
+        private async Task<FetchTaskResponseEnvelope> HandleCreateCommentCommand(
+            ITurnContext turnContext,
+            IntegratedUser user)
+        {
+            var jiraUrl = user?.JiraInstanceUrl;
+            var jiraId = user?.JiraServerId;
+            var application = "jiraServerCompose";
+            var urlStringBuilder = new StringBuilder();
+
+            var createCommentActionPayload = GetRequestsContent(turnContext.Activity);
+            var issueComment = EscapeDataString(
+                createCommentActionPayload.Body.Content,
+                createCommentActionPayload.Body.ContentType);
+
+            var msgMetadata = !string.IsNullOrEmpty(issueComment) ? await GetMessageMetadata(turnContext) : null;
+
+            string baseUrl = new JiraUrlQueryBuilder(_appSettings.BaseUrl).CreateComment().JiraUrl(jiraUrl).JiraId(jiraId)
+                .Application(application).Comment(issueComment).Source("messagingExtension").Build();
+            urlStringBuilder.Append(baseUrl);
+
+            if (createCommentActionPayload.Parameters?.Count > 0)
+            {
+                AppendUrlWithParameters(urlStringBuilder, createCommentActionPayload.Parameters);
+            }
+
+            if (msgMetadata != null)
+            {
+                var metadataRef = Guid.NewGuid().ToString();
+                await _distributedCacheService.Set(metadataRef, msgMetadata);
+                urlStringBuilder.Append($";metadataRef={metadataRef}");
+            }
+
+            var url = urlStringBuilder.ToString();
+
+            return BuildFetchTaskResponseEnvelope("Add a comment from the message", 600, 600, url);
+        }
+
+        private static FetchTaskResponseEnvelope BuildFetchTaskResponseEnvelope(
+            string title,
+            int height,
+            int width,
+            string url)
+        {
+            return new FetchTaskResponseEnvelope
+            {
+                Task = new FetchTaskResponse
+                {
+                    Type = FetchTaskType.Continue,
+                    Value = new FetchTaskResponseInfo
+                    {
+                        Title = title,
+                        Height = height,
+                        Width = width,
+                        Url = url,
+                        FallbackUrl = url
+                    }
+                }
+            };
+        }
+
+        private static void ValidateParameters(ITurnContext turnContext, string jiraIssueIdOrKey)
+        {
+            ArgumentNullException.ThrowIfNull(turnContext);
+            ArgumentException.ThrowIfNullOrWhiteSpace(jiraIssueIdOrKey);
+        }
+
+        private async Task<MessagingExtensionResponse> HandleQueryLinkAsync(
+            IntegratedUser user,
+            string jiraIssueIdOrKey,
+            string tenantId)
+        {
+            var userJiraInstanceUrl = user.JiraInstanceUrl;
+
+            try
+            {
+                var issue = await _jiraService.GetIssueByIdOrKey(user, jiraIssueIdOrKey);
+
+                _telemetry.TrackPageView("IssueQueryLink");
+
+                _logger.LogInformation(
+                    "ComposeExtensionQueryLink: Created card for user {JiraUserAccountId}",
+                    user.JiraUserAccountId);
+
+                return TranslateJiraIssueToMessagingExtensionResponse(issue, user, true);
+            }
+            catch (ApiException apiException) when (
+                apiException.StatusCode == HttpStatusCode.Unauthorized ||
+                apiException.StatusCode == HttpStatusCode.Forbidden)
+            {
+                _logger.LogError("ComposeExtensionQueryLink: Authorization error");
+
+                return BuildCardAction("auth", "Authorize in Jira", tenantId, userJiraInstanceUrl);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "ComposeExtensionQueryLink: Error: {Message}", exception.Message);
+
+                return MessagingExtensionHelper.BuildMessageResponse(
+                    $"An error occurred while fetching the issue: {exception.Message}");
+            }
+        }
+
         private void AppendUrlWithParameters(StringBuilder sb, List<Parameter> parameters)
         {
             foreach (Parameter parameter in parameters)
@@ -532,7 +597,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
         }
 
-        private MessagingExtensionResponse TranslateSearchApiResponseToMessagingExtensionResponse(JiraIssueSearch response, IntegratedUser user)
+        private MessagingExtensionResponse TranslateSearchApiResponseToMessagingExtensionResponse(
+            JiraIssueSearch response, IntegratedUser user)
         {
             if (response?.JiraIssues == null || !response.JiraIssues.Any())
             {
@@ -543,18 +609,21 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             var attachments = new List<MessagingExtensionAttachment>(response.JiraIssues.Length);
             attachments.AddRange(response.JiraIssues.Select(jiraIssue => new BotAndMessagingExtensionJiraIssue
-            {
-                IsMessagingExtension = true,
-                JiraIssue = jiraIssue,
-                JiraInstanceUrl = user.JiraInstanceUrl,
-                EpicFieldName = epicFieldName
-            })
-            .Select(model => _mapper.Map<MessagingExtensionAttachment>(model, _ => { })));
+                {
+                    IsMessagingExtension = true,
+                    JiraIssue = jiraIssue,
+                    JiraInstanceUrl = user.JiraInstanceUrl,
+                    EpicFieldName = epicFieldName
+                })
+                .Select(model => _mapper.Map<MessagingExtensionAttachment>(model, _ => { })));
 
             return MessagingExtensionHelper.BuildMessagingExtensionQueryResult(attachments);
         }
 
-        private MessagingExtensionResponse TranslateJiraIssueToMessagingExtensionResponse(JiraIssue issue, IntegratedUser user, bool isQueryLinkRequest)
+        private MessagingExtensionResponse TranslateJiraIssueToMessagingExtensionResponse(
+            JiraIssue issue,
+            IntegratedUser user,
+            bool isQueryLinkRequest)
         {
             var epicFieldName = JiraIssueSearchHelper.GetEpicFieldNameFromSchema(issue.Schema);
 
@@ -583,12 +652,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return MessagingExtensionHelper.BuildMessagingExtensionQueryResult(attachments);
         }
 
-        private MessagingExtensionResponse BuildCardAction(string type, string title, string tenantId, string jiraUrl = null)
+        private MessagingExtensionResponse BuildCardAction(
+            string type,
+            string title,
+            string tenantId,
+            string jiraUrl = null)
         {
             var composeApp = "jiraServerCompose";
             var url = $"{_appSettings.BaseUrl}/#/config;application={composeApp};tenantId={tenantId}";
 
-            if (jiraUrl.HasValue())
+            if (jiraUrl != null && jiraUrl.HasValue())
             {
                 url += $";predefinedJiraUrl={Uri.EscapeDataString(jiraUrl)}";
             }
@@ -610,7 +683,10 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             };
         }
 
-        private FetchTaskResponseEnvelope BuildTaskModuleResponse(ITurnContext turnContext, IntegratedUser user, FetchTaskBotCommand fetchTaskCommand)
+        private FetchTaskResponseEnvelope BuildTaskModuleResponse(
+            ITurnContext turnContext,
+            IntegratedUser user,
+            FetchTaskBotCommand fetchTaskCommand)
         {
             if (fetchTaskCommand != null)
             {
@@ -627,22 +703,37 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
                 var application = "jiraServerCompose";
 
-                if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.EditIssueTaskModuleCommand, StringComparison.OrdinalIgnoreCase))
+                if (fetchTaskCommand.CommandName.Equals(
+                        DialogMatchesAndCommands.EditIssueTaskModuleCommand,
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    url = $"{_appSettings.BaseUrl}/#/issues/edit;jiraUrl={jiraId};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};source=bot;replyToActivityId={turnContext.Activity.ReplyToId}";
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl).Edit().JiraUrl(jiraId)
+                        .IssueId(fetchTaskCommand.IssueId).IssueKey(fetchTaskCommand.IssueKey).Application(application)
+                        .Source("bot").ReplyToActivityId(turnContext.Activity.ReplyToId).Build();
+
                     taskModuleTitle = "Edit the issue";
                     taskModuleWidth = 710;
                 }
 
-                if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.CreateNewIssueDialogCommand, StringComparison.OrdinalIgnoreCase))
+                if (fetchTaskCommand.CommandName.Equals(
+                        DialogMatchesAndCommands.CreateNewIssueDialogCommand,
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    url = $"{_appSettings.BaseUrl}/#/issues/create;jiraUrl={jiraId};application={application};returnIssueOnSubmit=false;source=bot;replyToActivityId={turnContext.Activity.ReplyToId}";
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl).Create().JiraUrl(jiraId)
+                        .Application(application).ReturnIssueOnSubmit(false).Source("bot")
+                        .ReplyToActivityId(turnContext.Activity.ReplyToId).Build();
+
                     taskModuleTitle = "Create an issue";
                 }
 
-                if (fetchTaskCommand.CommandName.Equals(DialogMatchesAndCommands.CommentIssueTaskModuleCommand, StringComparison.OrdinalIgnoreCase))
+                if (fetchTaskCommand.CommandName.Equals(
+                        DialogMatchesAndCommands.CommentIssueTaskModuleCommand,
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    url = $"{_appSettings.BaseUrl}/#/issues/commentIssue;jiraUrl={jiraId};jiraId={jiraId};issueId={fetchTaskCommand.IssueId};issueKey={fetchTaskCommand.IssueKey};application={application};returnIssueOnSubmit=false;source=bot";
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl).CommentIssue().JiraId(jiraId)
+                        .IssueId(fetchTaskCommand.IssueId).IssueKey(fetchTaskCommand.IssueKey).Application(application)
+                        .ReturnIssueOnSubmit(false).Source("bot").Build();
+
                     taskModuleTitle = "Comment issue";
                     taskModuleHeight = 250;
                 }
@@ -673,7 +764,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ?? string.Empty);
+                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ??
+                                                                              string.Empty);
             }
             catch (Exception exception)
             {
@@ -750,7 +842,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString());
+                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ??
+                                                                              string.Empty);
             }
             catch (Exception exception)
             {
@@ -781,7 +874,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString());
+                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ??
+                                                                              string.Empty);
             }
             catch (Exception exception)
             {
@@ -802,7 +896,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString());
+                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ??
+                                                                              string.Empty);
             }
             catch (Exception e)
             {
@@ -824,7 +919,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString());
+                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ??
+                                                                              string.Empty);
             }
             catch (Exception e)
             {
@@ -845,7 +941,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString());
+                request = JsonConvert.DeserializeObject<MessageActionRequest>(activity?.Value?.ToString() ??
+                                                                              string.Empty);
             }
             catch (Exception e)
             {

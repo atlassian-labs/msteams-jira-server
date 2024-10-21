@@ -171,7 +171,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            await Assert.ThrowsAsync<ArgumentNullException>(() => _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, string.Empty));
+            await Assert.ThrowsAsync<ArgumentException>(() => _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, string.Empty));
         }
 
         [Fact]
