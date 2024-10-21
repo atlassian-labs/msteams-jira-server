@@ -12,8 +12,9 @@ using MicrosoftTeamsIntegration.Artifacts.Extensions;
 namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
 {
     [PublicAPI]
-    public sealed class DialogRouteService : IDialogRouteService
+    public sealed partial class DialogRouteService : IDialogRouteService
     {
+        private static readonly string[] DialogRouteCommands = new[] { "cancel", "back", "undo", "reset" };
         private readonly Dictionary<string, DialogRoute> _routes;
 
         public DialogRouteService(IServiceProvider serviceProvider, params DialogRoute[] dialogRoutes)
@@ -36,7 +37,10 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
                 {
                     Dialog = new AmbiguousActionDialog(hostingEnvironment?.IsDevelopment() ?? false)
                 },
-                new DialogRoute(typeof(CancelDialog), new[] { "cancel", "back", "undo", "reset" }, isAuthenticationRequired: false)
+                new DialogRoute(
+                    typeof(CancelDialog),
+                    DialogRouteCommands,
+                    isAuthenticationRequired: false)
                 {
                     Dialog = new CancelDialog()
                 }
@@ -67,67 +71,90 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
             {
                 if (route.RegexCommand != null)
                 {
-                    var regexMatches = CheckIfRegexCommandMatches(messageText, route);
-                    if (regexMatches)
+                    bestMatchedRegexRoute = HandleRegexRoute(route, messageText, bestMatchedRegexRoute);
+                    if (bestMatchedRegexRoute != null && route.Order <= bestMatchedRegexRoute.Order)
                     {
-                        // we should return matched regex route if it is already
-                        // selected and current route has higher order than it
-                        if (bestMatchedRegexRoute != null && route.Order > bestMatchedRegexRoute.Order)
-                        {
-                            return bestMatchedRegexRoute;
-                        }
-
-                        // we should return default route when matched regex route
-                        // is already selected and current route has the same priority,
-                        // as we don't allow regex routes to overlap each other
-                        if (bestMatchedRegexRoute != null && route.Order == bestMatchedRegexRoute.Order)
-                        {
-                            if (_routes.TryGetValue(nameof(AmbiguousActionDialog), out var dialogRoute))
-                            {
-                                if (dialogRoute?.Dialog is AmbiguousActionDialog ambiguousActionDialog)
-                                {
-                                    ambiguousActionDialog.AmbiguousRoutes = new[] { bestMatchedRegexRoute, route };
-                                }
-
-                                return dialogRoute;
-                            }
-                        }
-
-                        bestMatchedRegexRoute = route;
+                        return bestMatchedRegexRoute;
                     }
-
-                    continue;
                 }
-
-                var score = FindBestMatch(
-                    route.TextCommandList,
-                    messageText,
-                    route.Threshold,
-                    route.IgnoreCase,
-                    route.IgnoreNonAlphanumericCharacters);
-
-                if (score > bestMatchedScore)
+                else
                 {
-                    bestMatchedScore = score.GetValueOrDefault();
-                    bestMatchedRoute = route;
+                    KeyValuePair<DialogRoute?, double> textCommandRouteResult =
+                        HandleTextCommandRoute(route, messageText, bestMatchedScore, bestMatchedRoute);
+                    bestMatchedRoute = textCommandRouteResult.Key;
+                    bestMatchedScore = textCommandRouteResult.Value;
                 }
             }
 
             return bestMatchedRegexRoute ?? bestMatchedRoute;
         }
 
-        private static bool CheckIfRegexCommandMatches(string messageText, DialogRoute route)
+        private DialogRoute? HandleRegexRoute(DialogRoute route, string messageText, DialogRoute? bestMatchedRegexRoute)
         {
-            if (route?.RegexCommand is null)
+            var regexMatches = CheckIfRegexCommandMatches(messageText, route);
+
+            if (!regexMatches)
             {
-                return false;
+                return bestMatchedRegexRoute;
             }
 
+            if (bestMatchedRegexRoute != null)
+            {
+                if (route.Order > bestMatchedRegexRoute.Order)
+                {
+                    return bestMatchedRegexRoute;
+                }
+
+                if (route.Order == bestMatchedRegexRoute.Order)
+                {
+                    return HandleAmbiguousRoutes(route, bestMatchedRegexRoute);
+                }
+            }
+
+            return route;
+        }
+
+        private DialogRoute? HandleAmbiguousRoutes(DialogRoute currentRoute, DialogRoute bestMatchedRegexRoute)
+        {
+            if (_routes.TryGetValue(nameof(AmbiguousActionDialog), out var dialogRoute) &&
+                dialogRoute?.Dialog is AmbiguousActionDialog ambiguousActionDialog)
+            {
+                ambiguousActionDialog.AmbiguousRoutes = new[] { bestMatchedRegexRoute, currentRoute };
+                return dialogRoute;
+            }
+
+            return null;
+        }
+
+        private static KeyValuePair<DialogRoute?, double> HandleTextCommandRoute(
+            DialogRoute route,
+            string messageText,
+            double bestMatchedScore,
+            DialogRoute? bestMatchedRoute)
+        {
+            var score = FindBestMatch(
+                route.TextCommandList,
+                messageText,
+                route.Threshold,
+                route.IgnoreCase,
+                route.IgnoreNonAlphanumericCharacters);
+
+            if (score > bestMatchedScore)
+            {
+                bestMatchedScore = score.GetValueOrDefault();
+                return new KeyValuePair<DialogRoute?, double>(route, bestMatchedScore);
+            }
+
+            return new KeyValuePair<DialogRoute?, double>(bestMatchedRoute, bestMatchedScore);
+        }
+
+        private static bool CheckIfRegexCommandMatches(string messageText, DialogRoute route)
+        {
             var messageToCheck = route.IgnoreNonAlphanumericCharacters
                 ? Regex.Replace(messageText, @"[^A-Za-z0-9 ]", string.Empty)
                 : messageText;
 
-            return route.RegexCommand.IsMatch(messageToCheck);
+            return route?.RegexCommand?.IsMatch(messageToCheck) ?? false;
         }
 
         private static double? FindBestMatch(
@@ -163,44 +190,13 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
             bool ignoreNonAlphanumeric = true)
         {
             var matches = new List<double>(choices.Length);
-
-            var utteranceToCheck = ignoreNonAlphanumeric
-                ? Regex.Replace(utterance, @"[^A-Za-z0-9 ]", string.Empty)
-                : utterance;
-
+            var utteranceToCheck = ProcessUtterance(utterance, ignoreNonAlphanumeric);
             var tokens = utterance.Split(' ');
 
             foreach (var choice in choices)
             {
-                double score = 0;
-                var choiceValue = choice.Trim();
-                if (ignoreNonAlphanumeric)
-                {
-                    Regex.Replace(choiceValue, @"[^A-Za-z0-9 ]", string.Empty);
-                }
-
-                if (choiceValue.Contains(utteranceToCheck, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-                {
-                    score = (double)decimal.Divide(utteranceToCheck.Length, choiceValue.Length);
-                }
-                else if (utteranceToCheck.Contains(choiceValue, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-                {
-                    score = Math.Min(0.5 + ((double)choiceValue.Length / utteranceToCheck.Length), 0.9);
-                }
-                else
-                {
-                    foreach (var token in tokens)
-                    {
-                        var matched = string.Empty;
-
-                        if (choiceValue.Contains(token, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-                        {
-                            matched += token;
-                        }
-
-                        score = (double)decimal.Divide(matched.Length, choiceValue.Length);
-                    }
-                }
+                var choiceValue = ProcessChoice(choice, ignoreNonAlphanumeric);
+                double score = CalculateScore(utteranceToCheck, choiceValue, tokens, ignoreCase);
 
                 if (score >= threshold)
                 {
@@ -210,5 +206,69 @@ namespace MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter
 
             return matches.ToArray();
         }
+
+        private static string ProcessUtterance(string utterance, bool ignoreNonAlphanumeric)
+        {
+            return ignoreNonAlphanumeric
+                ? Regex.Replace(utterance, @"[^A-Za-z0-9 ]", string.Empty)
+                : utterance;
+        }
+
+        private static string ProcessChoice(string choice, bool ignoreNonAlphanumeric)
+        {
+            var choiceValue = choice.Trim();
+            if (ignoreNonAlphanumeric)
+            {
+                choiceValue = ChoiceRegex().Replace(choiceValue, string.Empty);
+            }
+
+            return choiceValue;
+        }
+
+        private static double CalculateScore(
+            string utteranceToCheck,
+            string choiceValue,
+            string[] tokens,
+            bool ignoreCase)
+        {
+            double score;
+
+            if (choiceValue.Contains(
+                    utteranceToCheck,
+                    ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+            {
+                score = (double)decimal.Divide(utteranceToCheck.Length, choiceValue.Length);
+            }
+            else if (utteranceToCheck.Contains(
+                         choiceValue,
+                         ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+            {
+                score = Math.Min(0.5 + ((double)choiceValue.Length / utteranceToCheck.Length), 0.9);
+            }
+            else
+            {
+                score = CalculateTokenScore(tokens, choiceValue, ignoreCase);
+            }
+
+            return score;
+        }
+
+        private static double CalculateTokenScore(string[] tokens, string choiceValue, bool ignoreCase)
+        {
+            double score = 0;
+            var matched = tokens.Where(token =>
+                choiceValue.Contains(token, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                .Aggregate(string.Empty, (current, token) => current + token);
+
+            if (!string.IsNullOrEmpty(matched))
+            {
+                score = (double)decimal.Divide(matched.Length, choiceValue.Length);
+            }
+
+            return score;
+        }
+
+        [GeneratedRegex(@"[^A-Za-z0-9 ]")]
+        private static partial Regex ChoiceRegex();
     }
 }
