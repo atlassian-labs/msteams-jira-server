@@ -1,4 +1,4 @@
-<div *ngIf="!loading; else loadingTemplate" class="dialog">
+<div *ngIf="!loading" class="dialog">
     <div class=dialog__content>
         <form *ngIf="commentForm" #form class="comment-form" [formGroup]="commentForm">
             <div class="top-panel">
@@ -53,8 +53,17 @@
     </div>
 </div>
 
-<ng-template #loadingTemplate>
-    <div class="center">
-        <mat-spinner [diameter]="50"></mat-spinner>
+<div class="ph-item" *ngIf="loading">
+    <div class="ph-col-12">
+        <div class="ph-row">
+            <div class="ph-col-12 big"></div>
+        </div>
+        <div class="ph-picture"></div>
+        <div class="ph-row">
+            <div class="ph-col-10 empty"></div>
+            <div class="ph-col-2 big"></div>
+        </div>
     </div>
-</ng-template>
+</div>
+
+

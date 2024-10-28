@@ -121,11 +121,21 @@ export class CreateIssueDialogComponent implements OnInit {
         this.loading = true;
 
         try {
+            this.loading = true;
             await this.createForm();
-            const { addonVersion } = await this.apiService.getAddonStatus(jiraUrl);
+            this.loading = false;
+            const getAddonStatusPromise = this.apiService.getAddonStatus(jiraUrl);
+            const getCurrentUserDataPromise = this.apiService.getCurrentUserData(this.jiraUrl as string);
+
+            const [{ addonVersion }, currentUser] = await Promise.all([
+                getAddonStatusPromise,
+                getCurrentUserDataPromise
+            ]);
+
             this.isAddonUpdated = this.utilService.isAddonUpdated(addonVersion);
-            this.currentUser = await this.apiService.getCurrentUserData(this.jiraUrl as string);
+            this.currentUser = currentUser;
             this.currentUserAccountId = this.currentUser.name;
+
             microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
@@ -134,9 +144,9 @@ export class CreateIssueDialogComponent implements OnInit {
             );
 
             microsoftTeams.dialog.url.submit(error as any);
+        } finally {
+            this.loading = false;
         }
-
-        this.loading = false;
     }
 
     public async onSubmit(): Promise<void> {
@@ -231,18 +241,32 @@ export class CreateIssueDialogComponent implements OnInit {
         this.fetching = true;
 
         this.selectedProject = this.projects?.find((proj: { id: string | null }) => proj.id === projectId);
+        const projectKey = this.selectedProject?.key as string;
+        const [canCreateIssue, issueTypesResult] = await Promise.all([
+            this.canCreateIssueForProject(projectKey),
+            this.apiService.getCreateMetaIssueTypes(this.jiraUrl as string, projectKey).catch(error => {
+                console.error('Error fetching issue types:', error);
+                return null;
+            }),
+        ]);
 
-        this.canCreateIssue = await this.canCreateIssueForProject(this.selectedProject?.key as string);
+        this.canCreateIssue = canCreateIssue;
+
         if (!this.canCreateIssue) {
             this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
             const errorMessage = 'You can\'t create issue for this project. Contact project admin to check your permissions.';
             this.notificationService.notifyError(errorMessage);
-        } else {
-            this.issueTypes = await this.apiService.getCreateMetaIssueTypes(this.jiraUrl as string, this.selectedProject?.key as string);
+        } else if (issueTypesResult) {
+            this.issueTypes = issueTypesResult;
             this.availableIssueTypesOptions = this.getIssueTypesOptions();
+        } else {
+            this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
+            const errorMessage = 'Failed to fetch issue types. Please try again later.';
+            this.notificationService.notifyError(errorMessage);
         }
 
         await this.onIssueTypeSelected(this.availableIssueTypesOptions[0]);
+        this.fetching = false;
     }
 
     public async onIssueTypeSelected(optionOrValue: DropDownOption<string> | string): Promise<void> {
@@ -345,8 +369,6 @@ export class CreateIssueDialogComponent implements OnInit {
         this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
         this.projectFilteredOptions = this.availableProjectsOptions;
 
-        await this.onProjectSelected(this.availableProjectsOptions[0].value);
-
         const defaultAssignee = this.defaultAssignee && this.assigneesOptions ?
             this.assigneesOptions.find((x: { label: string }) =>
                 x.label.toLowerCase() === this.defaultAssignee?.toLowerCase()) : null;
@@ -377,6 +399,8 @@ export class CreateIssueDialogComponent implements OnInit {
                     null
             )
         });
+
+        await this.onProjectSelected(this.availableProjectsOptions[0].value);
 
         this.addRemovePriorityFromForm();
 

@@ -1,4 +1,4 @@
-<div *ngIf="!loading; else loadingTemplate" class="dialog">
+<div *ngIf="!loading" class="dialog">
   <div class="dialog__content">
     <form *ngIf="issueForm" #form class="issue-form" [formGroup]="issueForm" (submit)="onSubmit()">
       <div class="issue-form__body">
@@ -152,8 +152,24 @@
   </div>
 </div>
 
-<ng-template #loadingTemplate>
-  <div class="center">
-    <mat-spinner [diameter]="50"></mat-spinner>
-  </div>
-</ng-template>
+<div class="ph-item" *ngIf="loading">
+    <div class="ph-col-12">
+        <div class="ph-row">
+            <div class="ph-col-2"></div>
+            <div class="ph-col-12 big"></div>
+            <div class="ph-col-2"></div>
+            <div class="ph-col-12 big"></div>
+            <div class="ph-col-12 empty"></div>
+            <div class="ph-col-12 empty"></div>
+            <div class="ph-col-2"></div>
+            <div class="ph-col-12 big"></div>
+        </div>
+        <div class="ph-picture"></div>
+    </div>
+    <div class="ph-col-12">
+        <div class="ph-row">
+            <div class="ph-col-10 empty"></div>
+            <div class="ph-col-2 big"></div>
+        </div>
+    </div>
+</div>

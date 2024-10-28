@@ -34,6 +34,7 @@
     "compare-versions": "^4.1.3",
     "moment": "2.30.1",
     "ng-click-outside2": "16.0.0",
+    "placeholder-loading": "^0.6.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.8"

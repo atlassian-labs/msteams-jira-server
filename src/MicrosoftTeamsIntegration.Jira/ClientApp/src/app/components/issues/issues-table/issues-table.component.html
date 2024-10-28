@@ -1,4 +1,42 @@
-﻿<div class="issues">
+﻿<div class="ph-item" *ngIf="loading">
+    <div class="ph-col-12">
+        <div class="ph-row">
+            <div class="ph-col-2 big"></div>
+            <div class="ph-col-8 empty"></div>
+            <div class="ph-col-2"></div>
+            <div class="ph-col-2 big"></div>
+            <div class="ph-col-8 empty"></div>
+            <div class="ph-col-2 big"></div>
+
+            <div class="ph-col-12 empty"></div>
+            <div class="ph-col-12 empty"></div>
+
+            <div class="ph-col-2"></div>
+            <div class="ph-col-2 empty"></div>
+            <div class="ph-col-2"></div>
+            <div class="ph-col-2 empty"></div>
+            <div class="ph-col-2"></div>
+            <div class="ph-col-2 empty"></div>
+            <div class="ph-col-12 empty"></div>
+
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+            <div class="ph-col-12 table-text"></div>
+        </div>
+    </div>
+</div>
+
+<div class="issues">
         <!-- Header -->
         <div *ngIf="!loading" class="issues__header">
             <div *ngIf="!showStaticTabElements" class="issues__header-container">
@@ -72,7 +110,7 @@
                 </div>
             </div>        
         </div>
-        <div *ngIf="showPaginator">
+        <div *ngIf="showPaginator && !loading">
             <mat-paginator 
                 [length]="pageCount" 
                 [pageSize]="pageSize" 
@@ -428,8 +466,3 @@
             <span class="text-danger">{{ error }}</span>
         </div>
     </div>
-    <ng-template #loadingTemplate>
-        <div class="center">
-            <mat-spinner [diameter]="50"></mat-spinner>
-        </div>
-    </ng-template>

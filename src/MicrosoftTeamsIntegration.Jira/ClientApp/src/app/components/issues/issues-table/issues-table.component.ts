@@ -305,26 +305,34 @@ export class IssuesComponent implements OnInit {
 
     private async startAuthFlow(): Promise<void> {
         try {
-            if (this.jiraUrl) {
-                const { displayName, accountId } = await this.apiService.getMyselfData(this.jiraUrl);
-                this.displayName = displayName;
-                this.accountId = accountId;
-            }
-
-            if (this.application === ApplicationType.JiraServerStaticTab ||
-                this.application === ApplicationType.JiraServerTab) {
-
+            if (
+                (this.application === ApplicationType.JiraServerStaticTab ||
+                    this.application === ApplicationType.JiraServerTab) &&
+                !this.jiraUrl
+            ) {
                 if (this.application === ApplicationType.JiraServerStaticTab) {
                     const { jiraUrl } = await this.apiService.getJiraUrlForPersonalScope();
                     this.jiraUrl = jiraUrl;
                 }
+            }
 
-                if (this.jiraUrl) {
-                    const { displayName, accountId } = await this.apiService.getMyselfData(this.jiraUrl);
-                    this.displayName = displayName;
-                    this.accountId = accountId;
-                    const r = await this.apiService.validateConnection(this.jiraUrl);
-                    if (r.isSuccess) {
+            if (this.jiraUrl) {
+                const myselfDataPromise = this.apiService.getMyselfData(this.jiraUrl);
+
+                if (
+                    this.application === ApplicationType.JiraServerStaticTab ||
+                    this.application === ApplicationType.JiraServerTab
+                ) {
+                    const [myselfData, validationResult] = await Promise.all([
+                        myselfDataPromise,
+                        this.apiService.validateConnection(this.jiraUrl),
+                    ]);
+
+                    this.displayName = myselfData.displayName;
+                    this.accountId = myselfData.accountId;
+
+                    if (validationResult.isSuccess) {
+                        this.loadingOff();
                         await this.onUserAuthenticated();
                         return;
                     } else {
@@ -332,12 +340,19 @@ export class IssuesComponent implements OnInit {
                         return;
                     }
                 } else {
-                    return await this.onUserNotAuthenticated(StatusCode.Unauthorized);
+                    const myselfData = await myselfDataPromise;
+                    this.displayName = myselfData.displayName;
+                    this.accountId = myselfData.accountId;
                 }
+            } else if (
+                this.application === ApplicationType.JiraServerStaticTab ||
+                this.application === ApplicationType.JiraServerTab
+            ) {
+                await this.onUserNotAuthenticated(StatusCode.Unauthorized);
+                return;
             }
 
             await this.onUserAuthenticated();
-
         } catch (error) {
             if (error instanceof HttpErrorResponse) {
                 if (error.status === StatusCode.Forbidden) {
@@ -479,10 +494,13 @@ export class IssuesComponent implements OnInit {
 
     private async onUserAuthenticated(): Promise<void> {
         if (this.showStaticTabElements) {
-            await this.setStaticTabFilters();
-        }
+            const setFiltersPromise = this.setStaticTabFilters();
+            const loadDataPromise = this.loadData();
 
-        await this.loadData();
+            await Promise.all([setFiltersPromise, loadDataPromise]);
+        } else {
+            await this.loadData();
+        }
     }
 
     private getTransformedJqlQuery(): string {
@@ -611,12 +629,10 @@ export class IssuesComponent implements OnInit {
     }
 
     private loadingOn(): void {
-        this.loadingIndicatorService.show();
         this.loading = true;
     }
 
     private loadingOff(): void {
-        this.loadingIndicatorService.hide();
         this.loading = false;
     }
 
