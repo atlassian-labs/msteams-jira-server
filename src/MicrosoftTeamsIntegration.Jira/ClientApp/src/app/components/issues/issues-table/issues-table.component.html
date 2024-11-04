@@ -132,7 +132,7 @@
         </app-issues-table-mobile>
         
         <!-- Table for desktop -->
-        <div *ngIf="!isMobile" class="scroll-container" [hidden]="loadingTableData">
+        <div *ngIf="!isMobile && !loading" class="scroll-container" [hidden]="loadingTableData">
             <div *ngIf="!error" class="issues__table-container" [style.marginRight]="getScrollWidth(table) + 'px'">                
                 <mat-table #table                                    
                         [dataSource]="dataSource"

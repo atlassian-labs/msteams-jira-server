@@ -332,7 +332,6 @@ export class IssuesComponent implements OnInit {
                     this.accountId = myselfData.accountId;
 
                     if (validationResult.isSuccess) {
-                        this.loadingOff();
                         await this.onUserAuthenticated();
                         return;
                     } else {
