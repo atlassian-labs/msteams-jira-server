@@ -494,10 +494,10 @@ export class IssuesComponent implements OnInit {
 
     private async onUserAuthenticated(): Promise<void> {
         if (this.showStaticTabElements) {
-            const setFiltersPromise = this.setStaticTabFilters();
-            const loadDataPromise = this.loadData();
-
-            await Promise.all([setFiltersPromise, loadDataPromise]);
+            this.loadingOn();
+            await this.setStaticTabFilters();
+            await this.loadData();
+            this.loadingOff();
         } else {
             await this.loadData();
         }
