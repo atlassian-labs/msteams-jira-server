@@ -24,7 +24,8 @@
     const encoded = encodeURI(window.location.href);
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    const error = encodeURI(urlParams.get('error'));
+    const errorFromParam = urlParams.get('error');
+    const error = errorFromParam ? encodeURI(errorFromParam) : null;
     window.history.replaceState({}, document.title, encoded);
 
     microsoftTeams.app.initialize();
