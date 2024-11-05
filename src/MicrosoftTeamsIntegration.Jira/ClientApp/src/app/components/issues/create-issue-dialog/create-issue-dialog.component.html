@@ -37,7 +37,7 @@
             <div class="field-group__body">
               <div class="issue-types-dropdown">
                 <app-dropdown #issueTypeDropdown [required]="true" [options]="availableIssueTypesOptions"
-                (optionSelect)="onIssueTypeSelected($event)" formControlName="issuetype" [disabled]="!canCreateIssue"></app-dropdown>
+                (optionSelect)="onIssueTypeSelected($event)" formControlName="issuetype" [disabled]="!canCreateIssue || fetching"></app-dropdown>
               </div>
             </div>
 

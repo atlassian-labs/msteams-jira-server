@@ -256,7 +256,8 @@ export class CreateIssueDialogComponent implements OnInit {
             this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
             const errorMessage = 'You can\'t create issue for this project. Contact project admin to check your permissions.';
             this.notificationService.notifyError(errorMessage);
-        } else if (issueTypesResult) {
+        }
+        if (issueTypesResult) {
             this.issueTypes = issueTypesResult;
             this.availableIssueTypesOptions = this.getIssueTypesOptions();
         } else {
@@ -362,20 +363,28 @@ export class CreateIssueDialogComponent implements OnInit {
         // if there are no projects to create an issue for - the user does not permission to create an issue
         if (!this.projects || this.projects.length === 0) {
             const message = 'You don\'t have permission to perform this action';
-            this.router.navigate(['/error'], { queryParams: { message } });
+            await this.router.navigate(['/error'], {queryParams: {message}});
             return;
         }
 
         this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
         this.projectFilteredOptions = this.availableProjectsOptions;
 
+        await this.onProjectSelected(this.availableProjectsOptions[0].value);
+
         const defaultAssignee = this.defaultAssignee && this.assigneesOptions ?
             this.assigneesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase()) : null;
+                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase()) :
+            this.assigneesOptions && this.assigneesOptions.length > 0 ?
+                this.assigneesOptions[0].value :
+                null;
 
         const defaultIssueType = this.defaultIssueType && this.availableIssueTypesOptions ?
             this.availableIssueTypesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase()) : null;
+                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase()) :
+            this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
+                this.availableIssueTypesOptions[0].value :
+                null;
 
         this.issueForm = new UntypedFormGroup({
             project: new UntypedFormControl(
@@ -384,9 +393,7 @@ export class CreateIssueDialogComponent implements OnInit {
                     null
             ),
             issuetype: new UntypedFormControl(
-                this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
-                    this.availableIssueTypesOptions[0].value :
-                    null
+                defaultIssueType
             ),
             summary: new UntypedFormControl(
                 this.defaultSummary ? this.defaultSummary : '',
@@ -394,13 +401,9 @@ export class CreateIssueDialogComponent implements OnInit {
             ),
             description: new UntypedFormControl(this.defaultDescription),
             assignee: new UntypedFormControl(
-                this.assigneesOptions && this.assigneesOptions.length > 0 ?
-                    this.assigneesOptions[0].value :
-                    null
+                defaultAssignee
             )
         });
-
-        await this.onProjectSelected(this.availableProjectsOptions[0].value);
 
         this.addRemovePriorityFromForm();
 
