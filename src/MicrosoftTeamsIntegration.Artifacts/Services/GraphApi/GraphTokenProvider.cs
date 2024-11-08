@@ -8,7 +8,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services.GraphApi;
 
 public class GraphTokenProvider : IAccessTokenProvider
 {
-    private string _accessToken;
+    private readonly string _accessToken;
 
     public GraphTokenProvider(string accessToken)
     {
