@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
+using Microsoft.Graph.Models;
+using Microsoft.Graph.Teamwork.SendActivityNotificationToRecipients;
 using MicrosoftTeamsIntegration.Artifacts.Models.GraphApi;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using Polly;
@@ -38,31 +38,55 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
                     });
         }
 
-        public async Task<TeamsApp> GetApplicationAsync(IGraphServiceClient graphClient, string appId, CancellationToken cancellationToken)
+        public async Task<TeamsApp> GetApplicationAsync(GraphServiceClient graphClient, string appId, CancellationToken cancellationToken)
         {
             var teamsApps = await _runPolicy.ExecuteAsync(
                 ctx => graphClient
                     .AppCatalogs
                     .TeamsApps
-                    .Request()
-                    .Filter($"distributionMethod eq 'organization' and externalId eq '{appId}'")
-                    .GetAsync(cancellationToken),
+                    .GetAsync(
+                        requestConfiguration =>
+                    {
+                        requestConfiguration.QueryParameters.Filter =
+                            $"distributionMethod eq 'organization' and externalId eq '{appId}'";
+                    }, cancellationToken),
                 new Dictionary<string, object>() { { MethodNameParam, nameof(GetApplicationAsync) } });
 
-            return teamsApps.FirstOrDefault()!;
+            return teamsApps?.Value?.FirstOrDefault()!;
         }
 
-        public async Task SendActivityNotificationAsync(IGraphServiceClient graphClient, ActivityNotification notification, string userId, CancellationToken cancellationToken)
+        public async Task SendActivityNotificationAsync(
+            GraphServiceClient graphClient,
+            ActivityNotification notification,
+            string userId,
+            CancellationToken cancellationToken)
         {
             try
             {
-                var baseRequest = new BaseRequest($"https://graph.microsoft.com/beta/users/{userId}/teamwork/sendActivityNotification", graphClient)
+                var requestBody = new SendActivityNotificationToRecipientsPostRequestBody
                 {
-                    Method = HttpMethod.Post.Method,
-                    ContentType = MediaTypeNames.Application.Json
+                    Topic = new TeamworkActivityTopic
+                    {
+                        Source = notification.Topic?.Source,
+                        Value = notification.Topic?.Value,
+                    },
+                    ActivityType = notification.ActivityType,
+                    PreviewText = new ItemBody
+                    {
+                        Content = notification.PreviewText?.Content,
+                    },
+                    Recipients = new List<TeamworkNotificationRecipient>
+                    {
+                        new AadUserNotificationRecipient
+                        {
+                            OdataType = notification.Recipient?.Type,
+                            UserId = notification.Recipient?.UserId ?? userId,
+                        }
+                    }
                 };
 
-                await baseRequest.SendAsync<ActivityNotification>(notification, cancellationToken);
+                await graphClient.Teamwork.SendActivityNotificationToRecipients.PostAsync(
+                    requestBody, null, cancellationToken);
             }
             catch (Exception e)
             {
