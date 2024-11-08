@@ -897,11 +897,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 .Returns(new SignalRResponse
                 {
                     Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraAgileResultFor<JiraIssueSprint>>
+                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraPaginatedResponse<JiraIssueSprint>>
                     {
                         ResponseCode = 200,
-                        Response = new JiraAgileResultFor<JiraIssueSprint>()
+                        Response = new JiraPaginatedResponse<JiraIssueSprint>()
                         {
+                            IsLast = true,
                             Values = new List<JiraIssueSprint>()
                             {
                                 new JiraIssueSprint()
@@ -931,11 +932,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 .Returns(new SignalRResponse
                 {
                     Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraAgileResultFor<JiraIssueEpic>>
+                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraPaginatedResponse<JiraIssueEpic>>
                     {
                         ResponseCode = 200,
-                        Response = new JiraAgileResultFor<JiraIssueEpic>()
+                        Response = new JiraPaginatedResponse<JiraIssueEpic>()
                         {
+                            IsLast = true,
                             Values = new List<JiraIssueEpic>()
                             {
                                 new JiraIssueEpic()
@@ -986,11 +988,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 .Returns(new SignalRResponse
                 {
                     Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraAgileResultFor<JiraIssueSprint>>
+                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraPaginatedResponse<JiraIssueSprint>>
                     {
                         ResponseCode = 200,
-                        Response = new JiraAgileResultFor<JiraIssueSprint>()
+                        Response = new JiraPaginatedResponse<JiraIssueSprint>()
                         {
+                            IsLast = true,
                             Values = new List<JiraIssueSprint>()
                             {
                                 new JiraIssueSprint()
@@ -1041,11 +1044,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 .Returns(new SignalRResponse
                 {
                     Received = true,
-                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraAgileResultFor<JiraIssueEpic>>
+                    Message = JsonConvert.SerializeObject(new JiraResponse<JiraPaginatedResponse<JiraIssueEpic>>
                     {
                         ResponseCode = 200,
-                        Response = new JiraAgileResultFor<JiraIssueEpic>()
+                        Response = new JiraPaginatedResponse<JiraIssueEpic>()
                         {
+                            IsLast = true,
                             Values = new List<JiraIssueEpic>()
                             {
                                 new JiraIssueEpic()
@@ -1549,11 +1553,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         }
 
         [Fact]
-        public void GetJiraTenantInfo_ThrowsNotSupportedException()
+        public async Task GetJiraTenantInfo_ThrowsNotSupportedException()
         {
             var jiraServerService = new JiraService(_signalRService, _databaseService, _logger);
 
-            Assert.ThrowsAsync<NotSupportedException>(
+            await Assert.ThrowsAsync<NotSupportedException>(
                 () => jiraServerService.GetJiraTenantInfo(new IntegratedUser()));
         }
     }

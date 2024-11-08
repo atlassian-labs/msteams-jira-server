@@ -467,20 +467,18 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         public async Task<List<JiraIssueSprint>> GetAllSprints(IntegratedUser user, string boardId)
         {
-            var result = await ProcessRequest<JiraAgileResultFor<JiraIssueSprint>>(
+            return await ProcessPaginatedRequestRecursively<JiraIssueSprint>(
                 user,
                 $"agile/1.0/board/{boardId}/sprint",
                 "GET");
-            return result.Values;
         }
 
         public async Task<List<JiraIssueEpic>> GetAllEpics(IntegratedUser user, string boardId)
         {
-            var result = await ProcessRequest<JiraAgileResultFor<JiraIssueEpic>>(
+           return await ProcessPaginatedRequestRecursively<JiraIssueEpic>(
                 user,
                 $"agile/1.0/board/{boardId}/epic",
                 "GET");
-            return result.Values;
         }
 
         public async Task<List<JiraIssueSprint>> GetAllSprintsForProject(IntegratedUser user, string projectKeyOrId)
@@ -601,7 +599,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             if (responseObj == null)
             {
-                _logger.LogDebug($"Jira Data Center response returned incorrect object. Expected object: {typeof(T)}. Response: {response}");
+                _logger.LogDebug("Jira Data Center response returned incorrect object. Expected object: {ExpectedType}. Response: {Response}", typeof(T), response);
                 return default;
             }
 

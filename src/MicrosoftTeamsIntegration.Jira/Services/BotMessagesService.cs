@@ -222,6 +222,19 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
         }
 
+        public async Task SendConnectCard(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            var message = MessageFactory.Attachment(new HeroCard("In order to use bot, please connect it first and rerun the command.")
+            {
+                Buttons = new List<CardAction>
+                {
+                    new CardAction(ActionTypes.ImBack, "Connect", value: "connect")
+                }
+            }.ToAttachment());
+
+            await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+        }
+
         private static async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
         {
             string welcomeText =

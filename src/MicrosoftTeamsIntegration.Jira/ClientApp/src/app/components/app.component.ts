@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
 import { RoutingState, UtilService } from '@core/services';
 import * as microsoftTeams from '@microsoft/teams-js';
+import {logger} from '@core/services/logger.service';
 
 @Component({
     selector: 'app-root',
@@ -110,6 +111,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
         const context = await microsoftTeams.app.getContext();
         if (context) {
+            logger('Teams context:', context);
             localStorage.setItem('msTeamsContext', JSON.stringify({
                 tid: context?.user?.tenant?.id,
                 loginHint: context?.user?.loginHint,

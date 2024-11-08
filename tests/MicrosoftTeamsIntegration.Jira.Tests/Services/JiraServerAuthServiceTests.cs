@@ -25,8 +25,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         public async Task SubmitOauthLoginInfo_WhenMsTeamsIdNull()
         {
             var service = CreateJiraServerAuthService();
-            var result = await service.SubmitOauthLoginInfo(string.Empty, string.Empty, string.Empty, string.Empty,
-                string.Empty, string.Empty);
+            var result = await service.SubmitOauthLoginInfo(
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty);
 
             Assert.IsType<JiraAuthResponse>(result);
         }
@@ -35,8 +40,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         public async Task SubmitOauthLoginInfo_ReturnsNull_WhenAccessTokenEmpty()
         {
             var service = CreateJiraServerAuthService();
-            var result = await service.SubmitOauthLoginInfo("msTeamsId", string.Empty, string.Empty, "jiraId",
-                string.Empty, string.Empty);
+            var result = await service.SubmitOauthLoginInfo(
+                "msTeamsId",
+                string.Empty,
+                string.Empty,
+                "jiraId",
+                string.Empty,
+                string.Empty);
 
             Assert.Null(result);
         }
@@ -54,8 +64,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                     Received = false
                 });
 
-            var result = await service.SubmitOauthLoginInfo("msTeamsId", string.Empty, "token", "jiraId",
-                string.Empty, string.Empty);
+            var result = await service.SubmitOauthLoginInfo(
+                "msTeamsId",
+                string.Empty,
+                "token",
+                "jiraId",
+                string.Empty,
+                string.Empty);
 
             Assert.False(result.IsSuccess);
         }
@@ -83,10 +98,15 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                     Received = true
                 });
 
-            var result =  service.SubmitOauthLoginInfo("msTeamsId", string.Empty, "token", "jiraId",
-                string.Empty, string.Empty);
+            var result = service.SubmitOauthLoginInfo(
+                "msTeamsId",
+                string.Empty,
+                "token",
+                "jiraId",
+                string.Empty,
+                string.Empty);
 
-            Assert.ThrowsAsync<ForbiddenException>(() => result);
+            await Assert.ThrowsAsync<ForbiddenException>(() => result);
         }
 
         [Fact]
@@ -112,8 +132,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                     Received = true
                 });
 
-            var result = await service.SubmitOauthLoginInfo("msTeamsId", string.Empty, "token", "jiraId",
-                string.Empty, string.Empty);
+            var result = await service.SubmitOauthLoginInfo(
+                "msTeamsId",
+                string.Empty,
+                "token",
+                "jiraId",
+                string.Empty,
+                string.Empty);
 
             Assert.True(result.IsSuccess);
         }
@@ -144,8 +169,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => _fakeDatabaseService.GetOrCreateJiraServerUser(A<string>._, A<string>._, A<string>._))
                 .Returns(new IntegratedUser());
 
-            var result = await service.SubmitOauthLoginInfo("msTeamsId", string.Empty, "token", "jiraId",
-                string.Empty, "token");
+            var result = await service.SubmitOauthLoginInfo(
+                "msTeamsId",
+                string.Empty,
+                "token",
+                "jiraId",
+                string.Empty,
+                "token");
 
             Assert.True(result.IsSuccess);
 
@@ -225,6 +255,5 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var service = new JiraAuthService(_fakeSignalRService, _fakeDatabaseService, _logger);
             return service;
         }
-
     }
 }

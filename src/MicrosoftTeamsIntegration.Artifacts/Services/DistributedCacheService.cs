@@ -22,7 +22,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
         {
             _distributedCache = distributedCache;
             _logger = logger;
-            _wireSerializer = new Serializer(new SerializerOptions());
+            _wireSerializer = new Serializer();
             _memoryStreamManager = new RecyclableMemoryStreamManager();
         }
 
@@ -66,7 +66,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
                 }
                 catch (Exception e)
                 {
-                   _logger.LogError(e, e.Message);
+                    _logger.LogError(e, "An error occurred: {ErrorMessage}", e.Message);
                 }
             }
 
@@ -92,7 +92,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, e.Message);
+                    _logger.LogError(e, "An error occurred: {ErrorMessage}", e.Message);
                 }
             }
 

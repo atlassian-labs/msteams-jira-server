@@ -712,7 +712,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, exception.Message);
+                _logger.LogError(exception, "An error occurred: {ErrorMessage}", exception.Message);
             }
 
             // if we cannot get metadata, return empty string

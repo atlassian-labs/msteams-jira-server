@@ -78,7 +78,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Extensions
                 return null;
             }
 
-            var clientInfo = activity.Entities.Where(entity => entity.Type.Equals("clientInfo", StringComparison.OrdinalIgnoreCase)).ToList();
+            var clientInfo = activity.Entities!.Where(entity => entity.Type.Equals("clientInfo", StringComparison.OrdinalIgnoreCase)).ToList();
             return !clientInfo.Any() ? null : clientInfo.First().GetAs<ClientInfo>();
         }
 

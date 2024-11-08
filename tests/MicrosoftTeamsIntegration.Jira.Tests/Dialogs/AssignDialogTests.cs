@@ -25,6 +25,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 {
     public class AssignDialogTests
     {
+        private const string IssueKey = "TS-3";
+        private const string YouAssignedString = "You're already assigned to TS-3.";
         private readonly IMiddleware[] _middleware;
         private readonly JiraBotAccessors _fakeAccessors;
         private readonly TelemetryClient _telemetry;
@@ -32,12 +34,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly IDatabaseService _fakeDatabaseService;
         private readonly AppSettings _appSettings;
         private readonly IBotMessagesService _fakeBotMessagesService;
-        private const string IssueKey = "TS-3";
-        private const string YouAssignedString = "You're already assigned to TS-3.";
 
         public AssignDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
@@ -51,8 +51,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task AssignDialog_ChecksIfCommandHasJiraIssueKey()
         {
-            var sut = new AssignDialog(_fakeAccessors, _fakeJiraService, _appSettings, _fakeDatabaseService,
-                _fakeBotMessagesService, _telemetry);
+            var sut = new AssignDialog(
+                _fakeAccessors,
+                _fakeJiraService,
+                _appSettings,
+                _fakeDatabaseService,
+                _fakeBotMessagesService,
+                _telemetry);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("assign");
@@ -66,8 +71,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task AssignDialog_ReturnsCouldNotFindIssue_IfJiraIssueKeyIncorrect()
         {
-            var sut = new AssignDialog(_fakeAccessors, _fakeJiraService, _appSettings, _fakeDatabaseService,
-                _fakeBotMessagesService, _telemetry);
+            var sut = new AssignDialog(
+                _fakeAccessors,
+                _fakeJiraService,
+                _appSettings,
+                _fakeDatabaseService,
+                _fakeBotMessagesService,
+                _telemetry);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>($"assign {IssueKey}");
@@ -79,12 +89,19 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task AssignDialog_ThrowsMethodAccessException()
         {
-            var sut = new AssignDialog(_fakeAccessors, _fakeJiraService, _appSettings, _fakeDatabaseService,
-                _fakeBotMessagesService, _telemetry);
+            var sut = new AssignDialog(
+                _fakeAccessors,
+                _fakeJiraService,
+                _appSettings,
+                _fakeDatabaseService,
+                _fakeBotMessagesService,
+                _telemetry);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() =>
-                _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._,
+                _fakeAccessors.JiraIssueState.GetAsync(
+                    A<ITurnContext>._,
+                    A<Func<JiraIssueState>>._,
                     CancellationToken.None)).Throws(new MethodAccessException());
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>($"assign {IssueKey}");
@@ -96,8 +113,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task AssignDialog_AssignsIssueToYourself()
         {
-            var sut = new AssignDialog(_fakeAccessors, _fakeJiraService, _appSettings, _fakeDatabaseService,
-                _fakeBotMessagesService, _telemetry);
+            var sut = new AssignDialog(
+                _fakeAccessors,
+                _fakeJiraService,
+                _appSettings,
+                _fakeDatabaseService,
+                _fakeBotMessagesService,
+                _telemetry);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._, CancellationToken.None))
@@ -142,13 +164,19 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task AssignDialog_WhenJiraServerIsTrue()
         {
-
-            var sut = new AssignDialog(_fakeAccessors, _fakeJiraService, _appSettings, _fakeDatabaseService,
-                _fakeBotMessagesService, _telemetry);
+            var sut = new AssignDialog(
+                _fakeAccessors,
+                _fakeJiraService,
+                _appSettings,
+                _fakeDatabaseService,
+                _fakeBotMessagesService,
+                _telemetry);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() =>
-                    _fakeAccessors.JiraIssueState.GetAsync(A<ITurnContext>._, A<Func<JiraIssueState>>._,
+                    _fakeAccessors.JiraIssueState.GetAsync(
+                        A<ITurnContext>._,
+                        A<Func<JiraIssueState>>._,
                         CancellationToken.None))
                 .Returns(new JiraIssueState()
                 {
@@ -207,8 +235,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 Conversation = new ConversationAccount(true, "convo1", "Conversation1"),
             };
 
-            var sut = new AssignDialog(_fakeAccessors, _fakeJiraService, _appSettings, _fakeDatabaseService,
-                _fakeBotMessagesService, _telemetry);
+            var sut = new AssignDialog(
+                _fakeAccessors,
+                _fakeJiraService,
+                _appSettings,
+                _fakeDatabaseService,
+                _fakeBotMessagesService,
+                _telemetry);
             var testAdapter = new TestAdapter(conversation);
 
             var testClient = new DialogTestClient(testAdapter, sut, middlewares: _middleware);

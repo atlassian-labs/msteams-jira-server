@@ -20,7 +20,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Extensions
                 return string.Empty;
             }
 
-            return parameter.Value != null ? parameter.Value.ToString() : string.Empty;
+            return (parameter.Value != null ? parameter.Value.ToString() : string.Empty)!;
         }
     }
 }

@@ -21,40 +21,38 @@ namespace MicrosoftTeamsIntegration.Jira.Helpers
 
         public static MessagingExtensionResponse BuildMessagingExtensionQueryResult(List<MessagingExtensionAttachment> attachments)
         {
-            var messagingExtensionResult = new MessagingExtensionResult
-            {
-                Type = "result",
-                Attachments = attachments,
-                AttachmentLayout = "list"
-            };
-
             return new MessagingExtensionResponse
             {
-                ComposeExtension = messagingExtensionResult
+                ComposeExtension = new MessagingExtensionResult
+                {
+                    Type = "result",
+                    Attachments = attachments,
+                    AttachmentLayout = "list"
+                }
             };
         }
 
         public static MessagingExtensionResponse BuildCardActionResponse(string type, string title, string url)
         {
-            var cardAction = new CardAction(ActionTypes.OpenUrl, title, value: url);
-            var cardActions = new List<CardAction> { cardAction };
-            var suggestedAction = new MessagingExtensionSuggestedAction
+            return new MessagingExtensionResponse
             {
-                Actions = cardActions
+                ComposeExtension = new MessagingExtensionResult
+                {
+                    Type = type,
+                    SuggestedActions = new MessagingExtensionSuggestedAction
+                    {
+                        Actions = new List<CardAction>
+                        {
+                            new CardAction
+                            {
+                                Type = ActionTypes.OpenUrl,
+                                Value = url,
+                                Title = title,
+                            }
+                        }
+                    }
+                }
             };
-
-            var composeExtensionResult = new MessagingExtensionResult
-            {
-                SuggestedActions = suggestedAction,
-                Type = type
-            };
-
-            var composeExtensionResponse = new MessagingExtensionResponse
-            {
-                ComposeExtension = composeExtensionResult
-            };
-
-            return composeExtensionResponse;
         }
 
         public static string GetQueryParameterByName(MessagingExtensionQuery query, string name)

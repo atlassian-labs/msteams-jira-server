@@ -172,31 +172,40 @@ export class EditIssueDialogComponent implements OnInit {
                 return;
             }
 
-            const issue = await this.apiService.getIssueByIdOrKey(this.jiraUrl, this.issueId as string);
+            const issuePromise = this.apiService.getIssueByIdOrKey(this.jiraUrl, this.issueId as string);
+            const editIssueMetadataPromise = this.apiService.getEditIssueMetadata(this.jiraUrl, this.issueId as string);
+            const currentUserPromise = this.apiService.getCurrentUserData(this.jiraUrl);
+
+            const [issue, editIssueMetadata, currentUser] = await Promise.all([
+                issuePromise,
+                editIssueMetadataPromise,
+                currentUserPromise
+            ]);
+
             this.issue = mapIssueToEditIssueDialogModel(issue);
-
-            this.editIssueMetadata = await this.apiService.getEditIssueMetadata(this.jiraUrl, this.issueId as string);
-
-            this.currentUser = await this.apiService.getCurrentUserData(this.jiraUrl);
+            this.editIssueMetadata = editIssueMetadata;
+            this.currentUser = currentUser;
             this.currentUserAccountId = this.currentUser.name;
 
-            // priority
+            const optionPromises = [];
+
             if (this.allowEditPriority) {
-                await this.setPrioritiesOptions();
+                optionPromises.push(this.setPrioritiesOptions());
             }
 
-            // assignee
             if (this.allowEditAssignee) {
-                await this.setAssigneeOptions();
+                optionPromises.push(this.setAssigneeOptions());
             }
 
-            // status
             if (this.allowEditStatus) {
-                await this.setStatusesOptions();
+                optionPromises.push(this.setStatusesOptions());
             }
+
+            await Promise.all(optionPromises);
 
             await this.createForm();
 
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.error = error as any;
             this.appInsightsService.trackException(

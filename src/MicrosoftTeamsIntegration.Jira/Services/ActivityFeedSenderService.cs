@@ -93,7 +93,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 catch (Exception exception)
                 {
                     _telemetry.TrackEvent("notification:send:failure");
-                    _logger.LogWarning(exception, $"Cannot generate activity notification for user {user.MsTeamsUserId}.");
+                    _logger.LogWarning(exception, "Cannot generate activity notification for user {MsTeamsUserId}.", user.MsTeamsUserId);
                 }
             }
         }
@@ -163,7 +163,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, $"Cannot get OAuth token to call Graph API. MsTeamsUser: {user.MsTeamsUserId}, MSTeamsTenant: {user.MsTeamsTenantId}.");
+                _logger.LogError(exception, "Cannot get OAuth token to call Graph API. MsTeamsUser: {MsTeamsUserId}, MSTeamsTenant: {MsTeamsTenantId}.", user.MsTeamsUserId, user.MsTeamsTenantId);
                 return null;
             }
         }

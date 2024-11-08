@@ -13,6 +13,7 @@
 @import "./angular-material.overrides.scss";
 @import "./editable-field.scss";
 @import "./theme/components.scss";
+@import "../../node_modules/placeholder-loading/src/scss/placeholder-loading";
 
 html {
   max-height: 98%;
@@ -69,5 +70,34 @@ body.mobile {
     max-width: 100vw !important;
     width: 100% !important;
     height: 100% !important;
+  }
+}
+
+.ph-item {
+  &::before {
+    animation: ph-animation 1.5s linear infinite;
+  }
+}
+
+body.dark .ph-item {
+  background-color: $app-gray-10-dark;
+  &::before {
+    background: linear-gradient(to right, rgba($app-gray-10-dark, 0) 46%, rgba($app-gray-10-dark, 0.07) 50%, rgba($app-gray-10-dark, 0) 54%) 50% 50%;
+    animation: ph-animation 1.5s linear infinite;
+  }
+}
+
+body.contrast .ph-item {
+  background-color: $black;
+  &::before {
+    background: linear-gradient(to right, rgba($black, 0) 46%, rgba($black, 0.07) 50%, rgba($black, 0) 54%) 50% 50%;
+    animation: ph-animation 1.5s linear infinite;
+  }
+}
+
+.ph-row {
+  .big,
+  &.big div {
+    height: 32px;
   }
 }

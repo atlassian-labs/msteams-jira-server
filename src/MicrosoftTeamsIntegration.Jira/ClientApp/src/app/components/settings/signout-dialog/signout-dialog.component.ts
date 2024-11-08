@@ -9,6 +9,7 @@ import {
     UtilService,
     AppInsightsService,
 } from '@core/services';
+import * as microsoftTeams from '@microsoft/teams-js';
 
 @Component({
     selector: 'app-signout-dialog',
@@ -35,6 +36,8 @@ export class SignoutDialogComponent implements OnInit {
         this.appInsightsService.logNavigation('SignoutDialogComponent', this.route);
 
         this.parseParams();
+
+        microsoftTeams.app.notifySuccess();
     }
 
     public async onSignOut(): Promise<void> {

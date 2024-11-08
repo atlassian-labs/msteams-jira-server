@@ -22,7 +22,7 @@ export class AppInsightsService {
             const instrumentationKey = localStorage.getItem('instrumentationKey') as string;
             this.appInsights = new ApplicationInsights({
                 config: {
-                    connectionString: instrumentationKey
+                    instrumentationKey: instrumentationKey
                 }
             });
             this.appInsights.loadAppInsights();

@@ -55,7 +55,7 @@ namespace MicrosoftTeamsIntegration.Jira
 
             services.Configure<ClientAppOptions>(_configuration.GetSection("ClientAppOptions"));
 
-            var delay = Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5);
+            Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5);
 
             services.AddSingleton<IDatabaseService, DatabaseService>();
 
@@ -117,7 +117,7 @@ namespace MicrosoftTeamsIntegration.Jira
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = _ => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
                 options.OnAppendCookie = cookieContext =>
                     CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
@@ -127,7 +127,8 @@ namespace MicrosoftTeamsIntegration.Jira
 
             if (!_env.IsDevelopment())
             {
-                IStorage dataStore = new BlobsStorage(appSettings.StorageConnectionString, appSettings.BotDataStoreContainer);
+                IStorage dataStore =
+                    new BlobsStorage(appSettings.StorageConnectionString, appSettings.BotDataStoreContainer);
                 services.AddSingleton(dataStore);
             }
 
@@ -156,6 +157,16 @@ namespace MicrosoftTeamsIntegration.Jira
 
             app.UseTeamsIntegrationDefaultHealthCheck();
 
+            ConfigureEnvironment(app, env);
+            ConfigureExceptionHandler(app, env, logger);
+            ConfigureSecurityHeaders(app, appSettings);
+            ConfigureMiddleware(app);
+            ConfigureEndpoints(app);
+            ConfigureSpa(app, env);
+        }
+
+        private static void ConfigureEnvironment(IApplicationBuilder app, IWebHostEnvironment env)
+        {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -165,74 +176,116 @@ namespace MicrosoftTeamsIntegration.Jira
                 app.UseHttpsRedirection();
                 app.UseHsts();
             }
+        }
 
+        private static void ConfigureExceptionHandler(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            ILogger<Startup> logger)
+        {
             app.UseExceptionHandler(appError =>
             {
                 appError.Run(async context =>
                 {
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-                    if (contextFeature is null)
+                    if (contextFeature == null)
                     {
                         return;
                     }
 
-                    var exception = contextFeature.Error;
-                    var apiError = new ApiError("An unhandled error occurred. We are working on it!");
-                    switch (exception)
-                    {
-                        case ApiException ex:
-                            // handle explicit 'known' API errors
-                            apiError = new ApiError(ex.Content ?? ex.Message);
-                            context.Response.StatusCode = (int)ex.StatusCode;
-                            break;
-                        case UnauthorizedException e:
-                            apiError = new ApiError(e.Message);
-                            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                            break;
-                        case MethodAccessException e:
-                            // handle explicit 'known' errors for invalid_scope
-                            apiError = new ApiError(e.Message);
-                            context.Response.StatusCode = (int)HttpStatusCode.UpgradeRequired;
-                            break;
-                        case InvalidOperationException invalidOperation:
-                            // handle customers that configured their webhooks posting to Jira Data Center instead of Connector
-                            if (context.Request.Method.Equals("post", StringComparison.OrdinalIgnoreCase) && invalidOperation.Message.Contains("index.html"))
-                            {
-                                apiError = new ApiError("You are sending request to an incorrect route. Please check your configuration.");
-                                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                            }
-                            else
-                            {
-                                apiError = new ApiError("Invalid operation performed.");
-                                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                            }
+                    var apiError = CreateApiError(contextFeature.Error, env, context);
+                    context.Response.StatusCode = PickStatusCode(contextFeature.Error, context, logger);
 
-                            break;
-                        case BadRequestException e:
-                            apiError = new ApiError(e.Message);
-                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                            break;
-                        default:
-                            {
-                                // Unhandled errors
-                                if (env.IsDevelopment())
-                                {
-                                    apiError = new ApiError(exception.ToString());
-                                }
-
-                                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-                                logger.LogCritical(exception, exception.Message);
-                                break;
-                            }
-                    }
-
-                    // return a JSON result
                     context.Response.ContentType = "application/json";
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(apiError));
                 });
             });
+        }
 
+        private static void ConfigureSecurityHeaders(IApplicationBuilder app, AppSettings appSettings)
+        {
+            app.UseSecurityHeaders(BuildHeaderPolicyCollection(appSettings));
+        }
+
+        private static ApiError CreateApiError(Exception exception, IWebHostEnvironment env, HttpContext context)
+        {
+            ArgumentNullException.ThrowIfNull(exception);
+
+            switch (exception)
+            {
+                case ApiException ex:
+                    return new ApiError(ex.Content ?? ex.Message);
+
+                case UnauthorizedException e:
+                    return new ApiError(e.Message);
+
+                case MethodAccessException e:
+                    return new ApiError(e.Message);
+
+                case InvalidOperationException invalidOp:
+                    return HandleInvalidOperationException(invalidOp, context);
+
+                case BadRequestException e:
+                    return new ApiError(e.Message);
+
+                default:
+                    return env.IsDevelopment()
+                        ? new ApiError(exception.ToString())
+                        : new ApiError("An unhandled error occurred. We are working on it!");
+            }
+        }
+
+        private static int PickStatusCode(Exception exception, HttpContext context, ILogger<Startup> logger)
+        {
+            ArgumentNullException.ThrowIfNull(exception);
+
+            switch (exception)
+            {
+                case ApiException ex:
+                    return (int)ex.StatusCode;
+
+                case UnauthorizedException _:
+                    return (int)HttpStatusCode.Unauthorized;
+
+                case MethodAccessException _:
+                    return (int)HttpStatusCode.UpgradeRequired;
+
+                case InvalidOperationException invalidOp:
+                    return GetInvalidOperationStatusCode(invalidOp, context);
+
+                case BadRequestException _:
+                    return (int)HttpStatusCode.BadRequest;
+
+                default:
+                    logger.LogError(exception, "An unhandled error occurred: {ErrorMessage}", exception.Message);
+                    return (int)HttpStatusCode.InternalServerError;
+            }
+        }
+
+        private static ApiError HandleInvalidOperationException(InvalidOperationException exception, HttpContext context)
+        {
+            if (context.Request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase) &&
+                exception.Message.Contains("index.html"))
+            {
+                return new ApiError("You are sending request to an incorrect route. Please check your configuration.");
+            }
+
+            return new ApiError("Invalid operation performed.");
+        }
+
+        private static int GetInvalidOperationStatusCode(InvalidOperationException exception, HttpContext context)
+        {
+            if (context.Request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase) &&
+                exception.Message.Contains("index.html"))
+            {
+                return (int)HttpStatusCode.OK;
+            }
+
+            return (int)HttpStatusCode.BadRequest;
+        }
+
+        private static HeaderPolicyCollection BuildHeaderPolicyCollection(AppSettings appSettings)
+        {
             var policyCollection = new HeaderPolicyCollection()
                 .AddFrameOptionsSameOrigin("https://teams.microsoft.com/")
                 .AddContentSecurityPolicy(builder =>
@@ -265,9 +318,7 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("*");
 
                     var frameAncestors = builder.AddFrameAncestors()
-                        .Self();
-
-                    frameAncestors
+                        .Self()
                         .From("*.jira.com")
                         .From("*.atlassian.net")
                         .From("teams.microsoft.com")
@@ -282,21 +333,19 @@ namespace MicrosoftTeamsIntegration.Jira
                         var validDomains = appSettings.CspValidDomains.Split();
                         foreach (var domain in validDomains)
                         {
-                            frameAncestors
-                                .From(domain.Trim());
+                            frameAncestors.From(domain.Trim());
                         }
                     }
                 });
+            return policyCollection;
+        }
 
-            app.UseSecurityHeaders(policyCollection);
-
+        private static void ConfigureMiddleware(IApplicationBuilder app)
+        {
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
             app.UseRouting();
-
             app.UseCookiePolicy();
-
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -305,13 +354,19 @@ namespace MicrosoftTeamsIntegration.Jira
                 context.Request.EnableBuffering();
                 return next(context);
             });
+        }
 
+        private static void ConfigureEndpoints(IApplicationBuilder app)
+        {
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<GatewayHub>("/JiraGateway");
             });
+        }
 
+        private void ConfigureSpa(IApplicationBuilder app, IWebHostEnvironment env)
+        {
             app.UseSpa(spa =>
             {
                 const int port = 4200;
@@ -327,11 +382,11 @@ namespace MicrosoftTeamsIntegration.Jira
             });
         }
 
-        private void CheckSameSite(HttpContext httpContext, CookieOptions options)
+        private static void CheckSameSite(HttpContext httpContext, CookieOptions options)
         {
-            if (options.SameSite == Microsoft.AspNetCore.Http.SameSiteMode.None)
+            if (options.SameSite == SameSiteMode.None)
             {
-                var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
+                var userAgent = httpContext.Request.Headers.UserAgent.ToString();
                 if (AgentDetectionHelper.DisallowsSameSiteNone(userAgent))
                 {
                     options.SameSite = SameSiteMode.Unspecified;

@@ -121,12 +121,22 @@ export class CreateIssueDialogComponent implements OnInit {
         this.loading = true;
 
         try {
+            this.loading = true;
             await this.createForm();
-            const { addonVersion } = await this.apiService.getAddonStatus(jiraUrl);
+            this.loading = false;
+            const getAddonStatusPromise = this.apiService.getAddonStatus(jiraUrl);
+            const getCurrentUserDataPromise = this.apiService.getCurrentUserData(this.jiraUrl as string);
+
+            const [{ addonVersion }, currentUser] = await Promise.all([
+                getAddonStatusPromise,
+                getCurrentUserDataPromise
+            ]);
+
             this.isAddonUpdated = this.utilService.isAddonUpdated(addonVersion);
-            this.currentUser = await this.apiService.getCurrentUserData(this.jiraUrl as string);
+            this.currentUser = currentUser;
             this.currentUserAccountId = this.currentUser.name;
 
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),
@@ -134,9 +144,9 @@ export class CreateIssueDialogComponent implements OnInit {
             );
 
             microsoftTeams.dialog.url.submit(error as any);
+        } finally {
+            this.loading = false;
         }
-
-        this.loading = false;
     }
 
     public async onSubmit(): Promise<void> {
@@ -231,18 +241,33 @@ export class CreateIssueDialogComponent implements OnInit {
         this.fetching = true;
 
         this.selectedProject = this.projects?.find((proj: { id: string | null }) => proj.id === projectId);
+        const projectKey = this.selectedProject?.key as string;
+        const [canCreateIssue, issueTypesResult] = await Promise.all([
+            this.canCreateIssueForProject(projectKey),
+            this.apiService.getCreateMetaIssueTypes(this.jiraUrl as string, projectKey).catch(error => {
+                console.error('Error fetching issue types:', error);
+                return null;
+            }),
+        ]);
 
-        this.canCreateIssue = await this.canCreateIssueForProject(this.selectedProject?.key as string);
+        this.canCreateIssue = canCreateIssue;
+
         if (!this.canCreateIssue) {
             this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
             const errorMessage = 'You can\'t create issue for this project. Contact project admin to check your permissions.';
             this.notificationService.notifyError(errorMessage);
-        } else {
-            this.issueTypes = await this.apiService.getCreateMetaIssueTypes(this.jiraUrl as string, this.selectedProject?.key as string);
+        }
+        if (issueTypesResult) {
+            this.issueTypes = issueTypesResult;
             this.availableIssueTypesOptions = this.getIssueTypesOptions();
+        } else {
+            this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
+            const errorMessage = 'Failed to fetch issue types. Please try again later.';
+            this.notificationService.notifyError(errorMessage);
         }
 
         await this.onIssueTypeSelected(this.availableIssueTypesOptions[0]);
+        this.fetching = false;
     }
 
     public async onIssueTypeSelected(optionOrValue: DropDownOption<string> | string): Promise<void> {
@@ -338,7 +363,7 @@ export class CreateIssueDialogComponent implements OnInit {
         // if there are no projects to create an issue for - the user does not permission to create an issue
         if (!this.projects || this.projects.length === 0) {
             const message = 'You don\'t have permission to perform this action';
-            this.router.navigate(['/error'], { queryParams: { message } });
+            await this.router.navigate(['/error'], {queryParams: {message}});
             return;
         }
 
@@ -349,11 +374,17 @@ export class CreateIssueDialogComponent implements OnInit {
 
         const defaultAssignee = this.defaultAssignee && this.assigneesOptions ?
             this.assigneesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase()) : null;
+                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase()) :
+            this.assigneesOptions && this.assigneesOptions.length > 0 ?
+                this.assigneesOptions[0].value :
+                null;
 
         const defaultIssueType = this.defaultIssueType && this.availableIssueTypesOptions ?
             this.availableIssueTypesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase()) : null;
+                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase()) :
+            this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
+                this.availableIssueTypesOptions[0].value :
+                null;
 
         this.issueForm = new UntypedFormGroup({
             project: new UntypedFormControl(
@@ -362,9 +393,7 @@ export class CreateIssueDialogComponent implements OnInit {
                     null
             ),
             issuetype: new UntypedFormControl(
-                this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
-                    this.availableIssueTypesOptions[0].value :
-                    null
+                defaultIssueType
             ),
             summary: new UntypedFormControl(
                 this.defaultSummary ? this.defaultSummary : '',
@@ -372,9 +401,7 @@ export class CreateIssueDialogComponent implements OnInit {
             ),
             description: new UntypedFormControl(this.defaultDescription),
             assignee: new UntypedFormControl(
-                this.assigneesOptions && this.assigneesOptions.length > 0 ?
-                    this.assigneesOptions[0].value :
-                    null
+                defaultAssignee
             )
         });
 

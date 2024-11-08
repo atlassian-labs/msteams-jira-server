@@ -33,7 +33,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
                     {
                         if (retryAttempt == DefaultPolicyRetryCount)
                         {
-                            _logger.LogError(exception, $"{context[MethodNameParam]}.");
+                            _logger.LogError(exception, "{MethodName}.", context[MethodNameParam]);
                         }
                     });
         }
@@ -49,7 +49,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
                     .GetAsync(cancellationToken),
                 new Dictionary<string, object>() { { MethodNameParam, nameof(GetApplicationAsync) } });
 
-            return teamsApps.FirstOrDefault();
+            return teamsApps.FirstOrDefault()!;
         }
 
         public async Task SendActivityNotificationAsync(IGraphServiceClient graphClient, ActivityNotification notification, string userId, CancellationToken cancellationToken)

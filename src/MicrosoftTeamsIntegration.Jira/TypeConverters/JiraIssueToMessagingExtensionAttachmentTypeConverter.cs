@@ -11,20 +11,8 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
     {
         public MessagingExtensionAttachment Convert(BotAndMessagingExtensionJiraIssue model, MessagingExtensionAttachment attachment, ResolutionContext context)
         {
-            // pass context option items to child mappers
-            void PassContextOptions(IMappingOperationOptions opts)
-            {
-                foreach (var item in context.Items)
-                {
-                    if (!opts.Items.Contains(item))
-                    {
-                        opts.Items.Add(item);
-                    }
-                }
-            }
-
-            var card = context.Mapper.Map<AdaptiveCard>(model, PassContextOptions);
-            var preview = context.Mapper.Map<ThumbnailCard>(model, PassContextOptions);
+            var card = context.Mapper.Map<AdaptiveCard>(model);
+            var preview = context.Mapper.Map<ThumbnailCard>(model);
 
             return card.ToAttachment().ToMessagingExtensionAttachment(preview.ToAttachment());
         }

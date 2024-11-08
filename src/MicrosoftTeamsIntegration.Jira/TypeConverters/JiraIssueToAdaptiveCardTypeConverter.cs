@@ -9,6 +9,7 @@ using MicrosoftTeamsIntegration.Jira.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Bot;
 using MicrosoftTeamsIntegration.Jira.Models.FetchTask;
+using MicrosoftTeamsIntegration.Jira.Models.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
 using Newtonsoft.Json;
@@ -25,7 +26,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
             _appSettings = appSettings;
         }
 
-        public AdaptiveCard Convert(BotAndMessagingExtensionJiraIssue model, AdaptiveCard card, ResolutionContext context)
+        public AdaptiveCard Convert(BotAndMessagingExtensionJiraIssue model, AdaptiveCard card, IResolutionContext context)
         {
             if (model?.JiraIssue is null)
             {
@@ -353,6 +354,11 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
             }
 
             return card;
+        }
+
+        public AdaptiveCard Convert(BotAndMessagingExtensionJiraIssue model, AdaptiveCard card, ResolutionContext context)
+        {
+            return Convert(model, card, new ResolutionContextWrapper(context));
         }
 
         private static AdaptiveColumn GetPriorityColumn(BotAndMessagingExtensionJiraIssue model)

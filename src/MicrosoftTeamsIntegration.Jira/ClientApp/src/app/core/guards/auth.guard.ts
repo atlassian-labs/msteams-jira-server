@@ -4,7 +4,7 @@ import {
     ActivatedRouteSnapshot,
 } from '@angular/router';
 
-import { AuthService, AdalService } from '@core/services';
+import { AuthService } from '@core/services';
 import { logger } from '@core/services/logger.service';
 
 import { StatusCode } from '@core/enums';
@@ -14,21 +14,15 @@ export class AuthGuard {
     constructor(
         private readonly router: Router,
         private readonly authService: AuthService,
-        private readonly adalService: AdalService
     ) { }
 
     public async canActivate(route: ActivatedRouteSnapshot): Promise<boolean> {
-        const isAuthenticated = this.authService.isAuthenticated;
-
-        logger(`AuthGuard::canActivate User is authenticated: ${isAuthenticated}`);
-
-        if (isAuthenticated) {
-            return true;
-        }
-
         try {
-            const token = await this.adalService.renewToken();
-            return Boolean(token);
+            const isAuthenticated = Boolean(await this.authService.getToken());
+
+            logger(`AuthGuard::canActivate User is authenticated: ${isAuthenticated}`);
+
+            return isAuthenticated;
         } catch (error) {
             await this.router.navigate(['/login', { ...route.params, status: StatusCode.Unauthorized }]);
             return false;

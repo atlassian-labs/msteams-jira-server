@@ -22,7 +22,6 @@ export class CommentIssueDialogComponent implements OnInit {
     public loading = false;
     public commentForm: UntypedFormGroup | undefined;
     public jiraUrl: string | undefined;
-    public jiraId: string | undefined;
     public issueId: string | undefined;
     public issueKey: string | undefined;
     public formDisabled: boolean | undefined;
@@ -42,17 +41,21 @@ export class CommentIssueDialogComponent implements OnInit {
     public async ngOnInit() {
         this.loading = true;
         try {
-            const { jiraUrl, jiraId, issueId, issueKey } = this.route.snapshot.params;
+            const { jiraUrl, issueId, issueKey } = this.route.snapshot.params;
             this.jiraUrl = jiraUrl;
-            this.jiraId = jiraId;
             this.issueId = issueId;
             this.issueKey = issueKey;
             const commentRelatedPermissions: JiraPermissionName[] = [
                 'ADD_COMMENTS',
             ];
 
+            if (!this.jiraUrl) {
+                const response = await this.apiService.getJiraUrlForPersonalScope();
+                this.jiraUrl = response.jiraUrl;
+            }
+
             const { permissions } = await this.permissionService
-                .getMyPermissions(this.jiraId as string, commentRelatedPermissions, this.issueId);
+                .getMyPermissions(this.jiraUrl, commentRelatedPermissions, this.issueId);
 
             if (!permissions.ADD_COMMENTS.havePermission) {
                 const message = 'You don\'t have permissions to add comments';
@@ -60,8 +63,10 @@ export class CommentIssueDialogComponent implements OnInit {
                 return;
             }
 
-            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraId as string, this.issueId as string);
+            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraUrl, this.issueId as string);
             await this.createForm();
+
+            microsoftTeams.app.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),
@@ -78,7 +83,7 @@ export class CommentIssueDialogComponent implements OnInit {
         }
 
         const options: IssueAddCommentOptions = {
-            jiraUrl: this.jiraId as string,
+            jiraUrl: this.jiraUrl as string,
             issueIdOrKey: this.issueId as string,
             comment: this.commentForm?.value.comment,
             metadataRef: null as any

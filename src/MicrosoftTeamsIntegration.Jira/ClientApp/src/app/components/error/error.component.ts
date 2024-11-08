@@ -19,6 +19,13 @@ import { UtilService } from '@core/services';
         .error__container {
             padding: 10px;
         }
+
+        .error__message {
+            padding: 10px;
+            font-size: 14px;
+            max-width: 500px;
+            text-align: center;
+        }
     `]
 })
 export class ErrorComponent implements OnInit {
@@ -26,6 +33,8 @@ export class ErrorComponent implements OnInit {
     public wrapperClass = '';
     public showRetryButton = false;
     public status: number | undefined;
+    public iconUrl: string | undefined;
+    public iconType: string | undefined;
 
     constructor(
         private router: Router,
@@ -41,6 +50,13 @@ export class ErrorComponent implements OnInit {
         this.showRetryButton = this.errorService.showRetryButton;
         this.message = this.route.snapshot.queryParams['message'];
         this.status = this.route.snapshot.queryParams['status'];
+        this.iconType = this.route.snapshot.queryParams['iconType'];
+
+        if(this.iconType === 'connect') {
+            this.iconUrl = 'https://product-integrations-cdn.atl-paas.net/jira-teams/jira-integration-2.png';
+        } else {
+            this.iconUrl = 'https://product-integrations-cdn.atl-paas.net/jira-teams/error-window.png';
+        }
     }
 
     public retry(): void {

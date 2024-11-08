@@ -69,7 +69,9 @@ export class SprintFieldComponent implements FieldComponent, OnInit {
             // remove empty field before getting real values
             this.sprintOptions = [];
             // try to get all sprints for selected project
-            const sprintsData = await this.apiService.getSprints(this.jiraUrl as string, this.projectKeyOrId as string);
+            let sprintsData = await this.apiService.getSprints(this.jiraUrl as string, this.projectKeyOrId as string);
+            const groupOrder = ['active', 'future', 'closed'];
+            sprintsData = sprintsData.sort((a, b) => groupOrder.indexOf(a.state) - groupOrder.indexOf(b.state));
             this.sprintOptions = sprintsData.map(this.dropdownUtilService.mapSprintDataToSelectOption);
             this.dataInitialized = true;
 

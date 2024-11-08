@@ -10,10 +10,5 @@ namespace MicrosoftTeamsIntegration.Jira.Exceptions
             : base(message)
         {
         }
-
-        protected BadRequestException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
     }
 }

@@ -90,7 +90,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                LogError(ex, nameof(OnBeginDialogAsync));
                 await innerDc.Context.SendActivityAsync(BotMessages.SomethingWentWrong, cancellationToken: cancellationToken);
                 return await innerDc.EndDialogAsync(cancellationToken: cancellationToken);
             }
@@ -113,7 +113,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                LogError(ex, nameof(OnContinueDialogAsync));
                 await innerDc.Context.SendActivityAsync(BotMessages.SomethingWentWrong, cancellationToken: cancellationToken);
                 return await innerDc.EndDialogAsync(cancellationToken: cancellationToken);
             }
@@ -293,6 +293,11 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             }
 
             return await dc.EndDialogAsync();
+        }
+
+        private void LogError(Exception ex, string methodName)
+        {
+            _logger.LogError(ex, "An error occurred on {MethodName}: {ErrorMessage}", methodName, ex.Message);
         }
     }
 }
