@@ -372,19 +372,9 @@ export class CreateIssueDialogComponent implements OnInit {
 
         await this.onProjectSelected(this.availableProjectsOptions[0].value);
 
-        const defaultAssignee = this.defaultAssignee && this.assigneesOptions ?
-            this.assigneesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase()) :
-            this.assigneesOptions && this.assigneesOptions.length > 0 ?
-                this.assigneesOptions[0].value :
-                null;
+        const defaultAssignee = this.getDefaultAssignee();
 
-        const defaultIssueType = this.defaultIssueType && this.availableIssueTypesOptions ?
-            this.availableIssueTypesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase()) :
-            this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
-                this.availableIssueTypesOptions[0].value :
-                null;
+        const defaultIssueType = this.getDefaultIssueType();
 
         this.issueForm = new UntypedFormGroup({
             project: new UntypedFormControl(
@@ -411,6 +401,29 @@ export class CreateIssueDialogComponent implements OnInit {
         this.fieldsService.getAllowedFields(this.fields).forEach(dynamicField => {
             this.addRemoveControlFromForm(dynamicField.key);
         });
+    }
+
+    private getDefaultIssueType() {
+        if (this.defaultIssueType && this.availableIssueTypesOptions) {
+            return this.availableIssueTypesOptions.find((x: { label: string }) =>
+                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase());
+        }
+
+        if (this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0) {
+            return this.availableIssueTypesOptions[0].value;
+        }
+        return null;
+    }
+
+    private getDefaultAssignee() {
+        if (this.defaultAssignee && this.assigneesOptions) {
+            return this.assigneesOptions.find((x: { label: string }) =>
+                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase());
+        }
+        if (this.assigneesOptions && this.assigneesOptions.length > 0) {
+            return this.assigneesOptions[0].value;
+        }
+        return null;
     }
 
     private addRemoveControlFromForm(controlName: string): void {
