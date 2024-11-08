@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 
 namespace MicrosoftTeamsIntegration.Artifacts.Models.GraphApi
@@ -7,7 +8,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Models.GraphApi
     {
         [JsonProperty("source")]
         [JsonPropertyName("source")]
-        public string? Source { get; set; }
+        public TeamworkActivityTopicSource? Source { get; set; }
 
         [JsonProperty("value")]
         [JsonPropertyName("value")]
