@@ -64,6 +64,11 @@ export class LabelsFieldComponent implements FieldComponent, OnInit {
 
         this.jiraUrl = this.data.jiraUrl;
 
+        if (this.data.defaultValue) {
+            this.selectedOptionIds = this.data.defaultValue;
+            await this.onOpen();
+        }
+
         this.loadingOff();
     }
 

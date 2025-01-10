@@ -91,6 +91,8 @@ export interface IssueFields extends IssueCustomFields {
     };
     votes: Votes;
     worklog?: any;
+    fields?: any;
+    editIssueMetadata: any;
 }
 
 export interface JiraComment {

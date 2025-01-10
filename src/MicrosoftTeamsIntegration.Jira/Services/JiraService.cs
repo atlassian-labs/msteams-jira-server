@@ -16,6 +16,7 @@ using MicrosoftTeamsIntegration.Jira.Models.Jira.Meta;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MicrosoftTeamsIntegration.Jira.Services
 {
@@ -91,10 +92,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         {
             dynamic updateSet = new ExpandoObject();
 
-            bool makeUpdateRequest = false;
             if (updateJiraIssueRequest.Summary != null)
             {
-                makeUpdateRequest = true;
                 updateSet.summary = new[]
                 {
                     new
@@ -106,7 +105,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             if (updateJiraIssueRequest.Description != null)
             {
-                makeUpdateRequest = true;
                 updateSet.description = new[]
                 {
                     new
@@ -118,7 +116,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             if (updateJiraIssueRequest.Priority?.Id != null)
             {
-                makeUpdateRequest = true;
                 updateSet.priority = new[]
                 {
                     new
@@ -131,15 +128,24 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 };
             }
 
-            if (makeUpdateRequest)
+            try
             {
-                var request = new EditIssueRequest { Update = updateSet };
-                var updateIssueResponse = await ProcessRequestWithJiraApiActionCallResponse<string>(user, $"api/2/issue/{issueIdOrKey}", "PUT", request);
+                var editIssueRequest = new EditIssueRequest { Fields = updateJiraIssueRequest.Fields };
+                var updateIssueResponse =
+                    await ProcessRequestWithJiraApiActionCallResponse<string>(
+                        user,
+                        $"api/2/issue/{issueIdOrKey}",
+                        "PUT",
+                        editIssueRequest);
 
                 if (!updateIssueResponse.IsSuccess)
                 {
                     return updateIssueResponse;
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
             }
 
             if (updateJiraIssueRequest.Assignee != null)

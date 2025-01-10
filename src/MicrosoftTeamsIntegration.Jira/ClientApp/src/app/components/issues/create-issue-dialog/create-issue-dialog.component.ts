@@ -156,34 +156,8 @@ export class CreateIssueDialogComponent implements OnInit {
 
         const formValue = this.issueForm?.value;
 
-        const createIssueFields = {
-        } as Partial<any>;
-
-        this.fieldsService.getAllowedFields(this.fields).forEach(field => {
-            if (formValue[field.key]) {
-                if (field.allowedValues && field.schema.type !== 'option-with-child') {
-                    if (Array.isArray(formValue[field.key])) {
-                        createIssueFields[field.key] = formValue[field.key].map((x: any) => ({ id: x }));
-                    } else {
-                        createIssueFields[field.key] = {
-                            id: formValue[field.key]
-                        };
-                    }
-
-                } else {
-                    if (field.schema.type === 'user') {
-                        createIssueFields[field.key] = {
-                            name: formValue[field.key]
-                        };
-                    } else {
-                        createIssueFields[field.key] = formValue[field.key];
-                    }
-                }
-            }
-        });
-
         const createIssueModel = {
-            fields: createIssueFields,
+            fields: this.fieldsService.getAllowedTransformedFields(this.fields, formValue),
             metadataRef: this.metadataRef
         } as any;
 

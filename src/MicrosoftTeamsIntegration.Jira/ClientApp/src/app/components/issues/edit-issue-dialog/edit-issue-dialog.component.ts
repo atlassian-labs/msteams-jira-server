@@ -4,7 +4,7 @@ import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } fro
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
 import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
-import {Issue, IssueFields, Priority, ProjectType} from '@core/models';
+import {Issue, IssueFields, IssueType, Priority, ProjectType} from '@core/models';
 import { IssueStatus, JiraComment } from '@core/models';
 import { JiraPermissionName, JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import { MatDialog, MatDialogConfig} from '@angular/material/dialog';
@@ -23,6 +23,8 @@ import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-opt
 import { StringValidators } from '@core/validators/string.validators';
 import { UtilService } from '@core/services/util.service';
 import { NotificationService } from '@shared/services/notificationService';
+import { FieldsService } from '@shared/services/fields.service';
+import { FieldItem } from '@app/components/issues/fields/field-item';
 
 interface EditIssueModel {
     key: string;
@@ -75,6 +77,7 @@ export class EditIssueDialogComponent implements OnInit {
 
     public error: HttpErrorResponse | Error | any;
     public issue: EditIssueModel | any;
+    public issueRaw: Issue | any;
     public currentUser: CurrentJiraUser | any;
     public permissions: JiraPermissions | any;
 
@@ -123,6 +126,18 @@ export class EditIssueDialogComponent implements OnInit {
     private priorityFieldName = 'priorityId';
     private assigneeFieldName = 'assigneeAccountId';
     private statusFieldName = 'status';
+    private selectedIssueType: IssueType | undefined;
+    public fields: any;
+    public defaultPriority: string | any;
+    public dynamicFieldsData: FieldItem[] | any;
+
+    private readonly DEFAULT_UNAVAILABLE_OPTION: DropDownOption<string> = {
+        id: null,
+        value: null,
+        label: 'Unavailable'
+    };
+
+    protected readonly Object = Object;
 
     constructor(
         public dialog: MatDialog,
@@ -136,7 +151,8 @@ export class EditIssueDialogComponent implements OnInit {
         private assigneeService: AssigneeService,
         private transitionService: IssueTransitionService,
         private router: Router,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private fieldsService: FieldsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -182,6 +198,7 @@ export class EditIssueDialogComponent implements OnInit {
                 currentUserPromise
             ]);
 
+            this.issueRaw = issue;
             this.issue = mapIssueToEditIssueDialogModel(issue);
             this.editIssueMetadata = editIssueMetadata;
             this.currentUser = currentUser;
@@ -296,31 +313,36 @@ export class EditIssueDialogComponent implements OnInit {
         const formValue = this.issueForm?.value;
         const editIssueModel = {
             priority: { } as Partial<IssueStatus>,
-            status: { } as Partial<Priority>
+            status: { } as Partial<Priority>,
+            fields: { } as Partial<any>,
+            editIssueMetadata: { } as Partial<any>
         } as Partial<IssueFields>;
 
         if (this.updatedFormFields.indexOf(this.summaryFieldName) !== -1) {
-            editIssueModel.summary = formValue.summary;
+            editIssueModel['summary'] = formValue.summary;
         }
 
         if (this.updatedFormFields.indexOf(this.descriptionFieldName) !== -1) {
-            editIssueModel.description = formValue.description;
+            editIssueModel['description'] = formValue.description;
         }
 
         if (this.updatedFormFields.indexOf(this.statusFieldName) !== -1) {
-            (editIssueModel.status as IssueStatus).id = formValue.status.id;
+            (editIssueModel['status'] as IssueStatus).id = formValue.status.id;
         }
 
         if (this.updatedFormFields.indexOf(this.priorityFieldName) !== -1) {
-            (editIssueModel.priority as Priority).id = formValue.priorityId;
+            (editIssueModel['priority'] as Priority).id = formValue.priorityId;
         }
 
         // if user has permissions to assign the issue - pass even null as a value for accountId (it means Unassigned)
         if (this.updatedFormFields.indexOf(this.assigneeFieldName) !== -1) {
-            editIssueModel.assignee = {
+            editIssueModel['assignee'] = {
                 name: formValue.assigneeAccountId
             } as JiraUser;
         }
+
+        editIssueModel.fields = this.fieldsService.getAllowedTransformedFields(this.fields, formValue);
+        editIssueModel.editIssueMetadata = this.editIssueMetadata.fields;
 
         try {
             this.uploading = true;
@@ -370,10 +392,15 @@ export class EditIssueDialogComponent implements OnInit {
         const initialForm = this.initialIssueForm;
 
         for (const key of Object.keys(currentForm?.value)) {
-            const currentValue = currentForm?.value[key];
-            const initialValue = initialForm.value[key];
+            const currentValue = currentForm?.value[key] === undefined ? null : currentForm?.value[key];
+            const initialValue = initialForm.value[key] === undefined ? null : initialForm.value[key];
+            const rawValue = this.fieldsService.getDefaultValue(this.issueRaw.fields[key]);
 
-            if (currentValue !== initialValue) {
+            // Normalize values for comparison
+            const normalizedCurrentValue = this.normalizeValue(currentValue);
+            const normalizedRawValue = this.normalizeValue(rawValue);
+
+            if (currentValue !== initialValue && normalizedCurrentValue !== normalizedRawValue) {
                 if (this.updatedFormFields.indexOf(key) === -1) {
                     this.updatedFormFields.push(key);
                 }
@@ -381,6 +408,17 @@ export class EditIssueDialogComponent implements OnInit {
                 this.updatedFormFields = this.updatedFormFields.filter(x => x !== key);
             }
         }
+    }
+
+    private normalizeValue(value: any): string | null {
+        if (Array.isArray(value) && value.length === 0) {
+            return null;
+        }
+        if (value === undefined || value === null || value === '') {
+            return null;
+        }
+
+        return JSON.stringify(value);
     }
 
     public sanitazeUrl(url: any) {
@@ -436,7 +474,112 @@ export class EditIssueDialogComponent implements OnInit {
             );
         }
 
+        const issueTypes = await this.apiService.getCreateMetaIssueTypes(this.jiraUrl as string, this.issue?.projectKey);
+
+        await this.addControlsByIssueType(this.issueRaw.fields['issuetype'].id, issueTypes);
+
         this.initialIssueForm = { ...this.issueForm };
+
+        this.issueForm.valueChanges.subscribe(() => {
+            this.setUpdatedFormFields();
+        });
+    }
+
+    public async addControlsByIssueType(issueTypeId: string, issueTypes: IssueType[] | any): Promise<void> {
+        if (issueTypeId) {
+            this.selectedIssueType = issueTypes?.find((issueType: { id: string }) => issueType.id === issueTypeId);
+
+            this.fields = await this.apiService.getCreateMetaFields(
+                this.jiraUrl as string,
+                this.issue.projectKey as string,
+                this.selectedIssueType?.id as string,
+                this.selectedIssueType?.name as string);
+        }
+        // re-init fields
+        const allowedFields = this.fieldsService.getAllowedFields(this.fields);
+
+        if (this.issueForm) {
+            // remove all controls for previously selected issue type if they are not configured for selected issue type
+            Object.keys(this.issueForm.controls).forEach(fieldName => {
+                if (!allowedFields.find(f => f.key === fieldName)) {
+                    this.addRemoveControlFromForm(fieldName);
+                }
+            });
+        }
+        this.addRemovePriorityFromForm();
+
+        // add form controls for all allowed fields for selected issue type
+        allowedFields.forEach(customField => {
+            this.addRemoveControlFromForm(customField.key);
+        });
+
+        this.dynamicFieldsData = this.fieldsService.getCustomFieldTemplates(this.fields, this.jiraUrl as string, this.issueRaw);
+    }
+
+    private addRemovePriorityFromForm(): void {
+        if (!this.issueForm || !this.fields) {
+            return;
+        }
+
+        const priorities = this.fields.priority;
+
+        const priorityControlName = 'priority';
+
+        if (priorities) {
+            this.prioritiesOptions = priorities.allowedValues.map(this.dropdownUtilService.mapPriorityToDropdownOption);
+            let defaultPriorityVal = null;
+            const defaultPriority = this.defaultPriority ?
+                priorities.allowedValues.find((p: { name: string }) => p.name.toLowerCase() === this.defaultPriority?.toLowerCase()) : null;
+            if (defaultPriority) {
+                defaultPriorityVal = this.dropdownUtilService.mapPriorityToDropdownOption(defaultPriority).value;
+            } else if (priorities.hasDefaultValue && priorities.defaultValue) {
+                defaultPriorityVal = this.dropdownUtilService.mapPriorityToDropdownOption(priorities.defaultValue).value;
+            } else if (this.prioritiesOptions?.length && this.prioritiesOptions.length > 0) {
+                defaultPriorityVal = this.prioritiesOptions[0].value;
+            }
+
+            this.issueForm.addControl(
+                priorityControlName,
+                new UntypedFormControl(
+                    defaultPriorityVal
+                )
+            );
+        } else if (this.issueForm.contains(priorityControlName)) {
+            this.issueForm.removeControl(priorityControlName);
+            this.prioritiesOptions = [];
+        }
+    }
+
+    private addRemoveControlFromForm(controlName: string): void {
+        if (!this.issueForm || !this.fields || this.issueForm.contains(controlName)) {
+            return;
+        }
+
+        if (this.fields[controlName]) {
+            let control = new UntypedFormControl();
+
+            if (this.isFieldRequired(controlName) && !this.isFieldReadonly(controlName) && controlName !== 'project') {
+                control = new UntypedFormControl(null, [Validators.required]);
+            }
+
+            this.issueForm.addControl(
+                controlName,
+                control
+            );
+        } else if (this.issueForm.contains(controlName)) {
+            this.issueForm.removeControl(controlName);
+        }
+    }
+
+    public isFieldRequired(fieldName: string): boolean {
+        return this.fields && this.fields[fieldName] && this.fields[fieldName].required;
+    }
+
+    public isFieldReadonly(fieldName: string): boolean {
+        return this.fields
+            && this.fields[fieldName]
+            && Array.isArray(this.fields[fieldName].operations) &&
+            this.fields[fieldName].operations.length === 0;
     }
 
     private async getAssigneesOptions(userDisplayNameOrEmail: string = ''): Promise<DropDownOption<string>[]> {

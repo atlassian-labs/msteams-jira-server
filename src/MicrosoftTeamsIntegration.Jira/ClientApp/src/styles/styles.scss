@@ -101,3 +101,75 @@ body.contrast .ph-item {
     height: 32px;
   }
 }
+
+mat-expansion-panel {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  --mat-expansion-header-collapsed-state-height: 20px;
+  --mat-expansion-header-expanded-state-height: 20px;
+}
+
+.mat-expansion-panel-body {
+  padding: 0 !important;
+  overflow-y: auto;
+}
+
+.dark mat-expansion-panel {
+  background-color: $app-gray-10-dark;
+  color: #FFFFFF;
+}
+
+.contrast mat-expansion-panel {
+  background-color: $black;
+  color: #FFFFFF; 
+}
+
+.dark mat-panel-title {
+  color: #FFFFFF;
+}
+
+.contrast mat-panel-title {
+  color: #FFFFFF;
+}
+
+.mat-expansion-panel.contrast {
+  background-color: $black;
+}
+
+mat-expansion-panel-header {
+  padding: 0 !important;
+  min-height: 10px !important;
+  display: flex;
+  align-items: center;
+  flex-direction: row !important;
+}
+
+.expander-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.expander-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.mat-expansion-panel-header .material-icons {
+  font-size: 14px;
+  vertical-align: middle;
+  display: inline-block;
+  align-content: center;
+}
+
+.mat-expansion-panel-header-title {
+  flex: 1;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}

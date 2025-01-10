@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using MicrosoftTeamsIntegration.Jira.Models.Attributes;
 using Newtonsoft.Json;
 
 namespace MicrosoftTeamsIntegration.Jira.Models.Jira.Issue
@@ -62,5 +64,11 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Jira.Issue
 
         [JsonProperty("subtasks")]
         public List<JiraIssue> Subtasks { get; set; }
+
+        [JsonProperty("fields")]
+        public ExpandoObject Fields { get; set; }
+
+        [JsonProperty("editIssueMetadata")]
+        public ExpandoObject EditIssueMetadata { get; set; }
     }
 }
