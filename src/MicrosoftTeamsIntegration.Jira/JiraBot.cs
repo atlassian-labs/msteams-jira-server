@@ -43,6 +43,7 @@ namespace MicrosoftTeamsIntegration.Jira
         private readonly IUserTokenService _userTokenService;
         private readonly ICommandDialogReferenceService _commandDialogReferenceService;
         private readonly IBotFrameworkAdapterService _botFrameworkAdapterService;
+        private readonly IAnalyticsService _analyticsService;
         private EventTelemetry _eventTelemetry;
 
         public JiraBot(
@@ -58,7 +59,8 @@ namespace MicrosoftTeamsIntegration.Jira
             TelemetryClient telemetry,
             IUserTokenService userTokenService,
             ICommandDialogReferenceService commandDialogReferenceService,
-            IBotFrameworkAdapterService botFrameworkAdapterService)
+            IBotFrameworkAdapterService botFrameworkAdapterService,
+            IAnalyticsService analyticsService)
         {
             _accessors = accessors;
             _messagingExtensionService = messagingExtensionService;
@@ -74,6 +76,7 @@ namespace MicrosoftTeamsIntegration.Jira
             _commandDialogReferenceService = commandDialogReferenceService;
             _dialogs = new DialogSet(accessors.ConversationDialogState);
             _botFrameworkAdapterService = botFrameworkAdapterService;
+            _analyticsService = analyticsService;
 
             _dialogs.Add(
                 new MainDispatcher(
@@ -87,7 +90,8 @@ namespace MicrosoftTeamsIntegration.Jira
                     _telemetry,
                     _userTokenService,
                     _commandDialogReferenceService,
-                    _botFrameworkAdapterService));
+                    _botFrameworkAdapterService,
+                    _analyticsService));
         }
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
@@ -201,7 +205,8 @@ namespace MicrosoftTeamsIntegration.Jira
                         _telemetry,
                         _userTokenService,
                         _commandDialogReferenceService,
-                        _botFrameworkAdapterService).RunAsync(
+                        _botFrameworkAdapterService,
+                        _analyticsService).RunAsync(
                         turnContext,
                         _accessors.ConversationDialogState,
                         cancellationToken);

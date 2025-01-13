@@ -12,6 +12,7 @@
   
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
     <PackageReference Include="FakeItEasy" Version="8.3.0" />
     <PackageReference Include="Hyperion" Version="0.12.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />

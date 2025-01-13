@@ -27,6 +27,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly TelemetryClient _telemetry;
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
+        private readonly IAnalyticsService _analyticsService;
         private const string DontHaveAccessMessage = "You don't have permissions to create issues. " +
                                                   "For more information contact your project administrator.";
 
@@ -39,12 +40,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _fakeJiraService = A.Fake<IJiraService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
         public async Task CreateNewIssueDialog_WhenUserDontHaveAccess()
         {
-            var sut = new CreateNewIssueDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = new CreateNewIssueDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry, _analyticsService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.GetMyPermissions(A<IntegratedUser>._, A<string>._, A<string>._, A<string>._))
@@ -68,7 +70,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task CreateNewIssueDialog_Check()
         {
-            var sut = new CreateNewIssueDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = new CreateNewIssueDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry, _analyticsService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.GetMyPermissions(A<IntegratedUser>._, A<string>._, A<string>._, A<string>._))

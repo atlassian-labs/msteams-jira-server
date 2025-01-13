@@ -20,6 +20,7 @@ import {Project} from '@core/models/Jira/project.model';
 import {StringValidators} from '@core/validators/string.validators';
 import {UtilService} from '@core/services/util.service';
 import {NotificationService} from '@shared/services/notificationService';
+import {AnalyticsService, EventAction, UiEventSubject} from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-create-issue-dialog',
@@ -100,11 +101,13 @@ export class CreateIssueDialogComponent implements OnInit {
         private errorService: ErrorService,
         private permissionService: PermissionService,
         private fieldsService: FieldsService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
         this.appInsightsService.logNavigation('CreateIssueComponent', this.route);
+        this.analyticsService.sendScreenEvent('createIssue', EventAction.viewed, UiEventSubject.taskModule, 'createIssueView');
         const { jiraUrl, description, metadataRef, returnIssueOnSubmit, replyToActivityId, summary, issueType, priority, assignee }
             = this.route.snapshot.params;
         this.jiraUrl = jiraUrl;
@@ -153,6 +156,7 @@ export class CreateIssueDialogComponent implements OnInit {
         if (this.issueForm?.invalid) {
             return;
         }
+        this.analyticsService.sendUiEvent('createIssue', EventAction.clicked, UiEventSubject.button, '');
 
         const formValue = this.issueForm?.value;
 

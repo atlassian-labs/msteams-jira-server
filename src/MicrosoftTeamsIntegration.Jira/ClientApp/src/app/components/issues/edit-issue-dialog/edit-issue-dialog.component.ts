@@ -3,8 +3,8 @@
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
-import {CurrentJiraUser, JiraUser, UserGroup} from '@core/models/Jira/jira-user.model';
-import {Issue, IssueFields, IssueType, Priority, ProjectType} from '@core/models';
+import { CurrentJiraUser, JiraUser, UserGroup } from '@core/models/Jira/jira-user.model';
+import { Issue, IssueFields, IssueType, Priority, ProjectType } from '@core/models';
 import { IssueStatus, JiraComment } from '@core/models';
 import { JiraPermissionName, JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import { MatDialog, MatDialogConfig} from '@angular/material/dialog';
@@ -25,6 +25,7 @@ import { UtilService } from '@core/services/util.service';
 import { NotificationService } from '@shared/services/notificationService';
 import { FieldsService } from '@shared/services/fields.service';
 import { FieldItem } from '@app/components/issues/fields/field-item';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 interface EditIssueModel {
     key: string;
@@ -152,12 +153,14 @@ export class EditIssueDialogComponent implements OnInit {
         private transitionService: IssueTransitionService,
         private router: Router,
         private notificationService: NotificationService,
-        private fieldsService: FieldsService
+        private fieldsService: FieldsService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
 
         this.appInsightsService.logNavigation('EditIssueComponent', this.route);
+        this.analyticsService.sendScreenEvent('editIssue', EventAction.viewed, UiEventSubject.taskModule, 'editIssueView');
 
         this.loading = true;
 

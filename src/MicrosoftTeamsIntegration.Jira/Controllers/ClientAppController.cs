@@ -26,7 +26,8 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
                 _appSettings.MicrosoftAppId,
                 _appSettings.BaseUrl,
                 _appSettings.MicrosoftLoginBaseUrl,
-                _telemetryConfiguration.InstrumentationKey);
+                _telemetryConfiguration.InstrumentationKey,
+                _appSettings.AnalyticsEnvironment);
             return Ok(settings);
         }
     }

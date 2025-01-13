@@ -25,11 +25,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
         private readonly IBotMessagesService _botMessagesService;
         private readonly IJiraAuthService _jiraAuthService;
         private readonly ILogger<JiraBot> _logger;
-        private readonly List<JiraActionRegexReference> _actionCommands = new List<JiraActionRegexReference>();
-        private readonly TelemetryClient _telemetry;
         private readonly IUserTokenService _userTokenService;
         private readonly ICommandDialogReferenceService _commandDialogReferenceService;
-        private readonly IBotFrameworkAdapterService _botFrameworkAdapter;
 
         public MainDispatcher(
             JiraBotAccessors accessors,
@@ -42,7 +39,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             TelemetryClient telemetry,
             IUserTokenService userTokenService,
             ICommandDialogReferenceService commandDialogReferenceService,
-            IBotFrameworkAdapterService botFrameworkAdapter)
+            IBotFrameworkAdapterService botFrameworkAdapter,
+            IAnalyticsService analyticsService)
             : base(nameof(MainDispatcher))
         {
             _accessors = accessors;
@@ -50,27 +48,25 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             _botMessagesService = botMessagesService;
             _jiraAuthService = jiraAuthService;
             _logger = logger;
-            _telemetry = telemetry;
             _userTokenService = userTokenService;
             _commandDialogReferenceService = commandDialogReferenceService;
-            _botFrameworkAdapter = botFrameworkAdapter;
 
             // Add dialogs
-            AddDialog(new HelpDialog(_accessors, _appSettings, _telemetry));
-            AddDialog(new IssueByKeyDialog(_accessors, botMessagesService, _appSettings, _telemetry));
-            AddDialog(new WatchDialog(_accessors, jiraService, botMessagesService, _appSettings, _telemetry));
-            AddDialog(new UnwatchDialog(_accessors, jiraService, botMessagesService, _appSettings, _telemetry));
-            AddDialog(new IssueEditDialog(_accessors, jiraService, _appSettings, _telemetry));
-            AddDialog(new FindDialog(_accessors, jiraService, _appSettings, _telemetry));
-            AddDialog(new VoteDialog(_accessors, jiraService, _appSettings, _telemetry));
-            AddDialog(new UnvoteDialog(_accessors, jiraService, _appSettings, _telemetry));
-            AddDialog(new CreateNewIssueDialog(_accessors, jiraService, _appSettings, _telemetry));
-            AddDialog(new LogTimeDialog(_accessors, jiraService, _appSettings, _telemetry));
-            AddDialog(new CommentDialog(_accessors, jiraService, _appSettings, _telemetry));
-            AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, databaseService, botMessagesService, _telemetry));
-            AddDialog(new ConnectToJiraDialog(_accessors, _appSettings, botMessagesService, _telemetry, botFrameworkAdapter));
-            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, _telemetry));
-            AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, _telemetry, botFrameworkAdapter));
+            AddDialog(new HelpDialog(_accessors, _appSettings, telemetry));
+            AddDialog(new IssueByKeyDialog(_accessors, botMessagesService, _appSettings, telemetry));
+            AddDialog(new WatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry));
+            AddDialog(new UnwatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry));
+            AddDialog(new IssueEditDialog(_accessors, jiraService, _appSettings, telemetry));
+            AddDialog(new FindDialog(_accessors, jiraService, _appSettings, telemetry));
+            AddDialog(new VoteDialog(_accessors, jiraService, _appSettings, telemetry));
+            AddDialog(new UnvoteDialog(_accessors, jiraService, _appSettings, telemetry));
+            AddDialog(new CreateNewIssueDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
+            AddDialog(new LogTimeDialog(_accessors, jiraService, _appSettings, telemetry));
+            AddDialog(new CommentDialog(_accessors, jiraService, _appSettings, telemetry));
+            AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, databaseService, botMessagesService, telemetry));
+            AddDialog(new ConnectToJiraDialog(_accessors, _appSettings, botMessagesService, telemetry, botFrameworkAdapter));
+            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry));
+            AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, telemetry, botFrameworkAdapter));
         }
 
         protected override async Task<DialogTurnResult> OnBeginDialogAsync(DialogContext innerDc, object options, CancellationToken cancellationToken = default)
@@ -137,7 +133,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
                 await _accessors.JiraIssueState.SetAsync(innerDc.Context, new JiraIssueState(), cancellationToken);
 
                 // Nothing to do here. End main dialog.
-                var user = await _accessors.User.GetAsync(context, () => new IntegratedUser());
+                await _accessors.User.GetAsync(context, () => new IntegratedUser(), cancellationToken);
                 return await innerDc.EndDialogAsync(cancellationToken: cancellationToken);
             }
 

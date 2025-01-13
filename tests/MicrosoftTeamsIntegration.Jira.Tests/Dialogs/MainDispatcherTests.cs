@@ -40,6 +40,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly TelemetryClient _telemetry;
         private readonly IUserTokenService _fakeUserTokenService;
         private readonly IBotFrameworkAdapterService _fakeBotFrameworkAdapterService;
+        private readonly IAnalyticsService _analyticsService;
 
         public MainDispatcherTests(ITestOutputHelper output)
         {
@@ -57,6 +58,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _fakeUserTokenService = A.Fake<IUserTokenService>();
             _fakeLogger = A.Fake<ILogger<JiraBot>>();
             _fakeBotFrameworkAdapterService = A.Fake<IBotFrameworkAdapterService>();
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
@@ -294,7 +296,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 _telemetry,
                 _fakeUserTokenService,
                 new CommandDialogReferenceService(),
-                _fakeBotFrameworkAdapterService);
+                _fakeBotFrameworkAdapterService,
+                _analyticsService);
 
             return dispatcher;
         }
