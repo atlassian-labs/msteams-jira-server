@@ -145,7 +145,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("{Message}", ex.Message);
             }
 
             if (updateJiraIssueRequest.Assignee != null)

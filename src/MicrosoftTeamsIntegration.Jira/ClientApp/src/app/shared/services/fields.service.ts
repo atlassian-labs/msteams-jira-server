@@ -235,6 +235,7 @@ export class FieldsService {
                 dynamicField.schema.system === 'duedate') {
                 dynamicFieldsData.push(new FieldItem(DatePickerFieldComponent, {
                     name: dynamicField.name,
+                    defaultValues: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Choose a date',
                     formControlName: dynamicField.key,
                     disabled: null,

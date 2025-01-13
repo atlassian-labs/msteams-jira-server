@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FieldComponent } from './field.component';
 import { UntypedFormGroup } from '@angular/forms';
 
@@ -19,7 +19,9 @@ import { UntypedFormGroup } from '@angular/forms';
 			  <input [matDatepicker]="datePicker"
                      placeholder="{{data.placeholder}}"
                      formControlName="{{data.formControlName}}"
-                     class="input-date-picker" [disabled]="false">
+                     class="input-date-picker"
+                     [disabled]="false"
+                     [(ngModel)]="selectedDate">
 			  <mat-datepicker-toggle [for]="datePicker"></mat-datepicker-toggle>
 			  <mat-datepicker #datePicker disabled="false"></mat-datepicker>
 			</div>
@@ -28,7 +30,14 @@ import { UntypedFormGroup } from '@angular/forms';
     `
 })
 
-export class DatePickerFieldComponent implements FieldComponent {
+export class DatePickerFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
     @Input() formGroup: UntypedFormGroup | any;
+    public selectedDate: any;
+
+    ngOnInit(): void {
+        if (this.data.defaultValues) {
+            this.selectedDate = this.data.defaultValues;
+        }
+    }
 }

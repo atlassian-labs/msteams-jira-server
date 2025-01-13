@@ -237,3 +237,7 @@ hr {
 .mat-expansion-panel {
   margin-top: 1.2rem;
 }
+
+::ng-deep .input-date-picker {
+  width: 100% !important;
+}
