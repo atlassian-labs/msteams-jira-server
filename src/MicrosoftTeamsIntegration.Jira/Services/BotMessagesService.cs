@@ -20,21 +20,24 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 {
     public class BotMessagesService : IBotMessagesService
     {
-        public const string TagAPattern = "<a([^>]+)>";
-        public const string AttributeHrefPattern = "(?i)\\s*https?\\s*(\"([^\"]*\")|'[^']*'|([^'\" >\\s]+))";
+        private const string TagAPattern = "<a([^>]+)>";
+        private const string AttributeHrefPattern = "(?i)\\s*https?\\s*(\"([^\"]*\")|'[^']*'|([^'\" >\\s]+))";
 
         private readonly AppSettings _appSettings;
         private readonly IMapper _mapper;
         private readonly IJiraService _jiraService;
+        private readonly IAnalyticsService _analyticsService;
 
         public BotMessagesService(
             IOptions<AppSettings> appSettings,
             IMapper mapper,
-            IJiraService jiraService)
+            IJiraService jiraService,
+            IAnalyticsService analyticsService)
         {
             _appSettings = appSettings.Value;
             _mapper = mapper;
             _jiraService = jiraService;
+            _analyticsService = analyticsService;
         }
 
         public string HandleHtmlMessageFromUser(Activity activity)
@@ -66,6 +69,34 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 if (botWasAdded)
                 {
                     await SendWelcomeCard(turnContext, connectorClient, welcomeActivity, activity.IsGroupConversation(), cancellationToken);
+                    _analyticsService.SendTrackEvent(
+                        turnContext.Activity?.From?.AadObjectId,
+                        "bot",
+                        "installed",
+                        "botApplication",
+                        string.Empty,
+                        new InstallationUpdatesTrackEventAttributes()
+                        {
+                            ConversationType = activity.Conversation.ConversationType
+                        });
+                }
+
+                if (activity.MembersRemoved?.Count > 0)
+                {
+                    var botWasRemoved = activity.MembersRemoved.Any(x => x.Id == activity.Recipient.Id);
+                    if (botWasRemoved)
+                    {
+                        _analyticsService.SendTrackEvent(
+                            turnContext.Activity?.From?.AadObjectId,
+                            "bot",
+                            "uninstalled",
+                            "botApplication",
+                            string.Empty,
+                            new InstallationUpdatesTrackEventAttributes()
+                            {
+                                ConversationType = activity.Conversation.ConversationType
+                            });
+                    }
                 }
             }
         }

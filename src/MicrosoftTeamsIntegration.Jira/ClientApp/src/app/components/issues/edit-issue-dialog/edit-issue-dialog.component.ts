@@ -133,6 +133,8 @@ export class EditIssueDialogComponent implements OnInit {
     public defaultPriority: string | any;
     public dynamicFieldsData: FieldItem[] | any;
 
+    public application: string | any;
+
     private readonly DEFAULT_UNAVAILABLE_OPTION: DropDownOption<string> = {
         id: null,
         value: null,
@@ -161,16 +163,22 @@ export class EditIssueDialogComponent implements OnInit {
     public async ngOnInit(): Promise<void> {
 
         this.appInsightsService.logNavigation('EditIssueComponent', this.route);
-        this.analyticsService.sendScreenEvent('editIssue', EventAction.viewed, UiEventSubject.taskModule, 'editIssueView');
 
         this.loading = true;
 
         try {
-            const { jiraUrl, issueId, issueKey, replyToActivityId } = this.route.snapshot.params;
+            const { jiraUrl, issueId, issueKey, replyToActivityId, application } = this.route.snapshot.params;
             this.jiraUrl = jiraUrl;
             this.issueId = issueId;
             this.issueKey = issueKey;
             this.replyToActivityId = replyToActivityId;
+            this.application = application;
+
+            this.analyticsService.sendScreenEvent(
+                'editIssueModal',
+                EventAction.viewed,
+                UiEventSubject.taskModule,
+                'editIssueModal', { application });
 
             const issueRelatedPermissions: JiraPermissionName[] = [
                 'EDIT_ISSUES', 'ASSIGN_ISSUES', 'ASSIGNABLE_USER', 'TRANSITION_ISSUES', 'ADD_COMMENTS',
@@ -313,6 +321,12 @@ export class EditIssueDialogComponent implements OnInit {
         if (this.issueForm?.invalid) {
             return;
         }
+
+        this.analyticsService.sendUiEvent('editIssueModal',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'editIssueInJira',
+            {source: 'editIssueModal', application: this.application});
 
         const formValue = this.issueForm?.value;
         const editIssueModel = {

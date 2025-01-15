@@ -10,6 +10,7 @@ import {
 import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
 import { ApplicationType, AddonStatus } from '@core/enums';
 import * as microsoftTeams from '@microsoft/teams-js';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-connect-jira',
@@ -27,7 +28,8 @@ export class ConnectJiraComponent implements OnInit {
         private authService: AuthService,
         private errorService: ErrorService,
         private appInsightsService: AppInsightsService,
-        private loadingIndicatorService: LoadingIndicatorService
+        private loadingIndicatorService: LoadingIndicatorService,
+        private analyticsService: AnalyticsService,
     ) { }
 
     public get jiraId(): AbstractControl | any {
@@ -62,9 +64,14 @@ export class ConnectJiraComponent implements OnInit {
     public async ngOnInit(): Promise<void> {
         this.loadingIndicatorService.show();
 
-        this.appInsightsService.logNavigation('ConnectJiraComponent', this.route);
-
         this.parseParams();
+
+        this.appInsightsService.logNavigation('ConnectJiraComponent', this.route);
+        this.analyticsService.sendScreenEvent(
+            'connectToJira',
+            EventAction.viewed,
+            UiEventSubject.taskModule,
+            'connectToJira', { application: this.application });
 
         this.buildConnectForm();
 
@@ -77,6 +84,13 @@ export class ConnectJiraComponent implements OnInit {
         this.showAddonStatusError = false;
         this.loadingIndicatorService.show();
         let showAddonExceptionOnError = true;
+
+        this.analyticsService.sendUiEvent(
+            'connectToJira',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'connectJira',
+            {source: 'connectToJira'});
 
         try {
             const jiraId: string = this.jiraId.value;
@@ -128,6 +142,13 @@ export class ConnectJiraComponent implements OnInit {
         this.showAddonStatusError = false;
         this.loadingIndicatorService.show();
 
+        this.analyticsService.sendUiEvent(
+            'connectToJira',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'submitJiraConnection',
+            {source: 'connectToJira'});
+
         try {
             const oauthToken: string = (new RegExp('[\?&]oauth_token=([^&#]*)').exec(this.jiraAuthUrl) as any)[1];
             const { isSuccess, message } =
@@ -137,8 +158,20 @@ export class ConnectJiraComponent implements OnInit {
                 const savingResult = await this.apiService.saveJiraServerId(this.jiraServerId as string);
                 if (savingResult.isSuccess) {
                     this.jiraAuthUrl = savingResult.message;
-                    this.moveForward();
+                    this.analyticsService.sendTrackEvent(
+                        'connectToJira',
+                        'successful',
+                        'signin',
+                        '',
+                        {source: 'connectToJira'});
+                    await this.moveForward();
                 } else {
+                    this.analyticsService.sendTrackEvent(
+                        'connectToJira',
+                        'failed',
+                        'signin',
+                        '',
+                        {source: 'connectToJira', errorMessage: this.errorMessage});
                     this.errorMessage = savingResult.message;
                 }
             } else {

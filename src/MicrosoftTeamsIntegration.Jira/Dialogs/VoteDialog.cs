@@ -14,17 +14,20 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IJiraService _jiraService;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public VoteDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(VoteDialog), accessors, jiraService, appSettings)
         {
             _jiraService = jiraService;
             _appSettings = appSettings;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext dc, IntegratedUser user, JiraIssue jiraIssue)
@@ -42,15 +45,18 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                     if (response.IsSuccess)
                     {
                         await dc.Context.SendActivityAsync($"Your vote has been added to {issueKey}.");
+                        _analyticsService.SendBotDialogEvent(dc.Context, "vote", "completed");
                     }
                     else
                     {
                         await dc.Context.SendActivityAsync(response.ErrorMessage);
+                        _analyticsService.SendBotDialogEvent(dc.Context, "vote", "failed", response.ErrorMessage);
                     }
                 }
                 else
                 {
                     await dc.Context.SendActivityAsync($"You have already voted for {issueKey}.");
+                    _analyticsService.SendBotDialogEvent(dc.Context, "vote", "completed");
                 }
             }
             else
@@ -64,6 +70,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 {
                     await dc.Context.SendActivityAsync("You cannot vote for an issue you have reported.");
                 }
+
+                _analyticsService.SendBotDialogEvent(dc.Context, "vote", "completed");
             }
 
             return await dc.EndDialogAsync();

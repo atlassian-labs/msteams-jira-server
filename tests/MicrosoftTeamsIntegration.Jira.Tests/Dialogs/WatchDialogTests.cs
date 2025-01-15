@@ -23,17 +23,18 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 {
     public class WatchDialogTests
     {
+        private const string IssueKey = "TS-3";
         private readonly IMiddleware[] _middleware;
         private readonly JiraBotAccessors _fakeAccessors;
         private readonly TelemetryClient _telemetry;
         private readonly IBotMessagesService _fakeBotMessagesService;
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
-        private const string IssueKey = "TS-3";
+        private readonly IAnalyticsService _analyticsService;
 
         public WatchDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
@@ -41,12 +42,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _fakeJiraService = A.Fake<IJiraService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
         public async Task WatchDialog_ChecksIfCommandHasJiraIssueKey()
         {
-            var sut = new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry );
+            var sut = GetWatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("watch");
@@ -60,7 +62,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task WatchDialog_YouStartedWatching()
         {
-            var sut = new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetWatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -110,7 +112,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task WatchDialog_YouStartedWatching_InvokedFroCard()
         {
-            var sut = new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetWatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -147,9 +149,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             A.CallTo(() => _fakeBotMessagesService.BuildAndUpdateJiraIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
                 .Returns(Task.Delay(1));
 
-            var activity = new Activity();
-            activity.Value = "object";
-            activity.Text = $"watch {IssueKey}";
+            var activity = new Activity
+            {
+                Value = "object",
+                Text = $"watch {IssueKey}"
+            };
 
             await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -169,7 +173,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         public async Task WatchDialog_ApiErrorAppeared()
         {
             string errorMessage = "Error message";
-            var sut = new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetWatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -220,7 +224,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task WatchDialog_IsAlreadyWatching()
         {
-            var sut = new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetWatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -270,7 +274,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task WatchDialog_IsAlreadyWatching_InvokedFromCard()
         {
-            var sut = new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetWatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -304,9 +308,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     IsSuccess = false
                 });
 
-            var activity = new Activity();
-            activity.Value = "object";
-            activity.Text = $"watch {IssueKey}";
+            var activity = new Activity
+            {
+                Value = "object",
+                Text = $"watch {IssueKey}"
+            };
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -324,7 +330,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task WatchDialog_IsAlreadyWatching_MessagingExtension()
         {
-            var sut = new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetWatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -358,10 +364,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     IsSuccess = false
                 });
 
-            var activity = new Activity();
-            activity.Value = "object";
-            activity.Text = $"watch {IssueKey}";
-            activity.Type = ActivityTypes.Invoke;
+            var activity = new Activity
+            {
+                Value = "object",
+                Text = $"watch {IssueKey}",
+                Type = ActivityTypes.Invoke
+            };
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -376,5 +384,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 .MustNotHaveHappened();
         }
 
+        private WatchDialog GetWatchDialog()
+        {
+            return new WatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry, _analyticsService);
+        }
     }
 }

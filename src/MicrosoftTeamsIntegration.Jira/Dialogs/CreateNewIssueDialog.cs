@@ -48,6 +48,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 var errorMessage = "You don't have permissions to create issues. " +
                     "For more information contact your project administrator.";
                 await dc.Context.SendActivityAsync(errorMessage, cancellationToken: cancellationToken);
+                _analyticsService.SendBotDialogEvent(dc.Context, "createIssueDialog", "failed", errorMessage);
                 return await dc.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
@@ -82,7 +83,6 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             await dc.Context.SendActivityAsync(MessageFactory.Attachment(card.ToAttachment()), cancellationToken);
 
             _analyticsService.SendBotDialogEvent(dc.Context, "createIssueDialog", "completed");
-
             return await dc.EndDialogAsync(cancellationToken: cancellationToken);
         }
     }

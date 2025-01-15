@@ -52,6 +52,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         private readonly IBotMessagesService _botMessagesService;
         private readonly IDistributedCacheService _distributedCacheService;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public MessagingExtensionService(
             IOptions<AppSettings> appSettings,
@@ -60,7 +61,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             IMapper mapper,
             IBotMessagesService botMessagesService,
             IDistributedCacheService distributedCacheService,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
         {
             _appSettings = appSettings.Value;
             _logger = logger;
@@ -69,6 +71,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             _botMessagesService = botMessagesService;
             _distributedCacheService = distributedCacheService;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         public async Task<FetchTaskResponseEnvelope> HandleMessagingExtensionFetchTask(
@@ -135,13 +138,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
 
             // return false if url is null or empty or cannot be normalized
-            if (string.IsNullOrWhiteSpace(request?.Url) || !request.Url.TryToNormalizeJiraUrl(out var normalziedUrl))
+            if (string.IsNullOrWhiteSpace(request?.Url) || !request.Url.TryToNormalizeJiraUrl(out var normalizedUrl))
             {
                 return false;
             }
 
             // return false if current user's jira instance url is different from the requested one
-            if (user == null || !normalziedUrl.StartsWith(user.JiraInstanceUrl, StringComparison.OrdinalIgnoreCase))
+            if (user == null || !normalizedUrl.StartsWith(user.JiraInstanceUrl, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
@@ -290,6 +293,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 return BuildCardAction("auth", "Authorize in Jira", tenantId);
             }
 
+            _analyticsService.SendBotDialogEvent(turnContext, "issueQueryLink", "completed");
             return await HandleQueryLinkAsync(user, jiraIssueIdOrKey, tenantId);
         }
 
@@ -932,7 +936,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 return string.Empty;
             }
 
-            return request?.Payload?.From?.Application?.DisplayName;
+            return request.Payload?.From?.Application?.DisplayName;
         }
 
         private string GetLinkToMessage(Activity activity)
@@ -954,7 +958,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 return string.Empty;
             }
 
-            return request?.Payload?.LinkToMessage;
+            return request.Payload?.LinkToMessage;
         }
 
         private async Task<MessageMetadata> GetMessageMetadata(ITurnContext turnContext)

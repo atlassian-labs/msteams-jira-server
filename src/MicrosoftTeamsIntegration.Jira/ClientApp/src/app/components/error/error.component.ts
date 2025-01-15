@@ -5,8 +5,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ErrorService, AppInsightsService } from '@core/services';
-import { ApplicationType } from '@core/enums';
 import { UtilService } from '@core/services';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-error',
@@ -42,11 +42,17 @@ export class ErrorComponent implements OnInit {
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private appInsightService: AppInsightsService,
-        private utilService: UtilService
+        private utilService: UtilService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public ngOnInit() {
         this.appInsightService.logNavigation('ErrorComponent', this.route);
+        this.analyticsService.sendScreenEvent(
+            'errorScreen',
+            EventAction.viewed,
+            UiEventSubject.uiView,
+            'errorScreen');
 
         this.showRetryButton = this.errorService.showRetryButton;
         this.message = this.route.snapshot.queryParams['message'];

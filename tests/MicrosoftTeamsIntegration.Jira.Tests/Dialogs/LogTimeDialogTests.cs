@@ -28,6 +28,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly TelemetryClient _telemetry;
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
+        private readonly IAnalyticsService _analyticsService;
 
         public LogTimeDialogTests(ITestOutputHelper output)
         {
@@ -38,12 +39,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _fakeJiraService = A.Fake<IJiraService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
         public async Task LogTimeDialog_ChecksIfCommandHasJiraIssueKey()
         {
-            var sut = new LogTimeDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetLogTimeDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("log");
@@ -57,7 +59,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task LogTimeDialog()
         {
-            var sut = new LogTimeDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetLogTimeDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -99,7 +101,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task LogTimeDialog_TimeReported()
         {
-            var sut = new LogTimeDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetLogTimeDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -150,7 +152,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task LogTimeDialog_ApiIssueAppeared()
         {
-            var sut = new LogTimeDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetLogTimeDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -197,6 +199,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 .MustHaveHappened();
             A.CallTo(() => _fakeJiraService.AddIssueWorklog(A<IntegratedUser>._, A<string>._, A<string>._))
                 .MustHaveHappened();
+        }
+
+        private LogTimeDialog GetLogTimeDialog()
+        {
+            return new LogTimeDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry, _analyticsService);
         }
     }
 }

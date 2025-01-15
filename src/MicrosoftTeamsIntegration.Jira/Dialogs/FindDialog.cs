@@ -12,6 +12,7 @@ using MicrosoftTeamsIntegration.Jira.Extensions;
 using MicrosoftTeamsIntegration.Jira.Helpers;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
+using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -23,18 +24,21 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IJiraService _jiraService;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public FindDialog(
             JiraBotAccessors accessors,
             IJiraService jiraBridgeService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(FindDialog))
         {
             _jiraService = jiraBridgeService;
             _accessors = accessors;
             _appSettings = appSettings;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default)
@@ -68,6 +72,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             if (apiResponse?.ErrorMessages != null && apiResponse.ErrorMessages.Any())
             {
                 await dc.Context.SendActivityAsync(apiResponse.ErrorMessages.FirstOrDefault(), cancellationToken: cancellationToken);
+                _analyticsService.SendBotDialogEvent(dc.Context, "find", "failed", apiResponse.ErrorMessages.FirstOrDefault());
             }
             else
             {
@@ -109,6 +114,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 {
                     await dc.Context.SendActivityAsync("We didn't find any issues, try another keyword.", cancellationToken: cancellationToken);
                 }
+
+                _analyticsService.SendBotDialogEvent(dc.Context, "find", "completed");
             }
 
             return await dc.EndDialogAsync(cancellationToken: cancellationToken);

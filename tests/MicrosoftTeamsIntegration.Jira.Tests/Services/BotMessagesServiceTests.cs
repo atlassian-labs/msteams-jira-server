@@ -15,19 +15,18 @@ using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Xunit;
 
-namespace MicrosoftTeamsIntegration.Jira.Tests
+namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 {
     public class BotMessagesServiceTests
     {
-
         public IMapper Mapper => A.Fake<IMapper>();
 
-        #region Arragements and Helpers
         private readonly IJiraService _fakeJiraService = A.Fake<IJiraService>();
         private readonly IOptions<AppSettings> _appSettings = new OptionsManager<AppSettings>(
             new OptionsFactory<AppSettings>(new List<IConfigureOptions<AppSettings>>(), new List<IPostConfigureOptions<AppSettings>>()));
         private readonly string _yahooLink = @"https://uk.yahoo.com";
         private readonly string _googleLink = @"https://google.com/14521/";
+        private readonly IAnalyticsService _analyticsService = A.Fake<IAnalyticsService>();
         private string _result = string.Empty;
 
         private class AttachmentData
@@ -100,8 +99,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             };
             return testData;
         }
-
-        #endregion
 
         // Verify that we get empty string whether html content contains no <a> tag
         [Fact]
@@ -242,7 +239,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         [Fact]
         public async Task SearchIssueAndBuildIssueCard()
         {
-
             var activity = new Activity
             {
                 Recipient = new ChannelAccount()
@@ -306,7 +302,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         [Fact]
         public async Task BuildAndUpdateJiraIssueCard()
         {
-
             var activity = new Activity
             {
                 Recipient = new ChannelAccount()
@@ -373,7 +368,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         [Fact]
         public async Task SendAuthorizationCard()
         {
-
             var activity = new Activity
             {
                 Conversation = new ConversationAccount()
@@ -395,7 +389,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
 
         private IBotMessagesService CreateBotMessagesService()
         {
-            return new BotMessagesService(_appSettings, Mapper, _fakeJiraService);
+            return new BotMessagesService(_appSettings, Mapper, _fakeJiraService, _analyticsService);
         }
     }
 }

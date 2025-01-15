@@ -28,9 +28,9 @@ import { PermissionService } from '@core/services/entities/permission.service';
 import { logger } from '@core/services/logger.service';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
-import { DropDownOption } from '@shared/models/dropdown-option.model';
 import { SelectOption } from '@shared/models/select-option.model';
 import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-issues',
@@ -152,6 +152,7 @@ export class IssuesComponent implements OnInit {
         private appInsightService: AppInsightsService,
         private loadingIndicatorService: LoadingIndicatorService,
         private permissionService: PermissionService,
+        private analyticsService: AnalyticsService,
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -159,9 +160,14 @@ export class IssuesComponent implements OnInit {
 
         this.isMobile = await this.utilService.isMobile();
 
-        this.appInsightService.logNavigation('IssuesComponent', this.route);
-
         this.parseParams();
+
+        this.appInsightService.logNavigation('IssuesComponent', this.route);
+        this.analyticsService.sendScreenEvent(
+            'issuesTab',
+            EventAction.viewed,
+            UiEventSubject.uiView,
+            'issuesTab', { page: this.page, application: this.application });
 
         this.label = this.page === 'MyFilters' ? 'Saved filter' : '';
 
@@ -190,6 +196,12 @@ export class IssuesComponent implements OnInit {
     }
 
     public async setJiraFilter(filter: any) {
+        this.analyticsService.sendUiEvent(
+            'issuesTab',
+            EventAction.selected,
+            UiEventSubject.dropdown,
+            'filter',
+            {source: 'issuesTab', page: this.page});
         // reset paginator when filter was selected
         this.pageIndex = 0;
         this.jqlOrderBySuffix = this.initialJqlOrderBySuffix;
@@ -198,6 +210,12 @@ export class IssuesComponent implements OnInit {
     }
 
     public openEditDialog(issueId: string): void {
+        this.analyticsService.sendUiEvent(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'editIssue',
+            {source: 'issuesTab'});
         const application = this.application || ApplicationType.JiraServerStaticTab;
         const url = `${localStorage.getItem('baseUrl')}/#/issues/edit;jiraUrl=${encodeURIComponent(this.jiraUrl as string)};` +
             `application=${application};issueId=${issueId};source=issuesTab`;
@@ -255,6 +273,13 @@ export class IssuesComponent implements OnInit {
                 }
             }
         });
+
+        this.analyticsService.sendUiEvent(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'createIssue',
+            {source: 'issuesTab'});
     }
 
     public getChevronClass(columnName: string): string {
@@ -285,6 +310,13 @@ export class IssuesComponent implements OnInit {
     public async changePage(event: any) {
         this.pageIndex = event.pageIndex;
         await this.loadIssuesWithSpinner();
+
+        this.analyticsService.sendUiEvent(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'changePage',
+            {source: 'issuesTab'});
     }
 
     private parseParams(): void {
@@ -440,6 +472,13 @@ export class IssuesComponent implements OnInit {
 
         this.jqlOrderBySuffix = this.sortDirection ? ` order by ${this.activeColumn} ${this.sortDirection}` : '';
         await this.loadIssuesWithSpinner();
+
+        this.analyticsService.sendUiEvent(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'sortColumn',
+            {source: 'issuesTab', sortColumn: columnName});
     }
 
     private setColumnsSorting(jql: string): void {
@@ -661,5 +700,12 @@ export class IssuesComponent implements OnInit {
                     await this.router.navigate(['/login', { ...this.route.snapshot.params, status: StatusCode.Unauthorized }]);
                 }
             });
+
+        this.analyticsService.sendUiEvent(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'signOut',
+            {source: 'issuesTab'});
     }
 }

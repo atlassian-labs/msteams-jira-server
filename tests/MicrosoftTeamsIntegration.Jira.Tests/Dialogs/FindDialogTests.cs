@@ -7,7 +7,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Testing;
-using Microsoft.Bot.Builder.Testing.XUnit;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
 using MicrosoftTeamsIntegration.Artifacts.Models.Cards;
@@ -18,7 +17,6 @@ using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 {
@@ -29,22 +27,24 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly TelemetryClient _telemetry;
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
+        private readonly IAnalyticsService _analyticsService;
 
-        public FindDialogTests(ITestOutputHelper output)
+        public FindDialogTests()
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = Array.Empty<IMiddleware>();
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
             _fakeJiraService = A.Fake<IJiraService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
-        public async Task FindDialog_WithoutSerchTerm()
+        public async Task FindDialog_WithoutSearchTerm()
         {
-            var sut = new FindDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetFindDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(DialogMatchesAndCommands.FindDialogCommand);
@@ -58,7 +58,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         {
             _appSettings.BaseUrl = "https://test.com";
             var key = "TS-3";
-            var sut = new FindDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetFindDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -84,12 +84,16 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 });
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(DialogMatchesAndCommands.FindDialogCommand + key);
-            var card = reply.Attachments.FirstOrDefault().Content as ListCard;
+            var card = reply.Attachments.FirstOrDefault()?.Content as ListCard;
 
-            Assert.IsType<ListCard>(reply.Attachments.FirstOrDefault().Content);
-            Assert.Equal(1, card.Items.Count);
-            Assert.Equal(key, card.Items.FirstOrDefault().Title);
-            Assert.Equal("resultItem", card.Items.FirstOrDefault().Type);
+            Assert.IsType<ListCard>(reply.Attachments.FirstOrDefault()?.Content);
+            if (card != null)
+            {
+                Assert.Single(card.Items);
+                Assert.Equal(key, card.Items.FirstOrDefault()?.Title);
+                Assert.Equal("resultItem", card.Items.FirstOrDefault()?.Type);
+            }
+
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
                 .MustHaveHappened();
@@ -99,14 +103,14 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         public async Task FindDialog_ThrowsException()
         {
             var message = "No Access";
-            var sut = new FindDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetFindDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
                 .Throws(new MethodAccessException(message));
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(DialogMatchesAndCommands.FindDialogCommand + "test");
- 
+
             Assert.Equal(message, reply.Text);
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
@@ -117,7 +121,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         public async Task FindDialog_NoIssuesFound()
         {
             var message = "We didn't find any issues, try another keyword.";
-            var sut = new FindDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetFindDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
@@ -135,13 +139,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         public async Task FindDialog_ErrorMessagesReturned()
         {
             var errorMessage = "Error appeared";
-            var sut = new FindDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetFindDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
                 new JiraIssueSearch()
                 {
-                    ErrorMessages = new string[] {errorMessage}
+                    ErrorMessages = new string[] { errorMessage }
                 });
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(DialogMatchesAndCommands.FindDialogCommand + "test");
@@ -150,6 +154,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
                 .MustHaveHappened();
+        }
+
+        private FindDialog GetFindDialog()
+        {
+            return new FindDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry, _analyticsService);
         }
     }
 }

@@ -1,26 +1,26 @@
 ﻿import * as microsoftTeams from '@microsoft/teams-js';
 
-import {AbstractControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ApiService, AppInsightsService, ErrorService} from '@core/services';
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
-import {Issue} from '@core/models';
-import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ApiService, AppInsightsService, ErrorService } from '@core/services';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CurrentJiraUser } from '@core/models/Jira/jira-user.model';
+import { Issue } from '@core/models';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
-import {AssigneeService} from '@core/services/entities/assignee.service';
-import {DropDownComponent} from '@shared/components/dropdown/dropdown.component';
-import {DropDownOption} from '@shared/models/dropdown-option.model';
-import {DropdownUtilService} from '@shared/services/dropdown.util.service';
-import {FieldItem} from '../fields/field-item';
-import {FieldsService} from '@shared/services/fields.service';
-import {IssueType} from '@core/models/Jira/issues.model';
-import {PermissionService} from '@core/services/entities/permission.service';
-import {Project} from '@core/models/Jira/project.model';
-import {StringValidators} from '@core/validators/string.validators';
-import {UtilService} from '@core/services/util.service';
-import {NotificationService} from '@shared/services/notificationService';
-import {AnalyticsService, EventAction, UiEventSubject} from '@core/services/analytics.service';
+import { AssigneeService } from '@core/services/entities/assignee.service';
+import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
+import { DropDownOption } from '@shared/models/dropdown-option.model';
+import { DropdownUtilService } from '@shared/services/dropdown.util.service';
+import { FieldItem } from '../fields/field-item';
+import { FieldsService } from '@shared/services/fields.service';
+import { IssueType } from '@core/models/Jira/issues.model';
+import { PermissionService } from '@core/services/entities/permission.service';
+import { Project } from '@core/models/Jira/project.model';
+import { StringValidators } from '@core/validators/string.validators';
+import { UtilService } from '@core/services/util.service';
+import { NotificationService } from '@shared/services/notificationService';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-create-issue-dialog',
@@ -66,6 +66,8 @@ export class CreateIssueDialogComponent implements OnInit {
     public defaultAssignee: string | any;
     public isAddonUpdated: boolean | any;
 
+    public application: string | any;
+
     private dialogDefaultSettings: MatDialogConfig = {
         width: '350px',
         height: '200px',
@@ -108,8 +110,16 @@ export class CreateIssueDialogComponent implements OnInit {
 
     public async ngOnInit(): Promise<void> {
         this.appInsightsService.logNavigation('CreateIssueComponent', this.route);
-        this.analyticsService.sendScreenEvent('createIssue', EventAction.viewed, UiEventSubject.taskModule, 'createIssueView');
-        const { jiraUrl, description, metadataRef, returnIssueOnSubmit, replyToActivityId, summary, issueType, priority, assignee }
+        const {jiraUrl,
+            description,
+            metadataRef,
+            returnIssueOnSubmit,
+            replyToActivityId,
+            summary,
+            issueType,
+            priority,
+            assignee,
+            application}
             = this.route.snapshot.params;
         this.jiraUrl = jiraUrl;
         this.defaultDescription = description;
@@ -123,6 +133,14 @@ export class CreateIssueDialogComponent implements OnInit {
         this.defaultPriority = priority;
 
         this.loading = true;
+
+        this.application = application;
+
+        this.analyticsService.sendScreenEvent(
+            'createIssueModal',
+            EventAction.viewed,
+            UiEventSubject.taskModule,
+            'createIssueModal', {application});
 
         try {
             await this.createForm();
@@ -156,7 +174,12 @@ export class CreateIssueDialogComponent implements OnInit {
         if (this.issueForm?.invalid) {
             return;
         }
-        this.analyticsService.sendUiEvent('createIssue', EventAction.clicked, UiEventSubject.button, '');
+        this.analyticsService.sendUiEvent(
+            'createIssueModal',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'createIssueInJira',
+            {source: 'createIssueModal', application: this.application});
 
         const formValue = this.issueForm?.value;
 

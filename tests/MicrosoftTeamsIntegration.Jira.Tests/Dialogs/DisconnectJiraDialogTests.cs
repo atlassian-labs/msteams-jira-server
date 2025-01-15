@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -27,22 +26,24 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly TelemetryClient _telemetry;
         private readonly IJiraAuthService _fakeJiraAuthService;
         private readonly AppSettings _appSettings;
+        private readonly IAnalyticsService _analyticsService;
 
         public DisconnectJiraDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
             _fakeJiraAuthService = A.Fake<IJiraAuthService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
-        public async Task Disconnect_WhenUserHasNoJiras()
+        public async Task Disconnect_WhenUserHasNoJira()
         {
-            var sut = new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry);
+            var sut = GetDisconnectJiraDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraAuthService.IsJiraConnected(A<IntegratedUser>._)).Returns(false);
@@ -56,7 +57,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task Disconnect_WhenUserConnectedAndConfirmLogout()
         {
-            var sut = new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry);
+            var sut = GetDisconnectJiraDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraAuthService.IsJiraConnected(A<IntegratedUser>._)).Returns(true);
@@ -78,7 +79,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task Disconnect_WhenUserConnectedButNotConfirmLogout()
         {
-            var sut = new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry);
+            var sut = GetDisconnectJiraDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraAuthService.IsJiraConnected(A<IntegratedUser>._)).Returns(true);
@@ -96,5 +97,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             A.CallTo(() => _fakeJiraAuthService.Logout(A<IntegratedUser>._)).MustNotHaveHappened();
         }
 
+        private DisconnectJiraDialog GetDisconnectJiraDialog()
+        {
+            return new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry, _analyticsService);
+        }
     }
 }

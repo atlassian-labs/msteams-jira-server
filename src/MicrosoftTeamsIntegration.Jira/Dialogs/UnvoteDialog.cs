@@ -12,22 +12,23 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
     public class UnvoteDialog : JiraIssueDependentDialog
     {
         private readonly IJiraService _jiraService;
-        private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public UnvoteDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(UnvoteDialog), accessors, jiraService, appSettings)
         {
             _jiraService = jiraService;
-            _appSettings = appSettings;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
-        protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext stepContext, IntegratedUser user, JiraIssue jiraIssue)
+        protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext dc, IntegratedUser user, JiraIssue jiraIssue)
         {
             _telemetry.TrackPageView("UnvoteDialog");
 
@@ -41,32 +42,37 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                     var response = await _jiraService.Unvote(CurrentUser, issueKey);
                     if (response.IsSuccess)
                     {
-                        await stepContext.Context.SendActivityAsync("Your vote has been removed.");
+                        await dc.Context.SendActivityAsync("Your vote has been removed.");
+                        _analyticsService.SendBotDialogEvent(dc.Context, "unvote", "completed");
                     }
                     else
                     {
-                        await stepContext.Context.SendActivityAsync(response.ErrorMessage);
+                        await dc.Context.SendActivityAsync(response.ErrorMessage);
+                        _analyticsService.SendBotDialogEvent(dc.Context, "unvote", "failed", response.ErrorMessage);
                     }
                 }
                 else
                 {
-                    await stepContext.Context.SendActivityAsync($"You have not voted for the issue {issueKey} yet.");
+                    await dc.Context.SendActivityAsync($"You have not voted for the issue {issueKey} yet.");
+                    _analyticsService.SendBotDialogEvent(dc.Context, "unvote", "completed");
                 }
             }
             else
             {
                 if (jiraIssue.IsResolved())
                 {
-                    await stepContext.Context.SendActivityAsync("You cannot unvote for a resolved issue.");
+                    await dc.Context.SendActivityAsync("You cannot unvote for a resolved issue.");
                 }
 
                 if (jiraIssue.IsUserReporter(userNameOrAccountId))
                 {
-                    await stepContext.Context.SendActivityAsync("You cannot unvote for an issue you have reported.");
+                    await dc.Context.SendActivityAsync("You cannot unvote for an issue you have reported.");
                 }
+
+                _analyticsService.SendBotDialogEvent(dc.Context, "unvote", "completed");
             }
 
-            return await stepContext.EndDialogAsync();
+            return await dc.EndDialogAsync();
         }
     }
 }

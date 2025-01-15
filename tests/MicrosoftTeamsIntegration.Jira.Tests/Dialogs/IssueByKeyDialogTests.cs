@@ -27,35 +27,44 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly TelemetryClient _telemetry;
         private readonly IBotMessagesService _fakeBotMessagesService;
         private readonly AppSettings _appSettings;
+        private readonly IAnalyticsService _analyticsService;
 
         public IssueByKeyDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
             _fakeBotMessagesService = A.Fake<IBotMessagesService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
         public async Task IssueByKeyDialog_ReturnsCard()
         {
-            var sut = new IssueByKeyDialog(_fakeAccessors, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetIssueByKeyDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeBotMessagesService.SearchIssueAndBuildIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
                 .Returns(new AdaptiveCard("1.2")
                 {
-                    Title = "title"
+                    Body =
+                    [
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "test text"
+                        }
+
+                    ]
                 });
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("TS-3");
-            var card = reply.Attachments.FirstOrDefault().Content as AdaptiveCard;
+            var card = reply.Attachments.FirstOrDefault()?.Content as AdaptiveCard;
 
-            Assert.IsType<AdaptiveCard>(reply.Attachments.FirstOrDefault().Content);
-            Assert.Equal("title", card.Title);
+            Assert.IsType<AdaptiveCard>(reply.Attachments.FirstOrDefault()?.Content);
+            Assert.Equal("test text", ((AdaptiveTextBlock)card?.Body.FirstOrDefault(x => x is AdaptiveTextBlock))?.Text);
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
             A.CallTo(() => _fakeBotMessagesService.SearchIssueAndBuildIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
                 .MustHaveHappened();
@@ -64,14 +73,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task IssueByKeyDialog_IssueKeyNotValidated()
         {
-            var sut = new IssueByKeyDialog(_fakeAccessors, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetIssueByKeyDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeBotMessagesService.SearchIssueAndBuildIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
-                .Returns(new AdaptiveCard("1.2")
-                {
-                    Title = "title"
-                });
+                .Returns(new AdaptiveCard("1.2"));
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("test");
 
@@ -84,12 +90,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task IssueByKeyDialog_IssueNotFound()
         {
-            var sut = new IssueByKeyDialog(_fakeAccessors, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetIssueByKeyDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
-            AdaptiveCard card = null;
 
             A.CallTo(() => _fakeBotMessagesService.SearchIssueAndBuildIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
-                .Returns(card);
+                .Returns((AdaptiveCard)null);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("TS-3");
 
@@ -97,6 +102,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
             A.CallTo(() => _fakeBotMessagesService.SearchIssueAndBuildIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
                 .MustHaveHappened();
+        }
+
+        private IssueByKeyDialog GetIssueByKeyDialog()
+        {
+            return new IssueByKeyDialog(_fakeAccessors, _fakeBotMessagesService, _appSettings, _telemetry, _analyticsService);
         }
     }
 }

@@ -10,22 +10,23 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 {
     public class SignoutMsAccountDialog : ComponentDialog
     {
-        private readonly JiraBotAccessors _accessors;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
         private readonly IBotFrameworkAdapterService _botFrameworkAdapterService;
+        private readonly IAnalyticsService _analyticsService;
 
         public SignoutMsAccountDialog(
             JiraBotAccessors accessors,
             AppSettings appSettings,
             TelemetryClient telemetry,
-            IBotFrameworkAdapterService botFrameworkAdapterService)
+            IBotFrameworkAdapterService botFrameworkAdapterService,
+            IAnalyticsService analyticsService)
             : base(nameof(SignoutMsAccountDialog))
         {
-            _accessors = accessors;
             _appSettings = appSettings;
             _telemetry = telemetry;
             _botFrameworkAdapterService = botFrameworkAdapterService;
+            _analyticsService = analyticsService;
         }
 
         protected override async Task<DialogTurnResult> OnBeginDialogAsync(DialogContext innerDc, object options, CancellationToken cancellationToken = default)
@@ -35,6 +36,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             // The bot adapter encapsulates the authentication processes.
             await _botFrameworkAdapterService.SignOutUserAsync(innerDc.Context, _appSettings.OAuthConnectionName, cancellationToken);
             await innerDc.Context.SendActivityAsync(MessageFactory.Text("You have been signed out."), cancellationToken);
+            _analyticsService.SendBotDialogEvent(innerDc.Context, "signoutMsAccount", "completed");
             return await innerDc.CancelAllDialogsAsync(cancellationToken);
         }
     }

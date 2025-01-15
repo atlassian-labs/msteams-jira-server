@@ -22,18 +22,18 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 {
     public class CreateNewIssueDialogTests
     {
+        private const string DontHaveAccessMessage = "You don't have permissions to create issues. " +
+                                                     "For more information contact your project administrator.";
         private readonly IMiddleware[] _middleware;
         private readonly JiraBotAccessors _fakeAccessors;
         private readonly TelemetryClient _telemetry;
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
         private readonly IAnalyticsService _analyticsService;
-        private const string DontHaveAccessMessage = "You don't have permissions to create issues. " +
-                                                  "For more information contact your project administrator.";
 
         public CreateNewIssueDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
@@ -89,9 +89,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             var reply = await testClient.SendActivityAsync<IMessageActivity>("create");
 
             Assert.NotNull(reply.Attachments.FirstOrDefault());
-            Assert.IsType<AdaptiveCards.AdaptiveCard>(reply.Attachments.FirstOrDefault().Content);
+            Assert.IsType<AdaptiveCards.AdaptiveCard>(reply.Attachments.FirstOrDefault()?.Content);
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
         }
-
     }
 }

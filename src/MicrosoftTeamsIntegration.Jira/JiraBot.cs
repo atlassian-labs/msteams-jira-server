@@ -228,6 +228,7 @@ namespace MicrosoftTeamsIntegration.Jira
                     if (accessToken != null)
                     {
                         await _actionableMessageService.HandleSuccessfulConnection(turnContext);
+                        _analyticsService.SendBotDialogEvent(turnContext, "connectToJira", "completed");
                     }
                 }
             }
@@ -440,6 +441,8 @@ namespace MicrosoftTeamsIntegration.Jira
             else if (turnContext.Activity.IsRequestMessagingExtensionQuery())
             {
                 _telemetry.TrackPageView("MessagingExtensionQuery");
+
+                _analyticsService.SendBotDialogEvent(turnContext, "messagingExtensionQuery", "completed");
 
                 // we should avoid falling into this if after the previous one
                 var response = await _messagingExtensionService.HandleMessagingExtensionQuery(turnContext, user);

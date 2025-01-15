@@ -23,17 +23,18 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 {
     public class UnwatchDialogTests
     {
+        private const string IssueKey = "TS-3";
         private readonly IMiddleware[] _middleware;
         private readonly JiraBotAccessors _fakeAccessors;
         private readonly TelemetryClient _telemetry;
         private readonly IBotMessagesService _fakeBotMessagesService;
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
-        private const string IssueKey = "TS-3";
+        private readonly IAnalyticsService _analyticsService;
 
         public UnwatchDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
@@ -41,12 +42,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _fakeJiraService = A.Fake<IJiraService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
         public async Task UnwatchDialog_UserNotWatchingIssue()
         {
-            var sut = new UnwatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetUnwatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -80,9 +82,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     IsSuccess = true
                 });
 
-            var activity = new Activity();
-            activity.Value = "object";
-            activity.Text = $"unwatch {IssueKey}";
+            var activity = new Activity
+            {
+                Value = "object",
+                Text = $"unwatch {IssueKey}"
+            };
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -100,7 +104,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task UnwatchDialog_Unwatched()
         {
-            var sut = new UnwatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetUnwatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -134,8 +138,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     IsSuccess = true
                 });
 
-            var activity = new Activity();
-            activity.Text = $"unwatch {IssueKey}";
+            var activity = new Activity
+            {
+                Text = $"unwatch {IssueKey}"
+            };
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -153,7 +159,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task UnwatchDialog_Unwatched_InvokedFromCard()
         {
-            var sut = new UnwatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetUnwatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -188,9 +194,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             A.CallTo(() => _fakeBotMessagesService.BuildAndUpdateJiraIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
                 .Returns(Task.Delay(1));
 
-            var activity = new Activity();
-            activity.Value = "object";
-            activity.Text = $"unwatch {IssueKey}";
+            var activity = new Activity
+            {
+                Value = "object",
+                Text = $"unwatch {IssueKey}"
+            };
 
             await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -209,7 +217,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task UnwatchDialog_ApiErrorAppeared()
         {
-            var sut = new UnwatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry);
+            var sut = GetUnwatchDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
@@ -244,8 +252,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                     ErrorMessage = "Message"
                 });
 
-            var activity = new Activity();
-            activity.Text = $"unwatch {IssueKey}";
+            var activity = new Activity
+            {
+                Text = $"unwatch {IssueKey}"
+            };
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -258,6 +268,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 .MustHaveHappened();
             A.CallTo(() => _fakeJiraService.Unwatch(A<IntegratedUser>._, A<string>._))
                 .MustHaveHappened();
+        }
+
+        private UnwatchDialog GetUnwatchDialog()
+        {
+            return new UnwatchDialog(_fakeAccessors, _fakeJiraService, _fakeBotMessagesService, _appSettings, _telemetry, _analyticsService);
         }
     }
 }

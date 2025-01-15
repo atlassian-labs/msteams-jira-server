@@ -11,6 +11,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { JiraPermissionName } from '@core/models/Jira/jira-permission.model';
 import { PermissionService } from '@core/services/entities/permission.service';
 import { NotificationService } from '@shared/services/notificationService';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-comment-issue-dialog',
@@ -37,18 +38,25 @@ export class CommentIssueDialogComponent implements OnInit {
         private router: Router,
         private errorService: ErrorService,
         private readonly notificationService: NotificationService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit() {
         this.loading = true;
         try {
-            const { jiraUrl, issueId, issueKey } = this.route.snapshot.params;
+            const { jiraUrl, issueId, issueKey, application } = this.route.snapshot.params;
             this.jiraUrl = jiraUrl;
             this.issueId = issueId;
             this.issueKey = issueKey;
             const commentRelatedPermissions: JiraPermissionName[] = [
                 'ADD_COMMENTS',
             ];
+
+            this.analyticsService.sendScreenEvent(
+                'createCommentModal',
+                EventAction.viewed,
+                UiEventSubject.taskModule,
+                'createCommentModal', {application: application});
 
             if (!this.jiraUrl) {
                 const response = await this.apiService.getJiraUrlForPersonalScope();

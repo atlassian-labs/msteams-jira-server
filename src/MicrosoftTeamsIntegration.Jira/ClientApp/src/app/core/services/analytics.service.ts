@@ -15,7 +15,8 @@ export enum UiEventSubject {
     button = 'button',
     link = 'link',
     dropdown = 'dropdown',
-    taskModule = 'taskModule'
+    taskModule = 'taskModule',
+    uiView = 'uiView'
 }
 
 export enum EventAction {
@@ -47,8 +48,8 @@ export class AnalyticsService {
     public sendUiEvent(source: string,
         action: string,
         actionSubject: string,
-        actionSubjectId: string,
-        attributes: any = undefined): void {
+        actionSubjectId: string = '',
+        attributes: any = {}): void {
         const properties =
             this.getEventObject(EventType.ui, source, action, actionSubject, actionSubjectId, '', attributes);
 
@@ -61,8 +62,8 @@ export class AnalyticsService {
     public sendTrackEvent(source: string,
         action: string,
         actionSubject: string,
-        actionSubjectId: string,
-        attributes: any = undefined): void {
+        actionSubjectId: string = '',
+        attributes: any = {}): void {
         const properties =
             this.getEventObject(EventType.track, source, action, actionSubject, actionSubjectId, '', attributes);
 
@@ -75,11 +76,13 @@ export class AnalyticsService {
     public sendScreenEvent(source: string,
         action: string,
         actionSubject: string,
-        name: string,
-        attributes: any = undefined): void {
+        name: string = '',
+        attributes: any = {}): void {
+
+        attributes['source'] = source;
 
         const properties =
-            this.getEventObject(EventType.track, source, action, actionSubject, '', name, attributes);
+            this.getEventObject(EventType.screen, source, action, actionSubject, '', name, attributes);
 
         const pageViewEventName =
             this.utilService.capitalizeFirstLetterAndJoin(name, actionSubject, action);

@@ -5,7 +5,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
 {
     public interface IAnalyticsService
     {
-        void SendBotDialogEvent(ITurnContext context, string dialogName, string dialogAction);
+        void SendBotDialogEvent(ITurnContext context, string dialogName, string dialogAction, string errorMessage = "");
         void SendTrackEvent(string userId, string source, string action, string actionSubject, string actionSubjectId, IAnalyticsEventAttribute attributes = null);
         void SendUiEvent(string userId, string source, string action, string actionSubject, string actionSubjectId, IAnalyticsEventAttribute attributes = null);
         void SendScreenEvent(string userId, string source, string action, string actionSubject, string name, IAnalyticsEventAttribute attributes = null);

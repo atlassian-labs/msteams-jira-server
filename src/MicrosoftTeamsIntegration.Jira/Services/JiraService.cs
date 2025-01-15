@@ -16,7 +16,6 @@ using MicrosoftTeamsIntegration.Jira.Models.Jira.Meta;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace MicrosoftTeamsIntegration.Jira.Services
 {
@@ -83,38 +82,38 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return response;
         }
 
-        public Task<JiraIssue> CreateIssue(IntegratedUser user, CreateJiraIssueRequest createJiraIssueRequest)
+        public Task<JiraIssue> CreateIssue(IntegratedUser user, CreateJiraIssueRequest jiraIssueRequest)
         {
-            return ProcessRequest<JiraIssue>(user, "api/2/issue", "POST", createJiraIssueRequest);
+            return ProcessRequest<JiraIssue>(user, "api/2/issue", "POST", jiraIssueRequest);
         }
 
-        public async Task<JiraApiActionCallResponse> UpdateIssue(IntegratedUser user, string issueIdOrKey, JiraIssueFields updateJiraIssueRequest)
+        public async Task<JiraApiActionCallResponse> UpdateIssue(IntegratedUser user, string issueIdOrKey, JiraIssueFields jiraIssueRequest)
         {
             dynamic updateSet = new ExpandoObject();
 
-            if (updateJiraIssueRequest.Summary != null)
+            if (jiraIssueRequest.Summary != null)
             {
                 updateSet.summary = new[]
                 {
                     new
                     {
-                        set = updateJiraIssueRequest.Summary
+                        set = jiraIssueRequest.Summary
                     }
                 };
             }
 
-            if (updateJiraIssueRequest.Description != null)
+            if (jiraIssueRequest.Description != null)
             {
                 updateSet.description = new[]
                 {
                     new
                     {
-                        set = updateJiraIssueRequest.Description
+                        set = jiraIssueRequest.Description
                     }
                 };
             }
 
-            if (updateJiraIssueRequest.Priority?.Id != null)
+            if (jiraIssueRequest.Priority?.Id != null)
             {
                 updateSet.priority = new[]
                 {
@@ -122,7 +121,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     {
                         set = new
                         {
-                            id = updateJiraIssueRequest.Priority.Id
+                            id = jiraIssueRequest.Priority.Id
                         }
                     }
                 };
@@ -130,7 +129,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                var editIssueRequest = new EditIssueRequest { Fields = updateJiraIssueRequest.Fields };
+                var editIssueRequest = new EditIssueRequest { Fields = jiraIssueRequest.Fields };
                 var updateIssueResponse =
                     await ProcessRequestWithJiraApiActionCallResponse<string>(
                         user,
@@ -148,9 +147,9 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 _logger.LogError("{Message}", ex.Message);
             }
 
-            if (updateJiraIssueRequest.Assignee != null)
+            if (jiraIssueRequest.Assignee != null)
             {
-                var assignRequest = new AssignIssueRequest { Name = updateJiraIssueRequest.Assignee.Name };
+                var assignRequest = new AssignIssueRequest { Name = jiraIssueRequest.Assignee.Name };
                 var assignResponse = await ProcessRequestWithJiraApiActionCallResponse<string>(user, $"api/2/issue/{issueIdOrKey}/assignee", "PUT", assignRequest);
                 if (!assignResponse.IsSuccess)
                 {
@@ -158,13 +157,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
             }
 
-            if (updateJiraIssueRequest.Status?.Id != null)
+            if (jiraIssueRequest.Status?.Id != null)
             {
                 var doTransitionRequest = new DoTransitionRequest
                 {
                     Transition = new DoTransitionRequestModel
                     {
-                        Id = updateJiraIssueRequest.Status.Id
+                        Id = jiraIssueRequest.Status.Id
                     }
                 };
 
@@ -500,6 +499,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
 
@@ -519,6 +519,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
 
@@ -672,20 +673,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             await JiraHelpers.HandleJiraServerError(_databaseService, _logger, (int)HttpStatusCode.InternalServerError, response.Message, serverRequest.TeamsId, serverRequest.JiraId);
             return default;
-        }
-
-        private async Task<bool> CanUseNewCreateMetaEndpoints(IntegratedUser user)
-        {
-            try
-            {
-                var jiraCapabilities = await GetJiraCapabilities(user);
-                return !string.IsNullOrEmpty(jiraCapabilities.ListIssueTypeFields) &&
-                       !string.IsNullOrEmpty(jiraCapabilities.ListProjectIssueTypes);
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private IEnumerable<string> GetSearchFieldsFilter()

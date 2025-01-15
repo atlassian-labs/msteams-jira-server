@@ -24,7 +24,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             _appSettings = appSettings.Value;
         }
 
-        public void SendBotDialogEvent(ITurnContext context, string dialogName, string dialogAction)
+        public void SendBotDialogEvent(ITurnContext context, string dialogName, string dialogAction, string errorMessage = "")
         {
             string userId = context.Activity.From.AadObjectId;
             bool isGroupConversation = context.Activity.Conversation.IsGroup.GetValueOrDefault();
@@ -35,7 +35,12 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 dialogAction,
                 "dialog",
                 null,
-                new DialogAnalyticsEventAttributes() { DialogType = dialogName, IsGroupConversation = isGroupConversation });
+                new DialogAnalyticsEventAttributes()
+                {
+                    DialogType = dialogName,
+                    IsGroupConversation = isGroupConversation,
+                    ErrorMessage = errorMessage
+                });
         }
 
         public void SendTrackEvent(

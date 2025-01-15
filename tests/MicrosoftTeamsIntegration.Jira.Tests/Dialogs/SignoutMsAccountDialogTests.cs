@@ -18,29 +18,31 @@ using Xunit.Abstractions;
 
 namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 {
-    public class SignoutMsAccountDialogTests
+    public class SignOutMsAccountDialogTests
     {
         private readonly IMiddleware[] _middleware;
         private readonly JiraBotAccessors _fakeAccessors;
         private readonly TelemetryClient _telemetry;
         private readonly IBotFrameworkAdapterService _fakeBotFrameworkAdapterService;
         private readonly AppSettings _appSettings;
+        private readonly IAnalyticsService _analyticsService;
 
-        public SignoutMsAccountDialogTests(ITestOutputHelper output)
+        public SignOutMsAccountDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
             _fakeBotFrameworkAdapterService = A.Fake<IBotFrameworkAdapterService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
-        public async Task SignOutMSAccount()
+        public async Task SignOutMsAccount()
         {
-            var sut = new SignoutMsAccountDialog(_fakeAccessors, _appSettings, _telemetry, _fakeBotFrameworkAdapterService);
+            var sut = new SignoutMsAccountDialog(_fakeAccessors, _appSettings, _telemetry, _fakeBotFrameworkAdapterService, _analyticsService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             A.CallTo(() => _fakeBotFrameworkAdapterService.SignOutUserAsync(A<ITurnContext>._, A<string>._, CancellationToken.None))

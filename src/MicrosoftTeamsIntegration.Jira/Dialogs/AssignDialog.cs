@@ -10,6 +10,7 @@ using MicrosoftTeamsIntegration.Jira.Helpers;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Bot;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
+using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -26,6 +27,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly AppSettings _appSettings;
         private readonly IBotMessagesService _botMessagesService;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         private IntegratedUser MentionedUser { get; set; }
 
@@ -35,7 +37,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             AppSettings appSettings,
             IDatabaseService databaseService,
             IBotMessagesService botMessagesService,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(AssignDialog), accessors, jiraService, appSettings)
         {
             _accessors = accessors;
@@ -44,6 +47,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             _databaseService = databaseService;
             _botMessagesService = botMessagesService;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
 
             var waterfallSteps = new WaterfallStep[]
             {
@@ -173,9 +177,11 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             {
                 await dc.Context.SendActivityAsync($"{issueKey} has been assigned.");
             }
+
+            _analyticsService.SendBotDialogEvent(dc.Context, "assign", "completed");
         }
 
-        private static async Task HandleFailedAssignment(DialogContext dc, string errorMessage, bool invokedFromCard)
+        private async Task HandleFailedAssignment(DialogContext dc, string errorMessage, bool invokedFromCard)
         {
             if (invokedFromCard)
             {
@@ -185,6 +191,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             {
                 await dc.Context.SendActivityAsync(errorMessage);
             }
+
+            _analyticsService.SendBotDialogEvent(dc.Context, "assign", "failed", errorMessage);
         }
 
         private async Task HandleAlreadyAssignedIssue(

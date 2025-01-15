@@ -9,6 +9,7 @@ import {
     UtilService
 } from '@core/services';
 import * as microsoftTeams from '@microsoft/teams-js';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-settings',
@@ -26,13 +27,19 @@ export class SettingsComponent implements OnInit {
         private apiService: ApiService,
         private errorService: ErrorService,
         private appInsightsService: AppInsightsService,
-        private utilService: UtilService
+        private utilService: UtilService,
+        private analyticsService: AnalyticsService,
     ) { }
 
     public async ngOnInit(): Promise<void> {
-        this.appInsightsService.logNavigation('SettingsComponent', this.route);
-
         this.parseParams();
+
+        this.appInsightsService.logNavigation('SettingsComponent', this.route);
+        this.analyticsService.sendScreenEvent(
+            'configureTab',
+            EventAction.viewed,
+            UiEventSubject.taskModule,
+            'configureTab');
 
         try {
             await this.setUserSettings();

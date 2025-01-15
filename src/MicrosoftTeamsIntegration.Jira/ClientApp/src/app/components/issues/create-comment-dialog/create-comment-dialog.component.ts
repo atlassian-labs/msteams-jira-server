@@ -12,6 +12,7 @@ import { UtilService } from '@core/services/util.service';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
 import { NotificationService } from '@shared/services/notificationService';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-create-comment-dialog',
@@ -45,18 +46,25 @@ export class CreateCommentDialogComponent implements OnInit {
         private utilService: UtilService,
         private appInsightsService: AppInsightsService,
         private errorService: ErrorService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit() {
         this.loading = true;
         try {
-            const { metadataRef, jiraUrl, jiraId, comment, issueUrl } = this.route.snapshot.params;
+            const { metadataRef, jiraUrl, jiraId, comment, issueUrl, application } = this.route.snapshot.params;
             this.metadataRef = metadataRef;
             this.jiraUrl = jiraUrl;
             this.jiraId = jiraId;
             this.defaultComment = comment;
             this.defaultSearchTerm = this.getIssueKey(issueUrl);
+
+            this.analyticsService.sendScreenEvent(
+                'addCommentToIssueModal',
+                EventAction.viewed,
+                UiEventSubject.taskModule,
+                'addCommentToIssueModal', {application: application});
 
             await this.createForm();
 

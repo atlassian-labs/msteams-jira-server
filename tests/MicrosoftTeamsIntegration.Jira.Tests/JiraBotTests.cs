@@ -1,5 +1,7 @@
-﻿using FakeItEasy;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using FakeItEasy;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Testing;
@@ -12,8 +14,6 @@ using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Xunit;
 using Xunit.Abstractions;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 
 namespace MicrosoftTeamsIntegration.Jira.Tests
 {
@@ -22,18 +22,20 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         private readonly IMiddleware[] _middleware;
         private readonly JiraBotAccessors _mockAccessors;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
         public JiraBotTests(ITestOutputHelper output)
         {
             _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _mockAccessors = A.Fake<JiraBotAccessors>();
             _mockAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
         public async Task UserIsAllowedToStartHelpDialog()
         {
-            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry);
+            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry, _analyticsService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             // Execute the test case
@@ -45,7 +47,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         [Fact]
         public async Task UserGetsProperHelpForJiraServer()
         {
-            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry);
+            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry, _analyticsService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             // Execute the test case

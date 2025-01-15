@@ -27,6 +27,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
         private readonly ILogger<JiraBot> _logger;
         private readonly IUserTokenService _userTokenService;
         private readonly ICommandDialogReferenceService _commandDialogReferenceService;
+        private readonly IAnalyticsService _analyticsService;
 
         public MainDispatcher(
             JiraBotAccessors accessors,
@@ -50,29 +51,36 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             _logger = logger;
             _userTokenService = userTokenService;
             _commandDialogReferenceService = commandDialogReferenceService;
+            _analyticsService = analyticsService;
 
             // Add dialogs
-            AddDialog(new HelpDialog(_accessors, _appSettings, telemetry));
-            AddDialog(new IssueByKeyDialog(_accessors, botMessagesService, _appSettings, telemetry));
-            AddDialog(new WatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry));
-            AddDialog(new UnwatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry));
-            AddDialog(new IssueEditDialog(_accessors, jiraService, _appSettings, telemetry));
-            AddDialog(new FindDialog(_accessors, jiraService, _appSettings, telemetry));
-            AddDialog(new VoteDialog(_accessors, jiraService, _appSettings, telemetry));
-            AddDialog(new UnvoteDialog(_accessors, jiraService, _appSettings, telemetry));
+            AddDialog(new HelpDialog(_accessors, _appSettings, telemetry, analyticsService));
+            AddDialog(new IssueByKeyDialog(_accessors, botMessagesService, _appSettings, telemetry, analyticsService));
+            AddDialog(new WatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry, analyticsService));
+            AddDialog(new UnwatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry, analyticsService));
+            AddDialog(new IssueEditDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
+            AddDialog(new FindDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
+            AddDialog(new VoteDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
+            AddDialog(new UnvoteDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
             AddDialog(new CreateNewIssueDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
-            AddDialog(new LogTimeDialog(_accessors, jiraService, _appSettings, telemetry));
-            AddDialog(new CommentDialog(_accessors, jiraService, _appSettings, telemetry));
-            AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, databaseService, botMessagesService, telemetry));
+            AddDialog(new LogTimeDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
+            AddDialog(new CommentDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
+            AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, databaseService, botMessagesService, telemetry, analyticsService));
             AddDialog(new ConnectToJiraDialog(_accessors, _appSettings, botMessagesService, telemetry, botFrameworkAdapter));
-            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry));
-            AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, telemetry, botFrameworkAdapter));
+            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry, analyticsService));
+            AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, telemetry, botFrameworkAdapter, analyticsService));
         }
 
         protected override async Task<DialogTurnResult> OnBeginDialogAsync(DialogContext innerDc, object options, CancellationToken cancellationToken = default)
         {
             try
             {
+                _analyticsService.SendTrackEvent(
+                    innerDc?.Context?.Activity?.From?.AadObjectId,
+                    string.Empty,
+                    "received",
+                    "message",
+                    string.Empty);
                 return await MainDispatchAsync(innerDc, cancellationToken);
             }
             catch (UnauthorizedException)
@@ -117,11 +125,11 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
 
         // This method examines the incoming turn property to determine:
         // 1. If the requested operation is permissible - e.g. if user is in middle of a dialog,
-        //     then an out of order reply should not be allowed.
+        //     then an out-of-order reply should not be allowed.
         // 2. Calls any outstanding dialogs to continue.
         // 3. If results is no-match from outstanding dialog .OR. if there are no outstanding dialogs,
         //    decide which child dialog should begin and start it.
-        protected async Task<DialogTurnResult> MainDispatchAsync(DialogContext innerDc, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> MainDispatchAsync(DialogContext innerDc, CancellationToken cancellationToken)
         {
             var context = innerDc.Context;
             var (allowed, reason) = IsRequestedOperationPossible(innerDc);
@@ -174,7 +182,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             return dialogTurnResult;
         }
 
-        protected async Task<DialogTurnResult> BeginChildDialogAsync(DialogContext dc, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> BeginChildDialogAsync(DialogContext dc, CancellationToken cancellationToken)
         {
             var activity = dc.Context.Activity;
 
@@ -192,7 +200,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             // we can receive null when adaptive card is sent from ME in personal chat
             if (activityText == null)
             {
-                return await dc.EndDialogAsync();
+                return await dc.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
             // run following dialog if request is a valid jira issue url
@@ -205,8 +213,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
 
             if (isAuth)
             {
-                var user = await _accessors.User.GetAsync(dc.Context, () => new IntegratedUser());
-                await _accessors.User.SetAsync(dc.Context, user);
+                var user = await _accessors.User.GetAsync(dc.Context, () => new IntegratedUser(), cancellationToken);
+                await _accessors.User.SetAsync(dc.Context, user, cancellationToken);
             }
 
             return await RunCommandAsync(activityText, isAuth, dc);
