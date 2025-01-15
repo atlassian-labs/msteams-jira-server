@@ -1,69 +1,69 @@
-@import "icons";
-@import "app-colors";
+@use "../../../../styles/icons";
+@use "../../../../styles/app-colors";
 
 :host-context(.default) {
     .issues {
-        background-color: $white;
-        color: $black-light;
+        background-color: app-colors.$white;
+        color: app-colors.$black-light;
     }
   
     .mat-mdc-header-cell {
-        color: $black-light;
+        color: app-colors.$black-light;
     }
   
     .mat-mdc-row:hover {
-        background-color: $app-brand-14;
+        background-color: app-colors.$app-brand-14;
     }
 }
   
 :host-context(.dark) {
     .issues {
-        background-color: $app-gray-14-dark;
-        color: $app-gray-02-dark;
+        background-color: app-colors.$app-gray-14-dark;
+        color: app-colors.$app-gray-02-dark;
 
         &__no-content-container {
-            color: $app-brand-dark;
+            color: app-colors.$app-brand-dark;
         }
     }
 
     .mat-mdc-row {
-        border-color: $black-dark;
+        border-color: app-colors.$black-dark;
 
         &:hover {
-            background-color: $app-brand-dark-14;
+            background-color: app-colors.$app-brand-dark-14;
         }
     }
 
     .mat-mdc-header-cell, 
     .mat-mdc-cell {
-        color: $white;
+        color: app-colors.$white;
     }
 }
   
 :host-context(.contrast) {
     .issues {
-        background-color: $black;
-        color: $white;
+        background-color: app-colors.$black;
+        color: app-colors.$white;
 
         &__no-content-container {
-            color: $yellow;
+            color: app-colors.$yellow;
         }
     }
 
     .mat-mdc-row {
-        border-color: $white;
+        border-color: app-colors.$white;
 
         &:hover {
-            background-color: $yellow;
+            background-color: app-colors.$yellow;
 
             .mat-mdc-cell {
-                color: $black;
+                color: app-colors.$black;
             }
         }
     }
 
     .mat-mdc-header-cell,
     .mat-mdc-cell {
-        color: $white;
+        color: app-colors.$white;
     }
 }

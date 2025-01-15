@@ -70,7 +70,8 @@ const mapIssueToEditIssueDialogModel = (issue: Issue): EditIssueModel => ({
 @Component({
     selector: 'app-edit-issue-dialog',
     templateUrl: './edit-issue-dialog.component.html',
-    styleUrls: ['./edit-issue-dialog.component.scss']
+    styleUrls: ['./edit-issue-dialog.component.scss'],
+    standalone: false
 })
 export class EditIssueDialogComponent implements OnInit {
     public loading = false;

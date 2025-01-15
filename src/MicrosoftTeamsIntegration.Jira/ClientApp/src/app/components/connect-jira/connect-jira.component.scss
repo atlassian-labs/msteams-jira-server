@@ -1,6 +1,6 @@
-@import 'icons';
-@import 'app-colors';
-@import 'variables';
+@use '../../../styles/icons';
+@use '../../../styles/app-colors' as colors;
+@use '../../../styles/variables';
 
 .config {
     display: flex;
@@ -18,28 +18,28 @@
 
             &-error {
                 border: 0;
-                color: $red;
+                color: colors.$red;
                 display: inline-block;
                 float: right;
-                font-family: $font-family;
+                font-family: variables.$font-family;
                 font-size: 1.2rem;
-                font-weight: $regular;
+                font-weight: variables.$regular;
                 line-height: 2rem;
                 margin: 0;
                 padding: 0;
             }
 
             &-error-icon {
-                color: $red;
+                color: colors.$red;
                 bottom: 0.4rem;
                 right: 0.75rem;
                 position: absolute;
                 font-style: normal;
 
                 &::before {
-                    font-family: $msteams-icons-font !important;
+                    font-family: variables.$msteams-icons-font !important;
                     bottom: 1px;
-                    content: $field-error;
+                    content: icons.$field-error;
                     position: relative;
                 }
             }
@@ -51,9 +51,9 @@
         }
 
         &-label {
-            color: $app-gray-01-light;
+            color: colors.$app-gray-01-light;
             font-size: 1.2rem;
-            font-weight: $regular;
+            font-weight: variables.$regular;
         }
 
         &-auth-button-container {
@@ -76,7 +76,7 @@
             flex: 9.2;
 
             &-icon {
-                color: $red;
+                color: colors.$red;
                 font-style: normal;
                 text-rendering: optimizeLegibility;
                 -webkit-font-smoothing: antialiased;
@@ -84,9 +84,9 @@
                 flex: 0.8;
 
                 &::before {
-                    font-family: $msteams-icons-font !important;
+                    font-family: variables.$msteams-icons-font !important;
                     bottom: 1px;
-                    content: $field-error;
+                    content: icons.$field-error;
                     position: relative;
                 }
             }
@@ -101,8 +101,8 @@
         line-height: 1.3em;
 
         &::before {
-            font-family: $msteams-icons-font !important;
-            content: $question-mark-field;
+            font-family: variables.$msteams-icons-font !important;
+            content: icons.$question-mark-field;
             position: relative;
         }
     }
@@ -110,7 +110,7 @@
     .info__container {
         position: fixed;
         bottom: 0;
-        color: $app-gray-04-light;
+        color: colors.$app-gray-04-light;
         font-size: .8em;
         margin-bottom: 2px;
     }

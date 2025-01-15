@@ -12,7 +12,8 @@ import { IssueStatus } from '@core/models';
 @Component({
     selector: 'app-status-dropdown',
     templateUrl: './status-dropdown.component.html',
-    styleUrls: ['./status-dropdown.component.scss']
+    styleUrls: ['./status-dropdown.component.scss'],
+    standalone: false
 })
 export class StatusDropdownComponent implements OnInit {
 

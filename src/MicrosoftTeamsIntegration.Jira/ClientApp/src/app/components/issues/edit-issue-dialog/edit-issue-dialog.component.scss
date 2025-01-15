@@ -1,4 +1,4 @@
-@import 'app-colors';
+@use '../../../../styles/app-colors';
 
 .top-panel {
   display: flex;
@@ -152,7 +152,7 @@ input, textarea {
 }
 
 input:focus, textarea:focus {
-  border-color: $app-brand;
+  border-color: app-colors.$app-brand;
 }
 
 input.ng-invalid.ng-touched, textarea.ng-invalid.ng-dirty {
@@ -171,7 +171,7 @@ hr {
   display: block;
   height: 1px;
   border: 0;
-  border-top: 1px solid $app-gray-02;
+  border-top: 1px solid app-colors.$app-gray-02;
   margin: 1em 0;
   padding: 0;
 }

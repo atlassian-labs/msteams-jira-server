@@ -14,7 +14,8 @@ import * as microsoftTeams from '@microsoft/teams-js';
 @Component({
     selector: 'app-signout-dialog',
     templateUrl: './signout-dialog.component.html',
-    styleUrls: ['./signout-dialog.component.scss']
+    styleUrls: ['./signout-dialog.component.scss'],
+    standalone: false
 })
 export class SignoutDialogComponent implements OnInit {
 

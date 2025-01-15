@@ -1,6 +1,6 @@
-@import "variables";
-@import "icons";
-@import "app-colors";
+@use "../../../../styles/variables";
+@use "../../../../styles/icons";
+@use "../../../../styles/app-colors";
 
 $icon-color-breached: #de350b;
 $icon-color-expired: #ffab00;
@@ -11,7 +11,7 @@ $srollbar-width: 13px;
 
 .issues {
     height: 100vh;
-    font-family: $font-family;
+    font-family: variables.$font-family;
 
     &__header {
         display: flex;
@@ -139,7 +139,7 @@ $srollbar-width: 13px;
         top: calc(100%/2);
         margin-top: auto;
         text-align: center;
-        color: $app-brand;
+        color: app-colors.$app-brand;
         font-size: 20px;
     }
 
@@ -189,12 +189,12 @@ $srollbar-width: 13px;
 }
 
 .mat-mdc-table mat-header-row.mat-mdc-header-row {
-  font-family: $font-family;
+  font-family: variables.$font-family;
   font-size: 12px !important;
 }
 
 .mat-mdc-table {
-  font-family: $font-family;
+  font-family: variables.$font-family;
   background-color: inherit;  
   height: calc(100vh - 130px);
   overflow-x: hidden;
@@ -230,7 +230,7 @@ $srollbar-width: 13px;
 
 .mat-mdc-row {
   cursor: pointer;
-  font-family: $font-family;
+  font-family: variables.$font-family;
 }
 
 mat-header-cell {
@@ -402,31 +402,31 @@ img.priority-icon, img.issuetype-icon {
 }
 
 .aui-iconfont-pause:before {
-    content: $pause;
+    content: icons.$pause;
 }
 .aui-iconfont-success:before{
-    content: $success;
+    content: icons.$success;
 }
 
 .aui-iconfont-close-dialog:before{
-  content: $close-dialog;
+  content: icons.$close-dialog;
 }
 
 .aui-iconfont-ongoing:before {
-    content: $time;
+    content: icons.$time;
 }
 
 .sla-breached {
-  color: $sla-breached;
+  color: app-colors.$sla-breached;
 } 
 .sla-expired {
-  color: $sla-expired;
+  color: app-colors.$sla-expired;
 }
 .sla-work-hours {
-  color: $sla-work-hours;
+  color: app-colors.$sla-work-hours;
 }
 .sla-success {
-  color: $sla-success;
+  color: app-colors.$sla-success;
 }
 
 .aui-icon-small:before {
@@ -436,51 +436,51 @@ img.priority-icon, img.issuetype-icon {
 
 :host-context(.dark) {
   .mat-mdc-header-row {
-    background-color: $app-gray-14-dark;
+    background-color: app-colors.$app-gray-14-dark;
   }
   
   .mat-mdc-paginator {
-    background-color: $app-gray-14-dark;
-    color: $app-gray-02-dark;    
+    background-color: app-colors.$app-gray-14-dark;
+    color: app-colors.$app-gray-02-dark;    
   }  
 }
 
 ::ng-deep .dark {
   .mat-mdc-icon-button[disabled] {
-    color: $app-gray-02-light;
+    color: app-colors.$app-gray-02-light;
   }
 
   .mat-mdc-icon-button[disabled] svg {
-    fill: $app-gray-02-light;
+    fill: app-colors.$app-gray-02-light;
   }
 
   .mat-mdc-icon-button svg {
-    fill: $white;
+    fill: app-colors.$white;
   }
 }
 
 :host-context(.contrast) {
   .mat-mdc-header-row {
-    background-color: $black;
+    background-color: app-colors.$black;
   }
   
   .mat-mdc-paginator {
-    background-color: $black;
-    color: $white;
+    background-color: app-colors.$black;
+    color: app-colors.$white;
   }  
 }
 
 ::ng-deep .contrast {
   .mat-mdc-icon-button[disabled] {
-    color: $app-gray-02-light;
+    color: app-colors.$app-gray-02-light;
   }
 
   .mat-mdc-icon-button[disabled] svg {
-    fill: $app-gray-02-light;
+    fill: app-colors.$app-gray-02-light;
   }
 
   .mat-mdc-icon-button svg {
-    fill: $white;
+    fill: app-colors.$white;
   }
 }
 

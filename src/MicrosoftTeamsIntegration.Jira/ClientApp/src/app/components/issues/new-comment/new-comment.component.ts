@@ -8,7 +8,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 @Component({
     selector: 'app-new-comment',
     templateUrl: './new-comment.component.html',
-    styleUrls: ['./new-comment.component.scss']
+    styleUrls: ['./new-comment.component.scss'],
+    standalone: false
 })
 export class NewCommentComponent {
     public error: Error | any;

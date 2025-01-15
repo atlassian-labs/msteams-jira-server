@@ -38,7 +38,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
           </div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class LabelsFieldComponent implements FieldComponent, OnInit {

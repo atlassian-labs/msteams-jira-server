@@ -1,4 +1,4 @@
-@import 'app-colors';
+@use '../../../../styles/app-colors';
 
 .dialog {
   margin-left: 3.2rem;
@@ -96,7 +96,7 @@ input, textarea {
 
 input:focus, 
 textarea:focus {
-  border-color: $app-brand;
+  border-color: app-colors.$app-brand;
 }
 
 input.ng-invalid.ng-touched, 
@@ -116,7 +116,7 @@ hr {
   display: block;
   height: 1px;
   border: 0;
-  border-top: 1px solid $app-gray-02;
+  border-top: 1px solid app-colors.$app-gray-02;
   margin: 1em 0;
   padding: 0;
 }
@@ -161,13 +161,13 @@ hr {
 
 :host-context(.default) {
   ::ng-deep h5 {
-    color: $black !important;
+    color: app-colors.$black !important;
   }
 }
 
 :host-context(.dark) {
   ::ng-deep h5 {
-    color: $white !important;
+    color: app-colors.$white !important;
   }
 }
 

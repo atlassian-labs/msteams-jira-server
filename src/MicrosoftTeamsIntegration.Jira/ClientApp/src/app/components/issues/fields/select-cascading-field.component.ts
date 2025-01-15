@@ -48,7 +48,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 			</div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class SelectCascadingFieldComponent implements FieldComponent, OnInit {

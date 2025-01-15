@@ -1,9 +1,9 @@
-@import 'app-colors';
+@use '../app-colors';
 
 /* default coloring schemes */
-$defaultThemeColoring: (color: $app-brand, backgroundColor: $white);
-$darkThemeColoring: (color: $app-brand-dark, backgroundColor: $app-gray-14-dark);
-$contrastThemeColoring: (color: $white, backgroundColor: $black);
+$defaultThemeColoring: (color: app-colors.$app-brand, backgroundColor: app-colors.$white);
+$darkThemeColoring: (color: app-colors.$app-brand-dark, backgroundColor: app-colors.$app-gray-14-dark);
+$contrastThemeColoring: (color: app-colors.$white, backgroundColor: app-colors.$black);
 
 @mixin theme-element($selector, 
         $color: null, $backgroundColor: null, 
@@ -26,29 +26,29 @@ $contrastThemeColoring: (color: $white, backgroundColor: $black);
 
 body {
     &.default {
-        @include theme-element('a', $app-brand);
-        @include theme-element('ul.dropdown__options li', $hoverColor: $white, $hoverBackgroundColor: $app-brand);
+        @include theme-element('a', app-colors.$app-brand);
+        @include theme-element('ul.dropdown__options li', $hoverColor: app-colors.$white, $hoverBackgroundColor: app-colors.$app-brand);
 
         & ::-webkit-scrollbar-thumb {
-            background: $scrollbar-light;
+            background: app-colors.$scrollbar-light;
         }
     }
 
     &.dark {
-        @include theme-element('a', $app-brand-dark);
-        @include theme-element('ul.dropdown__options li', $hoverBackgroundColor: $app-brand-dark);
+        @include theme-element('a', app-colors.$app-brand-dark);
+        @include theme-element('ul.dropdown__options li', $hoverBackgroundColor: app-colors.$app-brand-dark);
 
         & ::-webkit-scrollbar-thumb {
-            background: $scrollbar-dark;
+            background: app-colors.$scrollbar-dark;
         }
     }
 
     &.contrast {
-        @include theme-element('a', $yellow);
-        @include theme-element('ul.dropdown__options li, .face__icon', $white, $black, $black, $yellow );
+        @include theme-element('a', app-colors.$yellow);
+        @include theme-element('ul.dropdown__options li, .face__icon', app-colors.$white, app-colors.$black, app-colors.$black, app-colors.$yellow );
 
         ::-webkit-scrollbar-thumb {
-            background: $white;
+            background: app-colors.$white;
         }
     }
 }

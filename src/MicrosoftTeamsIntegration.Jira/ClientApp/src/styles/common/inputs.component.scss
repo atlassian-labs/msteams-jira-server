@@ -1,11 +1,11 @@
-﻿@import 'icons';
-@import 'app-colors';
-@import 'variables';
+﻿@use '../icons';
+@use '../app-colors' as colors;
+@use '../variables' as vars;
 
 input[type=text], 
 input[type=password], 
 input[type=email], textarea, input[type=number], input[type=url] {
-  font-family: $font-family;
+  font-family: vars.$font-family;
   font-size: 14px;
   width: 100%;
   padding: 5px 12px 8px;
@@ -32,8 +32,8 @@ body.default input[type=password],
 body.default input[type=number], 
 body.default input[type=url],
 body.default textarea {
-  background-color: $app-gray-10-light;
-  color: $black;
+  background-color: colors.$app-gray-10-light;
+  color: colors.$black;
 }
 
 body.default input[type=text]:focus, 
@@ -41,7 +41,7 @@ body.default input[type=password]:focus,
 body.default input[type=number]:focus,
 body.default input[type=url]:focus,
 body.default textarea:focus {
-  border-color: $app-brand;
+  border-color: colors.$app-brand;
 }
 
 body.dark input[type=text], 
@@ -49,8 +49,8 @@ body.dark input[type=password],
 body.dark input[type=number], 
 body.dark input[type=url], 
 body.dark textarea {
-  background-color: $black-dark;
-  color: $white;
+  background-color: colors.$black-dark;
+  color: colors.$white;
 }
 
 body.dark input[type=text]:focus, 
@@ -58,7 +58,7 @@ body.dark input[type=password]:focus,
 body.dark input[type=number]:focus, 
 body.dark input[type=url]:focus, 
 body.dark textarea:focus {
-  border-color: $app-brand-dark;
+  border-color: colors.$app-brand-dark;
 }
 
 body.contrast input[type=text], 
@@ -66,7 +66,7 @@ body.contrast input[type=password],
 body.contrast input[type=number], 
 body.contrast input[type=url], 
 body.contrast textarea {
-  background-color: $black;
+  background-color: colors.$black;
   color: #ffffff;
   border-color: #ffffff;
   border-radius: 3px;
@@ -83,31 +83,31 @@ body.contrast textarea:focus {
 
 // input[type=email] theme section
 body.default input[type=email] {
-  background-color: $app-gray-10-light;
-  color: $black;
+  background-color: colors.$app-gray-10-light;
+  color: colors.$black;
 }
 
 body.default input[type=email]:focus {
-  border-color: $app-brand;
+  border-color: colors.$app-brand;
 }
 
 body.dark input[type=email] {
-  background-color: $black-dark;
-  color: $white;
+  background-color: colors.$black-dark;
+  color: colors.$white;
 }
 
 body.dark input[type=email]:focus {
-  border-color: $app-brand-dark;
+  border-color: colors.$app-brand-dark;
 }
 
 body.contrast input[type=email] {
-  background-color: $black;
-  color: $white;
-  border: 1px solid $white;
+  background-color: colors.$black;
+  color: colors.$white;
+  border: 1px solid colors.$white;
 }
 
 body.contrast input[type=email]:focus {
-  border-color: $yellow;
+  border-color: colors.$yellow;
 }
 
 span.hint {
@@ -115,13 +115,13 @@ span.hint {
 }
 
 body.default span.hint {
-  color: $black-light;
+  color: colors.$black-light;
 }
 
 body.dark span.hint {
-  color: $app-gray-02-dark;
+  color: colors.$app-gray-02-dark;
 }
 
 body.contrast span.hint {
-  color: $yellow;
+  color: colors.$yellow;
 }

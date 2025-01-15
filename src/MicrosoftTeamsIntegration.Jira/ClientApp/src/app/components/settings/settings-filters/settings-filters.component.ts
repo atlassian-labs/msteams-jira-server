@@ -41,7 +41,8 @@ export type FilterSetting = JiraFilterName | 'filter';
 @Component({
     selector: 'app-settings-filters',
     templateUrl: './settings-filters.component.html',
-    styleUrls: ['./settings-filters.component.scss']
+    styleUrls: ['./settings-filters.component.scss'],
+    standalone: false
 })
 export class SettingsFiltersComponent implements OnInit {
     public statusesOptions: SelectOption[] = [];

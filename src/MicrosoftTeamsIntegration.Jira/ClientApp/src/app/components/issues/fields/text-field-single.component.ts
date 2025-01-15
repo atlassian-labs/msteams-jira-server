@@ -22,7 +22,8 @@ import { UntypedFormGroup } from '@angular/forms';
 		</div>
 	  </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class TextFieldSingleComponent implements FieldComponent {

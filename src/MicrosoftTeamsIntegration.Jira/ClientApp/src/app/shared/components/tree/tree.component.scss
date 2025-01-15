@@ -1,4 +1,4 @@
-﻿@import 'app-colors';
+﻿@use '../../../../styles/app-colors';
 
 .tree {
   margin-top: 12px;
@@ -29,12 +29,12 @@
 
 :host-context(.default) {
   .tree__node {
-    color: $black;
+    color: app-colors.$black;
     opacity: 0.75;
   }
 
   .select__label {
-    color: $black;
+    color: app-colors.$black;
     opacity: 0.75;
   }
 }
@@ -42,11 +42,11 @@
 :host-context(.dark) {
   .tree__node {
     opacity: 0.75;
-    color: $white;
+    color: app-colors.$white;
   }
 
   .select__label {
     opacity: 0.75;
-    color: $white;
+    color: app-colors.$white;
   }
 }

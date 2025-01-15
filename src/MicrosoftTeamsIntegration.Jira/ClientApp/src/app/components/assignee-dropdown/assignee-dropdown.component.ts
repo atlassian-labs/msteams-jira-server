@@ -12,7 +12,8 @@ import { SearchAssignableOptions } from '@core/models/Jira/search-assignable-opt
 @Component({
     selector: 'app-assignee-dropdown',
     templateUrl: './assignee-dropdown.component.html',
-    styleUrls: ['./assignee-dropdown.component.scss']
+    styleUrls: ['./assignee-dropdown.component.scss'],
+    standalone: false
 })
 export class AssigneeDropdownComponent implements OnInit {
 

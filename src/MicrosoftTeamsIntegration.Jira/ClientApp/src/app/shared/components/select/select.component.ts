@@ -6,7 +6,8 @@ import { SelectChange } from '@shared/models/select-change.model';
 @Component({
     selector: 'app-select',
     templateUrl: './select.component.html',
-    styleUrls: ['./select.component.scss']
+    styleUrls: ['./select.component.scss'],
+    standalone: false
 })
 export class SelectComponent {
     protected _options: SelectOption[] = [];

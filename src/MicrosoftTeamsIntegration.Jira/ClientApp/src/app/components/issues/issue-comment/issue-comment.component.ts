@@ -11,7 +11,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 @Component({
     selector: 'app-issue-comment',
     templateUrl: './issue-comment.component.html',
-    styleUrls: ['./issue-comment.component.scss']
+    styleUrls: ['./issue-comment.component.scss'],
+    standalone: false
 })
 export class IssueCommentComponent {
     public error: Error | undefined;

@@ -29,7 +29,8 @@ import { UntypedFormGroup } from '@angular/forms';
 			</div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class SelectFieldComponent implements FieldComponent, OnInit {

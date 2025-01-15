@@ -20,7 +20,8 @@ import { Component, Input, AfterViewInit, ChangeDetectorRef } from '@angular/cor
             min-width: 1px;
             min-height: 1px;
         }
-    `]
+    `],
+    standalone: false
 })
 export class TruncatedTextComponent implements AfterViewInit {
     @Input() text: string | undefined;

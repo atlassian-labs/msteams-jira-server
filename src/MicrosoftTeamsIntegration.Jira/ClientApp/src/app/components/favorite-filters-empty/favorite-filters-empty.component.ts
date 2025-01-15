@@ -19,5 +19,6 @@ import { Component } from '@angular/core';
                 for detailed steps.
             </span>
         </div>`,
+    standalone: false
 })
 export class FavoriteFiltersEmptyComponent { }

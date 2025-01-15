@@ -25,7 +25,8 @@ import {AnalyticsService, EventAction, UiEventSubject} from '@core/services/anal
 @Component({
     selector: 'app-create-issue-dialog',
     templateUrl: './create-issue-dialog.component.html',
-    styleUrls: ['./create-issue-dialog.component.scss']
+    styleUrls: ['./create-issue-dialog.component.scss'],
+    standalone: false
 })
 export class CreateIssueDialogComponent implements OnInit {
     public loading = false;
@@ -124,7 +125,6 @@ export class CreateIssueDialogComponent implements OnInit {
         this.loading = true;
 
         try {
-            this.loading = true;
             await this.createForm();
             this.loading = false;
             const getAddonStatusPromise = this.apiService.getAddonStatus(jiraUrl);

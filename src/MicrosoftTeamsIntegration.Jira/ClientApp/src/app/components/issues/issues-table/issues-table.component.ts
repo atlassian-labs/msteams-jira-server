@@ -39,7 +39,8 @@ import { LoadingIndicatorService } from '@shared/services/loading-indicator.serv
         './issues-table.component.themes.scss'
     ],
     templateUrl: './issues-table.component.html',
-    providers: [IssuesService]
+    providers: [IssuesService],
+    standalone: false
 })
 export class IssuesComponent implements OnInit {
     readonly defaultActiveColumn = 'updated';

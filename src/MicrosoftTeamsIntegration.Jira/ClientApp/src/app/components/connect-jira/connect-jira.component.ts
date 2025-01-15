@@ -14,7 +14,8 @@ import * as microsoftTeams from '@microsoft/teams-js';
 @Component({
     selector: 'app-connect-jira',
     templateUrl: './connect-jira.component.html',
-    styleUrls: ['./connect-jira.component.scss']
+    styleUrls: ['./connect-jira.component.scss'],
+    standalone: false
 })
 
 export class ConnectJiraComponent implements OnInit {

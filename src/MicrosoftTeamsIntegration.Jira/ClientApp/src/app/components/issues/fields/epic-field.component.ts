@@ -58,7 +58,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
           </div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class EpicFieldComponent implements FieldComponent, OnInit {

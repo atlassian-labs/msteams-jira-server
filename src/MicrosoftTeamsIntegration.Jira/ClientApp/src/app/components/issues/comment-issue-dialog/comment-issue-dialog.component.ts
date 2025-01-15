@@ -15,7 +15,8 @@ import { NotificationService } from '@shared/services/notificationService';
 @Component({
     selector: 'app-comment-issue-dialog',
     templateUrl: './comment-issue-dialog.component.html',
-    styleUrls: ['./comment-issue-dialog.component.scss']
+    styleUrls: ['./comment-issue-dialog.component.scss'],
+    standalone: false
 })
 export class CommentIssueDialogComponent implements OnInit {
     public issue: Issue | undefined;

@@ -26,7 +26,8 @@ import { UtilService } from '@core/services';
             max-width: 500px;
             text-align: center;
         }
-    `]
+    `],
+    standalone: false
 })
 export class ErrorComponent implements OnInit {
     public message: string | undefined;

@@ -33,7 +33,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
           </div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class SprintFieldComponent implements FieldComponent, OnInit {

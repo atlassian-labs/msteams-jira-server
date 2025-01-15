@@ -5,7 +5,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 @Component({
     selector: 'app-issue-details',
     templateUrl: './issue-details.component.html',
-    styleUrls: ['./issue-details.component.scss']
+    styleUrls: ['./issue-details.component.scss'],
+    standalone: false
 })
 export class IssueDetailsComponent implements OnInit {
     public title: string | any;

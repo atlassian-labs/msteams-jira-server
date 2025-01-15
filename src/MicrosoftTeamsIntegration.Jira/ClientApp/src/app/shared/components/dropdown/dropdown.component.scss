@@ -1,4 +1,6 @@
-﻿@import 'icons', 'app-colors', 'variables';
+﻿@use '../../../../styles/icons' as icons;
+@use '../../../../styles/app-colors' as colors;
+@use '../../../../styles/variables' as vars;
 
 :host {
   display: inline-block;
@@ -96,7 +98,7 @@
 
   &__state-icon {
     display: block;
-    font-family: $msteams-icons-font !important;
+    font-family: vars.$msteams-icons-font !important;
     font-size: 16px;
     font-style: normal;
     font-variant: normal;
@@ -106,7 +108,7 @@
 
     &::before {
       bottom: 1px;
-      content: $chevron-down;
+      content: icons.$chevron-down;
       position: relative;
     }
   }
@@ -122,21 +124,21 @@
 
 :host-context(.default) {
     & .dropdown__face, .dropdown__options {
-        background-color: $app-gray-10-light;
+        background-color: colors.$app-gray-10-light;
     }
 }
 
 :host-context(.dark) {
     & .dropdown__face, .dropdown__options {
-        background-color: $black-dark;
+        background-color: colors.$black-dark;
     }
 }
 
 
 :host-context(.contrast) {
     & .dropdown__face, .dropdown__options {
-        background-color: $black;
-        border: 1px solid $white;
+        background-color: colors.$black;
+        border: 1px solid colors.$white;
     }
 
     & .face__search-input {

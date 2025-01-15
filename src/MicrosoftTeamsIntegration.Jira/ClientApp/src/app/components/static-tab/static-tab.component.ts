@@ -6,7 +6,8 @@ import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 
 @Component({
     selector: 'app-static-tab',
-    template: ''
+    template: '',
+    standalone: false
 })
 export class StaticTabComponent implements OnInit {
     private page: string | any;

@@ -1,4 +1,4 @@
-﻿@import 'app-colors';
+﻿@use '../app-colors';
 
 .radio-button {
   border: none;
@@ -34,15 +34,15 @@
 
   body.default &__label {
     opacity: 0.75;
-    color: $black;
+    color: app-colors.$black;
   }
 
   body.default &__input:checked + &__button {
-    border-color: $app-brand;
-    background: $app-brand;
+    border-color: app-colors.$app-brand;
+    background: app-colors.$app-brand;
 
     & + label {
-      color: $black;
+      color: app-colors.$black;
       opacity: 1;
     }
 
@@ -51,7 +51,7 @@
     }
 
     &:focus {
-      box-shadow: 0 0 0 0.2rem $app-brand-dark;
+      box-shadow: 0 0 0 0.2rem app-colors.$app-brand-dark;
       outline: none;
     }
   }
@@ -86,21 +86,21 @@
     padding: 0;
     border-radius: 100%;
     border: 0.1rem solid;
-    border-color: $app-gray-02-dark;
+    border-color: app-colors.$app-gray-02-dark;
     background: transparent;
   }
 
   body.dark &__label {
     opacity: 0.75;
-    color: $white;
+    color: app-colors.$white;
   }
 
   body.dark &__input:checked + &__button {
-    border-color: $app-brand;
-    background: $app-brand;
+    border-color: app-colors.$app-brand;
+    background: app-colors.$app-brand;
 
     & + label {
-      color: $white;
+      color: app-colors.$white;
       opacity: 1;
     }
 
@@ -109,18 +109,18 @@
     }
 
     &:focus {
-      box-shadow: 0 0 0 0.2rem $app-brand;
+      box-shadow: 0 0 0 0.2rem app-colors.$app-brand;
       outline: none;
     }
   }
 
   body.dark &__input:disabled + &__button {
-    background: $app-gray-10-dark;
+    background: app-colors.$app-gray-10-dark;
     cursor: default;
 
     & + label {
       cursor: default;
-      color: $app-gray-02-dark;
+      color: app-colors.$app-gray-02-dark;
     }
   }
 
@@ -143,16 +143,16 @@
     padding: 0;
     border-radius: 100%;
     border: 0.1rem solid;
-    border-color: $white;
+    border-color: app-colors.$white;
     background: transparent;
   }
 
   body.contrast &__input:checked + &__button {
-    border-color: $blue;
-    background: $blue;
+    border-color: app-colors.$blue;
+    background: app-colors.$blue;
 
     & + label {
-      color: $white;
+      color: app-colors.$white;
     }
 
     &:hover {
@@ -160,7 +160,7 @@
     }
 
     &:focus {
-      box-shadow: 0 0 0 0.2rem $yellow;
+      box-shadow: 0 0 0 0.2rem app-colors.$yellow;
       outline: none;
     }
   }
@@ -175,7 +175,7 @@
   }
 
   body.contrast &__label {
-    color: $white;
+    color: app-colors.$white;
     cursor: pointer;
     margin-left: 1rem;
     font-weight: 500;

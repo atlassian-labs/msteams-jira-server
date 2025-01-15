@@ -1,4 +1,4 @@
-@import "app-colors";
+@use "../../../../styles/app-colors";
 
 .signout {
   height: 100%;
@@ -44,11 +44,11 @@
 ::ng-deep.default {
   .mat-mdc-dialog-container {
     .signout {
-      background-color: $white;
+      background-color: app-colors.$white;
     }
 
     .mat-mdc-dialog-title, .mat-mdc-dialog-content {
-      color: $black-light;
+      color: app-colors.$black-light;
     }
   }
 }
@@ -56,10 +56,10 @@
 ::ng-deep.dark {
   .mat-mdc-dialog-container {
     .signout {
-      background-color: $app-gray-14-dark;
+      background-color: app-colors.$app-gray-14-dark;
     }
     .mat-mdc-dialog-title, .mat-mdc-dialog-content {
-      color: $white;
+      color: app-colors.$white;
     }
   }
 }
@@ -67,11 +67,11 @@
 ::ng-deep.contrast {
   .mat-mdc-dialog-container {
     .signout {
-      background-color: $black;
-      border: 1px solid $white;
+      background-color: app-colors.$black;
+      border: 1px solid app-colors.$white;
     }
     .mat-mdc-dialog-title, .mat-mdc-dialog-content {
-      color: $white;
+      color: app-colors.$white;
     }
   }
 }

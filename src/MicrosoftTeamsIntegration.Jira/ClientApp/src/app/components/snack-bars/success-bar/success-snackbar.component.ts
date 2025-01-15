@@ -5,7 +5,8 @@ import {Component, Inject} from '@angular/core';
 @Component({
     selector: 'app-successful-snack-bar',
     templateUrl: 'success-snackbar.component.html',
-    styleUrls: ['./success-snackbar.component.scss']
+    styleUrls: ['./success-snackbar.component.scss'],
+    standalone: false
 })
 
 export class SuccessSnackbarComponent {
