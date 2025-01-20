@@ -241,3 +241,18 @@ hr {
 ::ng-deep .input-date-picker {
   width: 100% !important;
 }
+
+::ng-deep .select-cascading-parent {
+  width: 100% !important;
+}
+
+::ng-deep .select-cascading-children {
+  width: 100% !important;
+}
+
+::ng-deep .select-cascading-options {
+  display: block !important;
+  > ng-select {
+    padding-top: 10px;
+  }
+}
