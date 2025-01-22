@@ -156,9 +156,10 @@ export class FieldsService {
         dynamicFields.forEach(dynamicField => {
             // get templates for:
             // Custom Select list (multiline), Fix Versions, Affected Versions, Components
-            dynamicField.defaultValue = issueRaw?.fields?.[dynamicField.key] ?? null;
-            if (dynamicField.defaultValue) {
+            const defaultValueFromIssue = issueRaw?.fields?.[dynamicField.key] ?? null;
+            if (defaultValueFromIssue) {
                 dynamicField.hasDefaultValue = true;
+                dynamicField.defaultValue = defaultValueFromIssue;
             }
             if ((dynamicField.schema.custom && dynamicField.schema.custom ===
                 'com.atlassian.jira.plugin.system.customfieldtypes:multiselect') ||
@@ -312,9 +313,9 @@ export class FieldsService {
                 const projectId = fields['project'] && fields['project'].allowedValues && fields['project'].allowedValues.length > 0 ?
                     fields['project'].allowedValues[0].id :
                     null;
-
                 dynamicFieldsData.push(new FieldItem(SprintFieldComponent, {
                     name: dynamicField.name,
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select sprint',
                     formControlName: dynamicField.key,
                     jiraUrl: jiraUrl,
@@ -333,6 +334,7 @@ export class FieldsService {
 
                 dynamicFieldsData.push(new FieldItem(EpicFieldComponent, {
                     name: dynamicField.name,
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select epic',
                     formControlName: dynamicField.key,
                     jiraUrl: jiraUrl,

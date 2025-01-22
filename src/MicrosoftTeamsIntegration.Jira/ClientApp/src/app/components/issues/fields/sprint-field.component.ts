@@ -28,7 +28,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
                         [loading]="loading"
                         placeholder="{{data.placeholder}}"
                         formControlName="{{data.formControlName}}"
-                        [attr.disabled]="data.disabled">
+                        [attr.disabled]="data.disabled"
+                        [(ngModel)]="selectedSprintId">
             </ng-select>
           </div>
         </div>
@@ -46,6 +47,7 @@ export class SprintFieldComponent implements FieldComponent, OnInit {
     public projectKeyOrId: string | undefined;
     public dataInitialized: boolean | undefined;
     public sprintOptions: any[] = [];
+    public selectedSprintId: any;
 
     constructor(
         private apiService: ApiService,
@@ -59,6 +61,28 @@ export class SprintFieldComponent implements FieldComponent, OnInit {
         this.projectKeyOrId = this.data.projectKeyOrId;
         // add empty option to allow drop down to open and trigger onOpen event
         this.sprintOptions = [{}];
+
+        if (this.data.defaultValue) {
+            for (const sprintString of this.data.defaultValue) {
+                const match = sprintString.match(/name=([^,]+)/);
+                if (!match || !match[1]) {
+                    continue;
+                }
+
+                const sprintName = match[1].trim();
+
+                await this.onOpen();
+
+                const foundSprint = this.sprintOptions.find(
+                    s => s.name === sprintName
+                );
+
+                if (foundSprint) {
+                    this.selectedSprintId = foundSprint.id;
+                    break;
+                }
+            }
+        }
 
         this.loadingOff();
     }

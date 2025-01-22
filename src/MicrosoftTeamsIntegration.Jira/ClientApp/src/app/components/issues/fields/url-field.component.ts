@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FieldComponent } from './field.component';
 import { UntypedFormGroup } from '@angular/forms';
 
@@ -18,7 +18,7 @@ import { UntypedFormGroup } from '@angular/forms';
 
         <div class="field-group__body">
           <input matInput type="url" placeholder="{{data.placeholder}}" maxlength="254" (keyup)="onChange($event)"
-            formControlName="{{data.formControlName}}" [attr.disabled]="data.disabled" value="{{data.defaultValue}}">
+            formControlName="{{data.formControlName}}" [attr.disabled]="data.disabled" [(ngModel)]="selectedValue">
 		</div>
 	  </div>
     </div>
@@ -26,11 +26,17 @@ import { UntypedFormGroup } from '@angular/forms';
     standalone: false
 })
 
-export class UrlFieldComponent implements FieldComponent {
+export class UrlFieldComponent implements FieldComponent, OnInit {
     @Input() data: any;
     @Input() formGroup: UntypedFormGroup | any;
-
     public validationError: boolean | undefined;
+    public selectedValue: any;
+
+    ngOnInit(): void {
+        if (this.data.defaultValue) {
+            this.selectedValue = this.data.defaultValue;
+        }
+    }
 
     public onChange($event: any) {
         const value = $event.target ? $event.target.value : null;

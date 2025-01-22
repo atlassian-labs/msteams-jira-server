@@ -7,7 +7,7 @@ import { CurrentJiraUser, JiraUser, UserGroup } from '@core/models/Jira/jira-use
 import { Issue, IssueFields, IssueType, Priority, ProjectType } from '@core/models';
 import { IssueStatus, JiraComment } from '@core/models';
 import { JiraPermissionName, JiraPermissions } from '@core/models/Jira/jira-permission.model';
-import { MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssigneeService } from '@core/services/entities/assignee.service';
@@ -111,17 +111,6 @@ export class EditIssueDialogComponent implements OnInit {
 
     private editIssueMetadata: EditIssueMetadata | any;
     private notAssignableAssignee: JiraUser | any;
-
-    private dialogDefaultSettings: MatDialogConfig = {
-        width: '350px',
-        height: '200px',
-        minWidth: '200px',
-        minHeight: '150px',
-        ariaLabel: 'Confirmation dialog',
-        closeOnNavigation: true,
-        autoFocus: false,
-        role: 'dialog'
-    };
 
     private summaryFieldName = 'summary';
     private descriptionFieldName = 'description';
@@ -359,7 +348,12 @@ export class EditIssueDialogComponent implements OnInit {
             } as JiraUser;
         }
 
-        editIssueModel.fields = this.fieldsService.getAllowedTransformedFields(this.fields, formValue);
+        Object.entries(this.fieldsService.getAllowedTransformedFields(this.fields, formValue)).forEach(([key, value]) => {
+            if (this.updatedFormFields.includes(key)) {
+                editIssueModel.fields[key] = value;
+            }
+        });
+
         editIssueModel.editIssueMetadata = this.editIssueMetadata.fields;
 
         try {
@@ -419,6 +413,10 @@ export class EditIssueDialogComponent implements OnInit {
             const normalizedRawValue = this.normalizeValue(rawValue);
 
             if (currentValue !== initialValue && normalizedCurrentValue !== normalizedRawValue) {
+                if (this.isSprintValueSet(normalizedRawValue, normalizedCurrentValue)) {
+                    continue;
+                }
+
                 if (this.updatedFormFields.indexOf(key) === -1) {
                     this.updatedFormFields.push(key);
                 }
@@ -427,6 +425,43 @@ export class EditIssueDialogComponent implements OnInit {
             }
         }
     }
+
+    private isSprintValueSet(
+        normalizedRawValue: string | null | undefined,
+        normalizedCurrentValue: string | null | undefined): boolean {
+
+        if (normalizedCurrentValue == null) {
+            return false;
+        }
+
+        if (typeof normalizedRawValue !== 'string' ||
+            !normalizedRawValue.includes('com.atlassian.greenhopper.service.sprint.Sprint')) {
+            return false;
+        }
+
+        let sprints: string[];
+        try {
+            sprints = JSON.parse(normalizedRawValue) as string[];
+        } catch (error) {
+            console.warn('Failed to parse normalizedRawValue as JSON:', error);
+            return false;
+        }
+
+        // Extract numeric IDs from those sprints
+        const validSprintIds = sprints.map(sprintString => {
+            const idMatch = sprintString.match(/id=(\d+)/);
+            return idMatch ? Number(idMatch[1]) : null;
+        });
+
+        const numericCurrentValue = Number(normalizedCurrentValue);
+        if (Number.isNaN(numericCurrentValue)) {
+            return false;
+        }
+
+        // Check whether the array of active IDs includes numericCurrentValue
+        return validSprintIds.includes(numericCurrentValue);
+    }
+
 
     private normalizeValue(value: any): string | null {
         if (Array.isArray(value) && value.length === 0) {
