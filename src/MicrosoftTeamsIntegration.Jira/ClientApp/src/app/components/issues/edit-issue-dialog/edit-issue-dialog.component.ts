@@ -697,7 +697,7 @@ export class EditIssueDialogComponent implements OnInit {
             label: this.issue?.status.name
         } as DropDownOption<JiraTransition>;
 
-        this.statusesOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdonwOption);
+        this.statusesOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdownOption);
 
         const initOptionInTransitions = this.statusesOptions
             .find((option: { value: { to: { id: string | undefined } } }) =>
