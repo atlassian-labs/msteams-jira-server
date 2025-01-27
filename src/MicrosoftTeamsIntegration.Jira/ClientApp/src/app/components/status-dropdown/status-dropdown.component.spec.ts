@@ -49,13 +49,13 @@ describe('StatusDropdownComponent', () => {
             value: {
                 id: '1',
                 name: 'Test Transition',
-                to: { 
-                    id: '1', 
-                    name: 'Test Status', 
-                    self: 'selfUrl', 
-                    description: 'Test Description', 
-                    iconUrl: 'iconUrl', 
-                    statusCategory: { id: 1, key: 'test', colorName: 'blue', name: 'Test Category' } 
+                to: {
+                    id: '1',
+                    name: 'Test Status',
+                    self: 'selfUrl',
+                    description: 'Test Description',
+                    iconUrl: 'iconUrl',
+                    statusCategory: { id: 1, key: 'test', colorName: 'blue', name: 'Test Category' }
                 },
                 hasScreen: false,
                 isGlobal: false,

@@ -5,7 +5,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ErrorService, AppInsightsService } from '@core/services';
-import { UtilService } from '@core/services';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
@@ -42,7 +41,6 @@ export class ErrorComponent implements OnInit {
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private appInsightService: AppInsightsService,
-        private utilService: UtilService,
         private analyticsService: AnalyticsService
     ) { }
 
@@ -69,7 +67,7 @@ export class ErrorComponent implements OnInit {
     public retry(): void {
         this.router.navigate([
             this.errorService.redirectOnRetryRoute,
-            this.route.snapshot.params
+            this.route.snapshot.queryParams
         ]);
     }
 }

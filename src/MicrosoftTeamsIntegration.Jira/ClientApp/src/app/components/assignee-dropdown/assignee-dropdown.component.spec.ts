@@ -76,7 +76,7 @@ describe('AssigneeDropdownComponent', () => {
     it('should emit assigneeChange on successful setAssignee', async () => {
         const mockResponse = { isSuccess: true, content: 'newAccountId' };
         const mockAssignee: JiraUser[] = [
-            { 
+            {
                 accountId: 'newAccountId',
                 displayName: 'New Assignee',
                 name: '',

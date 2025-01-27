@@ -293,10 +293,10 @@ ui:
       The user clicked a pagination link to change the issues table page
     attributes:
       - name: source
-  - id: 25302
+  - id: 75659
     action: clicked
     subject: link
-    subjectId: sortIssues
+    subjectId: sortColumn
     description: |
       The user clicked a column header to sort the issues table
     attributes:
@@ -356,5 +356,6 @@ ui:
         type: string
         description: The error message accompanying the erroneous result.
         required: false
+
 
 
