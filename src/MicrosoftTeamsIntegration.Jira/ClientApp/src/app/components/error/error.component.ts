@@ -67,7 +67,7 @@ export class ErrorComponent implements OnInit {
     public retry(): void {
         this.router.navigate([
             this.errorService.redirectOnRetryRoute,
-            this.route.snapshot.queryParams
+            this.route.snapshot.params
         ]);
     }
 }

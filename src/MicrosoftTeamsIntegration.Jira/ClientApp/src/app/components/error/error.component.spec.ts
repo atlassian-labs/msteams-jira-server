@@ -27,7 +27,8 @@ describe('ErrorComponent', () => {
                 { provide: AppInsightsService, useValue: appInsightsServiceSpy },
                 { provide: AnalyticsService, useValue: analyticsServiceSpy },
                 { provide: ActivatedRoute, useValue:
-                        { snapshot: { queryParams: { message: 'Test error message', status: 404, iconType: 'connect' } } } },
+                        { snapshot: { queryParams: { message: 'Test error message', status: 404, iconType: 'connect' },
+                            params: { jiraUrl: 'testJiraUrl' } } } },
                 { provide: Router, useValue: routerSpy }
             ]
         }).compileComponents();
