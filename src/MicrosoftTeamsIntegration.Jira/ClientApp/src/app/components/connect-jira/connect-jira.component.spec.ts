@@ -55,6 +55,9 @@ describe('ConnectJiraComponent', () => {
         loadingIndicatorService = TestBed.inject(LoadingIndicatorService) as jasmine.SpyObj<LoadingIndicatorService>;
         analyticsService = TestBed.inject(AnalyticsService) as jasmine.SpyObj<AnalyticsService>;
         router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+
+        spyOn(microsoftTeams.app, 'initialize').and.returnValue(Promise.resolve());
+        spyOn(microsoftTeams.app, 'notifySuccess').and.returnValue(await Promise.resolve());
     });
 
     it('should create', () => {
@@ -62,7 +65,6 @@ describe('ConnectJiraComponent', () => {
     });
 
     it('should initialize correctly', async () => {
-        microsoftTeams.app.initialize();
         spyOn(component, 'ngOnInit').and.callThrough();
 
         await component.ngOnInit();
