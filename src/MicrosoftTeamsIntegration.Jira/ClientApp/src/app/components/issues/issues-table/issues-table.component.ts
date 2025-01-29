@@ -29,7 +29,6 @@ import { logger } from '@core/services/logger.service';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
 import { SelectOption } from '@shared/models/select-option.model';
-import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
@@ -39,7 +38,6 @@ import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/an
         './issues-table.component.themes.scss'
     ],
     templateUrl: './issues-table.component.html',
-    providers: [IssuesService],
     standalone: false
 })
 export class IssuesComponent implements OnInit {
@@ -150,7 +148,6 @@ export class IssuesComponent implements OnInit {
         private errorService: ErrorService,
         private issuesService: IssuesService,
         private appInsightService: AppInsightsService,
-        private loadingIndicatorService: LoadingIndicatorService,
         private permissionService: PermissionService,
         private analyticsService: AnalyticsService,
     ) { }

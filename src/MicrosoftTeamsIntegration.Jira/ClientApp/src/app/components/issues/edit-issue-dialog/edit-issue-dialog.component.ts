@@ -200,8 +200,8 @@ export class EditIssueDialogComponent implements OnInit {
             ]);
 
             this.issueRaw = issue;
-            this.issue = mapIssueToEditIssueDialogModel(issue);
             this.editIssueMetadata = editIssueMetadata;
+            this.issue = mapIssueToEditIssueDialogModel(issue);
             this.currentUser = currentUser;
             this.currentUserAccountId = this.currentUser.name;
 

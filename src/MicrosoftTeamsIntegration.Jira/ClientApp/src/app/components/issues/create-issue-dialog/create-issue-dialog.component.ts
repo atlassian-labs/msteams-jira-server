@@ -232,7 +232,7 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     public getControlByName(controlName: string): AbstractControl | any {
-        if (this.issueForm?.contains(controlName)) {
+        if (this.issueForm && this.issueForm.controls && this.issueForm.controls[controlName]) {
             return this.issueForm.get(controlName);
         }
     }
@@ -316,7 +316,9 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     public async onAssigneeSearchChanged(username: string): Promise<void> {
-        this.assigneesDropdown.filteredOptions = await this.getAssigneesOptions(this.selectedProject?.key as string, username);
+        if (this.assigneesDropdown) {
+            this.assigneesDropdown.filteredOptions = await this.getAssigneesOptions(this.selectedProject?.key as string, username);
+        }
     }
 
     public isFieldRequired(fieldName: string): boolean {
