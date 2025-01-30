@@ -32,9 +32,15 @@ describe('IssuesComponent', () => {
         issues: [], prioritiesIdsInOrder: [], errorMessages: [], total: 0, pageSize: 50, expand: '', startAt: 0, maxResults: 50 };
 
     beforeEach(async () => {
-        spyOn(microsoftTeams.app, 'notifySuccess').and.callFake(() => {});
-        spyOn(microsoftTeams.app, 'getContext').and.returnValue(Promise.resolve([] as any));
-        spyOn(microsoftTeams.dialog.url, 'submit').and.callFake(() => {});
+        if (!jasmine.isSpy(microsoftTeams.app.notifySuccess)) {
+            spyOn(microsoftTeams.app, 'notifySuccess').and.callFake(() => {});
+        }
+        if (!jasmine.isSpy(microsoftTeams.app.getContext)) {
+            spyOn(microsoftTeams.app, 'getContext').and.returnValue(Promise.resolve([] as any));
+        }
+        if (!jasmine.isSpy(microsoftTeams.dialog.url.submit)) {
+            spyOn(microsoftTeams.dialog.url, 'submit').and.callFake(() => {});
+        }
 
         const apiServiceSpy = jasmine.createSpyObj('ApiService',
             ['getJiraUrlForPersonalScope',
