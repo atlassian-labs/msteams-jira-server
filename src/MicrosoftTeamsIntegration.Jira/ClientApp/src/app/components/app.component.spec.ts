@@ -44,7 +44,7 @@ describe('AppComponent', () => {
 
         spyOn(microsoftTeams.app, 'initialize').and.returnValue(Promise.resolve());
         spyOn(microsoftTeams.app, 'registerOnThemeChangeHandler').and.returnValue();
-        microsoftTeams.app.getContext = jasmine.createSpy('getContext').and.returnValue(Promise.resolve({
+        spyOn(microsoftTeams.app, 'getContext').and.returnValue(Promise.resolve({
             app: {
                 locale: 'en-US',
                 theme: 'default'
