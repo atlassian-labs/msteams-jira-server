@@ -186,7 +186,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
         this._onTouched = fn;
     }
 
-    public setDisabledState?(isDisabled: boolean): void {
+    public setDisabledState(isDisabled: boolean): void {
         this.disabled = isDisabled;
     }
     //
