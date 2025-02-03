@@ -538,8 +538,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 QueryOptions = new MessagingExtensionQueryOptions(),
                 State = "State"
             };
+            dynamic jdataObject = new JObject();
+            jdataObject.commandName = "testCommand";
+            jdataObject.issueId = "1111";
+            jdataObject.issueKey = "TEST-1";
             dynamic jObject = (JObject)JToken.FromObject(messagingExtension);
-            jObject.data = "testData";
+            jObject.data = jdataObject;
 
             var activity = new Activity
             {
@@ -580,8 +584,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 QueryOptions = new MessagingExtensionQueryOptions(),
                 State = "State"
             };
+            dynamic jdataObject = new JObject();
+            jdataObject.commandName = "testCommand";
+            jdataObject.issueId = "1111";
+            jdataObject.issueKey = "TEST-1";
             dynamic jObject = (JObject)JToken.FromObject(messagingExtension);
-            jObject.data = "testData";
+            jObject.data = jdataObject;
 
             var activity = new Activity
             {

@@ -239,7 +239,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     return BuildSubmitActionMessageResponse("ComposeExtension/submitAction request data is invalid.");
                 }
 
-                if (string.IsNullOrEmpty(request?.Data))
+                if (request?.Data == null)
                 {
                     errorMessage = "ComposeExtension/submitAction request data issue key is invalid.";
 
@@ -250,7 +250,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
                 try
                 {
-                    var issue = await _jiraService.GetIssueByIdOrKey(user, request.Data);
+                    var issue = await _jiraService.GetIssueByIdOrKey(user, request.Data.IssueId ?? request.Data.IssueKey);
 
                     return TranslateJiraIssueToMessagingExtensionResponse(issue, user, true);
                 }

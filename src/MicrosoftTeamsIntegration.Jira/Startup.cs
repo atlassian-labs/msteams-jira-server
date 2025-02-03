@@ -69,6 +69,7 @@ namespace MicrosoftTeamsIntegration.Jira
             services.AddSingleton<ICommandDialogReferenceService, CommandDialogReferenceService>();
             services.AddSingleton<IBotFrameworkAdapterService, BotFrameworkAdapterService>();
             services.AddSingleton<IAnalyticsService, AnalyticsService>();
+            services.AddSingleton<IUserService, UserService>();
 
             // This can be removed after https://github.com/aspnet/IISIntegration/issues/371
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
