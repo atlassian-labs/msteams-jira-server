@@ -15,10 +15,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
     {
         private const string AnalyticsProduct = "jiraMsTeams";
 
-        private readonly TelemetryClient _telemetry;
+        private readonly ITelemetryClient _telemetry;
         private readonly AppSettings _appSettings;
 
         public AnalyticsService(TelemetryClient telemetry, IOptions<AppSettings> appSettings)
+        {
+            _telemetry = new TelemetryClientWrapper(telemetry);
+            _appSettings = appSettings.Value;
+        }
+
+        public AnalyticsService(ITelemetryClient telemetry, IOptions<AppSettings> appSettings)
         {
             _telemetry = telemetry;
             _appSettings = appSettings.Value;

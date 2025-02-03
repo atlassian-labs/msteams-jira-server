@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -8,6 +9,7 @@ using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Options;
+using MicrosoftTeamsIntegration.Artifacts.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Services;
@@ -22,8 +24,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         public IMapper Mapper => A.Fake<IMapper>();
 
         private readonly IJiraService _fakeJiraService = A.Fake<IJiraService>();
+
         private readonly IOptions<AppSettings> _appSettings = new OptionsManager<AppSettings>(
-            new OptionsFactory<AppSettings>(new List<IConfigureOptions<AppSettings>>(), new List<IPostConfigureOptions<AppSettings>>()));
+            new OptionsFactory<AppSettings>(
+                new List<IConfigureOptions<AppSettings>>(),
+                new List<IPostConfigureOptions<AppSettings>>()));
+
         private readonly string _yahooLink = @"https://uk.yahoo.com";
         private readonly string _googleLink = @"https://google.com/14521/";
         private readonly IAnalyticsService _analyticsService = A.Fake<IAnalyticsService>();
@@ -195,7 +201,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
         // Verify that we get empty string, whether html content contains few <a> tags with href attributes
         [Fact]
-        public void HandleHtmlMessageFromUser___HtmlContent_WithAttachmentDimension_MoreThanME_WithTagAContainsHref___EmptyString_Test()
+        public void
+            HandleHtmlMessageFromUser___HtmlContent_WithAttachmentDimension_MoreThanME_WithTagAContainsHref___EmptyString_Test()
         {
             // Arrange
             var testData = BuildTestData(_googleLink);
@@ -293,7 +300,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => _fakeJiraService.GetUserNameOrAccountId(A<IntegratedUser>._)).Returns("user");
 
             var service = CreateBotMessagesService();
-            var result = await service.SearchIssueAndBuildIssueCard(turnContext, JiraDataGenerator.GenerateUser(), string.Empty);
+            var result =
+                await service.SearchIssueAndBuildIssueCard(turnContext, JiraDataGenerator.GenerateUser(), string.Empty);
 
             Assert.NotNull(result);
             A.CallTo(() => _fakeJiraService.GetUserNameOrAccountId(A<IntegratedUser>._)).MustHaveHappened();
@@ -385,6 +393,96 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             await service.SendAuthorizationCard(turnContext, string.Empty, CancellationToken.None);
 
             A.CallTo(() => turnContext.Activity).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task HandleConversationUpdates_BotAddedToConversation_ShouldSendWelcomeCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                MembersAdded = new List<ChannelAccount> { new ChannelAccount { Id = "botId" } },
+                Recipient = new ChannelAccount { Id = "botId" },
+                Conversation = new ConversationAccount { IsGroup = false },
+                From = new ChannelAccount { AadObjectId = "userId" }
+            };
+
+            var turnContext = A.Fake<ITurnContext>();
+            var connectorClient = A.Fake<IConnectorClient>();
+
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            await service.HandleConversationUpdates(turnContext, CancellationToken.None);
+
+            // Assert
+            A.CallTo(() => _analyticsService.SendTrackEvent(
+                "userId",
+                "bot",
+                "installed",
+                "botApplication",
+                string.Empty,
+                A<InstallationUpdatesTrackEventAttributes>._)).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task HandleConversationUpdates_NoMembersAddedOrRemoved_ShouldNotSendAnyEvent()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                MembersAdded = new List<ChannelAccount>(),
+                MembersRemoved = new List<ChannelAccount>(),
+                Recipient = new ChannelAccount { Id = "botId" },
+                Conversation = new ConversationAccount { IsGroup = false },
+                From = new ChannelAccount { AadObjectId = "userId" }
+            };
+
+            var turnContext = A.Fake<ITurnContext>();
+
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            await service.HandleConversationUpdates(turnContext, CancellationToken.None);
+
+            // Assert
+            A.CallTo(() => _analyticsService.SendTrackEvent(
+                A<string>._,
+                A<string>._,
+                A<string>._,
+                A<string>._,
+                A<string>._,
+                A<InstallationUpdatesTrackEventAttributes>._)).MustNotHaveHappened();
+        }
+
+        [Fact]
+        public async Task SendConnectCard_ShouldSendConnectCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount
+                {
+                    TenantId = "Id",
+                    IsGroup = true
+                }
+            };
+
+            var turnContext = A.Fake<ITurnContext>();
+
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            await service.SendConnectCard(turnContext, CancellationToken.None);
+
+            // Assert
+            A.CallTo(() => turnContext.SendActivityAsync(A<IActivity>._, A<CancellationToken>._)).MustHaveHappened();
         }
 
         private IBotMessagesService CreateBotMessagesService()

@@ -10,7 +10,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
     public class MongoDBContext : IMongoDBContext, IDisposable
     {
         public int MaxConnectionPoolSize { get; }
-        private readonly MongoClient _mongoClient;
+        private readonly IMongoClient _mongoClient;
         private readonly IMongoDatabase _db;
         private bool _disposed;
         public MongoDBContext(IOptions<AppSettings> appSettings)
@@ -25,6 +25,11 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             _db = _mongoClient.GetDatabase(databaseName);
 
             MaxConnectionPoolSize = _mongoClient.Settings.MaxConnectionPoolSize;
+        }
+
+        public MongoDBContext(IMongoClient mongoClient)
+        {
+            _mongoClient = mongoClient;
         }
 
         public IMongoCollection<T> GetCollection<T>(string name)

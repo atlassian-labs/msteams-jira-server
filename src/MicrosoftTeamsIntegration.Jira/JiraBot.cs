@@ -174,8 +174,7 @@ namespace MicrosoftTeamsIntegration.Jira
             MessagingExtensionAction action,
             CancellationToken cancellationToken)
         {
-            await HandleInvoke(turnContext, cancellationToken);
-            return new MessagingExtensionActionResponse();
+            return await OnTeamsMessagingExtensionFetchTaskAsync(turnContext, action, cancellationToken);
         }
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(
@@ -183,8 +182,7 @@ namespace MicrosoftTeamsIntegration.Jira
             TaskModuleRequest taskModuleRequest,
             CancellationToken cancellationToken)
         {
-            await HandleInvoke(turnContext, cancellationToken);
-            return new TaskModuleResponse();
+            return await OnTeamsTaskModuleFetchAsync(turnContext, taskModuleRequest, cancellationToken);
         }
 
         protected override async Task OnTeamsO365ConnectorCardActionAsync(
