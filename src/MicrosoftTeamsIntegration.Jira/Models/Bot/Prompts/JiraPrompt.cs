@@ -133,55 +133,5 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Bot.Prompts
         protected abstract Task OnPromptAsync(ITurnContext turnContext, IDictionary<string, object> state, PromptOptions options, bool isRetry, CancellationToken cancellationToken = default);
 
         protected abstract Task<PromptRecognizerResult<T>> OnRecognizeAsync(ITurnContext turnContext, IDictionary<string, object> state, PromptOptions options, CancellationToken cancellationToken = default);
-
-        protected IMessageActivity AppendChoices(IMessageActivity prompt, string channelId, IList<Choice> choices, ListStyle style, ChoiceFactoryOptions options = null, CancellationToken cancellationToken = default)
-        {
-            // Get base prompt text (if any)
-            var text = prompt != null && !string.IsNullOrEmpty(prompt.Text) ? prompt.Text : string.Empty;
-
-            // Create temporary msg
-            IMessageActivity msg;
-            switch (style)
-            {
-                case ListStyle.Inline:
-                    msg = ChoiceFactory.Inline(choices, text, null, options);
-                    break;
-
-                case ListStyle.List:
-                    msg = ChoiceFactory.List(choices, text, null, options);
-                    break;
-
-                case ListStyle.SuggestedAction:
-                    msg = ChoiceFactory.SuggestedAction(choices, text, null);
-                    break;
-
-                case ListStyle.None:
-                    msg = Activity.CreateMessageActivity();
-                    msg.Text = text;
-                    break;
-
-                default:
-                    msg = ChoiceFactory.ForChannel(channelId, choices, text, null, options);
-                    break;
-            }
-
-            // Update prompt with text and actions
-            if (prompt != null)
-            {
-                // clone the prompt the set in the options (note ActivityEx has Properties so this is the safest mechanism)
-                prompt = JsonConvert.DeserializeObject<Activity>(JsonConvert.SerializeObject(prompt));
-
-                prompt.Text = msg.Text;
-                if (msg.SuggestedActions != null && msg.SuggestedActions.Actions != null && msg.SuggestedActions.Actions.Count > 0)
-                {
-                    prompt.SuggestedActions = msg.SuggestedActions;
-                }
-
-                return prompt;
-            }
-
-            msg.InputHint = InputHints.ExpectingInput;
-            return msg;
-        }
     }
 }
