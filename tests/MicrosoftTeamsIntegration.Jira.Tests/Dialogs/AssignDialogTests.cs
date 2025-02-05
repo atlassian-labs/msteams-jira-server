@@ -261,7 +261,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 _fakeAccessors,
                 _fakeJiraService,
                 _appSettings,
-                _fakeDatabaseService,
                 _fakeBotMessagesService,
                 _telemetry,
                 _analyticsService);

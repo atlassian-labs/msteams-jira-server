@@ -4,8 +4,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
@@ -16,7 +14,7 @@ namespace MicrosoftTeamsIntegration.Jira.Extensions
 {
     public static class ActivityExtensions
     {
-        private static readonly int _minAttachmentDimension = 1;
+        private const int MinAttachmentDimension = 1;
 
         public static string GetTextWithoutCommand(this IActivity activity, string commandMatch)
         {
@@ -47,31 +45,10 @@ namespace MicrosoftTeamsIntegration.Jira.Extensions
             }
         }
 
-        public static async Task<string> GetMsTeamsUserIdFromMentions(this ITurnContext turnContext)
-        {
-            var mentions = turnContext.Activity.GetMentions();
-
-            // bot itself is also mentioned
-            if (mentions.Length < 2)
-            {
-                return string.Empty;
-            }
-
-            var mentionedUser = mentions[1].Mentioned;
-
-            var user = await TeamsInfo.GetMemberAsync(turnContext, mentionedUser.Id);
-            if (user == null)
-            {
-                return string.Empty;
-            }
-
-            return user.AadObjectId;
-        }
-
         public static bool IsHtmlMessage(this Activity activity)
         {
             var activityData = false;
-            if (activity.Attachments?.Count > _minAttachmentDimension)
+            if (activity.Attachments?.Count > MinAttachmentDimension)
             {
                 activityData = activity.Attachments.Any(x => x.ContentType.Equals("text/html", StringComparison.OrdinalIgnoreCase));
             }

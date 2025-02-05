@@ -65,7 +65,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             AddDialog(new CreateNewIssueDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
             AddDialog(new LogTimeDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
             AddDialog(new CommentDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
-            AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, databaseService, botMessagesService, telemetry, analyticsService));
+            AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, botMessagesService, telemetry, analyticsService));
             AddDialog(new ConnectToJiraDialog(_accessors, _appSettings, botMessagesService, telemetry, botFrameworkAdapter));
             AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry, analyticsService));
             AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, telemetry, botFrameworkAdapter, analyticsService));
