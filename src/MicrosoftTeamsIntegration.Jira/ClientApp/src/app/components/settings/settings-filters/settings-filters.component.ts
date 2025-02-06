@@ -30,7 +30,7 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 import { MatSnackBar} from '@angular/material/snack-bar';
 import {NotificationService} from '@shared/services/notificationService';
 
-enum FilterType {
+export enum FilterType {
     Saved = 'from-saved',
     Custom = 'create-new',
 }
@@ -256,7 +256,8 @@ export class SettingsFiltersComponent implements OnInit {
                 this.apiService.getPriorities(this.jiraUrl as string)
             ]);
 
-            this.projects = await this.apiService.getProjects(this.jiraUrl as string, true);
+            const proj = await this.apiService.getProjects(this.jiraUrl as string, true);
+            this.projects = proj;
             this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
             this.projectFilteredOptions = this.availableProjectsOptions;
 
@@ -341,34 +342,6 @@ export class SettingsFiltersComponent implements OnInit {
         contentUrl += `;application=${application}`;
 
         return contentUrl;
-    }
-
-    private getProjectSettingsFromCache(): void {
-        this.cachedSettings.forEach((value: string, key: string) => this.settings.set(key, value));
-    }
-
-    private getSavedFilterFromCache(): void {
-        if (localStorage.getItem(this.CACHED_FILTER_KEY)) {
-            this.filters.set('filter', [localStorage.getItem(this.CACHED_FILTER_KEY) as string]);
-            localStorage.removeItem(this.CACHED_FILTER_KEY);
-        }
-    }
-
-    private cacheProjectSettings(): void {
-        const projectSettingsKeys = ['projectKey', 'projectName'];
-        this.settings.forEach((value: string, key: string) => {
-            if (projectSettingsKeys.includes(key)) {
-                this.cachedSettings.set(key, value);
-                this.settings.delete(key);
-            }
-        });
-    }
-
-    private cacheFilterSettings(): void {
-        if (this.filters.has('filter')) {
-            localStorage.setItem(this.CACHED_FILTER_KEY, (this.filters.get('filter') as any)[0]);
-            this.filters.delete('filter');
-        }
     }
 
     private async findProjects(jiraUrl: string, filterName?: string): Promise<Project[]> {

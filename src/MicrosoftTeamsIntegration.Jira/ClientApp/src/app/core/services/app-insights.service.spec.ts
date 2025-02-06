@@ -20,6 +20,7 @@ describe('AppInsightsService', () => {
 
         service = TestBed.inject(AppInsightsService);
         appInsights = TestBed.inject(ApplicationInsights) as jasmine.SpyObj<ApplicationInsights>;
+        service.setAppInsightsClient(appInsights);
     });
 
     it('should be created', () => {

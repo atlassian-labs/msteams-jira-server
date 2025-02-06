@@ -13,26 +13,26 @@ import {IEventTelemetry, IExceptionTelemetry, IPageViewTelemetry} from '@microso
 export class AppInsightsService {
     private appInsights: ApplicationInsights | undefined;
 
-    constructor(appInsights?: ApplicationInsights) {
-        if (appInsights) {
-            this.appInsights = appInsights;
-        } else {
-            logger(
-                'AppInsightsService::constructor setting up AppInsights'
-            );
+    constructor() {
+        logger(
+            'AppInsightsService::constructor setting up AppInsights'
+        );
 
-            try {
-                const instrumentationKey = localStorage.getItem('instrumentationKey') as string;
-                this.appInsights = new ApplicationInsights({
-                    config: {
-                        instrumentationKey: instrumentationKey
-                    }
-                });
-                this.appInsights.loadAppInsights();
-            } catch (e) {
-                logger('AppInsightsService::cannot set up AppInsights', e);
-            }
+        try {
+            const instrumentationKey = localStorage.getItem('instrumentationKey') as string;
+            this.appInsights = new ApplicationInsights({
+                config: {
+                    instrumentationKey: instrumentationKey
+                }
+            });
+            this.appInsights.loadAppInsights();
+        } catch (e) {
+            logger('AppInsightsService::cannot set up AppInsights', e);
         }
+    }
+
+    public setAppInsightsClient(appInsights: ApplicationInsights) {
+        this.appInsights = appInsights;
     }
 
     public trackPageView(
