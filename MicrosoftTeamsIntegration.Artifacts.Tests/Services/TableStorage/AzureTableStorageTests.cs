@@ -1,4 +1,5 @@
-﻿using FakeItEasy;
+﻿using System.Reflection;
+using FakeItEasy;
 using Microsoft.Azure.Cosmos.Table;
 using MicrosoftTeamsIntegration.Artifacts.Services.TableStorage;
 
@@ -21,7 +22,7 @@ public class AzureTableStorageTests
     }
 
     [Fact]
-    public async Task Retrieve_ShouldReturnEntity()
+    public async Task Retrieve_ShouldReturnEntity_ByPartitionKeyAndRow()
     {
         // Arrange
         var partitionKey = "testPartition";
@@ -36,6 +37,57 @@ public class AzureTableStorageTests
 
         // Assert
         Assert.Equal(expectedEntity, result);
+    }
+    
+    [Fact]
+    public async Task Retrieve_ShouldReturnEntities_ByPartitionKey()
+    {
+        // Arrange
+        var partitionKey = "testPartition";
+        var rowKey1 = "testRow1";
+        var rowKey2 = "testRow2";
+        var entity1 = new TestEntity { PartitionKey = partitionKey, RowKey = rowKey1 };
+        var entity2 = new TestEntity { PartitionKey = partitionKey, RowKey = rowKey2 };
+        var ctor = typeof(TableQuerySegment<TestEntity>)
+            .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+            .FirstOrDefault(c => c.GetParameters().Length == 1);
+        var mockQuerySegment = ctor?.Invoke([new List<TestEntity>() ]) as TableQuerySegment<TestEntity>;
+        mockQuerySegment?.Results.Add(entity1);
+        mockQuerySegment?.Results.Add(entity2);
+        
+
+        A.CallTo(() => _mockTable.ExecuteQuerySegmentedAsync(A<TableQuery<TestEntity>>._, A<TableContinuationToken>._, A<CancellationToken>._)).Returns(
+            Task.FromResult(mockQuerySegment));
+
+        // Act
+        var result = await _azureTableStorage.Retrieve<TestEntity>(partitionKey);
+
+        // Assert
+        A.CallTo(() => _mockTable.ExecuteQuerySegmentedAsync(A<TableQuery<TestEntity>>._, A<TableContinuationToken>._,
+            A<CancellationToken>._)).MustHaveHappened();
+        Assert.Equal(2, result.Length);
+    }
+    
+    [Fact]
+    public async Task Retrieve_ShouldReturnEntities_ByPropertyNameAndValue()
+    {
+        // Arrange
+        var entity = new TestEntity { PartitionKey = "testPartition", RowKey = "testRow1" };
+        var ctor = typeof(TableQuerySegment<TestEntity>)
+            .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+            .FirstOrDefault(c => c.GetParameters().Length == 1);
+        var mockQuerySegment = ctor?.Invoke([new List<TestEntity>() ]) as TableQuerySegment<TestEntity>;
+        mockQuerySegment?.Results.Add(entity);
+
+        A.CallTo(() => _mockTable.ExecuteQuerySegmentedAsync(A<TableQuery<TestEntity>>._, A<TableContinuationToken>._, A<CancellationToken>._)).Returns(
+            Task.FromResult(mockQuerySegment));
+
+        // Act
+        await _azureTableStorage.Retrieve<TestEntity>("testProperty", "testOperaion", "testValue");
+
+        // Assert
+        A.CallTo(() => _mockTable.ExecuteQuerySegmentedAsync(A<TableQuery<TestEntity>>._, A<TableContinuationToken>._,
+            A<CancellationToken>._)).MustHaveHappened();
     }
 
     [Fact]

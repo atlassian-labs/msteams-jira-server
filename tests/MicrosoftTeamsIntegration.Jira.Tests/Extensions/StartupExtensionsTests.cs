@@ -4,7 +4,6 @@ using FakeItEasy;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.ApplicationInsights;
-using Microsoft.Bot.Builder.BotFramework;
 using Microsoft.Bot.Builder.Integration.ApplicationInsights.Core;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Connector.Authentication;
@@ -22,7 +21,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
 {
     public class StartupExtensionsTests
     {
-        private List<ServiceDescriptor> _serviceDescriptors;
+        private readonly List<ServiceDescriptor> _serviceDescriptors;
         public StartupExtensionsTests()
         {
             _serviceDescriptors = new List<ServiceDescriptor>()
@@ -55,20 +54,19 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
 
             foreach (var descriptor in _serviceDescriptors)
             {
-
                  results.Add(createdService.Any(x =>
                     x.ServiceType == descriptor.ServiceType &&
-                    x.ImplementationType == descriptor.ImplementationType && 
+                    x.ImplementationType == descriptor.ImplementationType &&
                     x.Lifetime == descriptor.Lifetime));
             }
 
-            Assert.True(results.All(v => v == true));
+            Assert.True(results.All(v => v));
         }
 
         [Fact]
         public void AddDialogRouter()
         {
-            var dialogRoutes = new DialogRoute[1] {new DialogRoute(typeof(string), "command")};
+            var dialogRoutes = new[] { new DialogRoute(typeof(string), "command") };
 
             var serviceDescriptors = new List<ServiceDescriptor>()
             {
@@ -84,15 +82,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
 
             foreach (var descriptor in serviceDescriptors)
             {
-
                 results.Add(createdService.Any(x =>
                     x.ServiceType == descriptor.ServiceType &&
                     x.ImplementationType == descriptor.ImplementationType &&
                     x.Lifetime == descriptor.Lifetime));
             }
 
-            Assert.True(results.All(v => v == true));
+            Assert.True(results.All(v => v));
         }
     }
-
 }
