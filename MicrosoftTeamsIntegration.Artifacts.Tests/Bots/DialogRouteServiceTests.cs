@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using FakeItEasy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder.Dialogs;
@@ -56,7 +57,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Tests.Bots
         [Fact]
         public void FindBestMatch_ShouldReturnBestMatchedRegexRoute()
         {
-            var regex = new System.Text.RegularExpressions.Regex("regex");
+            var regex = new Regex("regex", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             var regexRoute = new DialogRoute(typeof(TestDialog), regex, order: 1);
             var dialogRouteService = new DialogRouteService(_serviceProvider, regexRoute);
 
@@ -69,7 +70,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Tests.Bots
         [Fact]
         public void FindBestMatch_ShouldHandleCancelRoutes()
         {
-            var regex = new System.Text.RegularExpressions.Regex("regex1");
+            var regex = new Regex("regex1", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             var regexRoute = new DialogRoute(typeof(TestDialog), regex, order: 1);
 
             var dialogRouteService = new DialogRouteService(_serviceProvider, regexRoute);
