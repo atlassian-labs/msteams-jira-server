@@ -9,7 +9,7 @@ import { AnalyticsService } from '@core/services/analytics.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionService } from '@core/services/entities/permission.service';
-import { Issue } from '@core/models';
+import { Issue, Priority, Project } from '@core/models';
 import { JiraPermissionsResponse } from '@core/models/Jira/jira-permission.model';
 import { JiraIssueFieldMeta } from '@core/models/Jira/jira-issue-field-meta.model';
 import * as microsoftTeams from '@microsoft/teams-js';
@@ -195,5 +195,131 @@ describe('CreateIssueDialogComponent', () => {
         component.issueForm.get('assignee').setValue = setValueSpy; // Spy on the setValue method
         component.assignToMe();
         expect(setValueSpy).toHaveBeenCalledWith('testUser');
+    });
+
+    it('should handle search change', async () => {
+        const projects = [{ id: 'testProjectId', key: 'testProjectKey', name: 'Test Project' }];
+        apiService.findProjects.and.returnValue(Promise.resolve(projects as Project[]));
+        await component.onSearchChanged('test');
+        expect(apiService.findProjects).toHaveBeenCalled();
+    });
+
+    it('should determine if user is assignable', () => {
+        component.assigneesOptions = [{ value: 'testUser' }];
+        component.currentUserAccountId = 'testUser';
+        expect(component.isAssignableUser).toBeTrue();
+
+        component.assigneesOptions = [{ value: 'anotherUser' }];
+        expect(component.isAssignableUser).toBeFalse();
+    });
+
+    it('should determine if field is required', () => {
+        component.fields = { testField: { required: true } };
+        expect(component.isFieldRequired('testField')).toBeTrue();
+
+        component.fields = { testField: { required: false } };
+        expect(component.isFieldRequired('testField')).toBeFalse();
+    });
+
+    it('should open snack bar', () => {
+        component['openSnackBar']();
+        expect(notificationService.notifyError).toHaveBeenCalledWith(utilService.getUpgradeAddonMessage());
+    });
+
+    it('should get default issue type', () => {
+        component.defaultIssueType = 'Bug';
+        component.availableIssueTypesOptions = [{ label: 'Bug', value: 'bug' }];
+        expect(component['getDefaultIssueType']()).toEqual({ label: 'Bug', value: 'bug' });
+
+        component.defaultIssueType = undefined;
+        component.availableIssueTypesOptions = [{ label: 'Bug', value: 'bug' }];
+        expect(component['getDefaultIssueType']()).toEqual('bug');
+    });
+
+    it('should get default assignee', () => {
+        component.defaultAssignee = 'testUser';
+        component.assigneesOptions = [{ label: 'testUser', value: 'testUser' }];
+        expect(component['getDefaultAssignee']()).toEqual({ label: 'testUser', value: 'testUser' });
+
+        component.defaultAssignee = undefined;
+        component.assigneesOptions = [{ label: 'testUser', value: 'testUser' }];
+        expect(component['getDefaultAssignee']()).toEqual('testUser');
+    });
+
+    it('should find projects', async () => {
+        const projects = [{ id: 'testProjectId', key: 'testProjectKey', name: 'Test Project' }] as Project[];
+        apiService.findProjects.and.returnValue(Promise.resolve(projects as Project[]));
+        const result = await component['findProjects']('http://example.com', 'test');
+        expect(apiService.findProjects).toHaveBeenCalledWith('http://example.com', 'test', true);
+        expect(result).toEqual(projects);
+    });
+
+    it('should remove priority control from form when priorities are not available', () => {
+        component.fields = {};
+        component.issueForm = new UntypedFormGroup({
+            priority: new UntypedFormControl()
+        });
+        component['addRemovePriorityFromForm']();
+        expect(component.issueForm.contains('priority')).toBeFalse();
+        expect(component.prioritiesOptions.length).toBe(0);
+    });
+
+    it('should create form and initialize correctly when projects are available', async () => {
+        const projects = [{ id: 'testProjectId', key: 'testProjectKey', name: 'Test Project' }] as Project[];
+        apiService.getProjects.and.returnValue(Promise.resolve(projects));
+        dropdownUtilService.mapProjectToDropdownOption.and.returnValue(
+            { value: 'testProjectId', label: 'Test Project', id: 'testProjectId' });
+        spyOn(component, 'onProjectSelected').and.returnValue(Promise.resolve());
+        fieldsService.getAllowedFields.and.returnValue(fieldMeta);
+        permissionService.getMyPermissions.and.returnValue(Promise.resolve({
+            permissions: {
+                CREATE_ISSUES: { havePermission: true },
+            }
+        }) as Promise<JiraPermissionsResponse>);
+
+        await component['createForm']();
+
+        expect(apiService.getProjects).toHaveBeenCalled();
+        expect(component.projects).toEqual(projects);
+        expect(component.onProjectSelected).toHaveBeenCalledWith('testProjectId');
+        expect(component.issueForm).toBeDefined();
+        expect(component.issueForm.get('project').value).toEqual('testProjectId');
+        expect(component.issueForm.get('summary').value).toEqual('');
+    });
+
+    it('should navigate to error page when no projects are available', async () => {
+        apiService.getProjects.and.returnValue(Promise.resolve([]));
+        permissionService.getMyPermissions.and.returnValue(Promise.resolve({
+            permissions: {
+                CREATE_ISSUES: { havePermission: true },
+            }
+        }) as Promise<JiraPermissionsResponse>);
+
+        await component['createForm']();
+
+        expect(apiService.getProjects).toHaveBeenCalled();
+        expect(component.projects).toEqual([]);
+        expect(component['router'].navigate).toHaveBeenCalledWith(['/error'],
+            { queryParams: { message: 'You don\'t have permission to perform this action' } });
+    });
+
+    it('should add and remove priority control based on availability', async () => {
+        const projects = [{ id: 'testProjectId', key: 'testProjectKey', name: 'Test Project' }] as Project[];
+        apiService.getProjects.and.returnValue(Promise.resolve(projects));
+        dropdownUtilService.mapProjectToDropdownOption.and.returnValue(
+            { value: 'testProjectId', label: 'Test Project', id: 'testProjectId' });
+        spyOn(component, 'onProjectSelected').and.returnValue(Promise.resolve());
+        fieldsService.getAllowedFields.and.returnValue(fieldMeta);
+
+        permissionService.getMyPermissions.and.returnValue(Promise.resolve({
+            permissions: {
+                CREATE_ISSUES: { havePermission: true },
+            }
+        }) as Promise<JiraPermissionsResponse>);
+
+
+        await component['createForm']();
+
+        expect(fieldsService.getAllowedFields).toHaveBeenCalled();
     });
 });

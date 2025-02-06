@@ -9,6 +9,8 @@ import { NotificationService } from '@shared/services/notificationService';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { ActivatedRoute } from '@angular/router';
 import { Issue, JiraComment, JiraIssuesSearch } from '@core/models';
+import { ListKeyManager, ListKeyManagerOption } from '@angular/cdk/a11y';
+import { UP_ARROW, DOWN_ARROW, ENTER, TAB } from '@angular/cdk/keycodes';
 
 describe('CreateCommentDialogComponent', () => {
     let component: CreateCommentDialogComponent;
@@ -129,5 +131,27 @@ describe('CreateCommentDialogComponent', () => {
         component.activeIssue = { id: 'testIssueId' } as Issue;
         component.handleListFocusOut();
         expect(component.activeIssue).toBeUndefined();
+    });
+
+    it('should handle list key up events', () => {
+        const issues = [{ id: 'testIssueId' }] as Issue[];
+        component.issues = issues;
+        component['keyboardEventsManager'] = new ListKeyManager(component['issues'] as ListKeyManagerOption[]);
+        const event = new KeyboardEvent('keyup', { keyCode: DOWN_ARROW });
+        spyOn(event, 'stopImmediatePropagation');
+        component.handleListKeyUp(event);
+        expect(event.stopImmediatePropagation).toHaveBeenCalled();
+        expect(component.activeIssue).toBe(issues[0]);
+    });
+
+    it('should handle list key up events for TAB key', () => {
+        const issues = [{ id: 'testIssueId' }] as Issue[];
+        component.issues = issues;
+        component['keyboardEventsManager'] = new ListKeyManager(component['issues'] as ListKeyManagerOption[]);
+        const event = new KeyboardEvent('keyup', { keyCode: TAB });
+        spyOn(event, 'stopImmediatePropagation');
+        component.handleListKeyUp(event);
+        expect(event.stopImmediatePropagation).toHaveBeenCalled();
+        expect(component.activeIssue).toBe(issues[0]);
     });
 });

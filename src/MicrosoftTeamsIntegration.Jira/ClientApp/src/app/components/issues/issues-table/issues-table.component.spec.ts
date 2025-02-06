@@ -3,7 +3,7 @@ import { IssuesComponent } from './issues-table.component';
 import { ApiService, AppInsightsService, ErrorService, UtilService } from '@core/services';
 import { IssuesService } from '@core/services/entities/issues.service';
 import { PermissionService } from '@core/services/entities/permission.service';
-import { AnalyticsService } from '@core/services/analytics.service';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -13,6 +13,8 @@ import { JiraIssuesSearch, NormalizedIssue } from '@core/models';
 import { ApplicationType, StatusCode } from '@core/enums';
 import { JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import * as microsoftTeams from '@microsoft/teams-js';
+import { JiraSortDirection } from '@core/enums/sort-direction.enum';
+import { SelectOption } from '@shared/models/select-option.model';
 
 describe('IssuesComponent', () => {
     let component: IssuesComponent;
@@ -207,5 +209,180 @@ describe('IssuesComponent', () => {
         component['application'] = ApplicationType.JiraServerStaticTab;
 
         expect(component.isJiraServerApplication).toBeTrue();
+    });
+
+    it('should set Jira filter and start auth flow', async () => {
+        const filter: SelectOption = { value: 'testFilter', label: 'Test Filter', id: '123' };
+        await component.setJiraFilter(filter);
+
+        expect(component.pageIndex).toBe(0);
+        expect(component['jqlOrderBySuffix']).toBe(component['initialJqlOrderBySuffix']);
+        expect(component.selectedJiraFilter).toBe(filter);
+        expect(analyticsService.sendUiEvent).toHaveBeenCalledWith(
+            'issuesTab',
+            EventAction.selected,
+            UiEventSubject.dropdown,
+            'filter',
+            { source: 'issuesTab', page: component['page'] }
+        );
+    });
+
+    it('should open edit dialog', () => {
+        const issueId = '123';
+        spyOn(localStorage, 'getItem').and.returnValue('http://example.com');
+        spyOn(microsoftTeams.dialog.url, 'open').and.callFake((dialogInfo, callback) => {
+            if (callback) {
+                callback({ err: 'User cancelled/closed the task module.' });
+            }
+        });
+
+        component.openEditDialog(issueId);
+
+        expect(analyticsService.sendUiEvent).toHaveBeenCalledWith(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'editIssue',
+            { source: 'issuesTab' }
+        );
+        expect(microsoftTeams.dialog.url.open).toHaveBeenCalled();
+    });
+
+    it('should open issue create dialog', () => {
+        spyOn(localStorage, 'getItem').and.returnValue('http://example.com');
+        spyOn(microsoftTeams.dialog.url, 'open').and.callFake((dialogInfo, callback) => {
+            if (callback) {
+                callback({ err: 'User cancelled/closed the task module.' });
+            }
+        });
+
+        component.openIssueCreateDialog();
+
+        expect(analyticsService.sendUiEvent).toHaveBeenCalledWith(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'createIssue',
+            { source: 'issuesTab' }
+        );
+        expect(microsoftTeams.dialog.url.open).toHaveBeenCalled();
+    });
+
+    it('should return correct chevron class', () => {
+        component.activeColumn = 'testColumn';
+        component.sortDirection = JiraSortDirection.Asc;
+
+        expect(component.getChevronClass('testColumn')).toBe('chevron-up');
+
+        component.sortDirection = JiraSortDirection.Desc;
+        expect(component.getChevronClass('testColumn')).toBe('chevron-down');
+
+        expect(component.getChevronClass('otherColumn')).toBe('');
+    });
+
+    it('should create an array of given length', () => {
+        expect(component.makeArray(3)).toEqual([1, 1, 1]);
+        expect(component.makeArray(null)).toEqual([]);
+    });
+
+    it('should return scroll width of an element', () => {
+        const elRef = {
+            nativeElement: {
+                offsetWidth: 100,
+                clientWidth: 80
+            }
+        };
+
+        expect(component.getScrollWidth(elRef)).toBe(20);
+    });
+
+    it('should throw error if element is not defined', () => {
+        expect(() => component.getScrollWidth(null)).toThrowError('Element is not defined');
+    });
+
+    it('should change page and load issues with spinner', async () => {
+        const event = { pageIndex: 1 };
+
+        await component.changePage(event);
+
+        expect(component.pageIndex).toBe(1);
+        expect(analyticsService.sendUiEvent).toHaveBeenCalledWith(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'changePage',
+            { source: 'issuesTab' }
+        );
+    });
+
+    it('should sort data correctly', async () => {
+        component.isMobile = false;
+        const columnName = 'testColumn';
+        component['sortedColumnsState'].set(columnName, JiraSortDirection.Desc);
+
+        await component.sortData(columnName);
+
+        expect(component.sortDirection).toBe(JiraSortDirection.Asc);
+        expect(component['sortedColumnsState'].get(columnName)).toBe(JiraSortDirection.Asc);
+        expect(component['jqlOrderBySuffix']).toBe(` order by ${columnName} ${JiraSortDirection.Asc}`);
+        expect(analyticsService.sendUiEvent).toHaveBeenCalledWith(
+            'issuesTab',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'sortColumn',
+            { source: 'issuesTab', sortColumn: columnName }
+        );
+    });
+
+    it('should not sort data if isMobile is true', async () => {
+        component.isMobile = true;
+        const defaultActiveColumn = 'updated';
+        const columnName = 'testColumn';
+        await component.sortData(columnName);
+
+        expect(component.activeColumn).toBe(defaultActiveColumn);
+    });
+
+    it('should set columns sorting correctly', () => {
+        const jql = 'order by labels asc';
+        issuesService.adjustOrderByQueryStringWithIssueProperty.and.callFake((query) => query);
+
+        component['setColumnsSorting'](jql);
+
+        expect(component.activeColumn).toBe('labels');
+        expect(component.sortDirection).toBe(JiraSortDirection.Asc);
+    });
+
+    it('should reset active column if multiple columns are sorted', () => {
+        const jql = 'order by testColumn1 asc, testColumn2 desc';
+        issuesService.adjustOrderByQueryStringWithIssueProperty.and.callFake((query) => query);
+
+        component['setColumnsSorting'](jql);
+
+        expect(component.activeColumn).toBe('');
+        expect(component.sortDirection).toBe(JiraSortDirection.None);
+    });
+
+    it('should set displayed columns correctly', () => {
+        component.issues = [{ issuekey: 'TEST-1', summary: 'Test issue' } as NormalizedIssue];
+        component['setDisplayedColumns']();
+
+        expect(component.displayedColumns).toEqual(['issuekey', 'summary']);
+    });
+
+    it('should not set displayed columns if issues array is empty', () => {
+        component.issues = [];
+        component['setDisplayedColumns']();
+
+        expect(component.displayedColumns).toEqual([]);
+    });
+
+    it('should not set displayed columns if displayedColumns array is already set', () => {
+        component.issues = [{ issuekey: 'TEST-1', summary: 'Test issue' } as NormalizedIssue];
+        component.displayedColumns = ['issuekey'];
+
+        component['setDisplayedColumns']();
+
+        expect(component.displayedColumns).toEqual(['issuekey']);
     });
 });

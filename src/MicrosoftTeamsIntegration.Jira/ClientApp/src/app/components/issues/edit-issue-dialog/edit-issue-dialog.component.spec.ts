@@ -17,8 +17,11 @@ import { JiraPermission, JiraPermissions, JiraPermissionsResponse } from '@core/
 import { EditIssueMetadata, EditIssueMetadataFields } from '@core/models/Jira/jira-issue-edit-meta.model';
 import { JiraIssueFieldMeta } from '@core/models/Jira/jira-issue-field-meta.model';
 import { JiraIssueTypeFieldMetaSchema } from '@core/models/Jira/jira-issue-type-field-meta-schema.model';
-import { UserGroup } from '@core/models/Jira/jira-user.model';
+import { JiraUser, UserGroup } from '@core/models/Jira/jira-user.model';
 import { DomSanitizer } from '@angular/platform-browser';
+import { JiraIconUrls } from '@core/models/Jira/jira-avatar-urls.model';
+import { DropDownOption } from '@shared/models/dropdown-option.model';
+import { JiraTransition, JiraTransitionsResponse } from '@core/models/Jira/jira-transition.model';
 
 describe('EditIssueDialogComponent', () => {
     let component: EditIssueDialogComponent;
@@ -29,6 +32,8 @@ describe('EditIssueDialogComponent', () => {
     let permissionService: jasmine.SpyObj<PermissionService>;
     let fieldsService: jasmine.SpyObj<FieldsService>;
     let notificationService: jasmine.SpyObj<NotificationService>;
+    let transitionService: jasmine.SpyObj<IssueTransitionService>;
+    let dropdownUtilService: jasmine.SpyObj<DropdownUtilService>;
     const issueScheme: JiraIssueTypeFieldMetaSchema = { type: 'test type', items: 'test items', system: 'test system' };
     const stringFieldMetadata: JiraIssueFieldMeta<string> = {
         allowedValues: [],
@@ -42,7 +47,7 @@ describe('EditIssueDialogComponent', () => {
         key: 'test key', name: 'test name', operations: [], required: true, schema: issueScheme, fieldId: 'test field id' };
     const priorityFieldMetadata: JiraIssueFieldMeta<Priority> = {
         allowedValues: [],
-        defaultValue: [],
+        defaultValue: [ { id: '1', name: 'High', iconUrl: 'http://example.com/icon.png', statusColor: 'blue' } ],
         hasDefaultValue: true,
         key: 'test key',
         name: 'test name', operations: [], required: true, schema: issueScheme, fieldId: 'test field id' };
@@ -93,7 +98,7 @@ describe('EditIssueDialogComponent', () => {
                 'updateIssue', 'getCreateMetaIssueTypes', 'getCreateMetaFields', 'getCreateMetaIssueTypes']);
         const assigneeServiceSpy = jasmine.createSpyObj('AssigneeService', ['searchAssignable', 'assigneesToDropdownOptions']);
         const dropdownUtilServiceSpy = jasmine.createSpyObj('DropdownUtilService',
-            ['mapPriorityToDropdownOption', 'mapTransitionToDropdonwOption']);
+            ['mapPriorityToDropdownOption', 'mapTransitionToDropdownOption']);
         const appInsightsServiceSpy = jasmine.createSpyObj('AppInsightsService', ['logNavigation', 'trackException']);
         const utilServiceSpy = jasmine.createSpyObj('UtilService', ['isAddonUpdated', 'getUpgradeAddonMessage']);
         const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['getHttpErrorMessage']);
@@ -133,6 +138,8 @@ describe('EditIssueDialogComponent', () => {
         permissionService = TestBed.inject(PermissionService) as jasmine.SpyObj<PermissionService>;
         fieldsService = TestBed.inject(FieldsService) as jasmine.SpyObj<FieldsService>;
         notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
+        transitionService = TestBed.inject(IssueTransitionService) as jasmine.SpyObj<IssueTransitionService>;
+        dropdownUtilService = TestBed.inject(DropdownUtilService) as jasmine.SpyObj<DropdownUtilService>;
     });
 
     it('should create', () => {
@@ -529,5 +536,234 @@ describe('EditIssueDialogComponent', () => {
         expect(component.issueForm).toBeDefined();
         expect(component.issueForm.get('summary').value).toBe('test summary');
         expect(component.issueForm.get('description').value).toBe('test description');
+    });
+
+    it('should add and remove control from form', () => {
+        component.issueForm = new UntypedFormGroup({});
+        component.fields = { testField: stringFieldMetadata };
+
+        component['addRemoveControlFromForm']('testField');
+        expect(component.issueForm.contains('testField')).toBeTrue();
+
+        component.issueForm = new UntypedFormGroup({});
+        component.fields = {};
+        component['addRemoveControlFromForm']('testField');
+        expect(component.issueForm.contains('testField')).toBeFalse();
+    });
+
+    it('should determine if field is required', () => {
+        component.fields = { testField: stringFieldMetadata };
+        expect(component.isFieldRequired('testField')).toBeTrue();
+
+        stringFieldMetadata.required = false;
+        component.fields = { testField: stringFieldMetadata };
+        expect(component.isFieldRequired('testField')).toBeFalse();
+    });
+
+    it('should set assignee options correctly', async () => {
+        const assignees = [
+            { accountId: '1', name: 'user1', displayName: 'User One',
+                avatarUrls:  { '24x24': 'http://example.com/1.png', '16x16': '16', '32x32': '32', '48x48': '48' } },
+            { accountId: '2', name: 'user2', displayName: 'User Two',
+                avatarUrls:  { '24x24': 'http://example.com/1.png', '16x16': '16', '32x32': '32', '48x48': '48' } },
+        ];
+        const assigneeOptions = assignees.map(assignee => ({
+            id: assignee.accountId,
+            value: assignee.accountId,
+            label: assignee.displayName,
+            icon: assignee.avatarUrls['24x24']
+        }));
+        assigneeService.searchAssignable.and.returnValue(Promise.resolve(assignees as JiraUser[]));
+        assigneeService.assigneesToDropdownOptions.and.returnValue(assigneeOptions);
+
+        component.issue = { assignee: assignees[0] };
+
+        await component['setAssigneeOptions']();
+
+        expect(component.assigneesOptions).toEqual(assigneeOptions);
+        expect(component.assigneesFilteredOptions).toEqual(assigneeOptions);
+        expect(component.selectedAssigneeOption).toEqual(assigneeOptions[0]);
+    });
+
+    it('should set unassigned option if assignee is null', async () => {
+        const unassignedOption: DropDownOption<string> = {
+            id: -2,
+            value: null,
+            label: 'Unassigned',
+            icon: '/assets/useravatar24x24.png'
+        };
+
+        assigneeService.searchAssignable.and.returnValue(Promise.resolve([]));
+        assigneeService.assigneesToDropdownOptions.and.returnValue([]);
+
+        component.issue = { assignee: null };
+
+        await component['setAssigneeOptions']();
+
+        expect(component.assigneesOptions).toEqual([]);
+        expect(component.assigneesFilteredOptions).toEqual([]);
+        expect(component.selectedAssigneeOption).toEqual(undefined);
+    });
+
+    it('should add not assignable assignee to options', async () => {
+        const assignees = [
+            { accountId: '1', name: 'user1', displayName: 'User One', avatarUrls: { '24x24': 'http://example.com/1.png' } }
+        ];
+
+        assigneeService.searchAssignable.and.returnValue(Promise.resolve([]));
+        assigneeService.assigneesToDropdownOptions.and.returnValue([]);
+
+        component.issue = { assignee: assignees[0] };
+
+        await component['setAssigneeOptions']();
+
+        expect(component.assigneesOptions).toContain(jasmine.objectContaining({ value: '1' }));
+        expect(component.selectedAssigneeOption).toEqual(jasmine.objectContaining({ value: '1' }));
+    });
+
+    it('should set statuses options correctly', async () => {
+        const transitions: JiraTransition[] = [
+            { id: '1', name: 'To Do', to:
+                { id: '1', name: 'To Do', self: '', description: '', iconUrl: '', statusCategory:
+                    { id: 1, key: '', colorName: '', name: '' } },
+            hasScreen: false, isGlobal: false, isInitial: false, isConditional: false },
+            { id: '2', name: 'In Progress', to:
+                { id: '2', name: 'In Progress', self: '', description: '', iconUrl: '', statusCategory:
+                    { id: 1, key: '', colorName: '', name: '' } },
+            hasScreen: false, isGlobal: false, isInitial: false, isConditional: false },
+        ];
+        const jiraTransitionsResponse: JiraTransitionsResponse = { transitions: transitions, expand: '' };
+        const statusOption = {
+            id: '1',
+            value: { id: '1', name: 'To Do', to:
+                { id: '1', name: 'To Do', self: '', description: '', iconUrl: '', statusCategory:
+                    { id: 1, key: '', colorName: '', name: '' } },
+            hasScreen: false, isGlobal: false, isInitial: false, isConditional: false },
+            label: 'To Do'
+        } as DropDownOption<JiraTransition>;
+
+        transitionService.getTransitions.and.returnValue(Promise.resolve(jiraTransitionsResponse));
+        dropdownUtilService.mapTransitionToDropdownOption.and.callFake((transition: JiraTransition) => ({
+            id: transition.id,
+            value: transition,
+            label: transition.name,
+        }));
+
+        component.issue = { status: { id: '1', name: 'To Do' } };
+
+        await component['setStatusesOptions']();
+
+        expect(transitionService.getTransitions).toHaveBeenCalledWith(component.jiraUrl, component.issue.key);
+        expect(component.statusesOptions.length).toBe(2);
+        expect(component.statusesOptions).toContain(statusOption);
+        expect(component.selectedStatusOption).toEqual(statusOption);
+    });
+
+    it('should set initial status option if not in transitions', async () => {
+        const transitions: JiraTransition[] = [
+            { id: '2', name: 'In Progress', to:
+                { id: '2', name: 'In Progress', self: '', description: '', iconUrl: '', statusCategory:
+                    { id: 1, key: '', colorName: '', name: '' } },
+            hasScreen: false, isGlobal: false, isInitial: false, isConditional: false },
+        ];
+        const jiraTransitionsResponse: JiraTransitionsResponse = { transitions: transitions, expand: '' };
+        const statusOption = {
+            id: '1',
+            value: { id: '1' },
+            label: 'To Do'
+        } as DropDownOption<JiraTransition>;
+
+        transitionService.getTransitions.and.returnValue(Promise.resolve(jiraTransitionsResponse));
+        dropdownUtilService.mapTransitionToDropdownOption.and.callFake((transition: JiraTransition) => ({
+            id: transition.id,
+            value: transition,
+            label: transition.name
+        }));
+
+        component.issue = { status: { id: '1', name: 'To Do' } };
+
+        await component['setStatusesOptions']();
+
+        expect(transitionService.getTransitions).toHaveBeenCalledWith(component.jiraUrl, component.issue.key);
+        expect(component.statusesOptions.length).toBe(2);
+        expect(component.statusesOptions[0]).toEqual(statusOption);
+        expect(component.selectedStatusOption).toEqual(statusOption);
+    });
+
+    it('should add priority control to form if priorities exist', () => {
+        component.issueForm = new UntypedFormGroup({});
+        component.fields = { priority: priorityFieldMetadata };
+        component.defaultPriority = 'High';
+        dropdownUtilService.mapPriorityToDropdownOption.and.callFake((priority: Priority) => ({
+            id: priority.id,
+            value: priority.id,
+            label: priority.name,
+            icon: priority.iconUrl
+        }));
+
+        component['addRemovePriorityFromForm']();
+
+        expect(component.issueForm.contains('priority')).toBeTrue();
+    });
+
+    it('should set default priority value if defaultPriority is not set', () => {
+        component.issueForm = new UntypedFormGroup({});
+        component.fields = { priority: priorityFieldMetadata };
+        component.defaultPriority = null;
+        dropdownUtilService.mapPriorityToDropdownOption.and.callFake((priority: Priority) => ({
+            id: priority.id,
+            value: priority.id,
+            label: priority.name,
+            icon: priority.iconUrl
+        }));
+
+        component['addRemovePriorityFromForm']();
+
+        expect(component.issueForm.contains('priority')).toBeTrue();
+    });
+
+    it('should remove priority control from form if priorities do not exist', () => {
+        component.issueForm = new UntypedFormGroup({
+            priority: new UntypedFormControl('1')
+        });
+        component.fields = {};
+
+        component['addRemovePriorityFromForm']();
+
+        expect(component.issueForm.contains('priority')).toBeFalse();
+        expect(component.prioritiesOptions.length).toBe(0);
+    });
+
+    it('should handle case when priorities have default value', () => {
+        component.issueForm = new UntypedFormGroup({});
+        component.fields = { priority: { ...priorityFieldMetadata, hasDefaultValue: true, defaultValue: { id: '2', name: 'Medium' } } };
+        dropdownUtilService.mapPriorityToDropdownOption.and.callFake((priority: Priority) => ({
+            id: priority.id,
+            value: priority.id,
+            label: priority.name,
+            icon: priority.iconUrl
+        }));
+
+        component['addRemovePriorityFromForm']();
+
+        expect(component.issueForm.contains('priority')).toBeTrue();
+        expect(component.issueForm.get('priority').value).toBe('2');
+    });
+
+    it('should handle case when priorities do not have default value', () => {
+        const defaultPriority: Priority = { id: '2', name: 'Medium', iconUrl: 'http://example.com/icon.png', statusColor: 'blue' };
+        component.defaultPriority = defaultPriority;
+        component.issueForm = new UntypedFormGroup({});
+        component.fields = { priority: { ...priorityFieldMetadata, hasDefaultValue: false } };
+        dropdownUtilService.mapPriorityToDropdownOption.and.callFake((priority: Priority) => ({
+            id: priority.id,
+            value: priority.id,
+            label: priority.name,
+            icon: priority.iconUrl
+        }));
+
+        component['addRemovePriorityFromForm']();
+
+        expect(component.issueForm.contains('priority')).toBeTrue();
     });
 });
