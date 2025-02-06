@@ -57,7 +57,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Tests.Bots
         [Fact]
         public void FindBestMatch_ShouldReturnBestMatchedRegexRoute()
         {
-            var regexRoute = new DialogRoute(typeof(TestDialog), new TestRegex().GetRegex(), order: 1);
+            var regexRoute = new DialogRoute(typeof(TestDialog), TestRegex.GetRegex(), order: 1);
             var dialogRouteService = new DialogRouteService(_serviceProvider, regexRoute);
 
             var messageText = "regex";
@@ -69,7 +69,7 @@ namespace MicrosoftTeamsIntegration.Artifacts.Tests.Bots
         [Fact]
         public void FindBestMatch_ShouldHandleCancelRoutes()
         {
-            var regexRoute = new DialogRoute(typeof(TestDialog), new TestRegex().GetRegex(), order: 1);
+            var regexRoute = new DialogRoute(typeof(TestDialog), TestRegex.GetRegex(), order: 1);
 
             var dialogRouteService = new DialogRouteService(_serviceProvider, regexRoute);
 
@@ -134,11 +134,11 @@ namespace MicrosoftTeamsIntegration.Artifacts.Tests.Bots
         }
     }
 
-    public partial class TestRegex
+    public abstract partial class TestRegex
     {
         [GeneratedRegex("regex", RegexOptions.IgnoreCase)]
         private static partial Regex Regex();
 
-        public Regex GetRegex() => Regex();
+        public static Regex GetRegex() => Regex();
     }
 }
