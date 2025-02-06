@@ -50,7 +50,7 @@ public class AzureTableStorageTests
         var entity2 = new TestEntity { PartitionKey = partitionKey, RowKey = rowKey2 };
         var ctor = typeof(TableQuerySegment<TestEntity>)
             .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-            .FirstOrDefault(c => c.GetParameters().Count() == 1);
+            .FirstOrDefault(c => c.GetParameters().Length == 1);
         var mockQuerySegment = ctor?.Invoke([new List<TestEntity>() ]) as TableQuerySegment<TestEntity>;
         mockQuerySegment?.Results.Add(entity1);
         mockQuerySegment?.Results.Add(entity2);
@@ -75,7 +75,7 @@ public class AzureTableStorageTests
         var entity = new TestEntity { PartitionKey = "testPartition", RowKey = "testRow1" };
         var ctor = typeof(TableQuerySegment<TestEntity>)
             .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-            .FirstOrDefault(c => c.GetParameters().Count() == 1);
+            .FirstOrDefault(c => c.GetParameters().Length == 1);
         var mockQuerySegment = ctor?.Invoke([new List<TestEntity>() ]) as TableQuerySegment<TestEntity>;
         mockQuerySegment?.Results.Add(entity);
 
