@@ -29,6 +29,13 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services.TableStorage
             _tables = new ConcurrentDictionary<string, CloudTable>();
         }
 
+        public AzureTableStorage(string appId, CloudTableClient tableClient)
+        {
+            _appId = appId;
+            _tableClient = tableClient;
+            _tables = new ConcurrentDictionary<string, CloudTable>();
+        }
+
         public async Task<T?> Retrieve<T>(string partitionKey, string rowKey, CancellationToken cancellationToken = default)
             where T : class, ITableEntity, new()
         {

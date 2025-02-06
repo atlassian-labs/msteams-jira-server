@@ -13,13 +13,20 @@ namespace MicrosoftTeamsIntegration.Artifacts.Services
     {
         private readonly string _appId;
         private readonly string _customerSupportEmail;
-        private readonly SendGridClient _sendGridClient;
+        private readonly ISendGridClient _sendGridClient;
 
         public UserFeedbackService(string appId, string sendGridApiKey, string customerSupportEmail)
         {
             _appId = appId;
             _customerSupportEmail = customerSupportEmail;
             _sendGridClient = new SendGridClient(sendGridApiKey);
+        }
+
+        public UserFeedbackService(string appId, string customerSupportEmail, ISendGridClient sendGridClient)
+        {
+            _appId = appId;
+            _customerSupportEmail = customerSupportEmail;
+            _sendGridClient = sendGridClient;
         }
 
         public async Task SendFeedbackViaEmail(string feedbackMessage, string fromEmail = "", CancellationToken cancellationToken = default)
