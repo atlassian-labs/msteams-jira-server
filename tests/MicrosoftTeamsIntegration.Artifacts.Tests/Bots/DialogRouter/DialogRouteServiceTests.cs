@@ -1,11 +1,11 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using FakeItEasy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder.Dialogs;
-using MicrosoftTeamsIntegration.Artifacts.Bots.Dialogs;
 using MicrosoftTeamsIntegration.Artifacts.Bots.DialogRouter;
+using MicrosoftTeamsIntegration.Artifacts.Bots.Dialogs;
 
-namespace MicrosoftTeamsIntegration.Artifacts.Tests.Bots
+namespace MicrosoftTeamsIntegration.Artifacts.Tests.Bots.DialogRouter
 {
     public class DialogRouteServiceTests
     {

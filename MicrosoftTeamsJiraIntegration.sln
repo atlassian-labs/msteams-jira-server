@@ -87,7 +87,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicrosoftTeamsIntegration.Artifacts", "src\MicrosoftTeamsIntegration.Artifacts\MicrosoftTeamsIntegration.Artifacts.csproj", "{CA11B340-50B2-4F12-9525-1FE342DD952D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrosoftTeamsIntegration.Artifacts.Tests", "MicrosoftTeamsIntegration.Artifacts.Tests\MicrosoftTeamsIntegration.Artifacts.Tests.csproj", "{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrosoftTeamsIntegration.Artifacts.Tests", "tests\MicrosoftTeamsIntegration.Artifacts.Tests\MicrosoftTeamsIntegration.Artifacts.Tests.csproj", "{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

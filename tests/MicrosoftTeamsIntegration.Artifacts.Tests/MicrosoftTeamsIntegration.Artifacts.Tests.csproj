@@ -20,7 +20,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\MicrosoftTeamsIntegration.Artifacts\MicrosoftTeamsIntegration.Artifacts.csproj" />
+      <ProjectReference Include="..\..\src\MicrosoftTeamsIntegration.Artifacts\MicrosoftTeamsIntegration.Artifacts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Bots\.DS_Store" />
     </ItemGroup>
 
 </Project>
