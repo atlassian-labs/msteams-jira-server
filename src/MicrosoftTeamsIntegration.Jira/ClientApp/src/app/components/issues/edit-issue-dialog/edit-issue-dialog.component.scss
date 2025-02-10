@@ -256,3 +256,7 @@ hr {
     padding-top: 10px;
   }
 }
+
+::ng-deep .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+  white-space: normal !important;
+}
