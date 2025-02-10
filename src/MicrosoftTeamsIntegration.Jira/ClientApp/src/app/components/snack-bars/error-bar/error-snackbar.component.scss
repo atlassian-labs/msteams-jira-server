@@ -6,7 +6,8 @@
   border-radius: 4px;
   border: 1px solid var(--light-theme-rest-border-red-border, #F3D6D8);
   background: var(--light-theme-rest-background-red-background-1, #FCF4F6);
-  height: 44px;
+  min-height: 44px;
+  max-height: 200px;
 }
 
 ::ng-deep .dark {
@@ -18,7 +19,8 @@
     border-radius: 4px;
     border: 1px solid var(--dark-theme-rest-border-red-border, #1E040A);
     background: var(--dark-theme-rest-background-red-background-1, #3E1F25);
-    height: 44px;
+    min-height: 44px;
+    max-height: 200px;
     margin-left: 1px;
     margin-right: 1px;
   }
@@ -33,7 +35,8 @@
     border-radius: 4px;
     border: 1px solid var(--dark-theme-rest-border-red-border, #1E040A);
     background: var(--dark-theme-rest-background-red-background-1, #3E1F25);
-    height: 44px;
+    min-height: 44px;
+    max-height: 200px;
     margin-left: 1px;
     margin-right: 1px;
   }
