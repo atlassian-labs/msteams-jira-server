@@ -295,7 +295,6 @@ export class EditIssueDialogComponent implements OnInit {
 
     public assignToMe(): void {
         this.assigneeAccountId.setValue(this.currentUserAccountId);
-        this.setUpdatedFormFields();
     }
 
     public async onAssigneeSearchChanged(username: string): Promise<void> {
@@ -324,14 +323,6 @@ export class EditIssueDialogComponent implements OnInit {
             fields: { } as Partial<any>,
             editIssueMetadata: { } as Partial<any>
         } as Partial<IssueFields>;
-
-        if (this.updatedFormFields.indexOf(this.summaryFieldName) !== -1) {
-            editIssueModel['summary'] = formValue.summary;
-        }
-
-        if (this.updatedFormFields.indexOf(this.descriptionFieldName) !== -1) {
-            editIssueModel['description'] = formValue.description;
-        }
 
         if (this.updatedFormFields.indexOf(this.statusFieldName) !== -1) {
             (editIssueModel['status'] as IssueStatus).id = formValue.status.id;
@@ -404,19 +395,10 @@ export class EditIssueDialogComponent implements OnInit {
         const initialForm = this.initialIssueForm;
 
         for (const key of Object.keys(currentForm?.value)) {
-            const currentValue = currentForm?.value[key] === undefined ? null : currentForm?.value[key];
-            const initialValue = initialForm.value[key] === undefined ? null : initialForm.value[key];
-            const rawValue = this.fieldsService.getDefaultValue(this.issueRaw.fields[key]);
+            const currentValue = currentForm?.value[key];
+            const initialValue = initialForm.value[key];
 
-            // Normalize values for comparison
-            const normalizedCurrentValue = this.normalizeValue(currentValue);
-            const normalizedRawValue = this.normalizeValue(rawValue);
-
-            if (currentValue !== initialValue && normalizedCurrentValue !== normalizedRawValue) {
-                if (this.isSprintValueSet(normalizedRawValue, normalizedCurrentValue)) {
-                    continue;
-                }
-
+            if (currentValue !== initialValue) {
                 if (this.updatedFormFields.indexOf(key) === -1) {
                     this.updatedFormFields.push(key);
                 }
@@ -424,54 +406,6 @@ export class EditIssueDialogComponent implements OnInit {
                 this.updatedFormFields = this.updatedFormFields.filter(x => x !== key);
             }
         }
-    }
-
-    private isSprintValueSet(
-        normalizedRawValue: string | null | undefined,
-        normalizedCurrentValue: string | null | undefined): boolean {
-
-        if (normalizedCurrentValue == null) {
-            return false;
-        }
-
-        if (typeof normalizedRawValue !== 'string' ||
-            !normalizedRawValue.includes('com.atlassian.greenhopper.service.sprint.Sprint')) {
-            return false;
-        }
-
-        let sprints: string[];
-        try {
-            sprints = JSON.parse(normalizedRawValue) as string[];
-        } catch (error) {
-            console.warn('Failed to parse normalizedRawValue as JSON:', error);
-            return false;
-        }
-
-        // Extract numeric IDs from those sprints
-        const validSprintIds = sprints.map(sprintString => {
-            const idMatch = sprintString.match(/id=(\d+)/);
-            return idMatch ? Number(idMatch[1]) : null;
-        });
-
-        const numericCurrentValue = Number(normalizedCurrentValue);
-        if (Number.isNaN(numericCurrentValue)) {
-            return false;
-        }
-
-        // Check whether the array of active IDs includes numericCurrentValue
-        return validSprintIds.includes(numericCurrentValue);
-    }
-
-
-    private normalizeValue(value: any): string | null {
-        if (Array.isArray(value) && value.length === 0) {
-            return null;
-        }
-        if (value === undefined || value === null || value === '') {
-            return null;
-        }
-
-        return JSON.stringify(value);
     }
 
     public sanitazeUrl(url: any) {
@@ -488,6 +422,7 @@ export class EditIssueDialogComponent implements OnInit {
                     this.issue?.summary,
                     [Validators.required, StringValidators.isNotEmptyString]
                 ),
+                { emitEvent: false }
             );
         }
 
@@ -496,7 +431,8 @@ export class EditIssueDialogComponent implements OnInit {
                 this.descriptionFieldName,
                 new UntypedFormControl(
                     this.issue?.description
-                )
+                ),
+                { emitEvent: false }
             );
         }
 
@@ -506,6 +442,7 @@ export class EditIssueDialogComponent implements OnInit {
                 new UntypedFormControl(
                     this.selectedPriorityOption?.value
                 ),
+                { emitEvent: false }
             );
         }
 
@@ -515,6 +452,7 @@ export class EditIssueDialogComponent implements OnInit {
                 new UntypedFormControl(
                     this.selectedAssigneeOption?.value
                 ),
+                { emitEvent: false }
             );
         }
 
@@ -523,7 +461,8 @@ export class EditIssueDialogComponent implements OnInit {
                 this.statusFieldName,
                 new UntypedFormControl(
                     this.selectedStatusOption?.value
-                )
+                ),
+                { emitEvent: false }
             );
         }
 
@@ -534,7 +473,11 @@ export class EditIssueDialogComponent implements OnInit {
         this.initialIssueForm = { ...this.issueForm };
 
         this.issueForm.valueChanges.subscribe(() => {
-            this.setUpdatedFormFields();
+            if(!this.issueForm.dirty) {
+                this.initialIssueForm = { ...this.issueForm };
+            } else {
+                this.setUpdatedFormFields();
+            }
         });
     }
 
@@ -595,10 +538,11 @@ export class EditIssueDialogComponent implements OnInit {
                 priorityControlName,
                 new UntypedFormControl(
                     defaultPriorityVal
-                )
+                ),
+                { emitEvent: false }
             );
         } else if (this.issueForm.contains(priorityControlName)) {
-            this.issueForm.removeControl(priorityControlName);
+            this.issueForm.removeControl(priorityControlName, { emitEvent: false });
             this.prioritiesOptions = [];
         }
     }
@@ -617,10 +561,11 @@ export class EditIssueDialogComponent implements OnInit {
 
             this.issueForm.addControl(
                 controlName,
-                control
+                control,
+                { emitEvent: false }
             );
         } else if (this.issueForm.contains(controlName)) {
-            this.issueForm.removeControl(controlName);
+            this.issueForm.removeControl(controlName, { emitEvent: false });
         }
     }
 

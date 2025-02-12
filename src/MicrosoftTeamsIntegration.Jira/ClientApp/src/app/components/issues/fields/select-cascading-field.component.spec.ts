@@ -55,6 +55,6 @@ describe('SelectCascadingFieldComponent', () => {
 
         expect(component.selectedChildId).toEqual([]);
         expect(component.allowedChildrenOptions).toEqual([]);
-        expect(component.selectedCascadingOptions).toBeUndefined();
+        expect(component.selectedCascadingOptions).toBeNull();
     });
 });

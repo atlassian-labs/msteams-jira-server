@@ -75,8 +75,8 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
         this.formGroup.addControl(this.data.formControlName + '_parent',
             this.data.required ?
                 new UntypedFormControl(null, [Validators.required]) :
-                new UntypedFormControl());
-        this.formGroup.addControl(this.data.formControlName + '_children', new UntypedFormControl());
+                new UntypedFormControl(), { emitEvent: false });
+        this.formGroup.addControl(this.data.formControlName + '_children', new UntypedFormControl(), { emitEvent: false });
 
         if (this.data.allowedValues) {
             // get allowed values for cascading including all child values
@@ -113,6 +113,7 @@ export class SelectCascadingFieldComponent implements FieldComponent, OnInit {
             this.selectedCascadingOptions = ({id: selectedValue.id});
         } else {
             this.allowedChildrenOptions = [];
+            this.selectedCascadingOptions = null;
         }
     }
 
