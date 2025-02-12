@@ -89,8 +89,11 @@ export class FieldsService {
         const issueModel = { } as Partial<any>;
 
         this.getAllowedFields(fields).forEach(field => {
-            if(formValue[field.key] === null) {
+            if (formValue[field.key] === null) {
                 issueModel[field.key] = null;
+            }
+            if (formValue[field.key] === '') {
+                issueModel[field.key] = '';
             }
             if (formValue[field.key]) {
                 if (field.allowedValues && field.schema.type !== 'option-with-child') {
