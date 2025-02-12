@@ -355,34 +355,6 @@ describe('EditIssueDialogComponent', () => {
         expect(component.allowEditStatus).toBeFalse();
     });
 
-    it('should determine if sprint value is set', () => {
-        const normalizedRawValue =
-        // eslint-disable-next-line max-len
-        '["com.atlassian.greenhopper.service.sprint.Sprint@716d6522[activatedDate=2024-10-30T02:13:17.165+02:00,autoStartStop=false,completeDate=<null>,endDate=2024-11-13T02:33:17.165+02:00,goal=<null>,id=1,incompleteIssuesDestinationId=<null>,name=Sample Sprint 2,rapidViewId=1,sequence=1,startDate=2024-10-30T02:13:17.165+02:00,state=ACTIVE,synced=false]"]';
-        const normalizedCurrentValue = '1';
-        const result = component['isSprintValueSet'](normalizedRawValue, normalizedCurrentValue);
-        expect(result).toBeTrue();
-    });
-
-    it('should determine if sprint value is not set', () => {
-        const normalizedRawValue = '[{"id=1"}]';
-        const normalizedCurrentValue = '2';
-        const result = component['isSprintValueSet'](normalizedRawValue, normalizedCurrentValue);
-        expect(result).toBeFalse();
-    });
-
-    it('should normalize value', () => {
-        const value = { key: 'value' };
-        const result = component['normalizeValue'](value);
-        expect(result).toBe(JSON.stringify(value));
-    });
-
-    it('should return null for undefined value', () => {
-        const value = undefined;
-        const result = component['normalizeValue'](value);
-        expect(result).toBeNull();
-    });
-
     it('should sanitize URL', () => {
         const url = 'https://example.com';
         const sanitizedUrl = component.sanitazeUrl(url);

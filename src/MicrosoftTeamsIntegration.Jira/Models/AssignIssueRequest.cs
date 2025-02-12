@@ -15,9 +15,6 @@ namespace MicrosoftTeamsIntegration.Jira.Models
     /// </summary>
     public sealed class AssignIssueRequest
     {
-        [JsonProperty("accountId")]
-        public string UserAccountId { get; set; }
-
         [JsonProperty("name")]
         [JiraServer]
         public string Name { get; set; }

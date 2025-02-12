@@ -91,28 +91,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         {
             dynamic updateSet = new ExpandoObject();
 
-            if (jiraIssueRequest.Summary != null)
-            {
-                updateSet.summary = new[]
-                {
-                    new
-                    {
-                        set = jiraIssueRequest.Summary
-                    }
-                };
-            }
-
-            if (jiraIssueRequest.Description != null)
-            {
-                updateSet.description = new[]
-                {
-                    new
-                    {
-                        set = jiraIssueRequest.Description
-                    }
-                };
-            }
-
             if (jiraIssueRequest.Priority?.Id != null)
             {
                 updateSet.priority = new[]
@@ -129,7 +107,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             try
             {
-                var editIssueRequest = new EditIssueRequest { Fields = jiraIssueRequest.Fields };
+                var editIssueRequest = new EditIssueRequest { Update = updateSet, Fields = jiraIssueRequest.Fields };
                 var updateIssueResponse =
                     await ProcessRequestWithJiraApiActionCallResponse<string>(
                         user,
