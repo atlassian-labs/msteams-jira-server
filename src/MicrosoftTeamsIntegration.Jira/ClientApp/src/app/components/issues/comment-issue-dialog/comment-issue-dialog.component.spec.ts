@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { JiraPermissionsResponse } from '@core/models/Jira/jira-permission.model';
 import { Issue, JiraComment } from '@core/models';
 import * as microsoftTeams from '@microsoft/teams-js';
+import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
 
 describe('CommentIssueDialogComponent', () => {
     let component: CommentIssueDialogComponent;
@@ -31,7 +32,7 @@ describe('CommentIssueDialogComponent', () => {
         spyOn(microsoftTeams.dialog.url, 'submit').and.callFake(() => {});
 
         const commentServiceSpy = jasmine.createSpyObj('IssueCommentService', ['addComment']);
-        const apiServiceSpy = jasmine.createSpyObj('ApiService', ['getJiraUrlForPersonalScope', 'getIssueByIdOrKey']);
+        const apiServiceSpy = jasmine.createSpyObj('ApiService', ['getJiraUrlForPersonalScope', 'getIssueByIdOrKey', 'getCurrentUserData']);
         const permissionServiceSpy = jasmine.createSpyObj('PermissionService', ['getMyPermissions']);
         const errorServiceSpy = jasmine.createSpyObj('ErrorService', ['getHttpErrorMessage']);
         const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['notifyError', 'notifySuccess']);
@@ -60,7 +61,8 @@ describe('CommentIssueDialogComponent', () => {
                     useValue: {
                         snapshot: {
                             params:
-                            { jiraUrl: 'testJiraUrl', issueId: 'testIssueId', issueKey: 'testIssueKey', application: 'testApp' } }
+                            { jiraUrl: 'testJiraUrl', jiraId: 'testJiraId', issueId: 'testIssueId', issueKey: 'testIssueKey',
+                                application: 'testApp' } }
                     }
                 }
             ]
@@ -82,7 +84,20 @@ describe('CommentIssueDialogComponent', () => {
     });
 
     it('should initialize component and load issue data', async () => {
-        apiService.getJiraUrlForPersonalScope.and.returnValue(Promise.resolve({ jiraUrl: 'testJiraUrl' }));
+        const currentUser: CurrentJiraUser = {
+            jiraServerInstanceUrl: 'testJiraUrl',
+            self: '',
+            accountId: '',
+            emailAddress: '',
+            hashedEmailAddress: '',
+            avatarUrls: { '16x16': '', '24x24': '', '32x32': '', '48x48': '' },
+            displayName: '',
+            active: true,
+            timeZone: '',
+            name: '',
+        };
+        apiService.getJiraUrlForPersonalScope.and.returnValue(Promise.resolve({ jiraUrl: 'testJiraId' }));
+        apiService.getCurrentUserData.and.returnValue(Promise.resolve(currentUser));
         permissionService.getMyPermissions.and.returnValue(Promise.resolve({
             permissions: {
                 ADD_COMMENTS: { havePermission: true },
@@ -108,7 +123,6 @@ describe('CommentIssueDialogComponent', () => {
 
         await component.ngOnInit();
 
-        expect(component.jiraUrl).toBe('testJiraUrl');
         expect(component.issueId).toBe('testIssueId');
         expect(component.issueKey).toBe('testIssueKey');
         expect(component.issue?.key).toBe('testKey');
@@ -116,6 +130,19 @@ describe('CommentIssueDialogComponent', () => {
     });
 
     it('should handle permission error during initialization', async () => {
+        const currentUser: CurrentJiraUser = {
+            jiraServerInstanceUrl: 'testJiraUrl',
+            self: '',
+            accountId: '',
+            emailAddress: '',
+            hashedEmailAddress: '',
+            avatarUrls: { '16x16': '', '24x24': '', '32x32': '', '48x48': '' },
+            displayName: '',
+            active: true,
+            timeZone: '',
+            name: '',
+        };
+        apiService.getCurrentUserData.and.returnValue(Promise.resolve(currentUser));
         permissionService.getMyPermissions.and.returnValue(Promise.resolve({
             permissions: {
                 ADD_COMMENTS: { havePermission: false }

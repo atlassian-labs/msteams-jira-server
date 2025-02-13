@@ -122,7 +122,7 @@ export class CreateIssueDialogComponent implements OnInit {
             application}
             = this.route.snapshot.params;
         this.jiraUrl = jiraUrl;
-        this.defaultDescription = description;
+        this.defaultDescription = description || '';
         this.metadataRef = metadataRef;
         this.returnIssueOnSubmit = returnIssueOnSubmit === 'true';
         this.replyToActivityId = replyToActivityId;

@@ -23,6 +23,7 @@ export class CommentIssueDialogComponent implements OnInit {
     public issue: Issue | undefined;
     public loading = false;
     public commentForm: UntypedFormGroup | undefined;
+    public jiraId: string | undefined;
     public jiraUrl: string | undefined;
     public issueId: string | undefined;
     public issueKey: string | undefined;
@@ -44,8 +45,8 @@ export class CommentIssueDialogComponent implements OnInit {
     public async ngOnInit() {
         this.loading = true;
         try {
-            const { jiraUrl, issueId, issueKey, application } = this.route.snapshot.params;
-            this.jiraUrl = jiraUrl;
+            const { jiraId, issueId, issueKey, application } = this.route.snapshot.params;
+            this.jiraId = jiraId;
             this.issueId = issueId;
             this.issueKey = issueKey;
             const commentRelatedPermissions: JiraPermissionName[] = [
@@ -58,13 +59,13 @@ export class CommentIssueDialogComponent implements OnInit {
                 UiEventSubject.taskModule,
                 'createCommentModal', {application: application});
 
-            if (!this.jiraUrl) {
+            if (!this.jiraId) {
                 const response = await this.apiService.getJiraUrlForPersonalScope();
-                this.jiraUrl = response.jiraUrl;
+                this.jiraId = response.jiraUrl;
             }
 
             const { permissions } = await this.permissionService
-                .getMyPermissions(this.jiraUrl, commentRelatedPermissions, this.issueId);
+                .getMyPermissions(this.jiraId, commentRelatedPermissions, this.issueId);
 
             if (!permissions.ADD_COMMENTS.havePermission) {
                 const message = 'You don\'t have permissions to add comments';
@@ -72,7 +73,16 @@ export class CommentIssueDialogComponent implements OnInit {
                 return;
             }
 
-            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraUrl, this.issueId as string);
+            const currentUserPromise = this.apiService.getCurrentUserData(this.jiraId);
+            const issuePromise = this.apiService.getIssueByIdOrKey(this.jiraId, this.issueId as string);
+
+            const [currentUser, issue] = await Promise.all([
+                currentUserPromise,
+                issuePromise
+            ]);
+
+            this.issue = issue;
+            this.jiraUrl = currentUser.jiraServerInstanceUrl;
             await this.createForm();
 
             microsoftTeams.app.notifySuccess();
@@ -92,7 +102,7 @@ export class CommentIssueDialogComponent implements OnInit {
         }
 
         const options: IssueAddCommentOptions = {
-            jiraUrl: this.jiraUrl as string,
+            jiraUrl: this.jiraId as string,
             issueIdOrKey: this.issueId as string,
             comment: this.commentForm?.value.comment,
             metadataRef: null as any
