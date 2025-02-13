@@ -56,5 +56,15 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             Assert.NotNull(collection);
         }
+
+        [Fact]
+        public void Dispose_ShouldDisposeMongoClient()
+        {
+            var context = new MongoDBContext(_fakeMongoClient);
+
+            context.Dispose();
+
+            A.CallTo(() => _fakeMongoClient.Dispose()).MustHaveHappened();
+        }
     }
 }

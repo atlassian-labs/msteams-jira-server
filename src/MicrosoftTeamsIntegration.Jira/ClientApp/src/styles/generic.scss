@@ -1,6 +1,6 @@
-@import "variables";
-@import "icons";
-@import "app-colors";
+@use 'variables' as vars;
+@use 'icons' as icons;
+@use 'app-colors';
 
 // TODO: Find out how to name this file properly
 
@@ -97,7 +97,7 @@
 @mixin icon() {
   -webkit-font-smoothing: antialiased;
   display: block;
-  font-family: $msteams-icons-font !important;
+  font-family: vars.$msteams-icons-font !important;
   font-size: 16px;
   font-style: normal;
   font-variant: normal;
@@ -112,7 +112,7 @@
 
   &:before {
     bottom: 1px;
-    content: $cancel;
+    content: icons.$cancel;
     position: relative;
   }
 }
@@ -121,7 +121,7 @@
   @include icon();
 
   &::before {
-    content: $chevron-small-up;
+    content: icons.$chevron-small-up;
   }
 }
 
@@ -133,7 +133,7 @@
   }
 
   &::before {
-    content: $chevron-small-right;
+    content: icons.$chevron-small-right;
   }
 }
 
@@ -145,7 +145,7 @@
   }
 
   &::before {
-    content: $chevron-small-down;
+    content: icons.$chevron-small-down;
   }
 }
 
@@ -187,8 +187,8 @@
   color: rgba(37,36,36,0.75);
 
   &::before {
-    font-family: $msteams-icons-font !important;
-    content: $question-mark-field;
+    font-family: vars.$msteams-icons-font !important;
+    content: icons.$question-mark-field;
   }
 
   &-wrapper {
@@ -199,31 +199,31 @@
 
 :host-context(.default) {
   .chevron-right {
-    color: $black;
+    color: app-colors.$black;
   }
 
   .chevron-down {
-    color: $black;
+    color: app-colors.$black;
   }
 }
 
 :host-context(.dark) {
   .chevron-right {
-    color: $white;
+    color: app-colors.$white;
   }
 
   .chevron-down {
-    color: $white;
+    color: app-colors.$white;
   }
 }
 
 :host-context(.contrast) {
   .chevron-right {
-    color: $white; // Change color
+    color: app-colors.$white; // Change color
   }
 
   .chevron-down {
-    color: $white; // Change color
+    color: app-colors.$white; // Change color
   }
 }
 

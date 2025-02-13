@@ -71,7 +71,6 @@
                     class="field-group__description-textarea"
                     cols="20"
                     rows="10"
-                    maxlength="1024"
                     formControlName="description"
                     (keyup)="setUpdatedFormFields()">
                   </textarea>
@@ -211,8 +210,23 @@
                     alt="Avatar" />
                   <app-truncated-text [text]="issue.reporter.displayName"></app-truncated-text>
                 </div>
-              </div> 
-              
+              </div>
+              <mat-expansion-panel *ngIf="issueForm && Object.keys(issueForm.controls).length > 5" hideToggle #panel="matExpansionPanel">
+                  <mat-expansion-panel-header>
+                      <div class="expander-header">
+                          <div class="expander-button">
+                              <mat-icon>
+                                  {{ panel.expanded ? 'expand_more' : 'chevron_right' }}
+                              </mat-icon>
+                          </div>
+                          <!-- Panel title -->
+                          <mat-panel-title>
+                              More fields
+                          </mat-panel-title>
+                      </div>
+                  </mat-expansion-panel-header>
+                  <app-dynamic-fields [dynamicFields]="dynamicFieldsData" [formGroup]="issueForm"></app-dynamic-fields>
+              </mat-expansion-panel>
               <!-- Modifications section -->
               <div class="flex-row flex-space-between field-group date-info">
                   <div class="flex-1">

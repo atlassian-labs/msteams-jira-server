@@ -7,7 +7,8 @@
 
 @Directive({
     // eslint-disable-next-line @angular-eslint/directive-selector
-    selector: '[timeToResolution]'
+    selector: '[timeToResolution]',
+    standalone: false
 })
 export class TimeToResolutionIconDirective implements OnInit {
     @Input() timeValue: number | undefined;

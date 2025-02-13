@@ -12,7 +12,6 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
     {
         private const string MainWaterfall = "connectToJiraWaterfall";
 
-        private readonly JiraBotAccessors _accessors;
         private readonly AppSettings _appSettings;
         private readonly IBotMessagesService _botMessagesService;
         private readonly TelemetryClient _telemetry;
@@ -26,7 +25,6 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             IBotFrameworkAdapterService botFrameworkAdapterService)
             : base(nameof(ConnectToJiraDialog))
         {
-            _accessors = accessors;
             _appSettings = appSettings;
             _botMessagesService = botMessagesService;
             _telemetry = telemetry;
@@ -50,13 +48,13 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             AddDialog(new WaterfallDialog(MainWaterfall, waterfallSteps));
         }
 
-        protected override async Task<DialogTurnResult> OnBeginDialogAsync(DialogContext dc, object options, CancellationToken cancellationToken = default)
+        protected override async Task<DialogTurnResult> OnBeginDialogAsync(DialogContext innerDc, object options, CancellationToken cancellationToken = default)
         {
             _telemetry.TrackPageView("ConnectToJiraDialog");
 
-            await _botFrameworkAdapterService.SignOutUserAsync(dc.Context, _appSettings.OAuthConnectionName, cancellationToken);
+            await _botFrameworkAdapterService.SignOutUserAsync(innerDc.Context, _appSettings.OAuthConnectionName, cancellationToken);
 
-            return await dc.BeginDialogAsync(MainWaterfall, cancellationToken: cancellationToken);
+            return await innerDc.BeginDialogAsync(MainWaterfall, cancellationToken: cancellationToken);
         }
 
         private async Task<DialogTurnResult> OnSigninMsAccountAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)

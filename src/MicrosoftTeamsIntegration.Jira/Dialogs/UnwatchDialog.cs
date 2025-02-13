@@ -5,6 +5,7 @@ using Microsoft.Bot.Schema;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
+using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -12,25 +13,24 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 {
     public class UnwatchDialog : JiraIssueDependentDialog
     {
-        private readonly JiraBotAccessors _accessors;
-        private readonly AppSettings _appSettings;
         private readonly IJiraService _jiraService;
         private readonly IBotMessagesService _botMessagesService;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public UnwatchDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             IBotMessagesService botMessagesService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(UnwatchDialog), accessors, jiraService, appSettings)
         {
-            _accessors = accessors;
-            _appSettings = appSettings;
             _jiraService = jiraService;
             _botMessagesService = botMessagesService;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext dc, IntegratedUser user, JiraIssue jiraIssue)
@@ -66,6 +66,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                         // if action is from command prompt - send reply to that chat this action was invoked from
                         await dc.Context.SendActivityAsync($"You've stopped watching {issueKey}");
                     }
+
+                    _analyticsService.SendBotDialogEvent(dc.Context, "unwatch", "completed");
                 }
                 else
                 {
@@ -77,11 +79,14 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                     {
                         await dc.Context.SendActivityAsync(response.ErrorMessage);
                     }
+
+                    _analyticsService.SendBotDialogEvent(dc.Context, "unwatch", "failed", response.ErrorMessage);
                 }
             }
             else
             {
                 await dc.Context.SendActivityAsync("Looks like you weren't watching this issue, please check if it is the right issue key.");
+                _analyticsService.SendBotDialogEvent(dc.Context, "unwatch", "completed");
             }
 
             if (isMessagingExtension)

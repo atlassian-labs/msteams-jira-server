@@ -87,6 +87,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicrosoftTeamsIntegration.Artifacts", "src\MicrosoftTeamsIntegration.Artifacts\MicrosoftTeamsIntegration.Artifacts.csproj", "{CA11B340-50B2-4F12-9525-1FE342DD952D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrosoftTeamsIntegration.Artifacts.Tests", "tests\MicrosoftTeamsIntegration.Artifacts.Tests\MicrosoftTeamsIntegration.Artifacts.Tests.csproj", "{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +135,18 @@ Global
 		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|x64.Build.0 = Release|Any CPU
 		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|x86.ActiveCfg = Release|Any CPU
 		{CA11B340-50B2-4F12-9525-1FE342DD952D}.Release|x86.Build.0 = Release|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Debug|x64.Build.0 = Debug|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Debug|x86.Build.0 = Debug|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Release|x64.ActiveCfg = Release|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Release|x64.Build.0 = Release|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Release|x86.ActiveCfg = Release|Any CPU
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,6 +165,7 @@ Global
 		{0959885E-6EE5-4AF4-B996-B42F22B135E8} = {D8150C08-A065-483E-B306-4FAB48893F88}
 		{06AF2F23-D535-4D88-9C91-A34DEA181D40} = {D8150C08-A065-483E-B306-4FAB48893F88}
 		{CA11B340-50B2-4F12-9525-1FE342DD952D} = {4DD38C95-7550-4A9F-8136-5CAD2C3C4A2F}
+		{F5AA1DBB-9728-45D6-8444-FAC3A7379DEB} = {0E0CD0FB-30A7-4D10-881B-29C4186D3849}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {979AD259-F001-49F7-A776-E781CC1A9909}

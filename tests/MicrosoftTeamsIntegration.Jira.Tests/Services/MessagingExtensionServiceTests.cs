@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using FakeItEasy;
@@ -13,6 +15,7 @@ using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Kiota.Abstractions;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Dialogs;
 using MicrosoftTeamsIntegration.Jira.Models;
@@ -26,12 +29,11 @@ using MicrosoftTeamsIntegration.Jira.Settings;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace MicrosoftTeamsIntegration.Jira.Tests
+namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 {
     public class MessagingExtensionServiceTests
     {
         private const string JiraServerId = "ServerId";
-        private const string JiraIssueIdOrKey = "test-42";
 
         private readonly MessagingExtensionService _target;
         private readonly IJiraService _jiraService;
@@ -45,8 +47,9 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var botMessagesService = A.Fake<IBotMessagesService>();
             var distributedCacheService = A.Fake<IDistributedCacheService>();
             var telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            var analyticsService = A.Fake<IAnalyticsService>();
 
-            _target = new MessagingExtensionService(appSettings, logger, _jiraService, mapper, botMessagesService, distributedCacheService, telemetry);
+            _target = new MessagingExtensionService(appSettings, logger, _jiraService, mapper, botMessagesService, distributedCacheService, telemetry, analyticsService);
         }
 
         [Fact]
@@ -156,6 +159,73 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             Assert.Equal(errorMessage, result.Task.Value);
         }
 
+        [Theory]
+        [InlineData("composeCreateCmd", "issues/create")]
+        [InlineData("composeCreateCommentCmd", "issues/createComment")]
+        public async Task HandleMessagingExtensionFetchTask_CanHandleCommandByType(string commandType, string dialogUrl)
+        {
+            var user = new IntegratedUser
+            {
+                JiraServerId = "ServerId"
+            };
+            dynamic messagingExtensionQueryData = new JObject();
+            messagingExtensionQueryData.commandId = commandType;
+            messagingExtensionQueryData.commandContext = "message";
+            messagingExtensionQueryData.messagePayload = (JObject)JToken.FromObject(new MessageActionPayload()
+            {
+                Id = "messageId",
+                CreatedDateTime = DateTime.Now,
+                From = new MessageActionFrom()
+                {
+                    Application = new MessageActionUser()
+                    {
+                        DisplayName = "Test Bot"
+                    },
+                    User = new MessageActionUser()
+                    {
+                        DisplayName = "Test user"
+                    }
+                },
+                Body = new MessageActionBody()
+                {
+                    Content = @"Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                                Quisque vitae elit lacinia, vulputate ex et, consectetur dui. 
+                                Proin id commodo nisl. Sed a bibendum tellus. Quisque nunc augue, semper et porta sed, 
+                                molestie finibus odio. Praesent bibendum sodales viverra. Fusce in orci luctus, 
+                                pellentesque est a, blandit odio. Integer metus enim, scelerisque et accumsan sed, 
+                                sagittis non libero. Morbi tempor lacus metus, nec gravida tellus pretium non.
+                                Proin id commodo nisl. Sed a bibendum tellus. Quisque nunc augue, semper et porta sed, 
+                                molestie finibus odio. Praesent bibendum sodales viverra. Fusce in orci luctus, 
+                                pellentesque est a, blandit odio. Integer metus enim, scelerisque et accumsan sed, 
+                                sagittis non libero. Morbi tempor lacus metus, nec gravida tellus pretium non
+                                <attachment>test attachment</attachment>",
+                    ContentType = MessageActionContentType.Text
+                },
+                LinkToMessage = "https://teams.microsoft.com/message/messageid"
+            });
+
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount
+                {
+                    Id = "Test Conversation ID",
+                    ConversationType = "personal"
+                },
+                Value = (JObject)JToken.FromObject(messagingExtensionQueryData)
+            };
+
+            var testAdapter = new TestAdapter(Channels.Test);
+            using var turnContext = new TurnContext(testAdapter, activity);
+
+            var result = await _target.HandleMessagingExtensionFetchTask(turnContext, user);
+
+            Assert.IsType<FetchTaskResponseEnvelope>(result);
+            Assert.IsType<FetchTaskResponse>(result.Task);
+            Assert.IsType<FetchTaskType>(result.Task.Type);
+            Assert.Contains(dialogUrl, ((FetchTaskResponseInfo)result.Task.Value).Url);
+            Assert.Contains("metadataRef=", ((FetchTaskResponseInfo)result.Task.Value).Url);
+        }
+
         [Fact]
         public async Task HandleMessagingExtensionQueryLinkAsync_ThrowsArgumentNullException()
         {
@@ -189,11 +259,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             using var turnContext = new TurnContext(testAdapter, activity);
 
             var result = await _target.HandleMessagingExtensionQueryLinkAsync(turnContext, null, "tp-32");
-            var cardAction = result.ComposeExtension.SuggestedActions.Actions.FirstOrDefault() as CardAction;
+            var cardAction = result.ComposeExtension.SuggestedActions.Actions.FirstOrDefault();
 
             Assert.IsType<MessagingExtensionResponse>(result);
-            Assert.Equal(ActionTypes.OpenUrl, cardAction.Type);
-            Assert.Equal("Authorize in Jira", cardAction.Title);
+            Assert.Equal(ActionTypes.OpenUrl, cardAction?.Type);
+            Assert.Equal("Authorize in Jira", cardAction?.Title);
         }
 
         [Fact]
@@ -226,7 +296,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
 
             A.CallTo(() => _jiraService.GetIssueByIdOrKey(user, A<string>._)).Returns(jiraIssue);
 
-            var result = await _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, "tp-3");
+            await _target.HandleMessagingExtensionQueryLinkAsync(turnContext, user, "tp-3");
 
             A.CallTo(() => _jiraService.GetIssueByIdOrKey(user, A<string>._)).MustHaveHappened();
         }
@@ -252,12 +322,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             const string epicCustomField = "123";
             var json =
                 $"{{\"customfield_{epicCustomField}\": {{\r\n    \"type\": \"string\",\r\n    \"custom\": \"com.pyxis.greenhopper.jira:gh-epic-label\",\r\n    \"customId\": {epicCustomField}\r\n  }} }}";
-            var schema = JToken.Parse(json);
-
-            var jiraIssue = new JiraIssue()
-            {
-                Schema = schema
-            };
+            JToken.Parse(json);
 
             A.CallTo(() => _jiraService.GetIssueByIdOrKey(user, A<string>._)).Throws(new Exception());
 
@@ -281,7 +346,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
                 QueryOptions = new MessagingExtensionQueryOptions(),
                 State = "State"
             };
-            var messageActionPlayload = new MessageActionPayload()
+            var messageActionPayload = new MessageActionPayload()
             {
                 Id = "test",
                 Body = new MessageActionBody()
@@ -298,7 +363,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
                 }
             };
             dynamic jObject = (JObject)JToken.FromObject(messagingExtension);
-            jObject.messagePayload = (JObject)JToken.FromObject(messageActionPlayload);
+            jObject.messagePayload = (JObject)JToken.FromObject(messageActionPayload);
 
             var activity = new Activity
             {
@@ -497,7 +562,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         }
 
         [Fact]
-        public async Task HandleMessagingExtensionSubmitActionAsync_ReturnsCard_WhenComposeCommnadIdInvalid()
+        public async Task HandleMessagingExtensionSubmitActionAsync_ReturnsCard_WhenComposeCommandIdInvalid()
         {
             var user = new IntegratedUser
             {
@@ -543,8 +608,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
                 QueryOptions = new MessagingExtensionQueryOptions(),
                 State = "State"
             };
+            dynamic jdataObject = new JObject();
+            jdataObject.commandName = "testCommand";
+            jdataObject.issueId = "1111";
+            jdataObject.issueKey = "TEST-1";
             dynamic jObject = (JObject)JToken.FromObject(messagingExtension);
-            jObject.data = "testData";
+            jObject.data = jdataObject;
 
             var activity = new Activity
             {
@@ -585,8 +654,12 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
                 QueryOptions = new MessagingExtensionQueryOptions(),
                 State = "State"
             };
+            dynamic jdataObject = new JObject();
+            jdataObject.commandName = "testCommand";
+            jdataObject.issueId = "1111";
+            jdataObject.issueKey = "TEST-1";
             dynamic jObject = (JObject)JToken.FromObject(messagingExtension);
-            jObject.data = "testData";
+            jObject.data = jdataObject;
 
             var activity = new Activity
             {
@@ -607,6 +680,59 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
 
             Assert.Equal(FetchTaskType.Message, result.Task.Type);
             Assert.Equal("Something went wrong while fetching the issue.", result.Task.Value);
+        }
+
+        [Fact]
+        public async Task HandleMessagingExtensionSubmitActionAsync_ReturnAuthCard_ForUnauthorized()
+        {
+            var user = new IntegratedUser
+            {
+                JiraServerId = JiraServerId
+            };
+            var messagingExtension = new MessagingExtensionQuery()
+            {
+                CommandId = "composeCreateCmd",
+                Parameters = new List<MessagingExtensionParameter>(),
+                QueryOptions = new MessagingExtensionQueryOptions(),
+                State = "State"
+            };
+            dynamic jdataObject = new JObject();
+            jdataObject.commandName = "testCommand";
+            jdataObject.issueId = "1111";
+            jdataObject.issueKey = "TEST-1";
+            dynamic jObject = (JObject)JToken.FromObject(messagingExtension);
+            jObject.data = jdataObject;
+
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount()
+                {
+                    TenantId = "Test tenant"
+                },
+                Value = jObject
+            };
+
+            var testAdapter = new TestAdapter(Channels.Test);
+            using var turnContext = new TurnContext(testAdapter, activity);
+
+            var refitSettings = new Refit.RefitSettings();
+            var apiException = await Refit.ApiException.Create(
+                null,
+                null,
+                new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.Forbidden,
+                Content = refitSettings.ContentSerializer.ToHttpContent(string.Empty)
+            }, refitSettings);
+
+            A.CallTo(() => _jiraService.GetIssueByIdOrKey(user, A<string>._))
+                .ThrowsAsync(apiException);
+
+            var result =
+                await _target.HandleMessagingExtensionSubmitActionAsync(turnContext, user) as MessagingExtensionResponse;
+
+            Assert.IsType<MessagingExtensionResponse>(result);
+            Assert.Equal("Authorize in Jira", result.ComposeExtension?.SuggestedActions?.Actions[0]?.Title);
         }
 
         [Fact]
@@ -755,12 +881,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
 
             const string epicCustomField = "123";
             var json = $"{{\"customfield_{epicCustomField}\": {{\r\n    \"type\": \"string\",\r\n    \"custom\": \"com.pyxis.greenhopper.jira:gh-epic-label\",\r\n    \"customId\": {epicCustomField}\r\n  }} }}";
-            var schema = JToken.Parse(json);
+            JToken.Parse(json);
 
-            var jiraIssue = new JiraIssueSearch()
-            {
-                Schema = schema
-            };
             A.CallTo(() => _jiraService.Search(user, A<SearchForIssuesRequest>._)).Throws(new Exception());
 
             var testAdapter = new TestAdapter(Channels.Test);
@@ -795,7 +917,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user) as FetchTaskResponseEnvelope;
+            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user);
 
             Assert.IsType<FetchTaskResponseEnvelope>(result);
             Assert.IsType<FetchTaskResponse>(result.Task);
@@ -807,7 +929,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         [Theory]
         [InlineData("showMessageCard")]
         [InlineData("showIssueCard")]
-        public async Task HandleTaskSubmitActionAsync_SpecificTaskCommadName(string commandName)
+        public async Task HandleTaskSubmitActionAsync_SpecificTaskCommandName(string commandName)
         {
             var user = new IntegratedUser
             {
@@ -829,7 +951,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user) as FetchTaskResponseEnvelope;
+            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user);
 
             Assert.IsType<FetchTaskResponseEnvelope>(result);
             Assert.IsType<FetchTaskResponse>(result.Task);

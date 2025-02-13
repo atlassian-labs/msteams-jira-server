@@ -25,18 +25,21 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IJiraService _jiraService;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public CommentDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(CommentDialog), accessors, jiraService, appSettings)
         {
             _accessors = accessors;
             _jiraService = jiraService;
             _appSettings = appSettings;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
 
             var waterfallSteps = new WaterfallStep[]
             {
@@ -71,6 +74,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 return await AddComment(stepContext, user, jiraIssueKey, additionalParameter, cancellationToken);
             }
 
+            _analyticsService.SendBotDialogEvent(stepContext.Context, "comment", "completed");
             return await stepContext.PromptAsync(
                 CommentJiraIssuePrompt,
                 new PromptOptions
@@ -96,6 +100,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 return await AddComment(stepContext, user, jiraIssueKey, comment, cancellationToken);
             }
 
+            _analyticsService.SendBotDialogEvent(stepContext.Context, "comment", "completed");
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
 
@@ -122,6 +127,15 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             if (isMessagingExtension)
             {
                 await dc.Context.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse }, cancellationToken);
+            }
+
+            if (response.IsSuccess)
+            {
+                _analyticsService.SendBotDialogEvent(dc.Context, "comment", "completed");
+            }
+            else
+            {
+                _analyticsService.SendBotDialogEvent(dc.Context, "comment", "failed", response.ErrorMessage);
             }
 
             return await dc.EndDialogAsync(cancellationToken: cancellationToken);

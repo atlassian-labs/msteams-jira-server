@@ -33,7 +33,8 @@ import { UntypedFormGroup } from '@angular/forms';
 			</div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class CheckboxSelectFieldComponent implements FieldComponent, OnInit {

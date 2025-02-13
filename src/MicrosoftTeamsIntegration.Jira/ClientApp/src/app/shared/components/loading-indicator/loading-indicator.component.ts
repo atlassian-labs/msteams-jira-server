@@ -9,7 +9,8 @@ import { LoadingIndicatorService } from '@shared/services/loading-indicator.serv
         <div class="align-center" *ngIf="loading">
             <mat-spinner [diameter]="50"></mat-spinner>
         </div>
-    `
+    `,
+    standalone: false
 })
 export class LoadingIndicatorComponent implements OnInit, OnDestroy {
     public loading = false;

@@ -361,8 +361,6 @@ export class IssuesService {
         return timeToField.ongoingCycle.breached;
     }
 
-
-
     public getFiltersFromQuery(query: string): string {
         if (!query) {
             return '';

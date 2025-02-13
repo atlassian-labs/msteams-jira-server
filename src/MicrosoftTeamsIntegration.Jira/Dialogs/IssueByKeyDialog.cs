@@ -17,18 +17,21 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IBotMessagesService _botMessagesService;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public IssueByKeyDialog(
             JiraBotAccessors accessors,
             IBotMessagesService botMessagesService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(IssueByKeyDialog))
         {
             _accessors = accessors;
             _botMessagesService = botMessagesService;
             _appSettings = appSettings;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default)
@@ -57,10 +60,12 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             {
                 var message = MessageFactory.Attachment(card.ToAttachment());
                 await dc.Context.SendActivityAsync(message, cancellationToken);
+                _analyticsService.SendBotDialogEvent(dc.Context, "issueByKey", "completed");
                 return await dc.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
             await dc.Context.SendActivityAsync("I couldn't find an issue.", cancellationToken: cancellationToken);
+            _analyticsService.SendBotDialogEvent(dc.Context, "issueByKey", "completed");
             return await dc.EndDialogAsync(cancellationToken: cancellationToken);
         }
     }

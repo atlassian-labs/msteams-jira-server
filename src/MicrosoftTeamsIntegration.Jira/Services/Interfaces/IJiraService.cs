@@ -38,7 +38,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
         Task<ExpandoObject> GetCreateMetaIssueTypeFields(IntegratedUser user, string projectKeyOrId, string issueTypeId, string issueTypeName);
         Task<JiraIssueEditMeta> GetIssueEditMeta(IntegratedUser user, string issueIdOrKey);
         Task<JiraApiActionCallResponse> AddComment(IntegratedUser user, string issueKey, string comment);
-        Task<JiraComment> AddCommentAndGetItBack(IntegratedUser user, string issueId, string comment);
+        Task<JiraComment> AddCommentAndGetItBack(IntegratedUser user, string issueIdOrKey, string comment);
         Task<JiraComment> UpdateComment(IntegratedUser user, string issueIdOrKey, string commentId, string comment);
         Task<JiraApiActionCallResponse> AddIssueWorklog(IntegratedUser user, string issueIdOrKey, string timeSpent);
         Task<JiraApiActionCallResponse> UpdateDescription(IntegratedUser user, string issueIdOrKey, string description);

@@ -5,12 +5,18 @@ namespace MicrosoftTeamsIntegration.Jira.Models
 {
     public sealed class ClientAppSettings
     {
-        public ClientAppSettings(string clientId, string baseUrl, string microsoftLoginBaseUrl, string instrumentationKey)
+        public ClientAppSettings(
+            string clientId,
+            string baseUrl,
+            string microsoftLoginBaseUrl,
+            string instrumentationKey,
+            string analyticsEnvironment)
         {
             ClientId = clientId;
             BaseUrl = baseUrl;
             MicrosoftLoginBaseUrl = microsoftLoginBaseUrl;
             InstrumentationKey = instrumentationKey;
+            AnalyticsEnvironment = analyticsEnvironment;
         }
 
         [JsonProperty("clientId")]
@@ -27,5 +33,8 @@ namespace MicrosoftTeamsIntegration.Jira.Models
 
         [JsonProperty("microsoftLoginBaseUrl")]
         public string MicrosoftLoginBaseUrl { get; }
+
+        [JsonProperty("analyticsEnvironment")]
+        public string AnalyticsEnvironment { get; }
     }
 }

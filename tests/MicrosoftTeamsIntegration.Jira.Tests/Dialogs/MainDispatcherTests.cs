@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AdaptiveCards;
@@ -36,10 +35,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly IDatabaseService _fakeDatabaseService;
         private readonly IJiraService _fakeJiraService;
         private readonly ILogger<JiraBot> _fakeLogger;
-        private readonly List<JiraActionRegexReference> _actionCommands;
         private readonly TelemetryClient _telemetry;
         private readonly IUserTokenService _fakeUserTokenService;
         private readonly IBotFrameworkAdapterService _fakeBotFrameworkAdapterService;
+        private readonly IAnalyticsService _analyticsService;
 
         public MainDispatcherTests(ITestOutputHelper output)
         {
@@ -53,10 +52,10 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _fakeDatabaseService = A.Fake<IDatabaseService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
-            _actionCommands = new List<JiraActionRegexReference>();
             _fakeUserTokenService = A.Fake<IUserTokenService>();
             _fakeLogger = A.Fake<ILogger<JiraBot>>();
             _fakeBotFrameworkAdapterService = A.Fake<IBotFrameworkAdapterService>();
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
@@ -105,7 +104,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task MainDispatcher_ThrowsForbiddenException()
         {
-            var message = "Fobidden Exception";
+            var message = "Forbidden Exception";
             var sut = GetMainDispatcher();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
@@ -152,7 +151,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 ServiceUrl = "https://test.com",
                 User = new ChannelAccount("user1", "User1"),
                 Bot = new ChannelAccount("bot", "Bot"),
-                Conversation = new ConversationAccount(true, "convo1", "Conversation1"),
+                Conversation = new ConversationAccount(true, "conv1", "Conversation1"),
             };
 
             var testAdapter = new TestAdapter(conversation);
@@ -238,9 +237,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 });
             A.CallTo(() => _fakeJiraAuthService.IsJiraConnected(A<IntegratedUser>._)).Returns(true);
 
-            AdaptiveCard card = null;
             A.CallTo(() => _fakeBotMessagesService.SearchIssueAndBuildIssueCard(A<ITurnContext>._, A<IntegratedUser>._, A<string>._))
-                .Returns(card);
+                .Returns((AdaptiveCard)null);
 
             var command = "https://mlaps1.atlassian.net/browse/TEST-3654645634";
 
@@ -266,9 +264,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 });
             A.CallTo(() => _fakeJiraAuthService.IsJiraConnected(A<IntegratedUser>._)).Returns(false);
 
-            var activity = new Activity();
-            activity.Type = ActivityTypes.Invoke;
-            activity.Text = "edit";
+            var activity = new Activity
+            {
+                Type = ActivityTypes.Invoke,
+                Text = "edit"
+            };
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>(activity);
 
@@ -294,7 +294,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 _telemetry,
                 _fakeUserTokenService,
                 new CommandDialogReferenceService(),
-                _fakeBotFrameworkAdapterService);
+                _fakeBotFrameworkAdapterService,
+                _analyticsService);
 
             return dispatcher;
         }

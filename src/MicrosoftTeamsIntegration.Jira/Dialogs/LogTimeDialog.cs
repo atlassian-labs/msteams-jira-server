@@ -34,18 +34,21 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IJiraService _jiraService;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public LogTimeDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(LogTimeDialog), accessors, jiraService, appSettings)
         {
             _jiraService = jiraService;
             _accessors = accessors;
             _appSettings = appSettings;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
 
             var waterfallSteps = new WaterfallStep[]
             {
@@ -92,6 +95,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             else
             {
                 await stepContext.Context.SendActivityAsync(BotMessages.OperationCancelled, cancellationToken: cancellationToken);
+                _analyticsService.SendBotDialogEvent(stepContext.Context, "logTime", "completed");
                 return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
@@ -105,10 +109,10 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
 
-        protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext stepContext, IntegratedUser user, JiraIssue jiraIssue)
+        protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext dc, IntegratedUser user, JiraIssue jiraIssue)
         {
             var textWithoutCommand =
-                stepContext.Context.Activity.GetTextWithoutCommand(DialogMatchesAndCommands.LogTimeDialogCommand);
+                dc.Context.Activity.GetTextWithoutCommand(DialogMatchesAndCommands.LogTimeDialogCommand);
 
             var additionalParameter =
                 Regex.Replace(textWithoutCommand, jiraIssue.Key, string.Empty, RegexOptions.IgnoreCase)
@@ -117,14 +121,14 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             if (additionalParameter.HasValue())
             {
                 // user specified a work log value
-                await AddIssueWorklog(stepContext, additionalParameter);
+                await AddIssueWorklog(dc, additionalParameter);
             }
             else
             {
-                return await stepContext.ReplaceDialogAsync(LogTimeWaterfall);
+                return await dc.ReplaceDialogAsync(LogTimeWaterfall);
             }
 
-            return await stepContext.EndDialogAsync();
+            return await dc.EndDialogAsync();
         }
 
         private async Task AddIssueWorklog(DialogContext dc, string timeSpent)
@@ -138,10 +142,12 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 if (response.IsSuccess)
                 {
                     await dc.Context.SendActivityAsync("Your time has been reported.");
+                    _analyticsService.SendBotDialogEvent(dc.Context, "logTime", "completed");
                 }
                 else
                 {
                     await dc.Context.SendActivityAsync(AdjustErrorMessage(response.ErrorMessage));
+                    _analyticsService.SendBotDialogEvent(dc.Context, "logTime", "failed", response.ErrorMessage);
                 }
             }
         }

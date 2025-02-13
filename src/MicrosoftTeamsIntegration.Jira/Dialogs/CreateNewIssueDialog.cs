@@ -20,18 +20,21 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IJiraService _jiraService;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public CreateNewIssueDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(CreateNewIssueDialog))
         {
             _accessors = accessors;
             _jiraService = jiraService;
             _appSettings = appSettings;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default)
@@ -45,6 +48,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 var errorMessage = "You don't have permissions to create issues. " +
                     "For more information contact your project administrator.";
                 await dc.Context.SendActivityAsync(errorMessage, cancellationToken: cancellationToken);
+                _analyticsService.SendBotDialogEvent(dc.Context, "createIssueDialog", "failed", errorMessage);
                 return await dc.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
@@ -78,6 +82,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 
             await dc.Context.SendActivityAsync(MessageFactory.Attachment(card.ToAttachment()), cancellationToken);
 
+            _analyticsService.SendBotDialogEvent(dc.Context, "createIssueDialog", "completed");
             return await dc.EndDialogAsync(cancellationToken: cancellationToken);
         }
     }

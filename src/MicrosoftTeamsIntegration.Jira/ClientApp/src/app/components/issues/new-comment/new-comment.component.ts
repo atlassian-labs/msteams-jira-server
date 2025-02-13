@@ -4,11 +4,13 @@ import { IssueCommentService } from '@core/services/entities/comment.service';
 import { JiraUser } from '@core/models/Jira/jira-user.model';
 import { JiraComment } from '@core/models';
 import { DomSanitizer } from '@angular/platform-browser';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-new-comment',
     templateUrl: './new-comment.component.html',
-    styleUrls: ['./new-comment.component.scss']
+    styleUrls: ['./new-comment.component.scss'],
+    standalone: false
 })
 export class NewCommentComponent {
     public error: Error | any;
@@ -25,7 +27,8 @@ export class NewCommentComponent {
 
     constructor(
         private commentService: IssueCommentService,
-        public domSanitizer: DomSanitizer
+        public domSanitizer: DomSanitizer,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async sendComment(text: string, inputElRef: HTMLTextAreaElement | any): Promise<void> {
@@ -33,6 +36,12 @@ export class NewCommentComponent {
             this.commentSendState = ValueChangeState.InvalidEmpty;
             return;
         }
+
+        this.analyticsService.sendUiEvent('newCommentComponent',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'addComment',
+            {source: 'editIssueModal'});
 
         try {
             this.commentSendState = ValueChangeState.Pending;

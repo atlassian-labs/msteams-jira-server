@@ -10,16 +10,14 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 {
     public class HelpDialog : Dialog
     {
-        private readonly AppSettings _appSettings;
-        private readonly JiraBotAccessors _accessors;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
-        public HelpDialog(JiraBotAccessors accessors, AppSettings appSettings, TelemetryClient telemetry)
+        public HelpDialog(JiraBotAccessors accessors, AppSettings appSettings, TelemetryClient telemetry, IAnalyticsService analyticsService)
             : base(nameof(HelpDialog))
         {
-            _appSettings = appSettings;
-            _accessors = accessors;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default)
@@ -63,6 +61,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 ;
 
             await dc.Context.SendActivityAsync(message, cancellationToken: cancellationToken);
+            _analyticsService.SendBotDialogEvent(dc.Context, "help", "completed");
             return await dc.EndDialogAsync(cancellationToken: cancellationToken);
         }
     }

@@ -14,11 +14,13 @@ import {
 
 import { logger } from '@core/services/logger.service';
 import { StatusCode, ApplicationType } from '@core/enums';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
+    styleUrls: ['./login.component.scss'],
+    standalone: false
 })
 export class LoginComponent implements OnInit {
     public isLoginButtonVisible = false;
@@ -38,12 +40,20 @@ export class LoginComponent implements OnInit {
         private utilService: UtilService,
         private errorService: ErrorService,
         private appInsightsService: AppInsightsService,
+        private analyticsService: AnalyticsService,
     ) { }
 
     public async ngOnInit(): Promise<void> {
-        this.appInsightsService.logNavigation('LoginComponent', this.route);
 
         this.parseParams();
+
+        this.appInsightsService.logNavigation('LoginComponent', this.route);
+        this.analyticsService.sendScreenEvent(
+            'loginScreen',
+            EventAction.viewed,
+            UiEventSubject.uiView,
+            'loginScreen', { application: this.application });
+
 
         this.buttonTitle = await this.getButtonTitle();
 
@@ -51,6 +61,13 @@ export class LoginComponent implements OnInit {
     }
 
     public async getAuthentication(): Promise<void> {
+        this.analyticsService.sendUiEvent(
+            'loginScreen',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'authorizeJira',
+            {source: 'loginScreen'});
+
         try {
             if (!(await this.isJiraUserAuthorized())) {
                 this.authorizationUrl = `/#/config;application=${this.application}`;

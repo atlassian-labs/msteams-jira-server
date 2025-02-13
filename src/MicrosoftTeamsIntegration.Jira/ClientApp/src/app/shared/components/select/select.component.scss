@@ -1,6 +1,6 @@
-﻿@import 'variables';
-@import 'icons';
-@import 'app-colors';
+﻿@use '../../../../styles/variables';
+@use '../../../../styles/icons';
+@use '../../../../styles/app-colors';
 
 :host {
     display: inline-block;
@@ -13,7 +13,7 @@
 
   &__title-label {
     border: 0;
-    color: $app-gray-02-light;
+    color: app-colors.$app-gray-02-light;
     display: inline-block;
     font-size: 1rem;
     line-height: 1rem;
@@ -71,7 +71,7 @@
 
   &__state-icon {
     display: block;
-    font-family: $msteams-icons-font !important;
+    font-family: variables.$msteams-icons-font !important;
     font-size: 16px;
     font-style: normal;
     font-variant: normal;
@@ -81,7 +81,7 @@
 
     &::before {
       bottom: 1px;
-      content: $chevron-down;
+      content: icons.$chevron-down;
       position: relative;
     }
   }
@@ -123,13 +123,13 @@
     cursor: pointer;
 
     &.active {
-      background-color: $app-brand;
-      color: $white;
+      background-color: app-colors.$app-brand;
+      color: app-colors.$white;
     }
 
     &:focus, &:hover {
-      background-color: $app-brand;
-      color: $white;
+      background-color: app-colors.$app-brand;
+      color: app-colors.$white;
     }
   }
 
@@ -143,7 +143,7 @@
 
   &__state-icon {
     display: block;
-    font-family: $msteams-icons-font !important;
+    font-family: variables.$msteams-icons-font !important;
     font-size: 16px;
     font-style: normal;
     font-variant: normal;
@@ -153,23 +153,23 @@
 
     &::before {
       bottom: 1px;
-      content: $chevron-down;
+      content: icons.$chevron-down;
       position: relative;
     }
   }
 }
 
 :host-context(.default) .select__face, :host-context(.default) .select__options {
-  background-color: $app-gray-10-light;
+  background-color: app-colors.$app-gray-10-light;
 }
 
 :host-context(.dark) .select__face, :host-context(.dark) .select__options {
-  background-color: $black-dark;
+  background-color: app-colors.$black-dark;
 }
 
 :host-context(.contrast) .select__face, :host-context(.contrast) .select__options {
-  background-color: $black;
-  border: 1px solid $white;
+  background-color: app-colors.$black;
+  border: 1px solid app-colors.$white;
 }
 
 input[type='text'] {

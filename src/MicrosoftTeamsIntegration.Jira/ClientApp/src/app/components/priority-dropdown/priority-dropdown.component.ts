@@ -9,7 +9,8 @@ import { DropDownOption } from '@shared/models/dropdown-option.model';
 @Component({
     selector: 'app-priority-dropdown',
     templateUrl: './priority-dropdown.component.html',
-    styleUrls: ['./priority-dropdown.component.scss']
+    styleUrls: ['./priority-dropdown.component.scss'],
+    standalone: false
 })
 export class PriorityDropdownComponent implements OnInit {
 

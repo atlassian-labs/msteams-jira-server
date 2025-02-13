@@ -1,0 +1,361 @@
+metadata:
+  product: jiraMsTeams
+
+attributes:
+  - name: application
+    required: false
+    description: |
+      Application component emiting the analytic event.
+    enumeration:
+      - 'bot'
+      - 'compose'
+      - 'staticTab'
+      - 'tab'
+      - 'jiraServerCompose'
+      - 'jiraServerStaticTab'
+      - 'jiraServerTab'
+      - 'jiraServerBot'
+  - name: dialogType
+    required: true
+    description: |
+      The specific dialogFlow that was completed. Names are based on class names in source code.
+    enumeration:
+      - 'assign'
+      - 'comment'
+      - 'connectToJira'
+      - 'createNewIssue'
+      - 'editIssue'
+      - 'disconnectJira'
+      - 'find'
+      - 'help'
+      - 'issueByKey'
+      - 'logTime'
+      - 'signoutMsAccount'
+      - 'unvote'
+      - 'unwatch'
+      - 'vote'
+      - 'watch'
+      - 'jiraIssueDependent'
+      - 'issueQueryLink'
+      - 'messagingExtensionQuery'
+  - name: messageTextHash
+    required: false
+    description: |
+      A sha256 hash substring of the message sent that initiated the dialogFlow.
+    type: string
+  - name: conversationSession
+    required: true
+    description: |
+      A UUID v4 to represent a conversation session between a user and the bot.
+    type: string
+  - name: conversationDuration
+    required: true
+    description: |
+      The duration of the conversation starting from the first reply to the user and ending with the last reply.
+    type: integer
+  - name: isGroupConversation
+    required: false
+    description: |
+      Represents whether the event was triggered in a group conversation.
+    type: boolean
+  - name: source
+    required: false
+    description: |
+      UI source modal.
+    enumeration:
+      - 'connectToJira'
+      - 'createIssueModal'
+      - 'editIssueModal'
+      - 'issuesTab'
+      - 'loginScreen'
+      - 'createIssueCommentModal'
+      - 'addIssueCommentModal'
+      - 'connectToJira'
+track:
+  - id: 24765
+    action: completed
+    subject: dialog
+    library: server
+    description: |
+      Tracks the MS Teams Dialogs that have finished between a user and bot within a chat.
+    attributes:
+      - name: dialogType
+      - name: isGroupConversation
+  - id: 25113
+    action: canceled
+    subject: dialog
+    library: server
+    description: |
+      Tracks the MS Teams Dialogs that have been canceled by the user within a chat.
+    attributes:
+      - name: dialogType
+      - name: isGroupConversation
+  - id: 25289
+    action: failed
+    subject: dialog
+    library: server
+    description: |
+      Tracks the MS Teams Dialogs that have failed due to an error.
+    attributes:
+      - name: dialogType
+      - name: isGroupConversation
+      - name: errorMessage
+        type: string
+        description: The error message accompanying the erroneous result.
+        required: false
+  - id: 25477
+    action: replied
+    subject: dialog
+    library: server
+    description: |
+      Tracks the dialogs sent from the bot to a user, individually
+    attributes:
+      - name: isGroupConversation
+  - id: 25447
+    action: received
+    subject: message
+    library: server
+    description: |
+      Tracks the messages sent from users to the MS Teams bot.
+    attributes:
+      - name: isGroupConversation
+
+  - id: 30312
+    action: installed
+    subject: botApplication
+    library: server
+    description: |
+      Track information about application installations
+    attributes:
+      - name: conversationType
+        required: true
+        description: |
+          Shows the source of installation
+        enumeration:
+          - 'groupChat'
+          - 'channel'
+          - 'personal'
+
+  - id: 30313
+    action: uninstalled
+    subject: botApplication
+    library: server
+    description: |
+      Track information about application uninstallations
+    attributes:
+      - name: conversationType
+        required: true
+        description: |
+          Shows the source of uninstallation
+        enumeration:
+          - 'groupChat'
+          - 'channel'
+          - 'personal'
+
+screen:
+  - id: 25484
+    name: createIssueModal
+    description: Create issues modal
+    attributes:
+      - name: application
+      - name: source
+  - id: 25485
+    name: editIssueModal
+    description: Edit issues modal
+    attributes:
+      - name: application
+      - name: source
+  - id: 75610
+    name: addCommentToIssueModal
+    description: Add comment to issue from the list modal
+    attributes:
+      - name: application
+      - name: source
+  - id: 75611
+    name: createCommentModal
+    description: Add comment to the selected Jira issue modal
+    attributes:
+      - name: application
+      - name: source
+  - id: 25308
+    name: issuesTab
+    description: Issues table displayed in a tab
+    attributes:
+      - name: application
+      - name: source
+      - name: page
+        required: false
+        description: |
+          Name of page displaying the issues table
+        enumeration:
+          - 'IssuesAssigned'
+          - 'IssuesReported'
+          - 'MyFilters'
+  - id: 25309
+    name: loginScreen
+    description: |
+      Login screen for Jira authentication
+    attributes:
+      - name: application
+      - name: source
+  - id: 28821
+    name: connectToJira
+    description: |
+      Screen where user types in a Jira URL and can click the Connect button
+    attributes:
+      - name: application
+      - name: source
+  - id: 75590
+    name: configureTab
+    description: |
+      Screen where user can configure tab before adding it to the channel
+    attributes:
+      - name: application
+      - name: source
+  - id: 75591
+    name: errorScreen
+    description: |
+      Error view showed when error occured
+    attributes:
+      - name: application
+      - name: source
+
+ui:
+  - id: 25297
+    action: clicked
+    subject: button
+    subjectId: createIssue
+    description: |
+      The user clicked the button to open the create issue modal from issues tab
+    attributes:
+      - name: source
+  - id: 75585
+    action: clicked
+    subject: button
+    subjectId: createIssueInJira
+    description: |
+      The user clicked the button to create the issue in Jira
+    attributes:
+      - name: source
+  - id: 75586
+    action: clicked
+    subject: button
+    subjectId: editIssueInJira
+    description: |
+      The user clicked the button to save changes to Jira issue
+    attributes:
+      - name: source
+  - id: 75587
+    action: clicked
+    subject: link
+    subjectId: addComment
+    description: |
+      The user clicked add comment link on edit issue modal
+    attributes:
+      - name: source
+  - id: 75588
+    action: clicked
+    subject: link
+    subjectId: editComment
+    description: |
+      The user clicked save button for edited comment
+    attributes:
+      - name: source
+  - id: 25299
+    action: selected
+    subject: dropdown
+    subjectId: filter
+    description: |
+      The user selected a filter option from a dropdown
+    attributes:
+      - name: source
+      - name: page
+        required: false
+        description: |
+          Name of page displaying the issues table
+        enumeration:
+          - 'IssuesAssigned'
+          - 'IssuesReported'
+          - 'MyFilters'
+  - id: 25300
+    action: clicked
+    subject: link
+    subjectId: editIssue
+    description: |
+      The user clicked an issue in the issue table for editing
+    attributes:
+      - name: source
+  - id: 25301
+    action: clicked
+    subject: link
+    subjectId: changePage
+    description: |
+      The user clicked a pagination link to change the issues table page
+    attributes:
+      - name: source
+  - id: 75659
+    action: clicked
+    subject: link
+    subjectId: sortColumn
+    description: |
+      The user clicked a column header to sort the issues table
+    attributes:
+      - name: source
+      - name: sortColumn
+        required: true
+        type: string
+        description: |
+          Name of Jira field selected for sorting
+  - id: 25303
+    action: clicked
+    subject: button
+    subjectId: authorizeJira
+    description: |
+      The user clicked the button to authorize against Jira
+    attributes:
+      - name: source
+  - id: 25304
+    action: clicked
+    subject: button
+    subjectId: connectJira
+    description: |
+      The user clicked the connect button to authorize against Jira
+    attributes:
+      - name: source
+  - id: 75589
+    action: clicked
+    subject: button
+    subjectId: submitJiraConnection
+    description: |
+      The user clicked the submit button to submit connection against Jira
+    attributes:
+      - name: source
+  - id: 25305
+    action: clicked
+    subject: link
+    subjectId: signOut
+    description: |
+      The user clicked the sign out link
+    attributes:
+      - name: source
+  - id: 75612
+    action: successful
+    subject: signin
+    description: |
+      The user successfully signed into the Atlassian account
+    attributes:
+      - name: source
+  - id: 75613
+    action: failed
+    subject: signin
+    description: |
+      The user successfully signed into the Atlassian account
+    attributes:
+      - name: source
+      - name: errorMessage
+        type: string
+        description: The error message accompanying the erroneous result.
+        required: false
+
+
+

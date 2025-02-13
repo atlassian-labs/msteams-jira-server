@@ -7,11 +7,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { JiraPermissions } from '@core/models/Jira/jira-permission.model';
 import { IssueUpdateCommentOptions } from '@core/models/Jira/issue-comment-options.model';
 import { DomSanitizer } from '@angular/platform-browser';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-issue-comment',
     templateUrl: './issue-comment.component.html',
-    styleUrls: ['./issue-comment.component.scss']
+    styleUrls: ['./issue-comment.component.scss'],
+    standalone: false
 })
 export class IssueCommentComponent {
     public error: Error | undefined;
@@ -32,7 +34,8 @@ export class IssueCommentComponent {
 
     constructor(
         private commentService: IssueCommentService,
-        public domSanitizer: DomSanitizer
+        public domSanitizer: DomSanitizer,
+        private analyticsService: AnalyticsService
     ) { }
 
     public get isEditable(): boolean {
@@ -71,6 +74,12 @@ export class IssueCommentComponent {
             this.commentUpdateState = ValueChangeState.InvalidEmpty;
             return;
         }
+
+        this.analyticsService.sendUiEvent('issueCommentComponent',
+            EventAction.clicked,
+            UiEventSubject.link,
+            'editComment',
+            {source: 'editIssueModal'});
 
         this.commentUpdateState = ValueChangeState.Pending;
 

@@ -11,7 +11,8 @@ import { UntypedFormGroup } from '@angular/forms';
         <div [formGroup]="formGroup">
             <ng-template dynamic-fields-host></ng-template>
         </div>
-    `
+    `,
+    standalone: false
 })
 
 export class DynamicFieldsComponent implements OnChanges{

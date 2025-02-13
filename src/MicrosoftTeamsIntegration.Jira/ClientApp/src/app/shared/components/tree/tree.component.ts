@@ -6,7 +6,8 @@ import { SelectChange } from '@shared/models/select-change.model';
 @Component({
     selector: 'app-tree',
     templateUrl: './tree.component.html',
-    styleUrls: ['./tree.component.scss']
+    styleUrls: ['./tree.component.scss'],
+    standalone: false
 })
 export class TreeComponent {
     @Input() public title: string | undefined;

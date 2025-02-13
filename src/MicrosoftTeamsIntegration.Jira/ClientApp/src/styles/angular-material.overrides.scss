@@ -1,6 +1,6 @@
-@import "variables";
-@import "icons";
-@import "app-colors";
+@use "variables" as vars;
+@use "icons";
+@use "app-colors" as colors;
 
 @mixin md-icon-size($size: 24px) {
   font-size: 14px;
@@ -38,64 +38,64 @@
 }
 
 .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
-  background-color: $app-brand !important;
-  border-color: $app-brand-dark-16 !important;
+  background-color: colors.$app-brand !important;
+  border-color: colors.$app-brand-dark-16 !important;
 }
 
 .ng-option .mat-mdc-checkbox .mdc-label, .mdc-checkbox__background {
-  color: $black !important;
+  color: colors.$black !important;
 }
 
 .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-label,
 .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-label {
-  color: $white !important;
+  color: colors.$white !important;
 }
 
 .ng-option .mat-mdc-checkbox .mdc-checkbox__background {
-  border-color: $app-brand-17 !important;
+  border-color: colors.$app-brand-17 !important;
 }
 
 .ng-option.ng-option-marked.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
 .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
 .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark
 {
-  background-color: $app-brand !important;
-  color: $white;
+  background-color: colors.$app-brand !important;
+  color: colors.$white;
 }
 
 .mat-mdc-radio-button.mat-mdc-radio-checked .mat-ripple-element {
-  background-color: $app-brand !important;
+  background-color: colors.$app-brand !important;
 }
 
 .ng-option.ng-option-marked  {
-  background: $app-brand;
+  background: colors.$app-brand;
 }
 
 .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-label,
 .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-label {
-  color: $white;
+  color: colors.$white;
 }
 
 .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-radio__outer-circle {
-  border-color: $white !important;
+  border-color: colors.$white !important;
 }
 
 .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
 .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
-  border-color: $white !important;
+  border-color: colors.$white !important;
 }
 
 .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
 .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
-  border-color: $white !important;
+  border-color: colors.$white !important;
 }
 
 .mat-button-focus-overlay {
-  background-color: $app-brand;
+  background-color: colors.$app-brand;
 }
 
 .ng-select .ng-select-container {
-  background-color: $app-gray-10-light !important;
+  background-color: colors.$app-gray-10-light !important;
   padding: 0 0 0 12px !important;
   min-height: 32px !important;
   border-radius: 2px !important;
@@ -109,7 +109,7 @@
 }
 
 .ng-select.ng-select-multiple .ng-select-container.ng-has-value {
-  background-color: $app-gray-10-light !important;
+  background-color: colors.$app-gray-10-light !important;
   padding: 0 0 0 12px !important;
 }
 
@@ -161,7 +161,7 @@
   width: auto !important;
   display: block !important;
 
-  font-family: $msteams-icons-font !important;
+  font-family: vars.$msteams-icons-font !important;
   font-size: 16px;
   font-style: normal;
   font-variant: normal;
@@ -172,7 +172,7 @@
 
 .ng-select .ng-arrow-wrapper .ng-arrow::before {
   bottom: 1px;
-  content: $chevron-down;
+  content: icons.$chevron-down;
   position: relative;
 }
 
@@ -190,26 +190,26 @@
 
 .ng-select.ng-select-focused .ng-select-container .ng-value-container .ng-placeholder {
   transform: translateY(-1.45em) scale(0.75) perspective(100px) translateZ(0.001px) !important;
-  color: $app-brand !important;
+  color: colors.$app-brand !important;
 }
 
 .ng-dropdown-panel {
-  background: $app-gray-10-light !important;
+  background: colors.$app-gray-10-light !important;
 }
 
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-  background: $app-brand;
-  color: $white;
+  background: colors.$app-brand;
+  color: colors.$white;
 }
 
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
-  background: $app-brand-04;
-  color: $white;
+  background: colors.$app-brand-04;
+  color: colors.$white;
 }
 
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover {
-  background: $app-brand;
-  color: $white;
+  background: colors.$app-brand;
+  color: colors.$white;
 }
 
 .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
@@ -227,21 +227,21 @@
 }
 
 .mat-mdc-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
-  border-color:  $app-brand !important;
+  border-color:  colors.$app-brand !important;
 }
 
 .mat-mdc-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
 .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,.mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
-  background-color: $app-brand !important;
+  background-color: colors.$app-brand !important;
 }
 
 .mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
-  background: $app-brand !important;
+  background: colors.$app-brand !important;
   border-radius: 0 !important;
 }
 
 .mat-mdc-checkbox-checked:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element,.mat-checkbox:active:not(.mat-checkbox-disabled).mat-accent .mat-ripple-element {
-  background: $app-brand;
+  background: colors.$app-brand;
 }
 
 .mat-mdc-checkbox {
@@ -249,21 +249,21 @@
 }
 
 .mat-calendar-body-selected {
-  background-color: $app-brand !important;
-  color: $white !important;
+  background-color: colors.$app-brand !important;
+  color: colors.$white !important;
 }
 
 .mat-datepicker-content {
-  background-color: $white !important;
-  color: $black !important;
+  background-color: colors.$white !important;
+  color: colors.$black !important;
 }
 
 .mat-datepicker-toggle-active {
-  color: $app-brand !important;
+  color: colors.$app-brand !important;
 }
 
 .input-date-picker {
-  font-family: $font-family;
+  font-family: vars.$font-family;
   font-size: 14px;
   width: 30%;
   padding: 5px 12px 8px;
@@ -281,12 +281,12 @@
 }
 
 .input-date-picker{
-  background-color: $app-gray-10-light;
-  color: $black;
+  background-color: colors.$app-gray-10-light;
+  color: colors.$black;
 }
 
 .input-date-picker:focus {
-  border-color: $app-brand;
+  border-color: colors.$app-brand;
 }
 
 .mdc-snackbar.mat-mdc-snack-bar-container {
@@ -322,126 +322,126 @@
 
 .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,
 .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {
-  stroke: $app-brand !important;
+  stroke: colors.$app-brand !important;
 }
 
 body.dark {
   .ng-select .ng-select-container {
-    background-color: $black-dark !important;
-    color: $white !important;
+    background-color: colors.$black-dark !important;
+    color: colors.$white !important;
    }
    
   .ng-select.ng-select-multiple .ng-select-container.ng-has-value {
-    background-color: $black-dark !important;
-    color: $white !important;
+    background-color: colors.$black-dark !important;
+    color: colors.$white !important;
   }
 
   .mat-mdc-checkbox .mdc-label {
-    color: $app-gray-01-dark !important;
+    color: colors.$app-gray-01-dark !important;
   }
 
   .mat-mdc-radio-button .mdc-label {
-    color: $app-gray-01-dark;
+    color: colors.$app-gray-01-dark;
   }
 
   .ng-option .mat-mdc-radio-button .mdc-radio__outer-circle {
-    border-color: $app-gray-01-dark !important;
+    border-color: colors.$app-gray-01-dark !important;
   }
 
   .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-radio__outer-circle {
-    border-color: $white !important;
+    border-color: colors.$white !important;
   }
 
   .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
   .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
-    border-color: $white !important;
+    border-color: colors.$white !important;
   }
 
   .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle,
   .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
-    border-color: $white !important;
+    border-color: colors.$white !important;
   }
     
   .ng-dropdown-panel {
-    background-color: $black-dark !important;
-    color: $white !important;
+    background-color: colors.$black-dark !important;
+    color: colors.$white !important;
   }
 
   .ng-select .ng-arrow-wrapper .ng-arrow {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .ng-select .ng-clear-wrapper .ng-clear {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .ng-select .ng-select-container .ng-value-container .ng-placeholder {
-    color: $app-gray-04-dark !important;
+    color: colors.$app-gray-04-dark !important;
   }
 
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-    color: $app-gray-01-dark !important;
+    color: colors.$app-gray-01-dark !important;
   }
 
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:hover {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup {
-    color: $app-gray-04-dark !important;
+    color: colors.$app-gray-04-dark !important;
   }
 
   .ng-touched::-webkit-input-placeholder { 
-    color: $app-gray-04-dark; 
+    color: colors.$app-gray-04-dark; 
   }
 
   .ng-untouched::-webkit-input-placeholder { 
-    color: $app-gray-04-dark; 
+    color: colors.$app-gray-04-dark; 
   }
 
   .mat-datepicker-content {
-    background-color: $black-dark !important;
-    color: $white !important;
+    background-color: colors.$black-dark !important;
+    color: colors.$white !important;
   }
 
   .mat-calendar-body-cell-content, 
   .mat-calendar-body-label, 
   .mat-calendar-table-header, 
   .mat-datepicker-toggle-default-icon {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .mat-calendar-table-header {
-    color: $app-gray-04-dark !important;
+    color: colors.$app-gray-04-dark !important;
   }
 
   .mat-calendar-body-today:not(.mat-calendar-body-selected) {
-    border-color: $app-gray-04-dark !important;
+    border-color: colors.$app-gray-04-dark !important;
 }
 
   .mat-datepicker-content .mat-calendar-next-button, .mat-datepicker-content .mat-calendar-previous-button, .mat-datepicker-toggle {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .mat-calendar-arrow {
-    border-top-color: $white;
+    border-top-color: colors.$white;
   }
 
   .mat-calendar-table-header .ng-star-inserted{
-    color: $app-gray-04-dark !important;
+    color: colors.$app-gray-04-dark !important;
   }
 
   .mat-calendar-period-button.mdc-button.mat-mdc-button {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .input-date-picker {
-    background-color: $black-dark;
-    color: $white;
+    background-color: colors.$black-dark;
+    color: colors.$white;
   }
   
   .input-date-picker:focus {
-    border-color: $app-brand-dark;
+    border-color: colors.$app-brand-dark;
   }
 
   .ng-select .epic-key-text {
@@ -451,245 +451,244 @@ body.dark {
 
 body.contrast {
   .ng-select .ng-select-container {
-    background-color: $black !important;
-    color: $white !important;
-    border: 1px solid $white;
+    background-color: colors.$black !important;
+    color: colors.$white !important;
+    border: 1px solid colors.$white;
    }
    
   .ng-select.ng-select-multiple .ng-select-container.ng-has-value {
-    background-color: $black !important;
-    color: $white !important;
+    background-color: colors.$black !important;
+    color: colors.$white !important;
     }
     
   .ng-dropdown-panel {
-    background-color: $black !important;
-    color: $white !important;
+    background-color: colors.$black !important;
+    color: colors.$white !important;
   }
 
   .ng-select .ng-arrow-wrapper .ng-arrow {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .ng-select .ng-clear-wrapper .ng-clear {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .ng-select .ng-select-container .ng-value-container .ng-placeholder {
-    color: $app-gray-04-dark !important;
+    color: colors.$app-gray-04-dark !important;
   }
 
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:hover {
-    color: $black !important;
+    color: colors.$black !important;
   }
 
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup {
-    color: $app-gray-04-dark !important;
+    color: colors.$app-gray-04-dark !important;
   }
 
   .ng-touched::-webkit-input-placeholder { 
-    color: $app-gray-04-dark; 
+    color: colors.$app-gray-04-dark; 
   }
 
   .ng-untouched::-webkit-input-placeholder { 
-    color: $app-gray-04-dark; 
+    color: colors.$app-gray-04-dark; 
   }
 
   .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
-    background-color: $yellow !important;
-    color: $black !important;
-    border-color: $black !important;
+    background-color: colors.$yellow !important;
+    color: colors.$black !important;
+    border-color: colors.$black !important;
   }
 
   .ng-option .mat-mdc-checkbox .mdc-label, .mdc-checkbox__background {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-label {
-    color: $black !important;
+    color: colors.$black !important;
   }
 
   .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-label {
-    color: $black !important;
+    color: colors.$black !important;
   }
 
   .ng-option .mat-mdc-checkbox .mdc-checkbox__background {
-    border-color: $white !important;
+    border-color: colors.$white !important;
   }
   
   .ng-option.ng-option-marked.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background {
-    border-color: $black !important;
-    background-color: $yellow !important;
+    border-color: colors.$black !important;
+    background-color: colors.$yellow !important;
   }
 
   .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background {
-    border-color: $black !important;
-    background-color: $app-brand-contrast !important;
+    border-color: colors.$black !important;
+    background-color: colors.$app-brand-contrast !important;
   }
 
   .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-checkbox__background {
-    border-color: $black !important;
-    background-color: $yellow !important;
+    border-color: colors.$black !important;
+    background-color: colors.$yellow !important;
   }
 
   .mat-mdc-radio-button.mat-mdc-radio-checked .mat-ripple-element {
-    background-color: $yellow !important;
+    background-color: colors.$yellow !important;
   }
 
   .ng-option.ng-option-marked  {
-    background: $yellow;
+    background: colors.$yellow;
   }
 
   .ng-option .mat-mdc-radio-button .mdc-label {
-    color: $white;
+    color: colors.$white;
   }
 
   .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-label, 
   .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-label {
-    color: $black;
+    color: colors.$black;
   }
   
   .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-label {
-    color: $black;
+    color: colors.$black;
   }
 
   .ng-option .mat-mdc-radio-button .mdc-radio__outer-circle {
-    border-color: $white !important;
+    border-color: colors.$white !important;
   }
 
   .ng-option.ng-option-marked .mat-mdc-radio-button .mdc-radio__outer-circle {
-    border-color: $black !important;
+    border-color: colors.$black !important;
   }
   
   .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle, 
   .ng-option.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
-    border-color: $black !important;
+    border-color: colors.$black !important;
   }
 
   .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__outer-circle, 
   .ng-option.ng-option-marked.ng-option-selected .mat-mdc-radio-button .mdc-radio__inner-circle {
-    border-color: $black !important;
+    border-color: colors.$black !important;
   }
   
   .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon {
-    color: $black !important;
+    color: colors.$black !important;
   }
   
   .ng-select.ng-select-focused .ng-select-container .ng-value-container .ng-placeholder {
-    color: $yellow !important;
+    color: colors.$yellow !important;
   }
   
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-    background: $yellow !important;
-    color: $black !important;
+    background: colors.$yellow !important;
+    color: colors.$black !important;
   }
   
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected:hover {
-    background: $yellow !important;
+    background: colors.$yellow !important;
   }
 
   .ng-option.ng-option-marked.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
   .ng-option.ng-option-selected .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark,
   .ng-option.ng-option-marked .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark {
     background-color: transparent !important;
-    color: $black !important;
+    color: colors.$black !important;
   }
 
   .mat-mdc-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
-    border-color:  $yellow !important;
+    border-color:  colors.$yellow !important;
   }
   
   .mat-mdc-radio-button.mat-accent .mat-radio-inner-circle,.mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
   .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,.mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
-    background-color: $yellow !important;
+    background-color: colors.$yellow !important;
   }
 
   .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
-    background: $app-brand-contrast;
-    color: $blue;
+    background: colors.$app-brand-contrast;
+    color: colors.$blue;
   }
 
   .ng-dropdown-panel.ng-select-bottom {
-    border: 1px solid $white
+    border: 1px solid colors.$white
   }
 
   .ng-dropdown-panel.ng-select-top {
-    border: 1px solid $white
+    border: 1px solid colors.$white
   }
 
   .mat-calendar-body-selected {
-    background-color: $yellow !important;
-    color: $black !important;
+    background-color: colors.$yellow !important;
+    color: colors.$black !important;
   }
   
   .mat-datepicker-content {
-    background-color: $black !important;
-    color: $white !important;
-    border: 1px solid $white
+    background-color: colors.$black !important;
+    color: colors.$white !important;
+    border: 1px solid colors.$white
   }
   
   .mat-calendar-body-cell-content, 
   .mat-calendar-body-label, 
   .mat-calendar-table-header, 
   .mat-datepicker-toggle-default-icon {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .mat-calendar-table-header .ng-star-inserted{
-    color: $app-gray-04-dark !important;
+    color: colors.$app-gray-04-dark !important;
   }
 
   .mat-calendar-body-today:not(.mat-calendar-body-selected) {
-    border-color: $app-gray-04-dark !important;
+    border-color: colors.$app-gray-04-dark !important;
   }
   
   .mat-calendar-period-button.mdc-button.mat-mdc-button {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .mat-calendar-body-cell-content.mat-focus-indicator.mat-calendar-body-selected {
-    color: $black !important;
+    color: colors.$black !important;
   }
 
   .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-comparison-identical) {
-    background-color: $app-brand-contrast !important;
-    color: $black !important;
+    background-color: colors.$app-brand-contrast !important;
+    color: colors.$black !important;
   }
   
 
   .mat-datepicker-content .mat-calendar-next-button, .mat-datepicker-content .mat-calendar-previous-button, .mat-datepicker-toggle {
-    color: $white !important;
+    color: colors.$white !important;
   }
 
   .mat-calendar-arrow {
-    border-top-color: $white !important;
+    border-top-color: colors.$white !important;
   } 
 
   .ng-select .ng-arrow-wrapper:hover {
-    background: $yellow !important;
+    background: colors.$yellow !important;
   }
 
   .ng-select .ng-arrow-wrapper:hover .ng-arrow{
-    color: $black !important;
+    color: colors.$black !important;
   }
 
   .mat-datepicker-toggle-active {
-    color: $blue !important;
+    color: colors.$blue !important;
   }
 
   .input-date-picker {
-    background-color: $black;
-    color: $white;
-    border-color: $white;
+    background-color: colors.$black;
+    color: colors.$white;
     border-radius: 3px;
-    border: 1px solid $white;
+    border: 1px solid colors.$white;
   }
   
   .input-date-picker:focus {
-    border-color: $yellow;
+    border-color: colors.$yellow;
   }
 
   .ng-select .epic-key-text {

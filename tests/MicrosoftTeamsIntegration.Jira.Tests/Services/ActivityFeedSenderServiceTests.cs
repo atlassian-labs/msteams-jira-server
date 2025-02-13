@@ -116,11 +116,15 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             A.CallTo(() => _fakeGraphSdkHelper.GetAuthenticatedClient(A<string>._)).Returns(new GraphServiceClient(new HttpClient()));
 
-            A.CallTo(() => _fakeGraphApiService.SendActivityNotificationAsync(A<GraphServiceClient>._, A<ActivityNotification>._, A<string>._, CancellationToken.None))
+            A.CallTo(() => _fakeGraphApiService.SendActivityNotificationAsync(
+                    A<GraphServiceClient>._,
+                    A<ActivityNotification>._,
+                    A<string>._,
+                    CancellationToken.None))
                 .Returns(Task.Delay(1));
 
             var service = CreateActivityFeedSenderService();
-            await service.GenerateActivityNotification(user, new NotificationFeedEvent(){ FeedEventType = FeedEventType.FieldUpdated, IssueId = "id"});
+            await service.GenerateActivityNotification(user, new NotificationFeedEvent() { FeedEventType = FeedEventType.FieldUpdated, IssueId = "id" });
 
             A.CallTo(() => _fakeGraphSdkHelper.GetAuthenticatedClient(A<string>._)).MustHaveHappened();
         }

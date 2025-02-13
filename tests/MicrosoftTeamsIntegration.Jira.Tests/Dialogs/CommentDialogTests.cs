@@ -24,28 +24,30 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 {
     public class CommentDialogTests
     {
+        private const string IssueKey = "TS-3";
         private readonly IMiddleware[] _middleware;
         private readonly JiraBotAccessors _fakeAccessors;
         private readonly TelemetryClient _telemetry;
         private readonly IJiraService _fakeJiraService;
         private readonly AppSettings _appSettings;
-        private const string IssueKey = "TS-3";
+        private readonly IAnalyticsService _analyticsService;
 
         public CommentDialogTests(ITestOutputHelper output)
         {
-            _middleware = new IMiddleware[] {new XUnitDialogTestLogger(output)};
+            _middleware = new IMiddleware[] { new XUnitDialogTestLogger(output) };
             _fakeAccessors = A.Fake<JiraBotAccessors>();
             _fakeAccessors.User = A.Fake<IStatePropertyAccessor<IntegratedUser>>();
             _fakeAccessors.JiraIssueState = A.Fake<IStatePropertyAccessor<JiraIssueState>>();
             _fakeJiraService = A.Fake<IJiraService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
+            _analyticsService = A.Fake<IAnalyticsService>();
         }
 
         [Fact]
         public async Task CommentDialog_ChecksIfCommandHasJiraIssueKey()
         {
-            var sut = new CommentDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetCommentDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("comment");
@@ -59,7 +61,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task CommentDialog_WithJiraIssueKey()
         {
-            var sut = new CommentDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetCommentDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
                 new JiraIssueSearch()
@@ -102,7 +104,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         [Fact]
         public async Task CommentDialog_AskForCommentIfEmpty()
         {
-            var sut = new CommentDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry);
+            var sut = GetCommentDialog();
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._)).Returns(
                 new JiraIssueSearch()
@@ -143,6 +145,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             Assert.Equal("Please type comment below", reply.Text);
             Assert.Equal("Error message", secondReply.Text);
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
+        }
+
+        private CommentDialog GetCommentDialog()
+        {
+            return new CommentDialog(_fakeAccessors, _fakeJiraService, _appSettings, _telemetry, _analyticsService);
         }
     }
 }

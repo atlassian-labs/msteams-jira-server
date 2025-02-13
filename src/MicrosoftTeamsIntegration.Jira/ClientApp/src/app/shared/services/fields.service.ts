@@ -15,6 +15,7 @@ import { SprintFieldComponent } from '@app/components/issues/fields/sprint-field
 import { EpicFieldComponent } from '@app/components/issues/fields/epic-field.component';
 import { UrlFieldComponent } from '@app/components/issues/fields/url-field.component';
 import { SelectCascadingFieldComponent } from '@app/components/issues/fields/select-cascading-field.component';
+import { Issue } from '@core/models';
 
 @Injectable({
     providedIn: 'root'
@@ -84,8 +85,42 @@ export class FieldsService {
         return result;
     }
 
-    public getCustomFieldTemplates(fields: any, jiraUrl: string): FieldItem[] {
+    public getAllowedTransformedFields(fields: any, formValue: any) {
+        const issueModel = { } as Partial<any>;
 
+        this.getAllowedFields(fields).forEach(field => {
+            if (formValue[field.key] === null) {
+                issueModel[field.key] = null;
+            }
+            if (formValue[field.key] === '') {
+                issueModel[field.key] = '';
+            }
+            if (formValue[field.key]) {
+                if (field.allowedValues && field.schema.type !== 'option-with-child') {
+                    if (Array.isArray(formValue[field.key])) {
+                        issueModel[field.key] = formValue[field.key].map((x: any) => ({ id: x }));
+                    } else {
+                        issueModel[field.key] = {
+                            id: formValue[field.key]
+                        };
+                    }
+
+                } else {
+                    if (field.schema.type === 'user') {
+                        issueModel[field.key] = {
+                            name: formValue[field.key]
+                        };
+                    } else {
+                        issueModel[field.key] = formValue[field.key];
+                    }
+                }
+            }
+        });
+
+        return issueModel;
+    }
+
+    public getCustomFieldTemplates(fields: any, jiraUrl: string, issueRaw?: Issue): FieldItem[] {
         if (!fields) {
             return [];
         }
@@ -127,6 +162,11 @@ export class FieldsService {
         dynamicFields.forEach(dynamicField => {
             // get templates for:
             // Custom Select list (multiline), Fix Versions, Affected Versions, Components
+            const defaultValueFromIssue = issueRaw?.fields?.[dynamicField.key] ?? null;
+            if (defaultValueFromIssue) {
+                dynamicField.hasDefaultValue = true;
+                dynamicField.defaultValue = defaultValueFromIssue;
+            }
             if ((dynamicField.schema.custom && dynamicField.schema.custom ===
                 'com.atlassian.jira.plugin.system.customfieldtypes:multiselect') ||
                 dynamicField.schema.system === 'versions' ||
@@ -135,7 +175,7 @@ export class FieldsService {
                 dynamicFieldsData.push(new FieldItem(SelectFieldComponent, {
                     name: dynamicField.name,
                     allowedValues: dynamicField.allowedValues.map(this.dropdownUtilService.mapAllowedValueToSelectOption),
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -149,7 +189,7 @@ export class FieldsService {
                 dynamicFieldsData.push(new FieldItem(SelectFieldComponent, {
                     name: dynamicField.name,
                     allowedValues: dynamicField.allowedValues.map(this.dropdownUtilService.mapAllowedValueToSelectOption),
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -163,7 +203,7 @@ export class FieldsService {
                 dynamicFieldsData.push(new FieldItem(SelectCascadingFieldComponent, {
                     name: dynamicField.name,
                     allowedValues: dynamicField.allowedValues,
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -176,7 +216,7 @@ export class FieldsService {
                 dynamicField.schema.custom === 'com.pyxis.greenhopper.jira:gh-epic-label')) {
                 dynamicFieldsData.push(new FieldItem(TextFieldSingleComponent, {
                     name: dynamicField.name,
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Enter value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -189,7 +229,7 @@ export class FieldsService {
                 dynamicField.schema.system === 'environment') {
                 dynamicFieldsData.push(new FieldItem(TextFieldMultiComponent, {
                     name: dynamicField.name,
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Enter value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -202,6 +242,7 @@ export class FieldsService {
                 dynamicField.schema.system === 'duedate') {
                 dynamicFieldsData.push(new FieldItem(DatePickerFieldComponent, {
                     name: dynamicField.name,
+                    defaultValues: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Choose a date',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -214,7 +255,7 @@ export class FieldsService {
                 dynamicFieldsData.push(new FieldItem(RadioSelectFieldComponent, {
                     name: dynamicField.name,
                     allowedValues: dynamicField.allowedValues.map(this.dropdownUtilService.mapAllowedValueToSelectOption),
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -227,7 +268,7 @@ export class FieldsService {
                 dynamicFieldsData.push(new FieldItem(CheckboxSelectFieldComponent, {
                     name: dynamicField.name,
                     allowedValues: dynamicField.allowedValues.map(this.dropdownUtilService.mapAllowedValueToSelectOption),
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -239,7 +280,7 @@ export class FieldsService {
                 'com.atlassian.jira.plugin.system.customfieldtypes:float') {
                 dynamicFieldsData.push(new FieldItem(TextFieldNumberComponent, {
                     name: dynamicField.name,
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Enter value',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -251,7 +292,7 @@ export class FieldsService {
                 'com.atlassian.jira.plugin.system.customfieldtypes:userpicker') {
                 dynamicFieldsData.push(new FieldItem(UserPickerFieldComponent, {
                     name: dynamicField.name,
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     formControlName: dynamicField.key,
                     jiraUrl: jiraUrl,
                     disabled: null,
@@ -266,6 +307,7 @@ export class FieldsService {
                     formControlName: dynamicField.key,
                     addTagText: '(New label)',
                     jiraUrl: jiraUrl,
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     disabled: null,
                     required: dynamicField.required
                 }));
@@ -277,9 +319,9 @@ export class FieldsService {
                 const projectId = fields['project'] && fields['project'].allowedValues && fields['project'].allowedValues.length > 0 ?
                     fields['project'].allowedValues[0].id :
                     null;
-
                 dynamicFieldsData.push(new FieldItem(SprintFieldComponent, {
                     name: dynamicField.name,
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select sprint',
                     formControlName: dynamicField.key,
                     jiraUrl: jiraUrl,
@@ -298,6 +340,7 @@ export class FieldsService {
 
                 dynamicFieldsData.push(new FieldItem(EpicFieldComponent, {
                     name: dynamicField.name,
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Select epic',
                     formControlName: dynamicField.key,
                     jiraUrl: jiraUrl,
@@ -311,7 +354,7 @@ export class FieldsService {
                 'com.atlassian.jira.plugin.system.customfieldtypes:url') {
                 dynamicFieldsData.push(new FieldItem(UrlFieldComponent, {
                     name: dynamicField.name,
-                    defaultValue: this.getDefaultValue(dynamicField),
+                    defaultValue: this.getDefaultValueFromField(dynamicField),
                     placeholder: 'Enter URL',
                     formControlName: dynamicField.key,
                     disabled: null,
@@ -323,24 +366,35 @@ export class FieldsService {
         return dynamicFieldsData;
     }
 
-    private getDefaultValue(dynamicField: any) {
-        let defaultValue = null;
+    private getDefaultValueFromField(dynamicField: any) {
         try {
             if (dynamicField.hasDefaultValue) {
-                if (Array.isArray(dynamicField.defaultValue)) {
-                    defaultValue = dynamicField.defaultValue.map((x: { id: any }) => x.id ? x.id : x);
-                } else if (dynamicField.defaultValue && dynamicField.defaultValue.id) {
-                    if (dynamicField.defaultValue.child) {
-                        defaultValue = dynamicField.defaultValue;
-                    } else {
-                        defaultValue = dynamicField.defaultValue.id;
-                    }
-                } else if (dynamicField.defaultValue) {
-                    defaultValue = dynamicField.defaultValue;
-                }
+                return this.getDefaultValue(dynamicField.defaultValue);
             }
         } catch (e) {
             console.log(`Cannot get default value for field ${dynamicField.key}. Error: ${e}`);
+        }
+        return null;
+    }
+
+    public getDefaultValue(value: any) {
+        let defaultValue = null;
+        try {
+            if (value) {
+                if (Array.isArray(value)) {
+                    defaultValue = value.map((x: { id: any }) => x.id ? x.id : x);
+                } else if (value.id) {
+                    if (value.child) {
+                        defaultValue = value;
+                    } else {
+                        defaultValue = value.id;
+                    }
+                } else {
+                    defaultValue = value;
+                }
+            }
+        } catch (e) {
+            console.log(`Cannot get default value for ${value}. Error: ${e}`);
         }
         return defaultValue;
     }

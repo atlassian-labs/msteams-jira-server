@@ -12,7 +12,8 @@ import { IssueStatus } from '@core/models';
 @Component({
     selector: 'app-status-dropdown',
     templateUrl: './status-dropdown.component.html',
-    styleUrls: ['./status-dropdown.component.scss']
+    styleUrls: ['./status-dropdown.component.scss'],
+    standalone: false
 })
 export class StatusDropdownComponent implements OnInit {
 
@@ -50,7 +51,7 @@ export class StatusDropdownComponent implements OnInit {
             label: this.initialStatus?.name
         } as DropDownOption<JiraTransition>;
 
-        this.statusOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdonwOption);
+        this.statusOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdownOption);
 
         const initOptionInTransitions = this.statusOptions.find((option: { value: { to: { id: any } } }) =>
             option?.value?.to.id === this.initialStatus?.id);
@@ -99,7 +100,7 @@ export class StatusDropdownComponent implements OnInit {
         this.loadingOn();
 
         const jiraTransitionsResponse = await this.transitionService.getTransitions(this.jiraUrl as string, this.issueKey as string);
-        this.statusOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdonwOption);
+        this.statusOptions = jiraTransitionsResponse.transitions.map(this.dropdownUtilService.mapTransitionToDropdownOption);
         if (this.selectedOption) {
             this.statusOptions.unshift(this.selectedOption);
         }

@@ -43,6 +43,8 @@ namespace MicrosoftTeamsIntegration.Jira
         private readonly IUserTokenService _userTokenService;
         private readonly ICommandDialogReferenceService _commandDialogReferenceService;
         private readonly IBotFrameworkAdapterService _botFrameworkAdapterService;
+        private readonly IAnalyticsService _analyticsService;
+        private readonly IUserService _userService;
         private EventTelemetry _eventTelemetry;
 
         public JiraBot(
@@ -58,7 +60,9 @@ namespace MicrosoftTeamsIntegration.Jira
             TelemetryClient telemetry,
             IUserTokenService userTokenService,
             ICommandDialogReferenceService commandDialogReferenceService,
-            IBotFrameworkAdapterService botFrameworkAdapterService)
+            IBotFrameworkAdapterService botFrameworkAdapterService,
+            IAnalyticsService analyticsService,
+            IUserService userService)
         {
             _accessors = accessors;
             _messagingExtensionService = messagingExtensionService;
@@ -74,6 +78,8 @@ namespace MicrosoftTeamsIntegration.Jira
             _commandDialogReferenceService = commandDialogReferenceService;
             _dialogs = new DialogSet(accessors.ConversationDialogState);
             _botFrameworkAdapterService = botFrameworkAdapterService;
+            _analyticsService = analyticsService;
+            _userService = userService;
 
             _dialogs.Add(
                 new MainDispatcher(
@@ -87,12 +93,13 @@ namespace MicrosoftTeamsIntegration.Jira
                     _telemetry,
                     _userTokenService,
                     _commandDialogReferenceService,
-                    _botFrameworkAdapterService));
+                    _botFrameworkAdapterService,
+                    _analyticsService));
         }
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
-            var user = await TryToIdentifyUser(turnContext.Activity.From);
+            var user = await _userService.TryToIdentifyUser(turnContext);
             await _accessors.User.SetAsync(turnContext, user, cancellationToken);
             _eventTelemetry = new EventTelemetry
             {
@@ -135,6 +142,15 @@ namespace MicrosoftTeamsIntegration.Jira
             return new TaskModuleResponse();
         }
 
+        protected override async Task<MessagingExtensionResponse> OnTeamsAppBasedLinkQueryAsync(
+            ITurnContext<IInvokeActivity> turnContext,
+            AppBasedLinkQuery query,
+            CancellationToken cancellationToken)
+        {
+            await HandleInvoke(turnContext, cancellationToken);
+            return new MessagingExtensionResponse();
+        }
+
         protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionFetchTaskAsync(
             ITurnContext<IInvokeActivity> turnContext,
             MessagingExtensionAction action,
@@ -151,6 +167,30 @@ namespace MicrosoftTeamsIntegration.Jira
         {
             await HandleInvoke(turnContext, cancellationToken);
             return new MessagingExtensionResponse();
+        }
+
+        protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionSubmitActionAsync(
+            ITurnContext<IInvokeActivity> turnContext,
+            MessagingExtensionAction action,
+            CancellationToken cancellationToken)
+        {
+            return await OnTeamsMessagingExtensionFetchTaskAsync(turnContext, action, cancellationToken);
+        }
+
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(
+            ITurnContext<IInvokeActivity> turnContext,
+            TaskModuleRequest taskModuleRequest,
+            CancellationToken cancellationToken)
+        {
+            return await OnTeamsTaskModuleFetchAsync(turnContext, taskModuleRequest, cancellationToken);
+        }
+
+        protected override async Task OnTeamsO365ConnectorCardActionAsync(
+            ITurnContext<IInvokeActivity> turnContext,
+            O365ConnectorCardActionQuery query,
+            CancellationToken cancellationToken)
+        {
+            await HandleInvoke(turnContext, cancellationToken);
         }
 
         protected override async Task<InvokeResponse> OnInvokeActivityAsync(
@@ -201,7 +241,8 @@ namespace MicrosoftTeamsIntegration.Jira
                         _telemetry,
                         _userTokenService,
                         _commandDialogReferenceService,
-                        _botFrameworkAdapterService).RunAsync(
+                        _botFrameworkAdapterService,
+                        _analyticsService).RunAsync(
                         turnContext,
                         _accessors.ConversationDialogState,
                         cancellationToken);
@@ -217,12 +258,15 @@ namespace MicrosoftTeamsIntegration.Jira
                         return;
                     }
 
-                    var accessToken = await turnContext.GetBotUserAccessToken(
+                    var accessToken = await _userTokenService.GetUserTokenAsync(
+                        turnContext,
                         _appSettings.OAuthConnectionName,
+                        null,
                         cancellationToken: cancellationToken);
-                    if (accessToken != null)
+                    if (accessToken?.Token != null)
                     {
                         await _actionableMessageService.HandleSuccessfulConnection(turnContext);
+                        _analyticsService.SendBotDialogEvent(turnContext, "connectToJira", "completed");
                     }
                 }
             }
@@ -231,23 +275,10 @@ namespace MicrosoftTeamsIntegration.Jira
         private async Task HandleInvoke(ITurnContext turnContext, CancellationToken cancellationToken)
         {
             var user = await _accessors.User.GetAsync(turnContext, () => null, cancellationToken);
-            var userTokenClient = turnContext.TurnState.Get<UserTokenClient>();
-            var magicCodeObject = turnContext.Activity.Value as JObject;
-            var magicCode = magicCodeObject?.GetValue("state")?.ToString();
-            var accessToken = await userTokenClient.GetUserTokenAsync(
-                turnContext.Activity.From.Id,
-                _appSettings.OAuthConnectionName,
-                turnContext.Activity.ChannelId,
-                magicCode,
-                cancellationToken);
+            var accessToken = await _userTokenService.GetUserTokenAsync(turnContext, cancellationToken);
             if (accessToken is null)
             {
-                var link = (await userTokenClient
-                    .GetSignInResourceAsync(
-                        _appSettings.OAuthConnectionName,
-                        turnContext.Activity,
-                        null,
-                        cancellationToken).ConfigureAwait(false)).SignInLink;
+                var link = await _userTokenService.GetSignInLink(turnContext, cancellationToken);
                 link += "&width=460&height=640";
 
                 var response =
@@ -436,6 +467,8 @@ namespace MicrosoftTeamsIntegration.Jira
             {
                 _telemetry.TrackPageView("MessagingExtensionQuery");
 
+                _analyticsService.SendBotDialogEvent(turnContext, "messagingExtensionQuery", "completed");
+
                 // we should avoid falling into this if after the previous one
                 var response = await _messagingExtensionService.HandleMessagingExtensionQuery(turnContext, user);
                 await BuildInvokeResponse(turnContext, HttpStatusCode.OK, response, cancellationToken);
@@ -480,21 +513,6 @@ namespace MicrosoftTeamsIntegration.Jira
 
                 await BuildInvokeResponse(turnContext, HttpStatusCode.OK, response, cancellationToken);
             }
-        }
-
-        private async Task<IntegratedUser> TryToIdentifyUser(ChannelAccount channelAccount)
-        {
-            var msTeamsUserId = channelAccount.AadObjectId;
-            if (msTeamsUserId.HasValue())
-            {
-                var user = await _databaseService.GetJiraServerUserWithConfiguredPersonalScope(msTeamsUserId);
-
-                var isJiraConnected = await _jiraAuthService.IsJiraConnected(user);
-
-                return isJiraConnected ? user : null;
-            }
-
-            return null;
         }
 
         private static T SafeCast<T>(object value)

@@ -19,6 +19,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CdkTableModule } from '@angular/cdk/table';
+import { MatExpansionModule, MatExpansionPanel, MatExpansionPanelTitle } from '@angular/material/expansion';
 
 import { CoreModule } from '@core/core.module';
 import { SharedModule } from '@shared/shared.module';
@@ -116,11 +117,14 @@ bootstrap: [AppComponent], imports: [BrowserAnimationsModule,
     MatTableModule,
     NgSelectModule,
     CdkTableModule,
+    MatExpansionModule,
     MatSortModule,
     MatPaginatorModule,
     CoreModule,
     SharedModule,
-    MatSnackBarModule], providers: [
+    MatSnackBarModule,
+    MatExpansionPanel,
+    MatExpansionPanelTitle], providers: [
     { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } },
     provideHttpClient(withInterceptorsFromDi())
 ] })

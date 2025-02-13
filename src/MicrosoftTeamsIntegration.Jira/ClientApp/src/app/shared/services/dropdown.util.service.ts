@@ -104,7 +104,7 @@ export class DropdownUtilService {
         };
     }
 
-    public mapTransitionToDropdonwOption(transition: JiraTransition): DropDownOption<JiraTransition> {
+    public mapTransitionToDropdownOption(transition: JiraTransition): DropDownOption<JiraTransition> {
         return {
             id: transition.id,
             value: transition,

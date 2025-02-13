@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Bot.Builder;
@@ -25,18 +23,21 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IJiraAuthService _jiraAuthService;
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public DisconnectJiraDialog(
             JiraBotAccessors accessors,
             IJiraAuthService jiraAuthService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(DisconnectJiraDialog))
         {
             _telemetry = telemetry;
             _accessors = accessors;
             _jiraAuthService = jiraAuthService;
             _appSettings = appSettings;
+            _analyticsService = analyticsService;
 
             var waterfallSteps = new WaterfallStep[]
             {
@@ -64,9 +65,11 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 await stepContext.Context.SendActivityAsync(
                     BotMessages.JiraDisconnectDialogNotConnected,
                     cancellationToken: cancellationToken);
+                _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "completed");
                 return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
+            _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "replied");
             return await stepContext.PromptAsync(
                 ConfirmationPrompt,
                 new PromptOptions
@@ -81,6 +84,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             user = await JiraBotAccessorsHelper.GetUser(_accessors, stepContext.Context, _appSettings, cancellationToken);
             if (!(bool)stepContext.Result)
             {
+                _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "completed");
                 return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
             }
 
@@ -95,6 +99,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                     cancellationToken: cancellationToken);
             }
 
+            _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "completed");
             return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
 

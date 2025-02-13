@@ -38,7 +38,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
           </div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class LabelsFieldComponent implements FieldComponent, OnInit {
@@ -63,6 +64,11 @@ export class LabelsFieldComponent implements FieldComponent, OnInit {
         this.loadingOn();
 
         this.jiraUrl = this.data.jiraUrl;
+
+        if (this.data.defaultValue) {
+            this.selectedOptionIds = this.data.defaultValue;
+            await this.onOpen();
+        }
 
         this.loadingOff();
     }

@@ -1,5 +1,5 @@
-﻿@import 'icons';
-@import '_app-colors';
+﻿@use '../icons';
+@use '../app-colors';
 
 .ts-btn {
   height: 3.4rem;
@@ -9,125 +9,125 @@
   white-space: nowrap;
   cursor: pointer;
   font: inherit;
-  background: $app-brand-dark;
-  color: $white;
+  background: app-colors.$app-brand-dark;
+  color: app-colors.$white;
   border-color: transparent;
 }
 
 body.default .ts-btn-primary {
-  background: $app-brand;
-  color: $white;
+  background: app-colors.$app-brand;
+  color: app-colors.$white;
   border: transparent;
 
   &:hover, &:focus {
-    background: $app-brand-04;
-    color: $white;
+    background: app-colors.$app-brand-04;
+    color: app-colors.$white;
     border: transparent;
     outline: none;
   }
 
   &:disabled {
-    background: $app-gray-12-light;
-    color: $app-gray-06-light;
+    background: app-colors.$app-gray-12-light;
+    color: app-colors.$app-gray-06-light;
     border-color: transparent;
     cursor: default;
   }
 }
 
 body.default .ts-btn-secondary {
-  background: $white;
-  color: $app-gray-02-light;  
-  border: 0.125rem solid $app-gray-06-light;   
+  background: app-colors.$white;
+  color: app-colors.$app-gray-02-light;  
+  border: 0.125rem solid app-colors.$app-gray-06-light;   
 
   &:hover, &:focus {   
-    background: $app-gray-06-light; 
+    background: app-colors.$app-gray-06-light; 
     border-color: transparent;
-    color: $black-light;
+    color: app-colors.$black-light;
     outline: none;
   }
 
   &:disabled { 
-    background: $white;
-    border-color: $app-gray-06-light; 
-    color: $app-gray-06-light;
+    background: app-colors.$white;
+    border-color: app-colors.$app-gray-06-light; 
+    color: app-colors.$app-gray-06-light;
     cursor: default;    
   }
 }
 
 body.dark .ts-btn-primary {
-  background: $app-brand-dark;
-  color: $black;
+  background: app-colors.$app-brand-dark;
+  color: app-colors.$black;
   border: transparent;
 
   &:hover, &:focus {
-    background: $app-brand-04;
-    color: $white;
+    background: app-colors.$app-brand-04;
+    color: app-colors.$white;
     border: transparent;
     outline: none;
   }
 
   &:disabled {
-    background: $app-gray-12;
-    color: $app-gray-06;
+    background: app-colors.$app-gray-12;
+    color: app-colors.$app-gray-06;
     border-color: transparent;
     cursor: default;
   }
 }
 
 body.dark .ts-btn-secondary {
-  background: $app-gray-10-dark;
-  border: 0.125rem solid $app-gray-06-dark;  
-  color: $app-gray-02-dark;
+  background: app-colors.$app-gray-10-dark;
+  border: 0.125rem solid app-colors.$app-gray-06-dark;  
+  color: app-colors.$app-gray-02-dark;
 
   &:hover, &:focus {      
-    background: $app-gray-06-dark; ;
+    background: app-colors.$app-gray-06-dark; ;
     border-color: transparent;
-    color: $white;    
+    color: app-colors.$white;    
     outline: none;
   }
 
   &:disabled {   
-    background: $app-gray-10-dark;
-    border-color: $app-gray-12-dark;
-    color: $app-gray-06-dark;   
+    background: app-colors.$app-gray-10-dark;
+    border-color: app-colors.$app-gray-12-dark;
+    color: app-colors.$app-gray-06-dark;   
     cursor: default;
   }
 }
 
 body.contrast .ts-btn-primary {
   background: transparent;
-  color: $white;
-  border: 1px solid $white;
+  color: app-colors.$white;
+  border: 1px solid app-colors.$white;
 
   &:hover {
-    background: $yellow;
-    color: $black;
-    border-color: $white;
+    background: app-colors.$yellow;
+    color: app-colors.$black;
+    border-color: app-colors.$white;
   }
 
   &:disabled {
-    background: $contrast-button-disabled;
-    color: $black;
+    background: app-colors.$contrast-button-disabled;
+    color: app-colors.$black;
     border-color: transparent;
     cursor: default;
   }
 }
 
 body.contrast .ts-btn-secondary {
-  background: $white;
-  color: $black;
-  border: 1px solid $white;
+  background: app-colors.$white;
+  color: app-colors.$black;
+  border: 1px solid app-colors.$white;
 
   &:hover {
-    background: $yellow;
-    color: $black;
-    border-color: $white;
+    background: app-colors.$yellow;
+    color: app-colors.$black;
+    border-color: app-colors.$white;
   }
 
   &:disabled {   
-    background: $black;
-    border-color: $green-contrast;
-    color: $green-contrast;
+    background: app-colors.$black;
+    border-color: app-colors.$green-contrast;
+    color: app-colors.$green-contrast;
     cursor: default;
   }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Graph.Models;
 using MicrosoftTeamsIntegration.Artifacts.Models;
 using MicrosoftTeamsIntegration.Artifacts.Models.GraphApi;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
@@ -75,7 +76,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         },
                         Topic = new ActivityNotificationTopic
                         {
-                            Source = "text",
+                            Source = TeamworkActivityTopicSource.Text,
                             Value = notificationFeedEvent.IssueProjectName,
                             WebUrl = GetOnClickUrl(notificationFeedEvent)
                         },

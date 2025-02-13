@@ -10,6 +10,7 @@ using MicrosoftTeamsIntegration.Jira.Helpers;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Bot;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
+using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -18,40 +19,35 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
     public class AssignDialog : JiraIssueDependentDialog
     {
         private const string AssignJiraIssueWaterfall = "assignJiraIssueWaterfall";
-        private const string MentionUserToAssignIssuePrompt = "mentionUserToAssignIssuePrompt";
 
         private readonly JiraBotAccessors _accessors;
         private readonly IJiraService _jiraService;
-        private readonly IDatabaseService _databaseService;
         private readonly AppSettings _appSettings;
         private readonly IBotMessagesService _botMessagesService;
         private readonly TelemetryClient _telemetry;
-
-        private IntegratedUser MentionedUser { get; set; }
+        private readonly IAnalyticsService _analyticsService;
 
         public AssignDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             AppSettings appSettings,
-            IDatabaseService databaseService,
             IBotMessagesService botMessagesService,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(AssignDialog), accessors, jiraService, appSettings)
         {
             _accessors = accessors;
             _jiraService = jiraService;
             _appSettings = appSettings;
-            _databaseService = databaseService;
             _botMessagesService = botMessagesService;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
 
             var waterfallSteps = new WaterfallStep[]
             {
-                OnStartAssigningProcessingAsync,
-                OnHandleMentionedUserAssigningAsync
+                OnStartAssigningProcessingAsync
             };
             AddDialog(new WaterfallDialog(AssignJiraIssueWaterfall, waterfallSteps));
-            AddDialog(new TextPrompt(MentionUserToAssignIssuePrompt, JiraIssueKeyValidatorAsync));
         }
 
         protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(
@@ -77,35 +73,6 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             var jiraIssue = jiraIssueState.JiraIssue;
 
             return await AssignJiraIssueToUser(stepContext, CurrentUser, jiraIssue);
-        }
-
-        private async Task<DialogTurnResult> OnHandleMentionedUserAssigningAsync(
-            WaterfallStepContext stepContext,
-            CancellationToken cancellationToken = default)
-        {
-            var user = MentionedUser;
-            if (user == null)
-            {
-                await stepContext.Context.SendActivityAsync(
-                    BotMessages.OperationCancelled,
-                    cancellationToken: cancellationToken);
-            }
-            else
-            {
-                var jiraIssueState = await _accessors.JiraIssueState.GetAsync(
-                    stepContext.Context,
-                    () => new JiraIssueState(),
-                    cancellationToken);
-
-                var jiraIssue = jiraIssueState.JiraIssue;
-
-                if (!string.IsNullOrEmpty(jiraIssue?.Key))
-                {
-                    await AssignJiraIssueToUser(stepContext, user, jiraIssue);
-                }
-            }
-
-            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
         }
 
         private async Task<DialogTurnResult> AssignJiraIssueToUser(
@@ -173,9 +140,11 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             {
                 await dc.Context.SendActivityAsync($"{issueKey} has been assigned.");
             }
+
+            _analyticsService.SendBotDialogEvent(dc.Context, "assign", "completed");
         }
 
-        private static async Task HandleFailedAssignment(DialogContext dc, string errorMessage, bool invokedFromCard)
+        private async Task HandleFailedAssignment(DialogContext dc, string errorMessage, bool invokedFromCard)
         {
             if (invokedFromCard)
             {
@@ -185,6 +154,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             {
                 await dc.Context.SendActivityAsync(errorMessage);
             }
+
+            _analyticsService.SendBotDialogEvent(dc.Context, "assign", "failed", errorMessage);
         }
 
         private async Task HandleAlreadyAssignedIssue(
@@ -205,54 +176,6 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             {
                 await dc.Context.SendActivityAsync(replyText);
             }
-        }
-
-        private async Task<bool> JiraIssueKeyValidatorAsync(
-            PromptValidatorContext<string> promptContext,
-            CancellationToken cancellationToken)
-        {
-            // Check whether the input could be recognized
-            if (!promptContext.Recognized.Succeeded)
-            {
-                await promptContext.Context.SendActivityAsync(
-                    BotMessages.PleaseRepeat,
-                    cancellationToken: cancellationToken);
-                return false;
-            }
-
-            var currentUser =
-                await JiraBotAccessorsHelper.GetUser(
-                    _accessors,
-                    promptContext.Context,
-                    _appSettings,
-                    cancellationToken);
-
-            // trim bot mention to compare for myself assigning. Users mentioning will be taking in GetMsTeamsUserIdFromMentions method
-            var mention = promptContext.Context.Activity.RemoveRecipientMention();
-            if (string.Equals(mention, "myself", StringComparison.OrdinalIgnoreCase))
-            {
-                MentionedUser = currentUser;
-                return true;
-            }
-
-            var msTeamsUserId = await promptContext.Context.GetMsTeamsUserIdFromMentions();
-
-            var jiraId = currentUser.JiraServerId;
-            var mentionedUser = await _databaseService.GetUserByTeamsUserIdAndJiraUrl(msTeamsUserId, jiraId);
-
-            if (mentionedUser is null)
-            {
-                var couldNotFindMessage =
-                    "I couldn't find this person. Make sure they have the right permissions or try someone new.";
-                await promptContext.Context.SendActivityAsync(
-                    couldNotFindMessage,
-                    cancellationToken: cancellationToken);
-                return false;
-            }
-
-            MentionedUser = mentionedUser;
-
-            return true;
         }
     }
 }

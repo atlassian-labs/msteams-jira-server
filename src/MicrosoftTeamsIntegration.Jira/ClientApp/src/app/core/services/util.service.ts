@@ -64,6 +64,10 @@ export class UtilService {
 
     public convertStringToNull = (value: any) => value === 'null' || value === 'undefined' ? null : value;
 
+    public capitalizeFirstLetter = (value: string) => String(value).charAt(0).toUpperCase() + String(value).slice(1);
+
+    public capitalizeFirstLetterAndJoin = (...value: string[]) => value.map(this.capitalizeFirstLetter).join('');
+
     public getDefaultUserIcon(size: IconSize = 'small'): string {
         const iconSizeInPixels = size === 'small' ? '24x24' : '32x32';
         return `/assets/useravatar${iconSizeInPixels}.png`;
@@ -105,19 +109,15 @@ export class UtilService {
 
     public getJiraServerId = (): string => localStorage.getItem('jiraServer.jiraId') as string;
 
-    public getQueryParam(paramName: string) {
-        const result = '';
-        const query: string = window.location.href;
-        const vars: string[] = query.split('&');
-
-        for (const varPairs of vars) {
-            const pair: string[] = varPairs.split('=');
-            if (decodeURIComponent(pair[0]) === paramName) {
-                return decodeURIComponent(pair[1]);
-            }
+    public getQueryParam(paramName: string, url?: string): string {
+        try {
+            const query = url ? new URL(url).search : window.location.search;
+            const params = new URLSearchParams(query);
+            return params.get(paramName) || '';
+        } catch (error) {
+            console.error('Error parsing query parameter:', error);
+            return '';
         }
-
-        return result;
     }
 
     public isElectron = (): boolean => {

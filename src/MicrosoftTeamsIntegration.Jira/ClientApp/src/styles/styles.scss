@@ -1,26 +1,27 @@
-@import "@angular/material/prebuilt-themes/deeppurple-amber.css";
-@import "@ng-select/ng-select/themes/material.theme.css";
+@use "variables" as vars;
+@use "app-colors" as colors;
+@use "common/inputs.component.scss";
+@use "common/buttons.component.scss";
+@use "common/checkboxes.component.scss";
+@use "common/radio-buttons.component.scss";
+@use "common/fields.scss";
+@use "common/elements.component.scss";
+@use "./cookie-consent.scss";
+@use "./generic.scss";
+@use "./angular-material.overrides.scss";
+@use "./editable-field.scss";
+@use "./theme/components.scss";
+@use "../../node_modules/placeholder-loading/src/scss/placeholder-loading";
 
-@import "variables";
-@import "common/inputs.component.scss";
-@import "common/buttons.component.scss";
-@import "common/checkboxes.component.scss";
-@import "common/radio-buttons.component.scss";
-@import "common/fields.scss";
-@import "common/elements.component.scss";
-@import "./cookie-consent.scss";
-@import "./generic.scss";
-@import "./angular-material.overrides.scss";
-@import "./editable-field.scss";
-@import "./theme/components.scss";
-@import "../../node_modules/placeholder-loading/src/scss/placeholder-loading";
+@use "@angular/material/prebuilt-themes/deeppurple-amber.css";
+@use "@ng-select/ng-select/themes/material.theme.css";
 
 html {
   max-height: 98%;
-}
+} 
   
 body {
-  font-family: $font-family;
+  font-family: vars.$font-family;
   font-weight: 400;
   font-size: 14px;
   overflow-y: hidden;
@@ -35,7 +36,7 @@ body.contrast.shownAtPopup {
 }
 
 a {
-    font-family: $font-family;
+    font-family: vars.$font-family;
     text-decoration: none;
     cursor: pointer;
 
@@ -77,20 +78,21 @@ body.mobile {
   &::before {
     animation: ph-animation 1.5s linear infinite;
   }
+  border: 0;
 }
 
 body.dark .ph-item {
-  background-color: $app-gray-10-dark;
+  background-color: colors.$app-gray-10-dark;
   &::before {
-    background: linear-gradient(to right, rgba($app-gray-10-dark, 0) 46%, rgba($app-gray-10-dark, 0.07) 50%, rgba($app-gray-10-dark, 0) 54%) 50% 50%;
+    background: linear-gradient(to right, rgba(colors.$app-gray-10-dark, 0) 46%, rgba(colors.$app-gray-10-dark, 0.07) 50%, rgba(colors.$app-gray-10-dark, 0) 54%) 50% 50%;
     animation: ph-animation 1.5s linear infinite;
   }
 }
 
 body.contrast .ph-item {
-  background-color: $black;
+  background-color: colors.$black;
   &::before {
-    background: linear-gradient(to right, rgba($black, 0) 46%, rgba($black, 0.07) 50%, rgba($black, 0) 54%) 50% 50%;
+    background: linear-gradient(to right, rgba(colors.$black, 0) 46%, rgba(colors.$black, 0.07) 50%, rgba(colors.$black, 0) 54%) 50% 50%;
     animation: ph-animation 1.5s linear infinite;
   }
 }
@@ -100,4 +102,76 @@ body.contrast .ph-item {
   &.big div {
     height: 32px;
   }
+}
+
+mat-expansion-panel {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  --mat-expansion-header-collapsed-state-height: 20px;
+  --mat-expansion-header-expanded-state-height: 20px;
+}
+
+.mat-expansion-panel-body {
+  padding: 0 !important;
+  overflow-y: auto;
+}
+
+.dark mat-expansion-panel {
+  background-color: colors.$app-gray-10-dark;
+  color: #FFFFFF;
+}
+
+.contrast mat-expansion-panel {
+  background-color: colors.$black;
+  color: #FFFFFF; 
+}
+
+.dark mat-panel-title {
+  color: #FFFFFF;
+}
+
+.contrast mat-panel-title {
+  color: #FFFFFF;
+}
+
+.mat-expansion-panel.contrast {
+  background-color: colors.$black;
+}
+
+mat-expansion-panel-header {
+  padding: 0 !important;
+  min-height: 10px !important;
+  display: flex;
+  align-items: center;
+  flex-direction: row !important;
+}
+
+.expander-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.expander-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.mat-expansion-panel-header .material-icons {
+  font-size: 14px;
+  vertical-align: middle;
+  display: inline-block;
+  align-content: center;
+}
+
+.mat-expansion-panel-header-title {
+  flex: 1;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
 }

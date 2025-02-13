@@ -1,30 +1,32 @@
 ﻿import * as microsoftTeams from '@microsoft/teams-js';
 
-import {AbstractControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ApiService, AppInsightsService, ErrorService} from '@core/services';
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
-import {Issue} from '@core/models';
-import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ApiService, AppInsightsService, ErrorService } from '@core/services';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { CurrentJiraUser } from '@core/models/Jira/jira-user.model';
+import { Issue } from '@core/models';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
-import {AssigneeService} from '@core/services/entities/assignee.service';
-import {DropDownComponent} from '@shared/components/dropdown/dropdown.component';
-import {DropDownOption} from '@shared/models/dropdown-option.model';
-import {DropdownUtilService} from '@shared/services/dropdown.util.service';
-import {FieldItem} from '../fields/field-item';
-import {FieldsService} from '@shared/services/fields.service';
-import {IssueType} from '@core/models/Jira/issues.model';
-import {PermissionService} from '@core/services/entities/permission.service';
-import {Project} from '@core/models/Jira/project.model';
-import {StringValidators} from '@core/validators/string.validators';
-import {UtilService} from '@core/services/util.service';
-import {NotificationService} from '@shared/services/notificationService';
+import { AssigneeService } from '@core/services/entities/assignee.service';
+import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
+import { DropDownOption } from '@shared/models/dropdown-option.model';
+import { DropdownUtilService } from '@shared/services/dropdown.util.service';
+import { FieldItem } from '../fields/field-item';
+import { FieldsService } from '@shared/services/fields.service';
+import { IssueType } from '@core/models/Jira/issues.model';
+import { PermissionService } from '@core/services/entities/permission.service';
+import { Project } from '@core/models/Jira/project.model';
+import { StringValidators } from '@core/validators/string.validators';
+import { UtilService } from '@core/services/util.service';
+import { NotificationService } from '@shared/services/notificationService';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-create-issue-dialog',
     templateUrl: './create-issue-dialog.component.html',
-    styleUrls: ['./create-issue-dialog.component.scss']
+    styleUrls: ['./create-issue-dialog.component.scss'],
+    standalone: false
 })
 export class CreateIssueDialogComponent implements OnInit {
     public loading = false;
@@ -64,6 +66,8 @@ export class CreateIssueDialogComponent implements OnInit {
     public defaultAssignee: string | any;
     public isAddonUpdated: boolean | any;
 
+    public application: string | any;
+
     private dialogDefaultSettings: MatDialogConfig = {
         width: '350px',
         height: '200px',
@@ -100,15 +104,25 @@ export class CreateIssueDialogComponent implements OnInit {
         private errorService: ErrorService,
         private permissionService: PermissionService,
         private fieldsService: FieldsService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
         this.appInsightsService.logNavigation('CreateIssueComponent', this.route);
-        const { jiraUrl, description, metadataRef, returnIssueOnSubmit, replyToActivityId, summary, issueType, priority, assignee }
+        const {jiraUrl,
+            description,
+            metadataRef,
+            returnIssueOnSubmit,
+            replyToActivityId,
+            summary,
+            issueType,
+            priority,
+            assignee,
+            application}
             = this.route.snapshot.params;
         this.jiraUrl = jiraUrl;
-        this.defaultDescription = description;
+        this.defaultDescription = description || '';
         this.metadataRef = metadataRef;
         this.returnIssueOnSubmit = returnIssueOnSubmit === 'true';
         this.replyToActivityId = replyToActivityId;
@@ -120,8 +134,15 @@ export class CreateIssueDialogComponent implements OnInit {
 
         this.loading = true;
 
+        this.application = application;
+
+        this.analyticsService.sendScreenEvent(
+            'createIssueModal',
+            EventAction.viewed,
+            UiEventSubject.taskModule,
+            'createIssueModal', {application});
+
         try {
-            this.loading = true;
             await this.createForm();
             this.loading = false;
             const getAddonStatusPromise = this.apiService.getAddonStatus(jiraUrl);
@@ -153,37 +174,17 @@ export class CreateIssueDialogComponent implements OnInit {
         if (this.issueForm?.invalid) {
             return;
         }
+        this.analyticsService.sendUiEvent(
+            'createIssueModal',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'createIssueInJira',
+            {source: 'createIssueModal', application: this.application});
 
         const formValue = this.issueForm?.value;
 
-        const createIssueFields = {
-        } as Partial<any>;
-
-        this.fieldsService.getAllowedFields(this.fields).forEach(field => {
-            if (formValue[field.key]) {
-                if (field.allowedValues && field.schema.type !== 'option-with-child') {
-                    if (Array.isArray(formValue[field.key])) {
-                        createIssueFields[field.key] = formValue[field.key].map((x: any) => ({ id: x }));
-                    } else {
-                        createIssueFields[field.key] = {
-                            id: formValue[field.key]
-                        };
-                    }
-
-                } else {
-                    if (field.schema.type === 'user') {
-                        createIssueFields[field.key] = {
-                            name: formValue[field.key]
-                        };
-                    } else {
-                        createIssueFields[field.key] = formValue[field.key];
-                    }
-                }
-            }
-        });
-
         const createIssueModel = {
-            fields: createIssueFields,
+            fields: this.fieldsService.getAllowedTransformedFields(this.fields, formValue),
             metadataRef: this.metadataRef
         } as any;
 
@@ -231,7 +232,7 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     public getControlByName(controlName: string): AbstractControl | any {
-        if (this.issueForm?.contains(controlName)) {
+        if (this.issueForm && this.issueForm.controls && this.issueForm.controls[controlName]) {
             return this.issueForm.get(controlName);
         }
     }
@@ -315,7 +316,9 @@ export class CreateIssueDialogComponent implements OnInit {
     }
 
     public async onAssigneeSearchChanged(username: string): Promise<void> {
-        this.assigneesDropdown.filteredOptions = await this.getAssigneesOptions(this.selectedProject?.key as string, username);
+        if (this.assigneesDropdown) {
+            this.assigneesDropdown.filteredOptions = await this.getAssigneesOptions(this.selectedProject?.key as string, username);
+        }
     }
 
     public isFieldRequired(fieldName: string): boolean {
@@ -372,19 +375,9 @@ export class CreateIssueDialogComponent implements OnInit {
 
         await this.onProjectSelected(this.availableProjectsOptions[0].value);
 
-        const defaultAssignee = this.defaultAssignee && this.assigneesOptions ?
-            this.assigneesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase()) :
-            this.assigneesOptions && this.assigneesOptions.length > 0 ?
-                this.assigneesOptions[0].value :
-                null;
+        const defaultAssignee = this.getDefaultAssignee();
 
-        const defaultIssueType = this.defaultIssueType && this.availableIssueTypesOptions ?
-            this.availableIssueTypesOptions.find((x: { label: string }) =>
-                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase()) :
-            this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0 ?
-                this.availableIssueTypesOptions[0].value :
-                null;
+        const defaultIssueType = this.getDefaultIssueType();
 
         this.issueForm = new UntypedFormGroup({
             project: new UntypedFormControl(
@@ -411,6 +404,29 @@ export class CreateIssueDialogComponent implements OnInit {
         this.fieldsService.getAllowedFields(this.fields).forEach(dynamicField => {
             this.addRemoveControlFromForm(dynamicField.key);
         });
+    }
+
+    private getDefaultIssueType() {
+        if (this.defaultIssueType && this.availableIssueTypesOptions) {
+            return this.availableIssueTypesOptions.find((x: { label: string }) =>
+                x.label.toLowerCase() === this.defaultIssueType?.toLowerCase());
+        }
+
+        if (this.availableIssueTypesOptions && this.availableIssueTypesOptions.length > 0) {
+            return this.availableIssueTypesOptions[0].value;
+        }
+        return null;
+    }
+
+    private getDefaultAssignee() {
+        if (this.defaultAssignee && this.assigneesOptions) {
+            return this.assigneesOptions.find((x: { label: string }) =>
+                x.label.toLowerCase() === this.defaultAssignee?.toLowerCase());
+        }
+        if (this.assigneesOptions && this.assigneesOptions.length > 0) {
+            return this.assigneesOptions[0].value;
+        }
+        return null;
     }
 
     private addRemoveControlFromForm(controlName: string): void {

@@ -27,7 +27,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
                         [loading]="loading"
                         placeholder="{{data.placeholder}}"
                         formControlName="{{data.formControlName}}"
-                        [attr.disabled]="data.disabled">
+                        [attr.disabled]="data.disabled"
+                        [(ngModel)]="selectedEpicId">
                 <ng-template ng-label-tmp let-item="item">
                     <label class="epic-color-label epic-{{item.color}}">{{item.name}}</label>
                 </ng-template>
@@ -58,7 +59,8 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
           </div>
         </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class EpicFieldComponent implements FieldComponent, OnInit {
@@ -70,6 +72,7 @@ export class EpicFieldComponent implements FieldComponent, OnInit {
     public projectKeyOrId: string | undefined;
     public dataInitialized: boolean | undefined;
     public epicOptions: any[] = [];
+    public selectedEpicId: any;
 
     constructor(
         private apiService: ApiService,
@@ -83,6 +86,11 @@ export class EpicFieldComponent implements FieldComponent, OnInit {
         this.projectKeyOrId = this.data.projectKeyOrId;
         // add empty option to allow drop down to open and trigger onOpen event
         this.epicOptions = [{}];
+
+        if (this.data.defaultValue) {
+            this.selectedEpicId = this.data.defaultValue;
+            await this.onOpen();
+        }
 
         this.loadingOff();
     }

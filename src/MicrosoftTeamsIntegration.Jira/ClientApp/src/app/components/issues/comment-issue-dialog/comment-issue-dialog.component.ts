@@ -11,16 +11,19 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { JiraPermissionName } from '@core/models/Jira/jira-permission.model';
 import { PermissionService } from '@core/services/entities/permission.service';
 import { NotificationService } from '@shared/services/notificationService';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-comment-issue-dialog',
     templateUrl: './comment-issue-dialog.component.html',
-    styleUrls: ['./comment-issue-dialog.component.scss']
+    styleUrls: ['./comment-issue-dialog.component.scss'],
+    standalone: false
 })
 export class CommentIssueDialogComponent implements OnInit {
     public issue: Issue | undefined;
     public loading = false;
     public commentForm: UntypedFormGroup | undefined;
+    public jiraId: string | undefined;
     public jiraUrl: string | undefined;
     public issueId: string | undefined;
     public issueKey: string | undefined;
@@ -36,26 +39,33 @@ export class CommentIssueDialogComponent implements OnInit {
         private router: Router,
         private errorService: ErrorService,
         private readonly notificationService: NotificationService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit() {
         this.loading = true;
         try {
-            const { jiraUrl, issueId, issueKey } = this.route.snapshot.params;
-            this.jiraUrl = jiraUrl;
+            const { jiraId, issueId, issueKey, application } = this.route.snapshot.params;
+            this.jiraId = jiraId;
             this.issueId = issueId;
             this.issueKey = issueKey;
             const commentRelatedPermissions: JiraPermissionName[] = [
                 'ADD_COMMENTS',
             ];
 
-            if (!this.jiraUrl) {
+            this.analyticsService.sendScreenEvent(
+                'createCommentModal',
+                EventAction.viewed,
+                UiEventSubject.taskModule,
+                'createCommentModal', {application: application});
+
+            if (!this.jiraId) {
                 const response = await this.apiService.getJiraUrlForPersonalScope();
-                this.jiraUrl = response.jiraUrl;
+                this.jiraId = response.jiraUrl;
             }
 
             const { permissions } = await this.permissionService
-                .getMyPermissions(this.jiraUrl, commentRelatedPermissions, this.issueId);
+                .getMyPermissions(this.jiraId, commentRelatedPermissions, this.issueId);
 
             if (!permissions.ADD_COMMENTS.havePermission) {
                 const message = 'You don\'t have permissions to add comments';
@@ -63,7 +73,16 @@ export class CommentIssueDialogComponent implements OnInit {
                 return;
             }
 
-            this.issue = await this.apiService.getIssueByIdOrKey(this.jiraUrl, this.issueId as string);
+            const currentUserPromise = this.apiService.getCurrentUserData(this.jiraId);
+            const issuePromise = this.apiService.getIssueByIdOrKey(this.jiraId, this.issueId as string);
+
+            const [currentUser, issue] = await Promise.all([
+                currentUserPromise,
+                issuePromise
+            ]);
+
+            this.issue = issue;
+            this.jiraUrl = currentUser.jiraServerInstanceUrl;
             await this.createForm();
 
             microsoftTeams.app.notifySuccess();
@@ -83,7 +102,7 @@ export class CommentIssueDialogComponent implements OnInit {
         }
 
         const options: IssueAddCommentOptions = {
-            jiraUrl: this.jiraUrl as string,
+            jiraUrl: this.jiraId as string,
             issueIdOrKey: this.issueId as string,
             comment: this.commentForm?.value.comment,
             metadataRef: null as any

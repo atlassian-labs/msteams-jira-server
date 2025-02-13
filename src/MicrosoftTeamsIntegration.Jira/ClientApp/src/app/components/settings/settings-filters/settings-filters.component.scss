@@ -1,6 +1,6 @@
-﻿@import "variables";
-@import "icons";
-@import "app-colors";
+﻿@use "../../../../styles/variables";
+@use "../../../../styles/icons";
+@use "../../../../styles/app-colors";
 
 .settings {
   &__no-filters-icon {
@@ -9,8 +9,8 @@
     cursor: pointer;
 
     &::before {
-      font-family: $msteams-icons-font !important;
-      content: $question-mark-field;
+      font-family: variables.$msteams-icons-font !important;
+      content: icons.$question-mark-field;
       position: relative;
     }
   }
@@ -54,7 +54,7 @@
   font-size: 12px;
   font-weight: 500;
   margin-left: 10px;
-  color: $red;
+  color: app-colors.$red;
   font-style: italic;
 }
 

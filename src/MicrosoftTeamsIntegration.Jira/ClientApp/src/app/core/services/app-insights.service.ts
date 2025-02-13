@@ -31,6 +31,10 @@ export class AppInsightsService {
         }
     }
 
+    public setAppInsightsClient(appInsights: ApplicationInsights) {
+        this.appInsights = appInsights;
+    }
+
     public trackPageView(
         name: string,
         properties: object = {},
@@ -40,7 +44,7 @@ export class AppInsightsService {
         this.appInsights?.trackPageView({
             name,
             uri,
-            properties: this.stringifyValuesOf(properties)
+            properties: properties
         } as IPageViewTelemetry);
     }
 

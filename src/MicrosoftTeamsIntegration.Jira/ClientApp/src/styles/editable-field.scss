@@ -1,3 +1,5 @@
+@use './app-colors' as colors;
+
 .editable-field {
   -webkit-transition: box-shadow 150ms ease-in 0ms;
   transition: box-shadow 150ms ease-in 0ms;
@@ -21,25 +23,25 @@
 }
   
 body.default .editable-field:hover {
-  background-color: $app-gray-13-light;
-  color: $black;
+  background-color: colors.$app-gray-13-light;
+  color: colors.$black;
 }
 
 body.dark .editable-field:hover  {
-    background-color: $app-brand;
-    color: $white;
+    background-color: colors.$app-brand;
+    color: colors.$white;
 }
 
 body.dark .editable-field:hover a {
-  color: $white;
+  color: colors.$white;
 }
 
 body.contrast .editable-field:hover {
-  background-color: $yellow;
-  color: $black;
+  background-color: colors.$yellow;
+  color: colors.$black;
 }
 
 body.contrast .editable-field:hover a {
-  color: $black;
+  color: colors.$black;
 }
   

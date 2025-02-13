@@ -34,7 +34,8 @@ import { DropDownComponent } from '@shared/components/dropdown/dropdown.componen
 		</div>
 	  </div>
     </div>
-    `
+    `,
+    standalone: false
 })
 
 export class UserPickerFieldComponent implements FieldComponent, OnInit {

@@ -19,7 +19,8 @@ export const CUSTOM_DROPDOWN_CONTROL_VALUE_ACCESSOR: any = {
     selector: 'app-dropdown',
     templateUrl: './dropdown.component.html',
     styleUrls: ['./dropdown.component.scss'],
-    providers: [CUSTOM_DROPDOWN_CONTROL_VALUE_ACCESSOR]
+    providers: [CUSTOM_DROPDOWN_CONTROL_VALUE_ACCESSOR],
+    standalone: false
 })
 export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAccessor {
     public opened = false;
@@ -185,7 +186,7 @@ export class DropDownComponent<T> implements OnInit, OnDestroy, ControlValueAcce
         this._onTouched = fn;
     }
 
-    public setDisabledState?(isDisabled: boolean): void {
+    public setDisabledState(isDisabled: boolean): void {
         this.disabled = isDisabled;
     }
     //

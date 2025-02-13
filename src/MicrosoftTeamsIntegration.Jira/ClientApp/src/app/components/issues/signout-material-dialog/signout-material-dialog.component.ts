@@ -13,7 +13,8 @@ import {
 @Component({
     selector: 'app-signout',
     templateUrl: './signout-material-dialog.component.html',
-    styleUrls: ['./signout-material-dialog.component.scss']
+    styleUrls: ['./signout-material-dialog.component.scss'],
+    standalone: false
 })
 export class SignoutMaterialDialogComponent implements OnInit {
 

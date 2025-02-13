@@ -8,5 +8,9 @@ namespace MicrosoftTeamsIntegration.Jira.Models
         [JsonProperty("update")]
         [JiraServer]
         public object Update { get; set; }
+
+        [JsonProperty("fields")]
+        [JiraServer]
+        public object Fields { get; set; }
     }
 }

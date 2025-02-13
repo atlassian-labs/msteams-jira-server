@@ -15,18 +15,21 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly IJiraService _jiraService;
         private readonly IBotMessagesService _botMessagesService;
         private readonly TelemetryClient _telemetry;
+        private readonly IAnalyticsService _analyticsService;
 
         public WatchDialog(
             JiraBotAccessors accessors,
             IJiraService jiraService,
             IBotMessagesService botMessagesService,
             AppSettings appSettings,
-            TelemetryClient telemetry)
+            TelemetryClient telemetry,
+            IAnalyticsService analyticsService)
             : base(nameof(WatchDialog), accessors, jiraService, appSettings)
         {
             _jiraService = jiraService;
             _botMessagesService = botMessagesService;
             _telemetry = telemetry;
+            _analyticsService = analyticsService;
         }
 
         protected override async Task<DialogTurnResult> ProcessJiraIssueAsync(DialogContext dc, IntegratedUser user, JiraIssue jiraIssue)
@@ -62,6 +65,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                         // if action is from command prompt - send reply to that chat this action was invoked from
                         await dc.Context.SendActivityAsync($"You've started watching {issueKey}.");
                     }
+
+                    _analyticsService.SendBotDialogEvent(dc.Context, "watch", "completed");
                 }
                 else
                 {
@@ -73,6 +78,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                     {
                         await dc.Context.SendActivityAsync(response.ErrorMessage);
                     }
+
+                    _analyticsService.SendBotDialogEvent(dc.Context, "watch", "failed");
                 }
             }
             else
@@ -85,12 +92,15 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 {
                     await dc.Context.SendActivityAsync($"You are already watching {issueKey}.");
                 }
+
+                _analyticsService.SendBotDialogEvent(dc.Context, "watch", "completed");
             }
 
             // if command was revoked from ME card - send InvokeResponse
             if (isMessagingExtension)
             {
                 await dc.Context.SendActivityAsync(new Activity { Value = null, Type = ActivityTypesEx.InvokeResponse });
+                _analyticsService.SendBotDialogEvent(dc.Context, "watch", "completed");
             }
 
             return await dc.EndDialogAsync();

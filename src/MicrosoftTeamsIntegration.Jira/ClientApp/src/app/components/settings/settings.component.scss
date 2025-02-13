@@ -1,6 +1,6 @@
-﻿@import 'variables';
-@import 'icons';
-@import 'app-colors';
+﻿@use '../../../styles/variables';
+@use '../../../styles/icons';
+@use '../../../styles/app-colors';
 
 .settings {
   overflow-y: auto;
@@ -36,10 +36,10 @@
 }
 
 .info-circle {
-  color: $green;
+  color: app-colors.$green;
   -webkit-font-smoothing: antialiased;
   display: block;
-  font-family: $msteams-icons-font !important;
+  font-family: variables.$msteams-icons-font !important;
   font-size: 16px;
   font-style: normal;
   font-variant: normal;
@@ -53,7 +53,7 @@
   }
 
   &::before {
-    content: $field-success;
+    content: icons.$field-success;
   }
 }
 

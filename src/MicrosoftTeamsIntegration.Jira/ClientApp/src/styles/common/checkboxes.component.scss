@@ -1,5 +1,6 @@
-﻿@import 'icons';
-@import 'variables';
+﻿@use '../icons' as icons;
+@use '../variables' as vars;
+@use '../app-colors' as colors;
 
 .checkbox {
   &__container {
@@ -14,7 +15,7 @@
     display: none;
 
     &:checked + .checkbox__button::before {
-      font-family: $msteams-icons-font;
+      font-family: vars.$msteams-icons-font;
       content: '\e412';
       position: absolute;
       font-size: 1.2rem;
@@ -51,60 +52,60 @@
 
 // default
 body.default .checkbox__button {
-  border-color: $app-gray-02;
+  border-color: colors.$app-gray-02;
   background: transparent;
 
   &:hover {
     background: transparent;
-    border-color: $app-gray-02;
+    border-color: colors.$app-gray-02;
   }
 }
 
 body.default .checkbox__input:checked + .checkbox__button {
-  border-color: $app-brand;
-  background: $app-brand;
+  border-color: colors.$app-brand;
+  background: colors.$app-brand;
 
   &::before {
-    color: $white;
+    color: colors.$white;
   }
 }
 
 // dark
 body.dark .checkbox__button {
-  border-color: $app-gray-02;
+  border-color: colors.$app-gray-02;
   background: transparent;
 
   &:hover {
     background: transparent;
-    border-color: $app-gray-02;
+    border-color: colors.$app-gray-02;
   }
 }
 
 body.dark .checkbox__input:checked + .checkbox__button {
-  border-color: $app-brand;
-  background: $app-brand;
+  border-color: colors.$app-brand;
+  background: colors.$app-brand;
 
   &::before {
-    color: $black;
+    color: colors.$black;
   }
 }
 
 // contrast
 body.contrast .checkbox__button {
-  border-color: $white;
+  border-color: colors.$white;
   background: transparent;
 
   &:hover {
     background: transparent;
-    border-color: $white;
+    border-color: colors.$white;
   }
 }
 
 body.contrast .checkbox__input:checked + .checkbox__button {
-  border-color: $blue;
-  background: $blue;
+  border-color: colors.$blue;
+  background: colors.$blue;
 
   &::before {
-    color: $black;
+    color: colors.$black;
   }
 }

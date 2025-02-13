@@ -1,4 +1,4 @@
-@import 'app-colors';
+@use '../../../../styles/app-colors';
 
 .top-panel {
   display: flex;
@@ -152,7 +152,7 @@ input, textarea {
 }
 
 input:focus, textarea:focus {
-  border-color: $app-brand;
+  border-color: app-colors.$app-brand;
 }
 
 input.ng-invalid.ng-touched, textarea.ng-invalid.ng-dirty {
@@ -171,7 +171,7 @@ hr {
   display: block;
   height: 1px;
   border: 0;
-  border-top: 1px solid $app-gray-02;
+  border-top: 1px solid app-colors.$app-gray-02;
   margin: 1em 0;
   padding: 0;
 }
@@ -232,4 +232,31 @@ hr {
 
 .flex-grow-6 {
   flex-grow: 6;
+}
+
+.mat-expansion-panel {
+  margin-top: 1.2rem;
+}
+
+::ng-deep .input-date-picker {
+  width: 100% !important;
+}
+
+::ng-deep .select-cascading-parent {
+  width: 100% !important;
+}
+
+::ng-deep .select-cascading-children {
+  width: 100% !important;
+}
+
+::ng-deep .select-cascading-options {
+  display: block !important;
+  > ng-select {
+    padding-top: 10px;
+  }
+}
+
+::ng-deep .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+  white-space: normal !important;
 }
