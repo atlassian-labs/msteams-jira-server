@@ -537,7 +537,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
 
                 if (shouldReturnError)
                 {
-                    var errorMessage = $"Please contact your Jira Data Center administrator and ask him to install Jira addon application.";
+                    var errorMessage = $"Please contact your Jira Data Center administrator to install or update Jira Data Center for Microsoft Teams application.";
                     var error = new ApiError(errorMessage);
                     return BadRequest(error);
                 }
@@ -635,6 +635,28 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             var result = await _jiraService.GetAllEpicsForProject(user, projectKeyOrId);
 
             return Ok(result);
+        }
+
+        [HttpGet("getJiraId")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetJiraId(string jiraUrl)
+        {
+            using HttpClient httpClient = new HttpClient();
+            var response = await httpClient.GetAsync($"{jiraUrl}/plugins/servlet/teams/getJiraServerId");
+            if (response.IsSuccessStatusCode)
+            {
+                string jiraIdResponse = await response.Content.ReadAsStringAsync();
+                if (Guid.TryParse(jiraIdResponse.Trim(), out Guid jiraId))
+                {
+                    return Ok(jiraId.ToString());
+                }
+            }
+
+            var errorMessage = $"Can't get Jira Data Center ID. Please contact your Jira Data Center administrator to install or update Jira Data Center for Microsoft Teams application.";
+            var error = new ApiError(errorMessage);
+            return BadRequest(error);
         }
 
         private async Task<IntegratedUser> GetAndVerifyUser(string jiraUrl)

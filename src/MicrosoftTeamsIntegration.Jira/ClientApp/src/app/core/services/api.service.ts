@@ -264,4 +264,9 @@ export class ApiService {
         return firstValueFrom(this.http
             .get<any>(`/api/validate-connection?jiraServerId=${jiraServerId}`));
     }
+
+    public async getJiraId(jiraBaseUrl: string | undefined): Promise<string> {
+        return firstValueFrom(this.http
+            .get(`/api/getJiraId?jiraUrl=${jiraBaseUrl}`, { responseType: 'text' }));
+    }
 }
