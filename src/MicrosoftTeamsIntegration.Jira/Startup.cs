@@ -326,6 +326,7 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("teams.microsoft.com")
                         .From("*.teams.microsoft.com")
                         .From("*.teams.microsoft.us")
+                        .From("teams.cloud.microsoft")
                         .From("*.skype.com")
                         .From("*.msteams-atlassian.com")
                         .From("*.office.com");
