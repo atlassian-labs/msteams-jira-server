@@ -11,7 +11,8 @@ import {
     ConnectJiraComponent,
     CreateIssueDialogComponent, EditIssueDialogComponent,
     CreateCommentDialogComponent,
-    CommentIssueDialogComponent, SignoutDialogComponent
+    CommentIssueDialogComponent, SignoutDialogComponent,
+    ConfigurePersonalNotificationsDisalogComponent
 } from '@app/components';
 
 import { AuthGuard } from '@core/guards/auth.guard';
@@ -79,6 +80,10 @@ export const routes: Routes = [
         path: 'issues/commentIssue',
         component: CommentIssueDialogComponent,
         canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
+    },
+    {
+        path: 'notifications/configure-personal',
+        component: ConfigurePersonalNotificationsDisalogComponent,
     }
 ];
 

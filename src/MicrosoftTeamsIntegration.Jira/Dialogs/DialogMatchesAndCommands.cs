@@ -39,5 +39,9 @@
         public const string CommentIssueTaskModuleCommand = "commentIssue";
 
         public const string SignoutMsAccountDialogCommand = "signout";
+
+        public const string ConfigureNotificationsCommand = "notifications";
+
+        public const string TurnOnNotificationsCommand = "turnOnNotifications";
     }
 }

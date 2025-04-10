@@ -69,6 +69,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             AddDialog(new ConnectToJiraDialog(_accessors, _appSettings, botMessagesService, telemetry, botFrameworkAdapter));
             AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry, analyticsService));
             AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, telemetry, botFrameworkAdapter, analyticsService));
+            AddDialog(new NotificationsDialog(_accessors, botMessagesService, _appSettings, telemetry));
         }
 
         protected override async Task<DialogTurnResult> OnBeginDialogAsync(DialogContext innerDc, object options, CancellationToken cancellationToken = default)

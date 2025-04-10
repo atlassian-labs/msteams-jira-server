@@ -119,6 +119,11 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 isPersonal: true,
                 isTeamAction: true,
                 requireAuthentication: false));
+            _actionCommands.Add(new JiraActionRegexReference(
+                nameof(NotificationsDialog),
+                DialogMatchesAndCommands.ConfigureNotificationsCommand,
+                $"{regexPrefix}{DialogMatchesAndCommands.ConfigureNotificationsCommand}",
+                isPersonal: true));
         }
     }
 }

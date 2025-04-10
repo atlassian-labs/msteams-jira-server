@@ -11,8 +11,11 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Options;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
+using MicrosoftTeamsIntegration.Jira.Dialogs;
 using MicrosoftTeamsIntegration.Jira.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
+using MicrosoftTeamsIntegration.Jira.Models.Bot;
+using MicrosoftTeamsIntegration.Jira.Models.FetchTask;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -262,6 +265,47 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     new CardAction(ActionTypes.ImBack, "Connect", value: "connect")
                 }
             }.ToAttachment());
+
+            await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+        }
+
+        public async Task SendNotificationsCard(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 3))
+            {
+                Body = new List<AdaptiveElement>()
+                {
+                    new AdaptiveTextBlock
+                    {
+                        Text = "Personal notifications",
+                        Size = AdaptiveTextSize.Medium,
+                        Weight = AdaptiveTextWeight.Bolder,
+                        Wrap = true
+                    },
+                    new AdaptiveTextBlock
+                    {
+                        Text = "Turn on personal notifications to stay updated across your projects in Jira Data Center without the distraction of email notifications.",
+                        Wrap = true
+                    }
+                },
+                Actions = new List<AdaptiveAction>()
+                {
+                    new AdaptiveSubmitAction
+                    {
+                        Title = "Turn on notifications",
+                        Data = new JiraBotTeamsDataWrapper
+                        {
+                            FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.TurnOnNotificationsCommand),
+                            TeamsData = new TeamsData
+                            {
+                                Type = "task/fetch"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
 
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
         }

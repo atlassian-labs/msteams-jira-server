@@ -15,5 +15,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
         Task<AdaptiveCard> SearchIssueAndBuildIssueCard(ITurnContext turnContext, IntegratedUser user, string jiraIssueKey);
         Task SendAuthorizationCard(ITurnContext turnContext, string jiraUrl, CancellationToken cancellationToken = default);
         Task SendConnectCard(ITurnContext turnContext, CancellationToken cancellationToken = default);
+        Task SendNotificationsCard(ITurnContext turnContext, CancellationToken cancellationToken = default);
     }
 }

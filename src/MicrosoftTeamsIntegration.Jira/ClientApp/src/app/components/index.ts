@@ -22,3 +22,4 @@ export * from '@app/components/issues/create-comment-dialog/create-comment-dialo
 export * from '@app/components/settings/signout-dialog/signout-dialog.component';
 export * from '@app/components/issues/issue-details/issue-details.component';
 export * from '@app/components/issues/comment-issue-dialog/comment-issue-dialog.component';
+export * from '@app/components/notifications/configure-notifications-dialog/configure-personal-notifications-dialog.component';

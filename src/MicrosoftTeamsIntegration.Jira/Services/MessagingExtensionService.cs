@@ -742,6 +742,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     taskModuleHeight = 250;
                 }
 
+                if (fetchTaskCommand.CommandName.Equals(
+                        DialogMatchesAndCommands.TurnOnNotificationsCommand,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl).PersonalNotifications().JiraId(jiraId).Build();
+
+                    taskModuleTitle = "Configure notifications";
+                    taskModuleHeight = 480;
+                }
+
                 return new FetchTaskResponseEnvelope
                 {
                     Task = new FetchTaskResponse

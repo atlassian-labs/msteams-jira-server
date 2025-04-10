@@ -36,6 +36,12 @@ public class JiraUrlQueryBuilder
         return this;
     }
 
+    public JiraUrlQueryBuilder PersonalNotifications()
+    {
+        _jiraUrlStringBuilder.Append("/#/notifications/configure-personal");
+        return this;
+    }
+
     public JiraUrlQueryBuilder JiraUrl(string jiraUrl)
     {
         _jiraUrlStringBuilder.Append($";jiraUrl={Uri.EscapeDataString(jiraUrl ?? string.Empty)}");
