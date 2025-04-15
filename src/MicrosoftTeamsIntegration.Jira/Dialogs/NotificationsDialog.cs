@@ -40,7 +40,7 @@ public class NotificationsDialog : Dialog
             return await dc.EndDialogAsync(cancellationToken: cancellationToken);
         }
 
-        await _botMessagesService.SendNotificationsCard(dc.Context, cancellationToken);
+        await _botMessagesService.SendConfigureNotificationsCard(dc.Context, cancellationToken);
 
         return await dc.EndDialogAsync(cancellationToken: cancellationToken);
     }

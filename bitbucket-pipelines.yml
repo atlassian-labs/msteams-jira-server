@@ -125,7 +125,7 @@ definitions:
           - export PATH="$PATH:/root/.dotnet/tools"
           - dotnet sonarscanner begin /k:"$SONAR_REPOSITORY" /d:sonar.host.url="$SONAR_URL"  /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html /d:sonar.javascript.lcov.reportPaths=./ClientApp/coverage/lcov-report/lcov.info
           - dotnet build --no-incremental
-          - dotnet-dotCover cover-dotnet --ReportType=HTML --Output=dotCover.Output.html -- test
+          - dotCover cover-dotnet --ReportType=HTML --Output=dotCover.Output.html -- test
           - npm install --prefix ./src/MicrosoftTeamsIntegration.Jira/ClientApp
           - npm run test:pipeline --no-sandbox --prefix ./src/MicrosoftTeamsIntegration.Jira/ClientApp
           - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"

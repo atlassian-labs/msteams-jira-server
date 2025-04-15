@@ -16,6 +16,7 @@ using MicrosoftTeamsIntegration.Jira.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Bot;
 using MicrosoftTeamsIntegration.Jira.Models.FetchTask;
+using MicrosoftTeamsIntegration.Jira.Models.Notifications;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -269,7 +270,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
         }
 
-        public async Task SendNotificationsCard(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        public async Task SendConfigureNotificationsCard(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
             var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 3))
             {
@@ -304,6 +305,18 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     }
                 }
             };
+
+            var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
+
+            await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+        }
+
+        public async Task SendNotificationCard(
+            ITurnContext turnContext,
+            NotificationMessage notificationMessage,
+            CancellationToken cancellationToken = default)
+        {
+            var adaptiveCard = _mapper.Map<AdaptiveCard>(notificationMessage);
 
             var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
 
