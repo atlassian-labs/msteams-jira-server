@@ -57,19 +57,19 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
                 "SignalRClient SendRequest started: {Identifier} | {Message} | {CurrentThreadId} | {ClientResponses.Keys}",
                 identifier.ToString(),
                 SanitizingHelpers.SanitizeMessage(message),
-                Thread.CurrentThread.ManagedThreadId.ToString(),
+                Environment.CurrentManagedThreadId.ToString(),
                 ClientResponses.GetLog());
 
             var connectionId = addonSettings.ConnectionId;
 
             // Call MakeRequest method on the client passing the identifier
-            await _hub.Clients.Client(connectionId).SendAsync("MakeRequest", identifier, message, cancellationToken);
+            await _hub.Clients.Client(connectionId).SendCoreAsync("MakeRequest", new object[] { identifier, message }, cancellationToken);
 
             _logger.LogTrace(
                 "SignalRClient SendRequest request sent: {Identifier} | {Message} | {CurrentThreadId} | {ClientResponses.Keys}",
                 identifier.ToString(),
                 SanitizingHelpers.SanitizeMessage(message),
-                Thread.CurrentThread.ManagedThreadId.ToString(),
+                Environment.CurrentManagedThreadId.ToString(),
                 ClientResponses.GetLog());
 
             try
@@ -102,7 +102,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
                     "SignalRClient SendRequest request sent: {Identifier} | {Message} | {CurrentThreadId} | {RemoveResult} | {ClientResponses.Keys}",
                     identifier.ToString(),
                     SanitizingHelpers.SanitizeMessage(message),
-                    Thread.CurrentThread.ManagedThreadId.ToString(),
+                    Environment.CurrentManagedThreadId.ToString(),
                     removeResult.ToString(),
                     ClientResponses.GetLog());
             }
@@ -116,19 +116,19 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
                 "{Identifier} | {Message} | {CurrentThreadId} | {ClientResponses.Keys}",
                 identifier.ToString(),
                 SanitizingHelpers.SanitizeMessage(message),
-                Thread.CurrentThread.ManagedThreadId.ToString(),
+                Environment.CurrentManagedThreadId.ToString(),
                 ClientResponses.GetLog());
 
             throw jiraServerGeneralException;
         }
 
-        public Task Callback(Guid identifier, string response)
+        public async Task Callback(Guid identifier, string response)
         {
             _logger.LogTrace(
                 "SignalRClient Callback called: {Identifier} | {Response} | {CurrentThreadId} | {ClientResponses.Keys}",
                 identifier.ToString(),
                 response,
-                Thread.CurrentThread.ManagedThreadId.ToString(),
+                Environment.CurrentManagedThreadId.ToString(),
                 ClientResponses.GetLog());
 
             if (ClientResponses.TryGetValue(identifier, out var tcs))
@@ -137,7 +137,39 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
                     "SignalRClient Callback getting response from ClientResponses successful: {Identifier} | {Response} | {CurrentThreadId} | {ClientResponses.Keys}",
                     identifier.ToString(),
                     response,
-                    Thread.CurrentThread.ManagedThreadId.ToString(),
+                    Environment.CurrentManagedThreadId.ToString(),
+                    ClientResponses.GetLog());
+
+                // Trigger the task continuation
+                tcs.TrySetResult(response);
+            }
+            else
+            {
+                // Send response to all Broadcast clients for processing on different server
+                _logger.LogTrace("SignalRClient Callback will be sent to broadcast clients");
+                await _hub.Clients.Group(SignalRBroadcastClient.BroadcastGroupName).SendCoreAsync(
+                    "Broadcast",
+                    [identifier, response],
+                    CancellationToken.None);
+            }
+        }
+
+        public Task Broadcast(Guid identifier, string response)
+        {
+            _logger.LogTrace(
+                "SignalRClient Broadcast called: {Identifier} | {Response} | {CurrentThreadId} | {ClientResponses.Keys}",
+                identifier.ToString(),
+                response,
+                Environment.CurrentManagedThreadId.ToString(),
+                ClientResponses.GetLog());
+
+            if (ClientResponses.TryGetValue(identifier, out var tcs))
+            {
+                _logger.LogTrace(
+                    "SignalRClient Broadcast getting response from ClientResponses successful: {Identifier} | {Response} | {CurrentThreadId} | {ClientResponses.Keys}",
+                    identifier.ToString(),
+                    response,
+                    Environment.CurrentManagedThreadId.ToString(),
                     ClientResponses.GetLog());
 
                 // Trigger the task continuation

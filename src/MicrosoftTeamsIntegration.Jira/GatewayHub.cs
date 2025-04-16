@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using JetBrains.Annotations;
@@ -34,20 +33,34 @@ namespace MicrosoftTeamsIntegration.Jira
                 identifier.ToString(),
                 Context.ConnectionId,
                 response,
-                Thread.CurrentThread.ManagedThreadId.ToString());
+                Environment.CurrentManagedThreadId.ToString());
 
             return _signalRService.Callback(identifier, response);
         }
 
+        [UsedImplicitly]
+        public Task Broadcast(Guid identifier, string response)
+        {
+            _logger.LogTrace(
+                "Broadcast: {Identifier} | {ConnectionId} | {ResponseMessage} | {CurrentThreadId}",
+                identifier.ToString(),
+                Context.ConnectionId,
+                response,
+                Environment.CurrentManagedThreadId.ToString());
+
+            return _signalRService.Broadcast(identifier, response);
+        }
+
         public override async Task OnConnectedAsync()
         {
-            var queryString = Context.GetHttpContext()?.Request?.QueryString;
+            var queryString = Context.GetHttpContext()?.Request.QueryString;
             if (queryString.HasValue)
             {
                 var uriComponent = queryString.Value.ToUriComponent();
                 var jiraId = HttpUtility.ParseQueryString(uriComponent).Get("atlasId");
                 var jiraInstanceUrl = HttpUtility.ParseQueryString(uriComponent).Get("atlasUrl");
                 var version = HttpUtility.ParseQueryString(uriComponent).Get("pluginVersion");
+                var groupName = HttpUtility.ParseQueryString(uriComponent).Get("groupName");
 
                 _logger.LogTrace(
                     "OnConnectedAsync: {ConnectionId} | {JiraId} | {JiraInstanceUrl} | {Version} | {CurrentThreadId}",
@@ -55,11 +68,23 @@ namespace MicrosoftTeamsIntegration.Jira
                     jiraId,
                     jiraInstanceUrl,
                     version,
-                    Thread.CurrentThread.ManagedThreadId.ToString());
+                    Environment.CurrentManagedThreadId.ToString());
 
                 if (!string.IsNullOrEmpty(jiraId) && jiraId != "null")
                 {
                     await _databaseService.CreateOrUpdateJiraServerAddonSettings(jiraId, jiraInstanceUrl, Context.ConnectionId, version);
+                }
+
+                if (!string.IsNullOrEmpty(groupName) && groupName != "null")
+                {
+                    try
+                    {
+                        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "Cannot add client to the group: {GroupName}", groupName);
+                    }
                 }
             }
 
@@ -71,7 +96,7 @@ namespace MicrosoftTeamsIntegration.Jira
             _logger.LogTrace(
                 "OnDisconnectedAsync: {ConnectionId} | {CurrentThreadId}",
                 Context.ConnectionId,
-                Thread.CurrentThread.ManagedThreadId.ToString());
+                Environment.CurrentManagedThreadId.ToString());
 
             await _databaseService.DeleteJiraServerAddonSettingsByConnectionId(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);

@@ -64,14 +64,37 @@ public class SignalRServiceTests
     }
 
     [Fact]
-    public async Task Callback_ShouldLogWarning_WhenIdentifierDoesNotExist()
+    public async Task Callback_ShouldBroadcastMessage_WhenIdentifierDoesNotExist()
     {
         // Arrange
         var identifier = Guid.NewGuid();
         var response = "response-message";
 
+        _hubMock.Setup(h => h.Clients.Group(It.IsAny<string>()).SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         // Act
         await _signalRService.Callback(identifier, response);
+
+        // Assert
+        _hubMock.Verify(
+            h => h.Clients.Group(It.IsAny<string>())
+                .SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Broadcast_ShouldLogWarning_WhenIdentifierDoesNotExist()
+    {
+        // Arrange
+        var identifier = Guid.NewGuid();
+        var response = "response-message";
+
+        _hubMock.Setup(h =>
+                h.Clients.All.SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _signalRService.Broadcast(identifier, response);
 
         // Assert
         _loggerMock.Verify(
@@ -88,8 +111,8 @@ public class SignalRServiceTests
 public class TestHubContext<TGatewayHub> : IHubContext<TGatewayHub>
     where TGatewayHub : Hub
 {
-    private IHubClients _clients;
-    private IGroupManager _groups;
+    private readonly IHubClients _clients;
+    private readonly IGroupManager _groups;
 
     public TestHubContext(IHubClients clients, IGroupManager groups)
     {

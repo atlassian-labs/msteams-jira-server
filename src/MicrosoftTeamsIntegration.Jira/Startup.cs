@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.Azure.SignalR;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Azure.Blobs;
 using Microsoft.Extensions.Configuration;
@@ -104,7 +105,17 @@ namespace MicrosoftTeamsIntegration.Jira
                     options.EnableDetailedErrors = true;
                     options.MaximumReceiveMessageSize = appSettings.JiraServerMaximumReceiveMessageSize;
                 })
-                .AddAzureSignalR(_configuration["Azure:SignalR:ConnectionString"])
+                .AddAzureSignalR(options =>
+                {
+                    options.Endpoints =
+                    [
+
+                        // Add additional endpoints here if needed, i.e.
+                        // new ServiceEndpoint(_configuration["Azure:SignalR:ConnectionString:EU"]),
+                        new ServiceEndpoint(_configuration["Azure:SignalR:ConnectionString"])
+                    ];
+                })
+                .AddStackExchangeRedis(appSettings.CacheConnectionString)
                 .AddNewtonsoftJsonProtocol(options =>
                 {
                     options.PayloadSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
