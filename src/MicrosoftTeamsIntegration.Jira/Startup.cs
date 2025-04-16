@@ -59,6 +59,7 @@ namespace MicrosoftTeamsIntegration.Jira
             Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5);
 
             services.AddSingleton<IDatabaseService, DatabaseService>();
+            services.AddSingleton<INotificationsDatabaseService, NotificationDatabaseService>();
 
             services.AddTransient<IMessagingExtensionService, MessagingExtensionService>();
             services.AddTransient<IActionableMessageService, ActionableMessageService>();
