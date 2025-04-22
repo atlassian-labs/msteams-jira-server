@@ -10,14 +10,12 @@ using MicrosoftTeamsIntegration.Jira.Models.Notifications;
 
 namespace MicrosoftTeamsIntegration.Jira.TypeConverters;
 
-public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<NotificationMessage, AdaptiveCard>
+public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<NotificationMessageCardPayload, AdaptiveCard>
 {
-    private const string IssueCreated = "ISSUE_CREATED";
-    private const string CommentCreated = "COMMENT_CREATED";
-    private const string CommentUpdated = "COMMENT_UPDATED";
     private const string UnknownUserIconUrl = "https://product-integrations-cdn.atl-paas.net/icons/unknown-user.png";
+    private const int AdaptiveCardTextTruncationLimit = 500;
 
-    public AdaptiveCard Convert(NotificationMessage source, AdaptiveCard destination, ResolutionContext context)
+    public AdaptiveCard Convert(NotificationMessageCardPayload source, AdaptiveCard destination, ResolutionContext context)
     {
         var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
 
@@ -162,8 +160,7 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
         actions.Add(new AdaptiveOpenUrlAction
         {
             Title = "Open in Jira",
-            Url = new Uri(
-                $"https://example.com") // Replace with actual URL
+            Url = new Uri(source.Issue.Self.ToString())
         });
 
         var commentIssueTaskModuleAction = new JiraBotTeamsDataWrapper
@@ -265,18 +262,25 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
         };
     }
 
-    private static string BuildNotificationTitleMessage(NotificationMessage notificationMessage)
+    private static string BuildNotificationTitleMessage(NotificationMessageCardPayload notificationMessage)
     {
-        switch (notificationMessage.EventType)
+        switch (notificationMessage.EventType.ToEventType())
         {
-            case IssueCreated:
+            case NotificationEventType.IssueCreated:
                 return $"{notificationMessage.User.Name} **created** this issue:";
-            case CommentUpdated:
-                return $"{notificationMessage.User.Name} **updated comment** on this issue:";
-            case CommentCreated:
-                return $"{notificationMessage.User.Name} **commented** on this issue:";
+            case NotificationEventType.CommentUpdated:
+                return notificationMessage.IsMention ? $"{notificationMessage.User.Name} **mentioned** you in a comment:" : $"{notificationMessage.User.Name} **updated comment** on this issue:";
+            case NotificationEventType.CommentDeleted:
+                return $"{notificationMessage.User.Name} **removed comment** from this issue:";
+            case NotificationEventType.CommentCreated:
+                return notificationMessage.IsMention ? $"{notificationMessage.User.Name} **mentioned** you in a comment:" : $"{notificationMessage.User.Name} **commented** on this issue:";
             default:
             {
+                if (notificationMessage.IsMention)
+                {
+                    return $"{notificationMessage.User.Name} **mentioned** you in an issue:";
+                }
+
                 var updatedFields = string.Join(
                     ", ",
                     notificationMessage.Changelog?.Select(c => c.Field.ToLower()) ?? Array.Empty<string>());
@@ -286,18 +290,29 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
     }
 
     private static string BuildNotificationTransitionMessage(
-        NotificationMessage notificationMessage,
+        NotificationMessageCardPayload notificationMessage,
         NotificationChangelog changelog)
     {
-        switch (notificationMessage.EventType)
+        switch (notificationMessage.EventType.ToEventType())
         {
-            case CommentCreated:
-            case CommentUpdated:
-                return notificationMessage.Comment?.Content;
-            case IssueCreated:
+            case NotificationEventType.CommentCreated:
+            case NotificationEventType.CommentUpdated:
+                return TruncateText(notificationMessage.Comment?.Content);
+            case NotificationEventType.IssueCreated:
+            case NotificationEventType.CommentDeleted:
                 return string.Empty;
             default:
-                return $"{changelog?.From}     \u2192     {changelog?.To}";
+                return $"{(string.IsNullOrEmpty(changelog?.From) ? "None" : TruncateText(changelog.From))}     \u2192     {(string.IsNullOrEmpty(changelog?.To) ? "None" : TruncateText(changelog.To))}";
         }
+    }
+
+    private static string TruncateText(string sourceText, int limit = AdaptiveCardTextTruncationLimit)
+    {
+        if (!string.IsNullOrEmpty(sourceText) && sourceText.Length > limit)
+        {
+            return sourceText.Substring(0, limit);
+        }
+
+        return sourceText;
     }
 }

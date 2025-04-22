@@ -6,7 +6,7 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Notifications;
 public class NotificationMessage
 {
     [JsonProperty("jiraId")]
-    public Guid JiraId { get; set; }
+    public string JiraId { get; set; }
 
     [JsonProperty("eventType")]
     public string EventType { get; set; }
@@ -46,6 +46,8 @@ public class NotificationComment
 {
     [JsonProperty("content")]
     public string Content { get; set; }
+    [JsonProperty("isInternal")]
+    public bool IsInternal { get; set; }
 }
 
 public class NotificationIssue
@@ -94,4 +96,10 @@ public class NotificationUser
 
     [JsonProperty("avatarUrl")]
     public Uri AvatarUrl { get; set; }
+
+    [JsonProperty("canViewIssue")]
+    public bool CanViewIssue { get; set; }
+
+    [JsonProperty("canViewComment")]
+    public bool CanViewComment { get; set; }
 }

@@ -19,12 +19,14 @@ public class SignalRServiceTests
     private readonly Mock<IHubContext<GatewayHub>> _hubMock;
     private readonly Mock<IDatabaseService> _databaseServiceMock;
     private readonly Mock<ILogger<SignalRService>> _loggerMock;
+    private readonly Mock<INotificationProcessorService> _notificationProcessorServiceMock;
     private readonly SignalRService _signalRService;
 
     public SignalRServiceTests()
     {
         _hubMock = new Mock<IHubContext<GatewayHub>>();
         _databaseServiceMock = new Mock<IDatabaseService>();
+        _notificationProcessorServiceMock = new Mock<INotificationProcessorService>();
         _loggerMock = new Mock<ILogger<SignalRService>>();
         var appSettingsMock = new Mock<IOptionsMonitor<AppSettings>>();
         appSettingsMock.Setup(ap => ap.CurrentValue)
@@ -40,7 +42,8 @@ public class SignalRServiceTests
             hubContextWrapper,
             _databaseServiceMock.Object,
             _loggerMock.Object,
-            appSettingsMock.Object);
+            appSettingsMock.Object,
+            _notificationProcessorServiceMock.Object);
     }
 
     [Fact]

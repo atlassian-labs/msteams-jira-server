@@ -51,6 +51,19 @@ namespace MicrosoftTeamsIntegration.Jira
             return _signalRService.Broadcast(identifier, response);
         }
 
+        [UsedImplicitly]
+        public Task Notification(Guid identifier, string response)
+        {
+            _logger.LogTrace(
+                "Notification: {Identifier} | {ConnectionId} | {ResponseMessage} | {CurrentThreadId}",
+                identifier.ToString(),
+                Context.ConnectionId,
+                response,
+                Environment.CurrentManagedThreadId.ToString());
+
+            return _signalRService.Notification(identifier, response);
+        }
+
         public override async Task OnConnectedAsync()
         {
             var queryString = Context.GetHttpContext()?.Request.QueryString;

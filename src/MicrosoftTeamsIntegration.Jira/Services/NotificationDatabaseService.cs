@@ -82,8 +82,6 @@ public class NotificationDatabaseService : DatabaseService, INotificationsDataba
 
     private async Task<IEnumerable<NotificationSubscription>> GetNotificationByFilterAsync(FilterDefinition<NotificationSubscription> filter)
     {
-        var notificationCursor = await _notificationSubscriptionCollection.FindAsync<NotificationSubscription>(filter);
-
-        return notificationCursor.Current;
+        return await ProcessThrottlingRequest(() => _notificationSubscriptionCollection.Find(filter).ToListAsync());
     }
 }

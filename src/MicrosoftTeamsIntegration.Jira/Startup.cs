@@ -72,6 +72,7 @@ namespace MicrosoftTeamsIntegration.Jira
             services.AddSingleton<IBotFrameworkAdapterService, BotFrameworkAdapterService>();
             services.AddSingleton<IAnalyticsService, AnalyticsService>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<INotificationProcessorService, NotificationProcessorService>();
 
             // This can be removed after https://github.com/aspnet/IISIntegration/issues/371
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

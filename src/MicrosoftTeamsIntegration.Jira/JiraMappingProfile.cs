@@ -43,7 +43,7 @@ namespace MicrosoftTeamsIntegration.Jira
             CreateMap<BotAndMessagingExtensionJiraIssue, MessagingExtensionAttachment>()
                 .ConvertUsing(new JiraIssueToMessagingExtensionAttachmentTypeConverter());
 
-            CreateMap<NotificationMessage, AdaptiveCard>()
+            CreateMap<NotificationMessageCardPayload, AdaptiveCard>()
                 .ConvertUsing(new NotificationMessageToAdaptiveCardConverter());
         }
     }

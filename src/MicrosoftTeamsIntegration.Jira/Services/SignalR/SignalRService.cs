@@ -7,9 +7,11 @@ using Microsoft.Extensions.Options;
 using MicrosoftTeamsIntegration.Jira.Exceptions;
 using MicrosoftTeamsIntegration.Jira.Helpers;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
+using MicrosoftTeamsIntegration.Jira.Models.Notifications;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
+using Newtonsoft.Json;
 using NonBlocking;
 
 namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
@@ -18,6 +20,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
     {
         private readonly IHubContext<GatewayHub> _hub;
         private readonly IDatabaseService _databaseService;
+        private readonly INotificationProcessorService _notificationProcessorService;
         private readonly ILogger<SignalRService> _logger;
         private readonly AppSettings _appSettings;
 
@@ -27,11 +30,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
             IHubContext<GatewayHub> hub,
             IDatabaseService databaseService,
             ILogger<SignalRService> logger,
-            IOptionsMonitor<AppSettings> appSettings)
+            IOptionsMonitor<AppSettings> appSettings,
+            INotificationProcessorService notificationProcessorService)
         {
             _hub = hub;
             _databaseService = databaseService;
             _logger = logger;
+            _notificationProcessorService = notificationProcessorService;
             _appSettings = appSettings.CurrentValue;
         }
 
@@ -182,6 +187,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
             }
 
             return Task.CompletedTask;
+        }
+
+        public async Task Notification(Guid identifier, string response)
+        {
+            var notificationMessage = JsonConvert.DeserializeObject<NotificationMessage>(response);
+
+            await _notificationProcessorService.ProcessNotification(notificationMessage);
         }
     }
 }
