@@ -5,40 +5,42 @@
         <p class="field-label" style="margin-bottom: 10px">
             Jira Data Center ID
         </p>
-        <textarea id="jira-id"
+        <form *ngIf="notificationsForm" #form class="notifications-form" [formGroup]="notificationsForm">
+            <textarea id="jira-id"
                   class="field-group__jiraId-textarea"
                   placeholder="Enter Jira Data Center ID"
                   formControlName="jiraId"
                   style="margin-bottom: 10px">{{ jiraId }}</textarea>
 
-        <div class="notification-groups">
-            <div class="group">
-                <p class="field-label">Assignee</p>
-                <mat-checkbox>Activity on your assigned issues</mat-checkbox>
-                <mat-checkbox>Comments on your assigned issues</mat-checkbox>
-            </div>
+            <div class="notification-groups">
+                <div class="group">
+                    <p class="field-label">Assignee</p>
+                    <mat-checkbox formControlName="activityAssignee">Activity on your assigned issues</mat-checkbox>
+                    <mat-checkbox formControlName="commentsAssignee">Comments on your assigned issues</mat-checkbox>
+                </div>
 
-            <div class="group">
-                <p class="field-label">Reporter</p>
-                <mat-checkbox>Activity on issues you've reported</mat-checkbox>
-                <mat-checkbox>Comments on issues you've reported</mat-checkbox>
-            </div>
+                <div class="group">
+                    <p class="field-label">Reporter</p>
+                    <mat-checkbox formControlName="activityReporter">Activity on issues you've reported</mat-checkbox>
+                    <mat-checkbox formControlName="commentsReporter">Comments on issues you've reported</mat-checkbox>
+                </div>
 
-            <div class="group">
-                 <p class="field-label">Watcher</p>
-                 <mat-checkbox>Activity on issues you're watching</mat-checkbox>
-                 <mat-checkbox>Comments on issues you're watching</mat-checkbox>
-            </div>
+                <div class="group">
+                    <p class="field-label">Watcher</p>
+                    <mat-checkbox formControlName="activityWatcher">Activity on issues you're watching</mat-checkbox>
+                    <mat-checkbox formControlName="commentsWatcher">Comments on issues you're watching</mat-checkbox>
+                </div>
 
-            <div class="group">
-                <p class="field-label">Mentions</p>
-                <mat-checkbox>Someone mentions you</mat-checkbox>
+                <div class="group">
+                    <p class="field-label">Mentions</p>
+                    <mat-checkbox formControlName="mentionedOnIssue">Someone mentions you</mat-checkbox>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <div class="actions">
-        <button class="ts-btn ts-btn-primary buttons__button">Save notifications</button>
+        <button class="ts-btn ts-btn-primary buttons__button" (click)="saveNotification()">Save notifications</button>
     </div>
 </div>
 

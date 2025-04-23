@@ -448,7 +448,7 @@ namespace MicrosoftTeamsIntegration.Jira
                 }
                 else
                 {
-                    var response = _messagingExtensionService.HandleBotFetchTask(turnContext, user);
+                    var response = await _messagingExtensionService.HandleBotFetchTask(turnContext, user);
                     await BuildInvokeResponse(turnContext, HttpStatusCode.OK, response, cancellationToken);
                 }
             }

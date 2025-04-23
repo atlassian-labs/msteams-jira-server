@@ -10,7 +10,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
     {
         Task<MessagingExtensionResponse> HandleMessagingExtensionQuery(ITurnContext turnContext, IntegratedUser user);
         Task<FetchTaskResponseEnvelope> HandleMessagingExtensionFetchTask(ITurnContext turnContext, IntegratedUser user);
-        FetchTaskResponseEnvelope HandleBotFetchTask(ITurnContext turnContext, IntegratedUser user);
+        Task<FetchTaskResponseEnvelope> HandleBotFetchTask(ITurnContext turnContext, IntegratedUser user);
         Task<object> HandleMessagingExtensionSubmitActionAsync(ITurnContext turnContext, IntegratedUser user);
         bool TryValidateMessageExtensionFetchTask(ITurnContext turnContext, IntegratedUser user, out FetchTaskResponseEnvelope response);
         Task<MessagingExtensionResponse> HandleMessagingExtensionQueryLinkAsync(ITurnContext turnContext, IntegratedUser user, string jiraIssueIdOrKey);

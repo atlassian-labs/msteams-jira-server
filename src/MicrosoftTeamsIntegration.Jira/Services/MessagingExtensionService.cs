@@ -96,7 +96,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
         }
 
-        public FetchTaskResponseEnvelope HandleBotFetchTask(ITurnContext turnContext, IntegratedUser user)
+        public async Task<FetchTaskResponseEnvelope> HandleBotFetchTask(ITurnContext turnContext, IntegratedUser user)
         {
             FetchTaskBotCommand fetchTaskCommand = null;
             var value = turnContext.Activity?.Value as JObject;
@@ -107,7 +107,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 fetchTaskCommand = dataWrapperObject?.FetchTaskData;
             }
 
-            var response = BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
+            var response = await BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
             if (response != null)
             {
                 return response;
@@ -442,7 +442,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
             }
 
-            return BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
+            return await BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
         }
 
         private Task<FetchTaskResponseEnvelope> HandleInvalidCommandId(string errorMessage)
@@ -687,7 +687,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             };
         }
 
-        private FetchTaskResponseEnvelope BuildTaskModuleResponse(
+        private async Task<FetchTaskResponseEnvelope> BuildTaskModuleResponse(
             ITurnContext turnContext,
             IntegratedUser user,
             FetchTaskBotCommand fetchTaskCommand)
@@ -746,7 +746,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         DialogMatchesAndCommands.TurnOnNotificationsCommand,
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl).PersonalNotifications().JiraId(jiraId).Build();
+                    var conversationReferenceId = Guid.NewGuid().ToString();
+                    await _distributedCacheService.Set(conversationReferenceId, JsonConvert.SerializeObject(turnContext.Activity.GetConversationReference()));
+
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl)
+                        .PersonalNotifications()
+                        .JiraId(jiraId)
+                        .MicrosoftUserId(user?.MsTeamsUserId)
+                        .ConversationId(turnContext.Activity.Conversation.Id)
+                        .ConversationReferenceId(conversationReferenceId)
+                        .Build();
 
                     taskModuleTitle = "Configure notifications";
                     taskModuleHeight = 480;

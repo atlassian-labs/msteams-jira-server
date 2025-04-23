@@ -26,7 +26,8 @@ import { JiraIssueFieldMeta } from '@core/models/Jira/jira-issue-field-meta.mode
 import { JiraFieldAutocomplete } from '@core/models/Jira/jira-field-autocomplete-data.model';
 import { JiraIssueSprint } from '@core/models/Jira/jira-issue-sprint.model';
 import { JiraIssueEpic } from '@core/models/Jira/jira-issue-epic.model';
-import {firstValueFrom} from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { NotificationSubscription } from '@core/models/NotificationSubscription';
 
 export interface JiraAddonStatus {
     addonStatus: number;
@@ -268,5 +269,18 @@ export class ApiService {
     public async getJiraId(jiraBaseUrl: string | undefined): Promise<string> {
         return firstValueFrom(this.http
             .get(`/api/getJiraId?jiraUrl=${jiraBaseUrl}`, { responseType: 'text' }));
+    }
+
+    public addNotification(notification: NotificationSubscription): Promise<any> {
+        return firstValueFrom(this.http.post('/api/notifications/add', notification));
+    }
+
+    public getNotificationSettings(microsoftUserId: string): Promise<NotificationSubscription> {
+        return firstValueFrom(this.http.get<NotificationSubscription>(
+            `/api/notifications/get?microsoftUserId=${microsoftUserId}`));
+    }
+
+    public updateNotification(notification: NotificationSubscription): Promise<any> {
+        return firstValueFrom(this.http.put('/api/notifications/update', notification));
     }
 }

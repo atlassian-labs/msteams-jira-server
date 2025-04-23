@@ -96,6 +96,24 @@ public class JiraUrlQueryBuilder
         return this;
     }
 
+    public JiraUrlQueryBuilder MicrosoftUserId(string userId)
+    {
+        _jiraUrlStringBuilder.Append($";microsoftUserId={userId}");
+        return this;
+    }
+
+    public JiraUrlQueryBuilder ConversationId(string conversationId)
+    {
+        _jiraUrlStringBuilder.Append($";conversationId={conversationId}");
+        return this;
+    }
+
+    public JiraUrlQueryBuilder ConversationReferenceId(string conversationReferenceId)
+    {
+        _jiraUrlStringBuilder.Append($";conversationReferenceId={conversationReferenceId}");
+        return this;
+    }
+
     public string Build()
     {
         return _jiraUrlStringBuilder.ToString();

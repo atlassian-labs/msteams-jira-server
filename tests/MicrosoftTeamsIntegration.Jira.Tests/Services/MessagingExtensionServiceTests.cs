@@ -15,7 +15,6 @@ using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Kiota.Abstractions;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Dialogs;
 using MicrosoftTeamsIntegration.Jira.Models;
@@ -53,7 +52,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         }
 
         [Fact]
-        public void HandleBotFetchTask_ReturnsCommandIsInvalid_WhenActivityValueNull()
+        public async Task HandleBotFetchTask_ReturnsCommandIsInvalid_WhenActivityValueNull()
         {
             var user = new IntegratedUser
             {
@@ -68,7 +67,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = _target.HandleBotFetchTask(turnContext, user);
+            var result = await _target.HandleBotFetchTask(turnContext, user);
 
             Assert.IsType<FetchTaskResponseEnvelope>(result);
             Assert.IsType<FetchTaskResponse>(result.Task);
@@ -82,7 +81,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         [InlineData(DialogMatchesAndCommands.EditIssueTaskModuleCommand)]
         [InlineData(DialogMatchesAndCommands.CreateNewIssueDialogCommand)]
         [InlineData("test")]
-        public void HandleBotFetchTask_ReturnsResponseEnvelope_WhenActivityValueNotNull(string commandName)
+        public async Task HandleBotFetchTask_ReturnsResponseEnvelope_WhenActivityValueNotNull(string commandName)
         {
             var user = new IntegratedUser
             {
@@ -115,7 +114,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var testAdapter = new TestAdapter(Channels.Test);
             using var turnContext = new TurnContext(testAdapter, activity);
 
-            var result = _target.HandleBotFetchTask(turnContext, user);
+            var result = await _target.HandleBotFetchTask(turnContext, user);
 
             Assert.IsType<FetchTaskResponseEnvelope>(result);
             Assert.IsType<FetchTaskResponse>(result.Task);

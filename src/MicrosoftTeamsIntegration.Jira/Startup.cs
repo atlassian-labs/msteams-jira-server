@@ -101,6 +101,7 @@ namespace MicrosoftTeamsIntegration.Jira
             services.AddTransient<IJiraAuthService, JiraAuthService>();
             services.AddSingleton<ISignalRService, SignalRService>();
             services.AddTransient<IJiraService, JiraService>();
+            services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
             services
                 .AddSignalR(options =>
                 {

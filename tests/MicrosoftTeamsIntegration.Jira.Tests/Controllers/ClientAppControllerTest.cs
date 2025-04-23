@@ -4,6 +4,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MicrosoftTeamsIntegration.Jira.Controllers;
+using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Xunit;
 
@@ -21,6 +22,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Controllers
                 new OptionsFactory<TelemetryConfiguration>(
                     new List<IConfigureOptions<TelemetryConfiguration>>(),
                     new List<IPostConfigureOptions<TelemetryConfiguration>>()));
+
+        private readonly INotificationSubscriptionService _notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
 
         [Fact]
         public void GetClientAppSettingsTest()
@@ -42,7 +45,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Controllers
             return A.Fake<ClientAppController>(
                 x => x.WithArgumentsForConstructor(new object[] {
                     _appSettings,
-                    _telemetryConfiguration
+                    _telemetryConfiguration,
+                    _notificationSubscriptionService
                 }));
         }
     }

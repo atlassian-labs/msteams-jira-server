@@ -12,7 +12,7 @@ import {
     CreateIssueDialogComponent, EditIssueDialogComponent,
     CreateCommentDialogComponent,
     CommentIssueDialogComponent, SignoutDialogComponent,
-    ConfigurePersonalNotificationsDisalogComponent
+    ConfigurePersonalNotificationsDialogComponent
 } from '@app/components';
 
 import { AuthGuard } from '@core/guards/auth.guard';
@@ -83,7 +83,7 @@ export const routes: Routes = [
     },
     {
         path: 'notifications/configure-personal',
-        component: ConfigurePersonalNotificationsDisalogComponent,
+        component: ConfigurePersonalNotificationsDialogComponent,
     }
 ];
 

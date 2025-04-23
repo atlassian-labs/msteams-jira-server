@@ -24,6 +24,9 @@ public sealed class NotificationSubscription
     [BsonElement("conversationReference")]
     public string ConversationReference { get; set; }
 
+    [BsonIgnore]
+    public string ConversationReferenceId { get; set; }
+
     [BsonElement("eventTypes")]
     public string[] EventTypes { get; set; }
 

@@ -71,7 +71,9 @@ public class NotificationDatabaseService : DatabaseService, INotificationsDataba
         var updateDefinition = updateBuilder
             .Set(x => x.EventTypes, notificationSubscription.EventTypes)
             .Set(x => x.Filter, notificationSubscription.Filter)
-            .Set(x => x.IsActive, notificationSubscription.IsActive);
+            .Set(x => x.IsActive, notificationSubscription.IsActive)
+            .Set(x => x.ConversationId, notificationSubscription.ConversationId)
+            .Set(x => x.ConversationReference, notificationSubscription.ConversationReference);
 
         var filter = Builders<NotificationSubscription>.Filter.Where(x =>
             x.SubscriptionId == subscriptionId);
