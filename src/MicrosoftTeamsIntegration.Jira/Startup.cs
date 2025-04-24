@@ -23,6 +23,7 @@ using MicrosoftTeamsIntegration.Artifacts.Services;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Exceptions;
 using MicrosoftTeamsIntegration.Jira.Helpers;
+using MicrosoftTeamsIntegration.Jira.Jobs;
 using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR;
@@ -30,6 +31,7 @@ using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Newtonsoft.Json;
 using Polly.Contrib.WaitAndRetry;
+using Quartz;
 using Refit;
 
 namespace MicrosoftTeamsIntegration.Jira
@@ -73,6 +75,7 @@ namespace MicrosoftTeamsIntegration.Jira
             services.AddSingleton<IAnalyticsService, AnalyticsService>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<INotificationProcessorService, NotificationProcessorService>();
+            services.AddSingleton<INotificationQueueService, NotificationQueueService>();
 
             // This can be removed after https://github.com/aspnet/IISIntegration/issues/371
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -118,12 +121,31 @@ namespace MicrosoftTeamsIntegration.Jira
                         new ServiceEndpoint(_configuration["Azure:SignalR:ConnectionString"])
                     ];
                 })
-                .AddStackExchangeRedis(appSettings.CacheConnectionString)
                 .AddNewtonsoftJsonProtocol(options =>
                 {
                     options.PayloadSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     options.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
+
+            // Add Redis backplane for redis only for non-development environments
+            if (!_env.IsDevelopment())
+            {
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = appSettings.CacheConnectionString;
+                });
+            }
+
+            services.AddQuartz(q =>
+            {
+                var jobKey = new JobKey("NotificationJob");
+                q.AddJob<NotificationJob>(options => options.WithIdentity(jobKey));
+                q.AddTrigger(options => options
+                    .ForJob(jobKey)
+                    .WithIdentity("NotificationJob-trigger")
+                    .WithCronSchedule(appSettings.NotificationJobSchedule));
+            });
+            services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
             // Auto Mapper Configurations
             var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile(new JiraMappingProfile(appSettings)); });

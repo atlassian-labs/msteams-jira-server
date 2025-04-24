@@ -49,7 +49,7 @@ public class NotificationProcessorService : INotificationProcessorService
             _analyticsService.SendTrackEvent(
                 null,
                 "bot",
-                "received",
+                "processing",
                 "notification",
                 string.Empty);
 

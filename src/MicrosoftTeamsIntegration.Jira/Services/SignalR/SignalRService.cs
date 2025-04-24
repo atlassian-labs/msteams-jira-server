@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
@@ -20,6 +21,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
     {
         private readonly IHubContext<GatewayHub> _hub;
         private readonly IDatabaseService _databaseService;
+        private readonly INotificationQueueService _notificationQueueService;
         private readonly INotificationProcessorService _notificationProcessorService;
         private readonly ILogger<SignalRService> _logger;
         private readonly AppSettings _appSettings;
@@ -31,11 +33,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
             IDatabaseService databaseService,
             ILogger<SignalRService> logger,
             IOptionsMonitor<AppSettings> appSettings,
+            INotificationQueueService notificationQueueService,
             INotificationProcessorService notificationProcessorService)
         {
             _hub = hub;
             _databaseService = databaseService;
             _logger = logger;
+            _notificationQueueService = notificationQueueService;
             _notificationProcessorService = notificationProcessorService;
             _appSettings = appSettings.CurrentValue;
         }
@@ -191,9 +195,47 @@ namespace MicrosoftTeamsIntegration.Jira.Services.SignalR
 
         public async Task Notification(Guid identifier, string response)
         {
-            var notificationMessage = JsonConvert.DeserializeObject<NotificationMessage>(response);
+            _logger.LogTrace(
+                "SignalRClient Broadcast called: {Identifier} | {Response} | {CurrentThreadId} | {ClientResponses.Keys}",
+                identifier.ToString(),
+                response,
+                Environment.CurrentManagedThreadId.ToString(),
+                ClientResponses.GetLog());
 
-            await _notificationProcessorService.ProcessNotification(notificationMessage);
+            if (string.IsNullOrEmpty(response))
+            {
+                return;
+            }
+
+            var messageSize = Encoding.UTF8.GetByteCount(response);
+
+            // The maximum size of a Azure Queue message is 64KB
+            var maxQueueMessageSize = 64000;
+            if (messageSize > maxQueueMessageSize)
+            {
+                try
+                {
+                    _logger.LogWarning(
+                        "SignalRClient Notification message size is too large: {Identifier} | {MessageSize}. Try to process message directly.",
+                        identifier.ToString(),
+                        messageSize);
+                    var notificationMessage = JsonConvert.DeserializeObject<NotificationMessage>(response);
+
+                    await _notificationProcessorService.ProcessNotification(notificationMessage);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "SignalRClient Notification message cannot be processed: {Identifier} | {MessageSize}",
+                        identifier.ToString(),
+                        messageSize);
+                }
+            }
+
+            // Add message to the queue
+            await _notificationQueueService.QueueNotificationMessage(response);
         }
     }
 }
