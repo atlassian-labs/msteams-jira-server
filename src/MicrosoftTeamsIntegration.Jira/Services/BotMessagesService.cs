@@ -278,7 +278,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     new AdaptiveTextBlock
                     {
-                        Text = "Personal notifications",
+                        Text = "🔔 Personal notifications",
                         Size = AdaptiveTextSize.Medium,
                         Weight = AdaptiveTextWeight.Bolder,
                         Wrap = true

@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
 import * as microsoftTeams from '@microsoft/teams-js';
 
-fdescribe('ConfigurePersonalNotificationsDialogComponent', () => {
+describe('ConfigurePersonalNotificationsDialogComponent', () => {
     let component: ConfigurePersonalNotificationsDialogComponent;
     let fixture: ComponentFixture<ConfigurePersonalNotificationsDialogComponent>;
     let mockApiService: jasmine.SpyObj<ApiService>;

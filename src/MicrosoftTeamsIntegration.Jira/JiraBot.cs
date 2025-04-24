@@ -266,6 +266,7 @@ namespace MicrosoftTeamsIntegration.Jira
                     if (accessToken?.Token != null)
                     {
                         await _actionableMessageService.HandleSuccessfulConnection(turnContext);
+                        await _botMessagesService.SendConfigureNotificationsCard(turnContext, cancellationToken);
                         _analyticsService.SendBotDialogEvent(turnContext, "connectToJira", "completed");
                     }
                 }
