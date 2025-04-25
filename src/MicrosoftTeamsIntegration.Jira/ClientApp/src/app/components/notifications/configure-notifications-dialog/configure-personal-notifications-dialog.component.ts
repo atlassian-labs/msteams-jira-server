@@ -45,13 +45,13 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
 
             if (response) {
                 this.notificationsForm?.patchValue({
-                    activityAssignee: response.eventTypes.includes('activityAssignee'),
-                    commentsAssignee: response.eventTypes.includes('commentsAssignee'),
-                    activityReporter: response.eventTypes.includes('activityReporter'),
-                    commentsReporter: response.eventTypes.includes('commentsReporter'),
-                    activityWatcher: response.eventTypes.includes('activityWatcher'),
-                    commentsWatcher: response.eventTypes.includes('commentsWatcher'),
-                    mentionedOnIssue: response.eventTypes.includes('mentionedOnIssue')
+                    ActivityIssueCreator: response.eventTypes.includes('ActivityIssueCreator'),
+                    CommentIssueCreator: response.eventTypes.includes('CommentIssueCreator'),
+                    ActivityIssueAssignee: response.eventTypes.includes('ActivityIssueAssignee'),
+                    CommentIssueAssignee: response.eventTypes.includes('CommentIssueAssignee'),
+                    IssueViewer: response.eventTypes.includes('IssueViewer'),
+                    MentionedOnIssue: response.eventTypes.includes('MentionedOnIssue'),
+                    CommentViewer: response.eventTypes.includes('CommentViewer')
                 });
 
                 this.savedNotificationSubscription = response;
@@ -129,13 +129,13 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
 
     private async createForm(): Promise<void> {
         this.notificationsForm = new UntypedFormGroup({
-            activityAssignee: new UntypedFormControl(false),
-            commentsAssignee: new UntypedFormControl(false),
-            activityReporter: new UntypedFormControl(false),
-            commentsReporter: new UntypedFormControl(false),
-            activityWatcher: new UntypedFormControl(false),
-            commentsWatcher: new UntypedFormControl(false),
-            mentionedOnIssue: new UntypedFormControl(false)
+            ActivityIssueCreator: new UntypedFormControl(false),
+            CommentIssueCreator: new UntypedFormControl(false),
+            ActivityIssueAssignee: new UntypedFormControl(false),
+            CommentIssueAssignee: new UntypedFormControl(false),
+            IssueViewer: new UntypedFormControl(false),
+            MentionedOnIssue: new UntypedFormControl(false),
+            CommentViewer: new UntypedFormControl(false)
         });
     }
 }

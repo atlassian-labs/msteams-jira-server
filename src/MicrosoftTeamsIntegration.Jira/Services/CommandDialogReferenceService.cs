@@ -123,7 +123,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 nameof(NotificationsDialog),
                 DialogMatchesAndCommands.ConfigureNotificationsCommand,
                 $"{regexPrefix}{DialogMatchesAndCommands.ConfigureNotificationsCommand}",
-                isPersonal: true));
+                isPersonal: true,
+                isTeamAction: true));
         }
     }
 }

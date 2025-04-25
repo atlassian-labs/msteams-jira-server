@@ -272,20 +272,25 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         public async Task SendConfigureNotificationsCard(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
+            bool isGroupConversation = turnContext.Activity.IsGroupConversation();
+
+            string title = isGroupConversation ? "🔔 Channel notifications" : "🔔 Personal notifications";
+            string notificationType = isGroupConversation ? "channel" : "personal";
+
             var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 3))
             {
                 Body = new List<AdaptiveElement>()
                 {
                     new AdaptiveTextBlock
                     {
-                        Text = "🔔 Personal notifications",
+                        Text = title,
                         Size = AdaptiveTextSize.Medium,
                         Weight = AdaptiveTextWeight.Bolder,
                         Wrap = true
                     },
                     new AdaptiveTextBlock
                     {
-                        Text = "Turn on personal notifications to stay updated across your projects in Jira Data Center without the distraction of email notifications.",
+                        Text = $"Turn on {notificationType} notifications to stay updated across your projects in Jira Data Center without the distraction of email notifications.",
                         Wrap = true
                     }
                 },
@@ -308,7 +313,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
 
-            await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+            if (turnContext.Activity.IsGroupConversation())
+            {
+                await turnContext.SendActivityAsync(message, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+            }
         }
 
         public async Task SendNotificationCard(

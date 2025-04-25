@@ -89,7 +89,7 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
     describe('getNotificationSettings', () => {
         it('should load and set notification settings successfully', async () => {
             mockApiService.getNotificationSettings.and.returnValue(Promise.resolve({
-                eventTypes: ['activityAssignee', 'commentsAssignee'],
+                eventTypes: ['ActivityIssueAssignee', 'CommentIssueAssignee'],
                 jiraId: 'test-jira-id',
                 subscriptionType: SubscriptionType.Personal,
                 isActive: true,
@@ -104,8 +104,8 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
             await component.getNotificationSettings();
 
             expect(mockApiService.getNotificationSettings).toHaveBeenCalledWith('test-user-id');
-            expect(component.notificationsForm?.get('activityAssignee')?.value).toBeTrue();
-            expect(component.notificationsForm?.get('commentsAssignee')?.value).toBeTrue();
+            expect(component.notificationsForm?.get('ActivityIssueAssignee')?.value).toBeTrue();
+            expect(component.notificationsForm?.get('CommentIssueAssignee')?.value).toBeTrue();
         });
 
         it('should handle error when loading notification settings', async () => {
@@ -162,15 +162,15 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
         it('should return selected event types', async () => {
             await component.ngOnInit();
             component.notificationsForm?.patchValue({
-                activityAssignee: true,
-                commentsAssignee: true,
-                activityReporter: false
+                ActivityIssueAssignee: true,
+                CommentIssueAssignee: true,
+                ActivityIssueCreator: false
             });
 
             const eventTypes = component['getSelectedEventTypes']();
-            expect(eventTypes).toContain('activityAssignee');
-            expect(eventTypes).toContain('commentsAssignee');
-            expect(eventTypes).not.toContain('activityReporter');
+            expect(eventTypes).toContain('ActivityIssueAssignee');
+            expect(eventTypes).toContain('CommentIssueAssignee');
+            expect(eventTypes).not.toContain('ActivityIssueCreator');
         });
     });
 });
