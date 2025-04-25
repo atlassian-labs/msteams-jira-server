@@ -3,29 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaptiveCards;
 using AutoMapper;
-using FakeItEasy;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Testing;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Notifications;
 using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
+using Moq;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace MicrosoftTeamsIntegration.Jira.Tests.Services;
 
 public class NotificationProcessorServiceTests
 {
-    private readonly FakeLogger<NotificationProcessorService> _loggerFake;
-    private readonly IAnalyticsService _analyticsServiceFake;
-    private readonly IDatabaseService _databaseServiceFake;
-    private readonly INotificationsDatabaseService _notificationsDatabaseServiceFake;
-    private readonly IProactiveMessagesService _proactiveMessagesServiceFake;
-    private readonly IMapper _mapperFake;
+    private readonly Mock<ILogger<NotificationProcessorService>> _loggerMock;
+    private readonly Mock<IAnalyticsService> _analyticsServiceMock;
+    private readonly Mock<IDatabaseService> _databaseServiceMock;
+    private readonly Mock<INotificationSubscriptionDatabaseService> _notificationsDatabaseServiceMock;
+    private readonly Mock<IProactiveMessagesService> _proactiveMessagesServiceMock;
+    private readonly Mock<IMapper> _mapperMock;
     private readonly NotificationProcessorService _service;
     private static readonly string[] PersonalSubscriptionEvents = new[]
                 {
@@ -41,20 +42,20 @@ public class NotificationProcessorServiceTests
 
     public NotificationProcessorServiceTests()
     {
-        _loggerFake = new FakeLogger<NotificationProcessorService>();
-        _analyticsServiceFake = A.Fake<IAnalyticsService>();
-        _databaseServiceFake = A.Fake<IDatabaseService>();
-        _notificationsDatabaseServiceFake = A.Fake<INotificationsDatabaseService>();
-        _proactiveMessagesServiceFake = A.Fake<IProactiveMessagesService>();
-        _mapperFake = A.Fake<IMapper>();
+        _loggerMock = new Mock<ILogger<NotificationProcessorService>>();
+        _analyticsServiceMock = new Mock<IAnalyticsService>();
+        _databaseServiceMock = new Mock<IDatabaseService>();
+        _notificationsDatabaseServiceMock = new Mock<INotificationSubscriptionDatabaseService>();
+        _proactiveMessagesServiceMock = new Mock<IProactiveMessagesService>();
+        _mapperMock = new Mock<IMapper>();
 
         _service = new NotificationProcessorService(
-            _loggerFake,
-            _analyticsServiceFake,
-            _databaseServiceFake,
-            _proactiveMessagesServiceFake,
-            _mapperFake,
-            _notificationsDatabaseServiceFake);
+            _loggerMock.Object,
+            _analyticsServiceMock.Object,
+            _databaseServiceMock.Object,
+            _proactiveMessagesServiceMock.Object,
+            _mapperMock.Object,
+            _notificationsDatabaseServiceMock.Object);
     }
 
     [Fact]
@@ -62,15 +63,22 @@ public class NotificationProcessorServiceTests
     {
         // Arrange
         var notification = new NotificationMessage { JiraId = "test-jira-id" };
-        A.CallTo(() => _databaseServiceFake.GetJiraServerAddonSettingsByJiraId(notification.JiraId))
-            .Returns(Task.FromResult<JiraAddonSettings>(null));
+        _databaseServiceMock
+            .Setup(x => x.GetJiraServerAddonSettingsByJiraId(notification.JiraId))
+            .ReturnsAsync((JiraAddonSettings)null);
 
         // Act
         await _service.ProcessNotification(notification);
 
         // Assert
-        Assert.Equal(1, _loggerFake.Collector.Count);
-        Assert.Equal(LogLevel.Warning, _loggerFake.LatestRecord.Level);
+        _loggerMock.Verify(
+            logger => logger.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
+            Times.Once);
     }
 
     [Fact]
@@ -183,27 +191,31 @@ public class NotificationProcessorServiceTests
             }
         };
 
-        A.CallTo(() => _databaseServiceFake.GetJiraServerAddonSettingsByJiraId(notification.JiraId))
-            .Returns(Task.FromResult(new JiraAddonSettings { JiraId = "test-jira-id" }));
-        A.CallTo(() => _notificationsDatabaseServiceFake.GetNotificationSubscriptionByJiraId(notification.JiraId))
-            .Returns(Task.FromResult(personalSubscriptions.Concat(channelSubscriptions)));
-        A.CallTo(() => _proactiveMessagesServiceFake.SendActivity(
-            A<IActivity>.Ignored,
-            A<ConversationReference>.Ignored,
-            A<CancellationToken>.Ignored))
-            .Returns(Task.CompletedTask);
+        _databaseServiceMock
+            .Setup(x => x.GetJiraServerAddonSettingsByJiraId(notification.JiraId))
+            .ReturnsAsync(new JiraAddonSettings() { JiraId = "test-jira-id" });
+        _notificationsDatabaseServiceMock
+            .Setup(x => x.GetNotificationSubscriptionByJiraId(notification.JiraId))
+            .ReturnsAsync(personalSubscriptions.Concat(channelSubscriptions));
+        _proactiveMessagesServiceMock.Setup(
+            x => x.SendActivity(
+                It.IsAny<IActivity>(),
+                It.IsAny<ConversationReference>(),
+                CancellationToken.None)).Returns(Task.CompletedTask);
 
         // Act
         await _service.ProcessNotification(notification);
 
         // Assert
-        A.CallTo(() => _notificationsDatabaseServiceFake.GetNotificationSubscriptionByJiraId(notification.JiraId))
-            .MustHaveHappenedTwiceExactly();
-        A.CallTo(() => _proactiveMessagesServiceFake.SendActivity(
-            A<IActivity>.Ignored,
-            A<ConversationReference>.Ignored,
-            A<CancellationToken>.Ignored))
-            .MustHaveHappenedTwiceExactly();
+        _notificationsDatabaseServiceMock.Verify(
+            x => x.GetNotificationSubscriptionByJiraId(notification.JiraId),
+            Times.Exactly(2));
+        _proactiveMessagesServiceMock.Verify(
+            x => x.SendActivity(
+                It.IsAny<IActivity>(),
+                It.IsAny<ConversationReference>(),
+                CancellationToken.None),
+            Times.Exactly(2));
     }
 
     [Fact]
@@ -219,18 +231,20 @@ public class NotificationProcessorServiceTests
         {
             new NotificationSubscription { MicrosoftUserId = "user1" }
         };
-        A.CallTo(() => _notificationsDatabaseServiceFake.GetNotificationSubscriptionByJiraId(notification.JiraId))
-            .Returns(Task.FromResult(subscriptions.AsEnumerable()));
+        _notificationsDatabaseServiceMock
+            .Setup(x => x.GetNotificationSubscriptionByJiraId(notification.JiraId))
+            .ReturnsAsync(subscriptions);
 
         // Act
         await _service.ProcessNotification(notification);
 
         // Assert
-        A.CallTo(() => _proactiveMessagesServiceFake.SendActivity(
-            A<IActivity>.Ignored,
-            A<ConversationReference>.Ignored,
-            A<CancellationToken>.Ignored))
-            .MustNotHaveHappened();
+        _proactiveMessagesServiceMock.Verify(
+            x => x.SendActivity(
+                It.IsAny<IActivity>(),
+                It.IsAny<ConversationReference>(),
+                CancellationToken.None),
+            Times.Never);
     }
 
     [Fact]
@@ -251,17 +265,19 @@ public class NotificationProcessorServiceTests
             }
         };
 
-        A.CallTo(() => _notificationsDatabaseServiceFake.GetNotificationSubscriptionByJiraId(notification.JiraId))
-            .Returns(Task.FromResult(subscriptions.AsEnumerable()));
+        _notificationsDatabaseServiceMock
+            .Setup(x => x.GetNotificationSubscriptionByJiraId(notification.JiraId))
+            .ReturnsAsync(subscriptions);
 
         // Act
         await _service.ProcessNotification(notification);
 
         // Assert
-        A.CallTo(() => _proactiveMessagesServiceFake.SendActivity(
-            A<IActivity>.Ignored,
-            A<ConversationReference>.Ignored,
-            A<CancellationToken>.Ignored))
-            .MustNotHaveHappened();
+        _proactiveMessagesServiceMock.Verify(
+            x => x.SendActivity(
+                It.IsAny<IActivity>(),
+                It.IsAny<ConversationReference>(),
+                CancellationToken.None),
+            Times.Never);
     }
 }

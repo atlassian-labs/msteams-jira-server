@@ -41,7 +41,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             IUserTokenService userTokenService,
             ICommandDialogReferenceService commandDialogReferenceService,
             IBotFrameworkAdapterService botFrameworkAdapter,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            INotificationSubscriptionService notificationSubscriptionService)
             : base(nameof(MainDispatcher))
         {
             _accessors = accessors;
@@ -67,7 +68,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             AddDialog(new CommentDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
             AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, botMessagesService, telemetry, analyticsService));
             AddDialog(new ConnectToJiraDialog(_accessors, _appSettings, botMessagesService, telemetry, botFrameworkAdapter));
-            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry, analyticsService));
+            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry, analyticsService, notificationSubscriptionService));
             AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, telemetry, botFrameworkAdapter, analyticsService));
             AddDialog(new NotificationsDialog(_accessors, botMessagesService, _appSettings, telemetry));
         }

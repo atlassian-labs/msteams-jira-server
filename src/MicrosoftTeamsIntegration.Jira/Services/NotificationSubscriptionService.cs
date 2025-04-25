@@ -11,16 +11,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services;
 public class NotificationSubscriptionService : INotificationSubscriptionService
 {
     private readonly ILogger<NotificationSubscriptionService> _logger;
-    private readonly INotificationsDatabaseService _notificationsDatabaseService;
+    private readonly INotificationSubscriptionDatabaseService _notificationSubscriptionDatabaseService;
     private readonly IDistributedCacheService _distributedCacheService;
 
     public NotificationSubscriptionService(
         ILogger<NotificationSubscriptionService> logger,
-        INotificationsDatabaseService notificationsDatabaseService,
+        INotificationSubscriptionDatabaseService notificationSubscriptionDatabaseService,
         IDistributedCacheService distributedCacheService)
     {
         _logger = logger;
-        _notificationsDatabaseService = notificationsDatabaseService;
+        _notificationSubscriptionDatabaseService = notificationSubscriptionDatabaseService;
         _distributedCacheService = distributedCacheService;
     }
 
@@ -39,7 +39,7 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
                 }
             }
 
-            await _notificationsDatabaseService.AddNotificationSubscription(notification);
+            await _notificationSubscriptionDatabaseService.AddNotificationSubscription(notification);
         }
         catch (Exception ex)
         {
@@ -52,7 +52,7 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
         try
         {
             var notifications =
-                await _notificationsDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId);
+                await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId);
             return notifications.First();
         }
         catch (Exception ex)
@@ -77,13 +77,36 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
                 }
             }
 
-            await _notificationsDatabaseService.UpdateNotificationSubscription(
+            await _notificationSubscriptionDatabaseService.UpdateNotificationSubscription(
                 notification.SubscriptionId,
                 notification);
         }
         catch (Exception ex)
         {
             _logger.LogError("An error occurred while updating the notification subscription: {ErrorMessage}", ex.Message);
+        }
+    }
+
+    public async Task DeleteNotificationSubscriptionByMicrosoftUserId(string microsoftUserId)
+    {
+        try
+        {
+            var notifications =
+                await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId);
+
+            if (notifications == null || !notifications.Any())
+            {
+                return;
+            }
+
+            foreach (var notification in notifications)
+            {
+                await _notificationSubscriptionDatabaseService.DeleteNotificationSubscriptionBySubscriptionId(notification.SubscriptionId);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("An error occurred while deleting the notification subscription: {ErrorMessage}", ex.Message);
         }
     }
 }

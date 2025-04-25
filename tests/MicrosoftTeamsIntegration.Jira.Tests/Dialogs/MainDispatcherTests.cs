@@ -33,6 +33,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly IBotMessagesService _fakeBotMessagesService;
         private readonly IJiraAuthService _fakeJiraAuthService;
         private readonly IDatabaseService _fakeDatabaseService;
+        private readonly INotificationSubscriptionService _fakeNotificationSubscriptionService;
         private readonly IJiraService _fakeJiraService;
         private readonly ILogger<JiraBot> _fakeLogger;
         private readonly TelemetryClient _telemetry;
@@ -50,6 +51,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _fakeBotMessagesService = A.Fake<IBotMessagesService>();
             _fakeJiraService = A.Fake<IJiraService>();
             _fakeDatabaseService = A.Fake<IDatabaseService>();
+            _fakeNotificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
             _fakeUserTokenService = A.Fake<IUserTokenService>();
@@ -295,7 +297,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
                 _fakeUserTokenService,
                 new CommandDialogReferenceService(),
                 _fakeBotFrameworkAdapterService,
-                _analyticsService);
+                _analyticsService,
+                _fakeNotificationSubscriptionService);
 
             return dispatcher;
         }

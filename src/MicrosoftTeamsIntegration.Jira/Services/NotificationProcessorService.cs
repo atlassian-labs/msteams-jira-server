@@ -22,7 +22,7 @@ public class NotificationProcessorService : INotificationProcessorService
     private readonly ILogger<NotificationProcessorService> _logger;
     private readonly IAnalyticsService _analyticsService;
     private readonly IDatabaseService _databaseService;
-    private readonly INotificationsDatabaseService _notificationsDatabaseService;
+    private readonly INotificationSubscriptionDatabaseService _notificationSubscriptionDatabaseService;
     private readonly IProactiveMessagesService _proactiveMessagesService;
     private readonly IMapper _mapper;
 
@@ -32,13 +32,13 @@ public class NotificationProcessorService : INotificationProcessorService
         IDatabaseService databaseService,
         IProactiveMessagesService proactiveMessagesService,
         IMapper mapper,
-        INotificationsDatabaseService notificationsDatabaseService)
+        INotificationSubscriptionDatabaseService notificationSubscriptionDatabaseService)
     {
         _logger = logger;
         _databaseService = databaseService;
         _proactiveMessagesService = proactiveMessagesService;
         _mapper = mapper;
-        _notificationsDatabaseService = notificationsDatabaseService;
+        _notificationSubscriptionDatabaseService = notificationSubscriptionDatabaseService;
         _analyticsService = analyticsService;
     }
 
@@ -63,12 +63,12 @@ public class NotificationProcessorService : INotificationProcessorService
             }
 
             var personalSubscriptionsForJira
-                = (await _notificationsDatabaseService.GetNotificationSubscriptionByJiraId(notification.JiraId))
+                = (await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByJiraId(notification.JiraId))
                 ?.Where(s => s.IsActive && s.SubscriptionType == SubscriptionType.Personal)
                 .ToList();
 
             var channelSubscriptionsForJira
-                = (await _notificationsDatabaseService.GetNotificationSubscriptionByJiraId(notification.JiraId))
+                = (await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByJiraId(notification.JiraId))
                 ?.Where(s => s.IsActive && s.SubscriptionType == SubscriptionType.Channel)
                 .ToList();
 

@@ -99,7 +99,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 
         private DisconnectJiraDialog GetDisconnectJiraDialog()
         {
-            return new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry, _analyticsService);
+            return new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry, _analyticsService, A.Fake<INotificationSubscriptionService>());
         }
     }
 }

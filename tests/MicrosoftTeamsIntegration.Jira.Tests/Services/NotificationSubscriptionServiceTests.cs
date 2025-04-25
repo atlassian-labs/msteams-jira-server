@@ -13,16 +13,16 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 {
     public class NotificationSubscriptionServiceTests
     {
-        private readonly INotificationsDatabaseService _notificationsDatabaseService;
+        private readonly INotificationSubscriptionDatabaseService _notificationSubscriptionDatabaseService;
         private readonly IDistributedCacheService _distributedCacheService;
         private readonly NotificationSubscriptionService _service;
 
         public NotificationSubscriptionServiceTests()
         {
             ILogger<NotificationSubscriptionService> logger = A.Fake<ILogger<NotificationSubscriptionService>>();
-            _notificationsDatabaseService = A.Fake<INotificationsDatabaseService>();
+            _notificationSubscriptionDatabaseService = A.Fake<INotificationSubscriptionDatabaseService>();
             _distributedCacheService = A.Fake<IDistributedCacheService>();
-            _service = new NotificationSubscriptionService(logger, _notificationsDatabaseService, _distributedCacheService);
+            _service = new NotificationSubscriptionService(logger, _notificationSubscriptionDatabaseService, _distributedCacheService);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             A.CallTo(() => _distributedCacheService.Get<string>(conversationReferenceId, CancellationToken.None))
                 .MustHaveHappenedTwiceExactly();
-            A.CallTo(() => _notificationsDatabaseService.AddNotificationSubscription(notification))
+            A.CallTo(() => _notificationSubscriptionDatabaseService.AddNotificationSubscription(notification))
                 .MustHaveHappenedOnceExactly();
             Assert.Equal(conversationReference, notification.ConversationReference);
         }
@@ -60,7 +60,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             await _service.CreateNotificationSubscription(notification, conversationReferenceId);
 
-            A.CallTo(() => _notificationsDatabaseService.AddNotificationSubscription(A<NotificationSubscription>._))
+            A.CallTo(() => _notificationSubscriptionDatabaseService.AddNotificationSubscription(A<NotificationSubscription>._))
                 .MustNotHaveHappened();
         }
 
@@ -73,13 +73,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 MicrosoftUserId = microsoftUserId
             };
 
-            A.CallTo(() => _notificationsDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
+            A.CallTo(() => _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
                 .Returns(new[] { expectedNotification });
 
             var result = await _service.GetNotification(microsoftUserId);
 
             Assert.Equal(expectedNotification, result);
-            A.CallTo(() => _notificationsDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
+            A.CallTo(() => _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -89,7 +89,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var microsoftUserId = "test-user-id";
             var exception = new Exception("Test exception");
 
-            A.CallTo(() => _notificationsDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
+            A.CallTo(() => _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
                 .Throws(exception);
 
             var result = await _service.GetNotification(microsoftUserId);
@@ -110,7 +110,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             A.CallTo(() => _distributedCacheService.Get<string>(A<string>._, CancellationToken.None))
                 .MustNotHaveHappened();
-            A.CallTo(() => _notificationsDatabaseService.UpdateNotificationSubscription(notification.SubscriptionId, notification))
+            A.CallTo(() => _notificationSubscriptionDatabaseService.UpdateNotificationSubscription(notification.SubscriptionId, notification))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -126,7 +126,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             await _service.UpdateNotificationSubscription(notification, conversationReferenceId);
 
-            A.CallTo(() => _notificationsDatabaseService.UpdateNotificationSubscription(A<string>._, A<NotificationSubscription>._))
+            A.CallTo(() => _notificationSubscriptionDatabaseService.UpdateNotificationSubscription(A<string>._, A<NotificationSubscription>._))
                 .MustNotHaveHappened();
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Bot.Builder;
@@ -24,13 +25,15 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
         private readonly IAnalyticsService _analyticsService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
 
         public DisconnectJiraDialog(
             JiraBotAccessors accessors,
             IJiraAuthService jiraAuthService,
             AppSettings appSettings,
             TelemetryClient telemetry,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            INotificationSubscriptionService notificationSubscriptionService)
             : base(nameof(DisconnectJiraDialog))
         {
             _telemetry = telemetry;
@@ -38,6 +41,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             _jiraAuthService = jiraAuthService;
             _appSettings = appSettings;
             _analyticsService = analyticsService;
+            _notificationSubscriptionService = notificationSubscriptionService;
 
             var waterfallSteps = new WaterfallStep[]
             {
@@ -97,6 +101,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 await stepContext.Context.SendActivityAsync(
                     $"**You've been successfully disconnected from {jiraId}**",
                     cancellationToken: cancellationToken);
+
+                await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user.MsTeamsUserId);
             }
 
             _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "completed");

@@ -30,6 +30,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         private readonly IAnalyticsService _analyticsService;
         private readonly IMessagingExtensionService _messagingExtensionService;
         private readonly IDatabaseService _databaseService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
         private readonly IBotMessagesService _botMessagesService;
         private readonly IJiraService _jiraService;
         private readonly IActionableMessageService _actionableMessageService;
@@ -51,6 +52,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
             _messagingExtensionService = A.Fake<IMessagingExtensionService>();
             _databaseService = A.Fake<IDatabaseService>();
+            _notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
             _botMessagesService = A.Fake<IBotMessagesService>();
             _jiraService = A.Fake<IJiraService>();
             _actionableMessageService = A.Fake<IActionableMessageService>();
@@ -68,6 +70,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             _jiraBot = new JiraBot(
                 _messagingExtensionService,
                 _databaseService,
+                _notificationSubscriptionService,
                 _mockAccessors,
                 _botMessagesService,
                 _jiraService,

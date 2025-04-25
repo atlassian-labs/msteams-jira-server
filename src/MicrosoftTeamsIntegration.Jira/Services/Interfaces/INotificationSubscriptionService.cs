@@ -8,4 +8,5 @@ public interface INotificationSubscriptionService
     Task CreateNotificationSubscription(NotificationSubscription notification, string conversationReferenceId = "");
     Task<NotificationSubscription> GetNotification(string microsoftUserId);
     Task UpdateNotificationSubscription(NotificationSubscription notification, string conversationReferenceId = "");
+    Task DeleteNotificationSubscriptionByMicrosoftUserId(string microsoftUserId);
 }

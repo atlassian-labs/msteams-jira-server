@@ -8,11 +8,11 @@ using MongoDB.Driver;
 
 namespace MicrosoftTeamsIntegration.Jira.Services;
 
-public class NotificationDatabaseService : DatabaseService, INotificationsDatabaseService
+public class NotificationSubscriptionSubscriptionDatabaseService : DatabaseService, INotificationSubscriptionDatabaseService
 {
     private readonly IMongoCollection<NotificationSubscription> _notificationSubscriptionCollection;
 
-    public NotificationDatabaseService(IOptions<AppSettings> appSettings, IMongoDBContext context)
+    public NotificationSubscriptionSubscriptionDatabaseService(IOptions<AppSettings> appSettings, IMongoDBContext context)
         : base(appSettings, context)
     {
         _notificationSubscriptionCollection =
@@ -57,10 +57,18 @@ public class NotificationDatabaseService : DatabaseService, INotificationsDataba
         return await GetNotificationByFilterAsync(filter);
     }
 
-    public async Task DeleteNotificationSubscription(string subscriptionId)
+    public async Task DeleteNotificationSubscriptionBySubscriptionId(string subscriptionId)
     {
         var filter = Builders<NotificationSubscription>.Filter.Where(x =>
             x.SubscriptionId == subscriptionId);
+
+        await ProcessThrottlingRequest(() => _notificationSubscriptionCollection.DeleteOneAsync(filter));
+    }
+
+    public async Task DeleteNotificationSubscriptionByMicrosoftUserId(string microsoftUserId)
+    {
+        var filter = Builders<NotificationSubscription>.Filter.Where(x =>
+            x.MicrosoftUserId == microsoftUserId);
 
         await ProcessThrottlingRequest(() => _notificationSubscriptionCollection.DeleteOneAsync(filter));
     }

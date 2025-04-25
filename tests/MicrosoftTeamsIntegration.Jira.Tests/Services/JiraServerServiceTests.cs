@@ -26,7 +26,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
     {
         private readonly ISignalRService _signalRService = A.Fake<ISignalRService>();
         private readonly IDatabaseService _databaseService = A.Fake<IDatabaseService>();
-        private readonly INotificationsDatabaseService _notificationsDatabaseService = A.Fake<INotificationsDatabaseService>();
+        private readonly INotificationSubscriptionDatabaseService _notificationSubscriptionDatabaseService = A.Fake<INotificationSubscriptionDatabaseService>();
         private readonly IDistributedCacheService _distributedCacheService = A.Fake<IDistributedCacheService>();
         private readonly IJiraAuthService _jiraAuthService = A.Fake<IJiraAuthService>();
         private readonly ILogger<JiraService> _logger = new NullLogger<JiraService>();
