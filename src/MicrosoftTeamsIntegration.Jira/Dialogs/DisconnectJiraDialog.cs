@@ -102,7 +102,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                     $"**You've been successfully disconnected from {jiraId}**",
                     cancellationToken: cancellationToken);
 
-                await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user.MsTeamsUserId);
+                await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user);
             }
 
             _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "completed");

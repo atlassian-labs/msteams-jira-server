@@ -24,6 +24,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Controllers
                     new List<IPostConfigureOptions<TelemetryConfiguration>>()));
 
         private readonly INotificationSubscriptionService _notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
+        private readonly IDatabaseService _databaseService = A.Fake<IDatabaseService>();
+        private readonly IJiraAuthService _jiraAuthService = A.Fake<IJiraAuthService>();
 
         [Fact]
         public void GetClientAppSettingsTest()
@@ -43,10 +45,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Controllers
         private ClientAppController CreateClientAppController()
         {
             return A.Fake<ClientAppController>(
-                x => x.WithArgumentsForConstructor(new object[] {
+                x => x.WithArgumentsForConstructor(new object[]
+                {
                     _appSettings,
                     _telemetryConfiguration,
-                    _notificationSubscriptionService
+                    _notificationSubscriptionService,
+                    _databaseService,
+                    _jiraAuthService
                 }));
         }
     }

@@ -8,7 +8,8 @@
         <form *ngIf="notificationsForm" #form class="notifications-form" [formGroup]="notificationsForm">
             <textarea id="jira-id"
                   class="field-group__jiraId-textarea"
-                  placeholder="Enter Jira Data Center ID"
+                  placeholder="Enter Jira Data Center ID" 
+                  readonly
                   formControlName="jiraId"
                   style="margin-bottom: 10px">{{ jiraId }}</textarea>
 

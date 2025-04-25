@@ -32,7 +32,6 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
     public class JiraApiController : BaseApiController
     {
         private readonly IDatabaseService _databaseService;
-        private readonly AppSettings _appSettings;
         private readonly IJiraService _jiraService;
         private readonly IMapper _mapper;
         private readonly IJiraAuthService _jiraAuthService;
@@ -42,19 +41,18 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
 
         public JiraApiController(
             IDatabaseService databaseService,
-            IOptions<AppSettings> appSettings,
             IJiraService jiraService,
             IMapper mapper,
             IJiraAuthService jiraAuthService,
             IDistributedCacheService distributedCacheService,
             ILogger<JiraApiController> logger,
             IOptions<ClientAppOptions> clientAppOptions)
+            : base(databaseService, jiraAuthService)
         {
             _databaseService = databaseService;
             _jiraService = jiraService;
             _mapper = mapper;
             _jiraAuthService = jiraAuthService;
-            _appSettings = appSettings.Value;
             _distributedCacheService = distributedCacheService;
             _logger = logger;
             _clientAppOptions = clientAppOptions.Value;
@@ -656,55 +654,6 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             var errorMessage = $"Can't get Jira Data Center ID. Please contact your Jira Data Center administrator to install or update Jira Data Center for Microsoft Teams application.";
             var error = new ApiError(errorMessage);
             return BadRequest(error);
-        }
-
-        private async Task<IntegratedUser> GetAndVerifyUser(string jiraUrl)
-        {
-            if (jiraUrl.HasValue())
-            {
-                jiraUrl = Uri.UnescapeDataString(jiraUrl);
-            }
-
-            var msTeamsUserId = GetUserOid();
-            var user = await _databaseService.GetUserByTeamsUserIdAndJiraUrl(msTeamsUserId, jiraUrl);
-            var isJiraConnected = await _jiraAuthService.IsJiraConnected(user);
-
-            if (!isJiraConnected)
-            {
-                throw new UnauthorizedException();
-            }
-
-            if (user != null)
-            {
-                user.AccessToken = GetUserAccessToken();
-            }
-
-            if (user.HasJiraAuthInfo())
-            {
-                return user;
-            }
-
-            if (user is null)
-            {
-                throw new UnauthorizedException();
-            }
-
-            var addonStatus = await _databaseService.GetJiraServerAddonSettingsByJiraId(jiraUrl);
-
-            var message = user.HasJiraAuthInfo()
-                ? addonStatus.GetErrorMessage(jiraUrl)
-                : JiraConstants.UserNotAuthorizedMessage;
-
-            var response = new HttpResponseMessage(HttpStatusCode.Forbidden)
-            {
-                Content = new StringContent(message)
-            };
-            var exception = await ApiException.Create(
-                new HttpRequestMessage(),
-                HttpMethod.Post,
-                response,
-                new RefitSettings());
-            throw exception;
         }
 
         private async Task<string> GetDefaultMetadataMessage(string metadataRef)

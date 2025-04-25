@@ -41,17 +41,17 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
 
     public async getNotificationSettings(): Promise<void> {
         try {
-            const response = await this.apiService.getNotificationSettings(this.microsoftUserId);
+            const response = await this.apiService.getNotificationSettings(this.jiraId, this.microsoftUserId);
 
             if (response) {
                 this.notificationsForm?.patchValue({
-                    ActivityIssueCreator: response.eventTypes.includes('ActivityIssueCreator'),
-                    CommentIssueCreator: response.eventTypes.includes('CommentIssueCreator'),
                     ActivityIssueAssignee: response.eventTypes.includes('ActivityIssueAssignee'),
                     CommentIssueAssignee: response.eventTypes.includes('CommentIssueAssignee'),
+                    ActivityIssueCreator: response.eventTypes.includes('ActivityIssueCreator'),
+                    CommentIssueCreator: response.eventTypes.includes('CommentIssueCreator'),
                     IssueViewer: response.eventTypes.includes('IssueViewer'),
-                    MentionedOnIssue: response.eventTypes.includes('MentionedOnIssue'),
-                    CommentViewer: response.eventTypes.includes('CommentViewer')
+                    CommentViewer: response.eventTypes.includes('CommentViewer'),
+                    MentionedOnIssue: response.eventTypes.includes('MentionedOnIssue')
                 });
 
                 this.savedNotificationSubscription = response;
@@ -76,7 +76,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             this.savedNotificationSubscription.conversationId = this.conversationId;
             this.savedNotificationSubscription.conversationReferenceId = this.conversationReferenceId;
 
-            await this.apiService.updateNotification(this.savedNotificationSubscription);
+            await this.apiService.updateNotification(this.jiraId, this.savedNotificationSubscription);
 
             this.notificationService.notifySuccess('Notification updated successfully.').afterDismissed().subscribe(() => {
                 microsoftTeams.dialog.url.submit();
@@ -98,13 +98,12 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         };
 
         try {
-            await this.apiService.addNotification(notification);
+            await this.apiService.addNotification(this.jiraId, notification);
             this.notificationService.notifySuccess('Notification saved successfully.').afterDismissed().subscribe(() => {
                 microsoftTeams.dialog.url.submit();
             });
         } catch (error) {
             this.notificationService.notifyError('Failed to save notification. Please try again.').afterDismissed().subscribe(() => {
-                microsoftTeams.dialog.url.submit();
             });
         }
     }
@@ -129,13 +128,13 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
 
     private async createForm(): Promise<void> {
         this.notificationsForm = new UntypedFormGroup({
-            ActivityIssueCreator: new UntypedFormControl(false),
-            CommentIssueCreator: new UntypedFormControl(false),
             ActivityIssueAssignee: new UntypedFormControl(false),
             CommentIssueAssignee: new UntypedFormControl(false),
+            ActivityIssueCreator: new UntypedFormControl(false),
+            CommentIssueCreator: new UntypedFormControl(false),
             IssueViewer: new UntypedFormControl(false),
-            MentionedOnIssue: new UntypedFormControl(false),
-            CommentViewer: new UntypedFormControl(false)
+            CommentViewer: new UntypedFormControl(false),
+            MentionedOnIssue: new UntypedFormControl(false)
         });
     }
 }

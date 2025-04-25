@@ -5,8 +5,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 
 public interface INotificationSubscriptionService
 {
-    Task CreateNotificationSubscription(NotificationSubscription notification, string conversationReferenceId = "");
-    Task<NotificationSubscription> GetNotification(string microsoftUserId);
-    Task UpdateNotificationSubscription(NotificationSubscription notification, string conversationReferenceId = "");
-    Task DeleteNotificationSubscriptionByMicrosoftUserId(string microsoftUserId);
+    Task CreateNotificationSubscription(IntegratedUser user, NotificationSubscription notification, string conversationReferenceId = "");
+    Task<NotificationSubscription> GetNotification(IntegratedUser user);
+    Task UpdateNotificationSubscription(IntegratedUser user, NotificationSubscription notification, string conversationReferenceId = "");
+    Task DeleteNotificationSubscriptionByMicrosoftUserId(IntegratedUser user);
 }
