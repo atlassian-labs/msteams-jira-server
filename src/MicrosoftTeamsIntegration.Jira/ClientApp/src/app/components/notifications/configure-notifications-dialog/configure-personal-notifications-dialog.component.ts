@@ -19,6 +19,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
     public conversationId: string | any;
     public conversationReferenceId: string | any;
     public savedNotificationSubscription: NotificationSubscription | any;
+    public loading = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -33,6 +34,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         this.microsoftUserId = microsoftUserId;
         this.conversationId = conversationId;
         this.conversationReferenceId = conversationReferenceId;
+        this.loading = true;
 
         await this.createForm();
 
@@ -61,6 +63,14 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
                 .afterDismissed().subscribe(() => {
                     microsoftTeams.dialog.url.submit();
                 });
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    public eventTypeSelected() {
+        if (this.notificationsForm) {
+            this.notificationsForm.markAsTouched();
         }
     }
 
