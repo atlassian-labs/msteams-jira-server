@@ -111,12 +111,16 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
                                     new AdaptiveTextRun
                                     {
                                         Text = source.Issue.Status.ToUpper(),
-                                        Weight = AdaptiveTextWeight.Bolder
+                                        Weight = AdaptiveTextWeight.Bolder,
+                                        Highlight = true,
+                                        IsSubtle = true,
+                                        Color = AdaptiveTextColor.Default
                                     }
                                 }
                             }
                         },
-                        VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center
+                        VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center,
+                        Rtl = true
                     },
                     new AdaptiveColumn
                     {
@@ -128,6 +132,7 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
                                 Url = new Uri(source.Issue.Assignee?.AvatarUrl?.ToString() ?? UnknownUserIconUrl),
                                 Size = AdaptiveImageSize.Small,
                                 Style = AdaptiveImageStyle.Person,
+                                PixelWidth = 24,
                                 HorizontalAlignment = AdaptiveHorizontalAlignment.Right
                             }
                         },
@@ -197,31 +202,34 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
             }
         });
 
-        actions.Add(new AdaptiveSubmitAction
+        if (source.IsPersonalNotification)
         {
-            Title = DialogTitles.VoteTitle,
-            Data = new JiraBotTeamsDataWrapper
+            actions.Add(new AdaptiveSubmitAction
             {
-                TeamsData = new TeamsData
+                Title = DialogTitles.VoteTitle,
+                Data = new JiraBotTeamsDataWrapper
                 {
-                    Type = "imBack",
-                    Value = $"{DialogMatchesAndCommands.VoteDialogCommand} {source.Issue.Key}"
+                    TeamsData = new TeamsData
+                    {
+                        Type = "imBack",
+                        Value = $"{DialogMatchesAndCommands.VoteDialogCommand} {source.Issue.Key}"
+                    }
                 }
-            }
-        });
+            });
 
-        actions.Add(new AdaptiveSubmitAction
-        {
-            Title = DialogTitles.LogTimeTitle,
-            Data = new JiraBotTeamsDataWrapper
+            actions.Add(new AdaptiveSubmitAction
             {
-                TeamsData = new TeamsData
+                Title = DialogTitles.LogTimeTitle,
+                Data = new JiraBotTeamsDataWrapper
                 {
-                    Type = "imBack",
-                    Value = $"{DialogMatchesAndCommands.LogTimeDialogCommand} {source.Issue.Key}"
+                    TeamsData = new TeamsData
+                    {
+                        Type = "imBack",
+                        Value = $"{DialogMatchesAndCommands.LogTimeDialogCommand} {source.Issue.Key}"
+                    }
                 }
-            }
-        });
+            });
+        }
 
         adaptiveCard.Body.AddRange(changeLogColumns);
 
@@ -252,7 +260,6 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
                         new AdaptiveTextBlock
                         {
                             Text = text,
-                            Size = AdaptiveTextSize.Small,
                             Wrap = true
                         }
                     },
@@ -302,7 +309,13 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
             case NotificationEventType.CommentDeleted:
                 return string.Empty;
             default:
-                return $"{(string.IsNullOrEmpty(changelog?.From) ? "None" : TruncateText(changelog.From))}     \u2192     {(string.IsNullOrEmpty(changelog?.To) ? "None" : TruncateText(changelog.To))}";
+            {
+                string fromText = string.IsNullOrEmpty(changelog?.From) ? "None" : TruncateText(changelog.From);
+                string toText = string.IsNullOrEmpty(changelog?.To) ? "None" : TruncateText(changelog.To);
+                string changelogText = $"{fromText}    **\u2192**     {toText}";
+                string changelogTextWithNewLines = $"{fromText}\n\n**\u2192**\n\n{toText}";
+                return changelogText.Length > 85 ? changelogTextWithNewLines : changelogText;
+            }
         }
     }
 

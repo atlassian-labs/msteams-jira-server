@@ -5,6 +5,7 @@ namespace MicrosoftTeamsIntegration.Jira.Models.Notifications;
 public class NotificationMessageCardPayload : NotificationMessage
 {
     public bool IsMention { get; set; }
+    public bool IsPersonalNotification { get; set; }
 
     public NotificationMessageCardPayload(NotificationMessage notification)
     {

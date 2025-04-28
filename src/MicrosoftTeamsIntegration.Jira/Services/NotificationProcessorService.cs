@@ -93,6 +93,7 @@ public class NotificationProcessorService : INotificationProcessorService
         IEnumerable<NotificationSubscription> personalSubscriptionsForJira)
     {
         NotificationMessageCardPayload notification = new NotificationMessageCardPayload(notificationMessage);
+        notification.IsPersonalNotification = true;
         NotificationEventType notificationEventType = notification.EventType.ToEventType();
         List<NotificationEventType> allowedPersonalNotificationTypes = new List<NotificationEventType>()
         {
