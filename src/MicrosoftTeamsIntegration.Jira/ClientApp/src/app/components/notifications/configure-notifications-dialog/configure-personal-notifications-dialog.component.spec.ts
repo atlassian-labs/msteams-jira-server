@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfigurePersonalNotificationsDialogComponent } from './configure-personal-notifications-dialog.component';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '@core/services';
+import {ApiService, JiraAddonStatus, UtilService} from '@core/services';
 import { NotificationService } from '@shared/services/notificationService';
 import { of } from 'rxjs';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
@@ -12,6 +12,7 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
     let fixture: ComponentFixture<ConfigurePersonalNotificationsDialogComponent>;
     let mockApiService: jasmine.SpyObj<ApiService>;
     let mockNotificationService: jasmine.SpyObj<NotificationService>;
+    let mockUtilsService: jasmine.SpyObj<UtilService>;
     let mockActivatedRoute: any;
 
     const mockNotificationSubscription: NotificationSubscription = {
@@ -32,7 +33,8 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
         mockApiService = jasmine.createSpyObj('ApiService', [
             'getNotificationSettings',
             'updateNotification',
-            'addNotification'
+            'addNotification',
+            'getAddonStatus',
         ]);
 
         mockNotificationService = jasmine.createSpyObj('NotificationService', [
@@ -40,11 +42,19 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
             'notifyError'
         ]);
 
+        mockUtilsService = jasmine.createSpyObj('UtilService', [
+            'isAddonUpdatedToVersion',
+            'getMinAddonVersionForNotifications'
+        ]);
+
         const mockSnackBarRef = jasmine.createSpyObj('MatSnackBarRef', ['afterDismissed']);
         mockSnackBarRef.afterDismissed.and.returnValue(of({ dismissedByAction: false }));
 
         mockNotificationService.notifySuccess.and.returnValue(mockSnackBarRef);
         mockNotificationService.notifyError.and.returnValue(mockSnackBarRef);
+
+        mockUtilsService.isAddonUpdatedToVersion.and.returnValue(true);
+        mockApiService.getAddonStatus.and.returnValue(Promise.resolve({ addonStatus: 1, addonVersion: '1.0.0' }));
 
         mockActivatedRoute = {
             snapshot: {
@@ -62,7 +72,8 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
             providers: [
                 {provide: ApiService, useValue: mockApiService},
                 {provide: NotificationService, useValue: mockNotificationService},
-                {provide: ActivatedRoute, useValue: mockActivatedRoute}
+                {provide: ActivatedRoute, useValue: mockActivatedRoute},
+                {provide: UtilService, useValue: mockUtilsService},
             ]
         }).compileComponents();
 
@@ -101,7 +112,6 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
             }));
 
             await component.ngOnInit();
-            await component.getNotificationSettings();
 
             expect(mockApiService.getNotificationSettings).toHaveBeenCalledWith('test-jira-id');
             expect(component.notificationsForm?.get('ActivityIssueAssignee')?.value).toBeTrue();

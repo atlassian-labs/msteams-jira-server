@@ -2,7 +2,7 @@
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
-import { ApiService } from '@core/services';
+import {ApiService, UtilService} from '@core/services';
 import { NotificationService } from '@shared/services/notificationService';
 import * as microsoftTeams from '@microsoft/teams-js';
 
@@ -21,11 +21,13 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
     public savedNotificationSubscription: NotificationSubscription | any;
     public loading = false;
     public submitting = false;
+    public isAddonUpdated = false;
 
     constructor(
         private route: ActivatedRoute,
         private apiService: ApiService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private utilService: UtilService
     ) { }
 
     public async ngOnInit() {
@@ -44,20 +46,34 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
 
     public async getNotificationSettings(): Promise<void> {
         try {
-            const response = await this.apiService.getNotificationSettings(this.jiraId);
+            const getAddonStatusPromise
+                = this.apiService.getAddonStatus(this.jiraId);
+            const getCurrentNotificationSettingsPromise
+                = await this.apiService.getNotificationSettings(this.jiraId);
+            const [{ addonVersion }, notificationSettings] = await Promise.all([
+                getAddonStatusPromise,
+                getCurrentNotificationSettingsPromise
+            ]);
+            this.isAddonUpdated
+                = this.utilService.isAddonUpdatedToVersion(addonVersion, this.utilService.getMinAddonVersionForNotifications());
+            if(!this.isAddonUpdated) {
+                this.loading = true;
+                this.notificationService.notifyError(this.utilService.getUpgradeAddonMessageForNotifications(), 20000, false);
+                return;
+            }
 
-            if (response) {
+            if (notificationSettings) {
                 this.notificationsForm?.patchValue({
-                    ActivityIssueAssignee: response.eventTypes.includes('ActivityIssueAssignee'),
-                    CommentIssueAssignee: response.eventTypes.includes('CommentIssueAssignee'),
-                    ActivityIssueCreator: response.eventTypes.includes('ActivityIssueCreator'),
-                    CommentIssueCreator: response.eventTypes.includes('CommentIssueCreator'),
-                    IssueViewer: response.eventTypes.includes('IssueViewer'),
-                    CommentViewer: response.eventTypes.includes('CommentViewer'),
-                    MentionedOnIssue: response.eventTypes.includes('MentionedOnIssue')
+                    ActivityIssueAssignee: notificationSettings.eventTypes.includes('ActivityIssueAssignee'),
+                    CommentIssueAssignee: notificationSettings.eventTypes.includes('CommentIssueAssignee'),
+                    ActivityIssueCreator: notificationSettings.eventTypes.includes('ActivityIssueCreator'),
+                    CommentIssueCreator: notificationSettings.eventTypes.includes('CommentIssueCreator'),
+                    IssueViewer: notificationSettings.eventTypes.includes('IssueViewer'),
+                    CommentViewer: notificationSettings.eventTypes.includes('CommentViewer'),
+                    MentionedOnIssue: notificationSettings.eventTypes.includes('MentionedOnIssue')
                 });
 
-                this.savedNotificationSubscription = response;
+                this.savedNotificationSubscription = notificationSettings;
             }
         } catch (error) {
             this.notificationService.notifyError('Failed to load notification settings. Please try again.')

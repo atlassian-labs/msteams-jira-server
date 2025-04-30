@@ -26,9 +26,13 @@ export class UtilService {
         { id: 6, value: 'updated-recently', label: 'Updated recently' }
     ];
 
-    private readonly UPGRADE_ADDON_MESSAGE =
-        'Please upgrade Jira Server for Microsoft Teams app on your Jira Data Center to perform projects search.';
+    private readonly UPGRADE_ADDON_MESSAGE
+        = 'Please upgrade Jira Data Center for Microsoft Teams app on your Jira Data Center to perform projects search.';
+    private readonly NOTIFICATIONS_UPGRADE_ADDON_MESSAGE
+        = 'Please upgrade Jira Data Center for Microsoft Teams app on your Jira Data Center' +
+        ' to receive notifications from Jira.';
     private readonly ADDON_VERSION = '2022.08.103';
+    private readonly NOTIFICATIONS_ADDON_VERSION = '2025.05.13';
 
     public isMobile = async (): Promise<boolean> => {
         const context = await microsoftTeams.app.getContext();
@@ -127,7 +131,13 @@ export class UtilService {
 
     public getMinAddonVersion = (): string => this.ADDON_VERSION;
 
-    public getUpgradeAddonMessage = (): string => this.UPGRADE_ADDON_MESSAGE;
+    public getMinAddonVersionForNotifications = (): string => this.NOTIFICATIONS_ADDON_VERSION;
 
-    public isAddonUpdated = (addonVersion: string): boolean => compare(addonVersion, this.getMinAddonVersion(), '>=');
+    public getUpgradeAddonMessage = (): string => this.UPGRADE_ADDON_MESSAGE;
+    public getUpgradeAddonMessageForNotifications = (): string => this.NOTIFICATIONS_UPGRADE_ADDON_MESSAGE;
+
+    public isAddonUpdated
+        = (addonVersion: string): boolean => compare(addonVersion, this.getMinAddonVersion(), '>=');
+    public isAddonUpdatedToVersion
+        = (addonVersion: string, minAddonVersion: string): boolean => compare(addonVersion, minAddonVersion, '>=');
 }

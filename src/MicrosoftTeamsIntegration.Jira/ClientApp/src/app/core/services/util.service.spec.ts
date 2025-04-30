@@ -1,6 +1,5 @@
 ﻿import { TestBed } from '@angular/core/testing';
 import { UtilService } from './util.service';
-
 describe('UtilService', () => {
     let service: UtilService;
 
@@ -128,11 +127,24 @@ describe('UtilService', () => {
 
     it('should get upgrade addon message', () => {
         expect(service.getUpgradeAddonMessage())
-            .toBe('Please upgrade Jira Server for Microsoft Teams app on your Jira Data Center to perform projects search.');
+            .toBe('Please upgrade Jira Data Center for Microsoft Teams app on your Jira Data Center to perform projects search.');
     });
 
     it('should check if addon is updated', () => {
         spyOn(service, 'getMinAddonVersion').and.returnValue('2022.08.103');
         expect(service.isAddonUpdated('2022.08.104')).toBeTrue();
+    });
+
+    it('should get minimum addon version for notifications', () => {
+        expect(service.getMinAddonVersionForNotifications()).toBe('2025.05.13');
+    });
+
+    it('should get upgrade addon message for notifications', () => {
+        expect(service.getUpgradeAddonMessageForNotifications())
+            .toBe('Please upgrade Jira Data Center for Microsoft Teams app on your Jira Data Center to receive notifications from Jira.');
+    });
+
+    it('should check if addon is updated to specific version', () => {
+        expect(service.isAddonUpdatedToVersion('2022.08.104', '2022.01.01')).toBeTrue();
     });
 });
