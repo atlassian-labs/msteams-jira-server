@@ -21,6 +21,7 @@ export class SignoutMaterialDialogComponent implements OnInit {
     private jiraUrl: string | undefined;
 
     public isSigningOut = false;
+    public signOutMessage = 'Are you sure you want to sign out?';
 
     constructor(
         @Inject(MAT_DIALOG_DATA) public data: any,
@@ -34,6 +35,10 @@ export class SignoutMaterialDialogComponent implements OnInit {
     public async ngOnInit(): Promise<void> {
         try {
             this.jiraUrl = this.utilService.convertStringToNull(this.data.jiraUrl);
+            this.signOutMessage =
+                await this.apiService.getNotificationSettings(this.jiraUrl as string) ?
+                    'Are you sure you want to sign out and stop receiving notifications from Jira?' :
+                    'Are you sure you want to sign out?';
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),
@@ -49,6 +54,8 @@ export class SignoutMaterialDialogComponent implements OnInit {
     public async signOut(): Promise<void> {
         try {
             this.isSigningOut = true;
+            // remove personal subscription if exists
+            await this.apiService.removePersonalNotification(this.jiraUrl as string);
             await this.apiService.logOut(this.jiraUrl as string);
         } catch (error) {
             this.appInsightsService.trackException(

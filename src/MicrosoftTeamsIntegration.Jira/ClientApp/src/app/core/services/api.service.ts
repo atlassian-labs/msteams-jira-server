@@ -272,15 +272,19 @@ export class ApiService {
     }
 
     public addNotification(jiraServerId: string, notification: NotificationSubscription): Promise<any> {
-        return firstValueFrom(this.http.post(`/api/notifications/add?jiraServerId=${jiraServerId}`, notification));
+        return firstValueFrom(this.http.post(`/api/notificationSubscription/add?jiraServerId=${jiraServerId}`, notification));
     }
 
-    public getNotificationSettings(jiraServerId: string, microsoftUserId: string): Promise<NotificationSubscription> {
+    public getNotificationSettings(jiraServerId: string): Promise<NotificationSubscription> {
         return firstValueFrom(this.http.get<NotificationSubscription>(
-            `/api/notifications/get?jiraServerId=${jiraServerId}&microsoftUserId=${microsoftUserId}`));
+            `/api/notificationSubscription/get?jiraServerId=${jiraServerId}`));
     }
 
     public updateNotification(jiraServerId: string, notification: NotificationSubscription): Promise<any> {
-        return firstValueFrom(this.http.put(`/api/notifications/update?jiraServerId=${jiraServerId}`, notification));
+        return firstValueFrom(this.http.put(`/api/notificationSubscription/update?jiraServerId=${jiraServerId}`, notification));
+    }
+
+    public removePersonalNotification(jiraServerId: string): Promise<any> {
+        return firstValueFrom(this.http.post(`/api/notificationSubscription/removePersonal?jiraServerId=${jiraServerId}`, {}));
     }
 }

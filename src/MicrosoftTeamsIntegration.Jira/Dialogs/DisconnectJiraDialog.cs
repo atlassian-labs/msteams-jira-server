@@ -74,11 +74,14 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             }
 
             _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "replied");
+            var promptMessage = await _notificationSubscriptionService.GetNotification(user) != null
+                ? BotMessages.JiraDisconnectDialogConfirmPromptWithNotificationSubscriptions
+                : BotMessages.JiraDisconnectDialogConfirmPrompt;
             return await stepContext.PromptAsync(
                 ConfirmationPrompt,
                 new PromptOptions
                 {
-                    Prompt = MessageFactory.Text(BotMessages.JiraDisconnectDialogConfirmPrompt)
+                    Prompt = MessageFactory.Text(promptMessage)
                 }, cancellationToken);
         }
 
@@ -94,6 +97,9 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
 
             var jiraId = user.JiraServerId;
 
+            // remove personal subscription if exists
+            await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user);
+
             var result = await _jiraAuthService.Logout(user);
 
             if (result.IsSuccess)
@@ -101,8 +107,6 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 await stepContext.Context.SendActivityAsync(
                     $"**You've been successfully disconnected from {jiraId}**",
                     cancellationToken: cancellationToken);
-
-                await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user);
             }
 
             _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "completed");

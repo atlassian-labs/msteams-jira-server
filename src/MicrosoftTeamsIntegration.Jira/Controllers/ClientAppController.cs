@@ -43,8 +43,8 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(settings);
         }
 
-        [HttpPost("api/notifications/add")]
-        public async Task<IActionResult> AddNotification(string jiraServerId, NotificationSubscription notificationSubscription)
+        [HttpPost("api/notificationSubscription/add")]
+        public async Task<IActionResult> AddNotificationSubscription(string jiraServerId, NotificationSubscription notificationSubscription)
         {
             var user = await GetAndVerifyUser(jiraServerId);
             await _notificationSubscriptionService.CreateNotificationSubscription(
@@ -55,8 +55,8 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok();
         }
 
-        [HttpGet("api/notifications/get")]
-        public async Task<IActionResult> GetNotification(string jiraServerId, string microsoftUserId)
+        [HttpGet("api/notificationSubscription/get")]
+        public async Task<IActionResult> GetNotificationSubscriptionForUser(string jiraServerId)
         {
             var user = await GetAndVerifyUser(jiraServerId);
             NotificationSubscription notificationSubscription = await _notificationSubscriptionService.GetNotification(user);
@@ -64,14 +64,23 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(notificationSubscription);
         }
 
-        [HttpPut("api/notifications/update")]
-        public async Task<IActionResult> UpdateNotification(string jiraServerId, NotificationSubscription notificationSubscription)
+        [HttpPut("api/notificationSubscription/update")]
+        public async Task<IActionResult> UpdateNotificationSubscription(string jiraServerId, NotificationSubscription notificationSubscription)
         {
             var user = await GetAndVerifyUser(jiraServerId);
             await _notificationSubscriptionService.UpdateNotificationSubscription(
                 user,
                 notificationSubscription,
                 notificationSubscription.ConversationReferenceId);
+
+            return Ok();
+        }
+
+        [HttpPost("api/notificationSubscription/removePersonal")]
+        public async Task<IActionResult> RemoveNotificationSubscriptionForUser(string jiraServerId)
+        {
+            var user = await GetAndVerifyUser(jiraServerId);
+            await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user);
 
             return Ok();
         }

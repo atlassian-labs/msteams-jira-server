@@ -10,7 +10,6 @@ using MicrosoftTeamsIntegration.Jira.Helpers;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
-using MicrosoftTeamsIntegration.Jira.Services.SignalR;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
 using Newtonsoft.Json;
 
@@ -108,18 +107,22 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
             var notifications = await _notificationSubscriptionDatabaseService
                 .GetNotificationSubscriptionByMicrosoftUserId(user.MsTeamsUserId);
 
-            var personalNotification = notifications
-                .FirstOrDefault(n => n.SubscriptionType == SubscriptionType.Personal);
+            var personalNotifications = notifications
+                .Where(n => n.SubscriptionType == SubscriptionType.Personal).ToList();
 
-            if (personalNotification == null)
+            if (personalNotifications.Count == 0)
             {
                 return;
             }
 
-            await _notificationSubscriptionDatabaseService
-                .DeleteNotificationSubscriptionBySubscriptionId(personalNotification.SubscriptionId);
+            // In general, we need to have one personal notification subscription per user, but if there are multiple, remove all of them
+            foreach (var notification in personalNotifications)
+            {
+                await _notificationSubscriptionDatabaseService
+                    .DeleteNotificationSubscriptionBySubscriptionId(notification.SubscriptionId);
 
-            await TryToDisableAddonNotificationSettingsOnRemoval(user, personalNotification);
+                await TryToDisableAddonNotificationSettingsOnRemoval(user, notification);
+            }
         }
         catch (Exception ex)
         {

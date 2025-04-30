@@ -103,7 +103,7 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
             await component.ngOnInit();
             await component.getNotificationSettings();
 
-            expect(mockApiService.getNotificationSettings).toHaveBeenCalledWith('test-jira-id', 'test-user-id');
+            expect(mockApiService.getNotificationSettings).toHaveBeenCalledWith('test-jira-id');
             expect(component.notificationsForm?.get('ActivityIssueAssignee')?.value).toBeTrue();
             expect(component.notificationsForm?.get('CommentIssueAssignee')?.value).toBeTrue();
         });

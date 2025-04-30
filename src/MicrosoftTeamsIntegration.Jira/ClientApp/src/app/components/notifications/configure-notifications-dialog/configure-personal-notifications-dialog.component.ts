@@ -20,6 +20,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
     public conversationReferenceId: string | any;
     public savedNotificationSubscription: NotificationSubscription | any;
     public loading = false;
+    public submitting = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -43,7 +44,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
 
     public async getNotificationSettings(): Promise<void> {
         try {
-            const response = await this.apiService.getNotificationSettings(this.jiraId, this.microsoftUserId);
+            const response = await this.apiService.getNotificationSettings(this.jiraId);
 
             if (response) {
                 this.notificationsForm?.patchValue({
@@ -78,6 +79,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         if (!this.notificationsForm?.valid) {
             return;
         }
+        this.submitting = true;
 
         if (this.savedNotificationSubscription) {
             this.savedNotificationSubscription.eventTypes = this.getSelectedEventTypes();
@@ -111,9 +113,11 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             await this.apiService.addNotification(this.jiraId, notification);
             this.notificationService.notifySuccess('Notification saved successfully.').afterDismissed().subscribe(() => {
                 microsoftTeams.dialog.url.submit();
+                this.submitting = false;
             });
         } catch (error) {
             this.notificationService.notifyError('Failed to save notification. Please try again.').afterDismissed().subscribe(() => {
+                this.submitting = false;
             });
         }
     }

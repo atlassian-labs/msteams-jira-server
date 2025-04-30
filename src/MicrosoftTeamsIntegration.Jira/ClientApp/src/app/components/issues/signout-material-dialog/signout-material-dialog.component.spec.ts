@@ -15,7 +15,7 @@ describe('SignoutMaterialDialogComponent', () => {
     let dialogRef: jasmine.SpyObj<MatDialogRef<SignoutMaterialDialogComponent>>;
 
     beforeEach(async () => {
-        const apiServiceSpy = jasmine.createSpyObj('ApiService', ['logOut']);
+        const apiServiceSpy = jasmine.createSpyObj('ApiService', ['logOut', ['removePersonalNotification']]);
         const authServiceSpy = jasmine.createSpyObj('AuthService', ['']);
         const utilServiceSpy = jasmine.createSpyObj('UtilService', ['convertStringToNull']);
         const appInsightsServiceSpy = jasmine.createSpyObj('AppInsightsService', ['trackException']);
@@ -76,6 +76,7 @@ describe('SignoutMaterialDialogComponent', () => {
 
     it('should sign out successfully', async () => {
         utilService.convertStringToNull.and.returnValue('http://example.com');
+        apiService.removePersonalNotification.and.returnValue(Promise.resolve());
         apiService.logOut.and.returnValue(Promise.resolve({ isSuccess: true }));
 
         await component.ngOnInit();

@@ -42,7 +42,7 @@
 
     <div class="actions">
         <button class="ts-btn ts-btn-primary buttons__button"
-                [disabled]="!notificationsForm?.touched"
+                [disabled]="!notificationsForm?.touched || submitting"
                 (click)="saveNotification()">Save notifications</button>
     </div>
 </div>

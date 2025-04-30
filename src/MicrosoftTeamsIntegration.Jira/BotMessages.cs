@@ -12,6 +12,7 @@
         public const string ConnectDialogCardTitle = "In order to use bot, please connect it first and rerun the command.";
 
         public const string JiraDisconnectDialogConfirmPrompt = "Are you sure you want to disconnect?";
+        public const string JiraDisconnectDialogConfirmPromptWithNotificationSubscriptions = "Are you sure you want to disconnect? You will stop receiving notifications from Jira.";
         public const string JiraDisconnectDialogNotConnected = "You are not connected to any Jira at the moment.";
     }
 }
