@@ -59,7 +59,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
         public async Task<IActionResult> GetNotificationSubscriptionForUser(string jiraServerId)
         {
             var user = await GetAndVerifyUser(jiraServerId);
-            NotificationSubscription notificationSubscription = await _notificationSubscriptionService.GetNotification(user);
+            NotificationSubscription notificationSubscription = await _notificationSubscriptionService.GetNotificationSubscription(user);
 
             return Ok(notificationSubscription);
         }

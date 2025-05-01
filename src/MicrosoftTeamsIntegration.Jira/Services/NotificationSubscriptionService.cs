@@ -60,7 +60,7 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
         }
     }
 
-    public async Task<NotificationSubscription> GetNotification(IntegratedUser user)
+    public async Task<NotificationSubscription> GetNotificationSubscription(IntegratedUser user)
     {
         try
         {
@@ -89,6 +89,9 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
                         await _distributedCacheService.Get<string>(conversationReferenceId);
                 }
             }
+
+            // mute notifications if the user has not selected any event types
+            notification.IsActive = notification.EventTypes.Length != 0;
 
             await _notificationSubscriptionDatabaseService.UpdateNotificationSubscription(
                 notification.SubscriptionId,

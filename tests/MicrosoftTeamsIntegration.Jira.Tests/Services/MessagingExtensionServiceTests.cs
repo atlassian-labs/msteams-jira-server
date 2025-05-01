@@ -47,8 +47,18 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var distributedCacheService = A.Fake<IDistributedCacheService>();
             var telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
             var analyticsService = A.Fake<IAnalyticsService>();
+            var notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
 
-            _target = new MessagingExtensionService(appSettings, logger, _jiraService, mapper, botMessagesService, distributedCacheService, telemetry, analyticsService);
+            _target = new MessagingExtensionService(
+                appSettings,
+                logger,
+                _jiraService,
+                mapper,
+                botMessagesService,
+                distributedCacheService,
+                telemetry,
+                analyticsService,
+                notificationSubscriptionService);
         }
 
         [Fact]
@@ -928,6 +938,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
         [Theory]
         [InlineData("showMessageCard")]
         [InlineData("showIssueCard")]
+        [InlineData("showNotificationSettings")]
         public async Task HandleTaskSubmitActionAsync_SpecificTaskCommandName(string commandName)
         {
             var user = new IntegratedUser

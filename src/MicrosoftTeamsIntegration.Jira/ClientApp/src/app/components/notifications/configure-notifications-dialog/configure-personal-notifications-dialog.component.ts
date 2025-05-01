@@ -22,6 +22,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
     public loading = false;
     public submitting = false;
     public isAddonUpdated = false;
+    public replyToActivityId: string | any;
 
     constructor(
         private route: ActivatedRoute,
@@ -31,13 +32,14 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
     ) { }
 
     public async ngOnInit() {
-        const { jiraId, microsoftUserId, conversationId, conversationReferenceId } = this.route.snapshot.params;
+        const { jiraId, microsoftUserId, conversationId, conversationReferenceId, replyToActivityId } = this.route.snapshot.params;
 
         this.jiraId = jiraId;
         this.microsoftUserId = microsoftUserId;
         this.conversationId = conversationId;
         this.conversationReferenceId = conversationReferenceId;
         this.loading = true;
+        this.replyToActivityId = replyToActivityId;
 
         await this.createForm();
 
@@ -57,9 +59,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             this.isAddonUpdated
                 = this.utilService.isAddonUpdatedToVersion(addonVersion, this.utilService.getMinAddonVersionForNotifications());
             if(!this.isAddonUpdated) {
-                this.loading = true;
                 this.notificationService.notifyError(this.utilService.getUpgradeAddonMessageForNotifications(), 20000, false);
-                return;
             }
 
             if (notificationSettings) {
@@ -107,6 +107,10 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             await this.apiService.updateNotification(this.jiraId, this.savedNotificationSubscription);
 
             this.notificationService.notifySuccess('Notification updated successfully.').afterDismissed().subscribe(() => {
+                microsoftTeams.dialog.url.submit({
+                    commandName: 'showNotificationSettings',
+                    replyToActivityId: this.replyToActivityId});
+                this.submitting = false;
                 microsoftTeams.dialog.url.submit();
             });
 
@@ -128,8 +132,11 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         try {
             await this.apiService.addNotification(this.jiraId, notification);
             this.notificationService.notifySuccess('Notification saved successfully.').afterDismissed().subscribe(() => {
-                microsoftTeams.dialog.url.submit();
+                microsoftTeams.dialog.url.submit({
+                    commandName: 'showNotificationSettings',
+                    replyToActivityId: this.replyToActivityId});
                 this.submitting = false;
+                microsoftTeams.dialog.url.submit();
             });
         } catch (error) {
             this.notificationService.notifyError('Failed to save notification. Please try again.').afterDismissed().subscribe(() => {

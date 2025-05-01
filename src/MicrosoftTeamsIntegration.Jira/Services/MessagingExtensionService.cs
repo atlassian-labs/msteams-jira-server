@@ -53,6 +53,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         private readonly IDistributedCacheService _distributedCacheService;
         private readonly TelemetryClient _telemetry;
         private readonly IAnalyticsService _analyticsService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
 
         public MessagingExtensionService(
             IOptions<AppSettings> appSettings,
@@ -62,7 +63,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             IBotMessagesService botMessagesService,
             IDistributedCacheService distributedCacheService,
             TelemetryClient telemetry,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            INotificationSubscriptionService notificationSubscriptionService)
         {
             _appSettings = appSettings.Value;
             _logger = logger;
@@ -72,6 +74,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             _distributedCacheService = distributedCacheService;
             _telemetry = telemetry;
             _analyticsService = analyticsService;
+            _notificationSubscriptionService = notificationSubscriptionService;
         }
 
         public async Task<FetchTaskResponseEnvelope> HandleMessagingExtensionFetchTask(
@@ -434,6 +437,31 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                             }
 
                             break;
+                        case "showNotificationSettings":
+                            var notificationConfigurationMessage = turnContext.Activity.CreateReply();
+                            notificationConfigurationMessage.Id = fetchTaskCommand.ReplyToActivityId;
+                            var notificationSubscription =
+                                await _notificationSubscriptionService.GetNotificationSubscription(user);
+
+                            if (notificationSubscription != null && notificationSubscription.IsActive &&
+                                notificationSubscription.EventTypes.Length != 0)
+                            {
+                                var subscriptionConfigurationCard =
+                                    _botMessagesService.BuildNotificationConfigurationSummaryCard(
+                                        notificationSubscription, true);
+                                notificationConfigurationMessage.Attachments.Add(subscriptionConfigurationCard
+                                    .ToAttachment());
+                            }
+                            else
+                            {
+                                var notificationConfigurationCard =
+                                    _botMessagesService.BuildConfigureNotificationsCard(turnContext);
+                                notificationConfigurationMessage.Attachments.Add(notificationConfigurationCard
+                                    .ToAttachment());
+                            }
+
+                            await turnContext.UpdateActivityAsync(notificationConfigurationMessage);
+                            break;
                     }
                 }
                 catch (Exception exception)
@@ -755,6 +783,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         .MicrosoftUserId(user?.MsTeamsUserId)
                         .ConversationId(turnContext.Activity.Conversation.Id)
                         .ConversationReferenceId(conversationReferenceId)
+                        .ReplyToActivityId(turnContext.Activity.ReplyToId)
                         .Build();
 
                     taskModuleTitle = "Configure notifications";

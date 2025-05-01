@@ -74,7 +74,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             }
 
             _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "replied");
-            var promptMessage = await _notificationSubscriptionService.GetNotification(user) != null
+            var promptMessage = await _notificationSubscriptionService.GetNotificationSubscription(user) != null
                 ? BotMessages.JiraDisconnectDialogConfirmPromptWithNotificationSubscriptions
                 : BotMessages.JiraDisconnectDialogConfirmPrompt;
             return await stepContext.PromptAsync(

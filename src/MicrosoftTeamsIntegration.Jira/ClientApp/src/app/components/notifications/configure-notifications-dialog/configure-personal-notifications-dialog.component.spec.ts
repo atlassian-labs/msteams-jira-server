@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ConfigurePersonalNotificationsDialogComponent } from './configure-personal-notifications-dialog.component';
 import { ActivatedRoute } from '@angular/router';
-import {ApiService, JiraAddonStatus, UtilService} from '@core/services';
+import {ApiService, UtilService} from '@core/services';
 import { NotificationService } from '@shared/services/notificationService';
 import { of } from 'rxjs';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';

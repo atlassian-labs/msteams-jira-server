@@ -8,11 +8,11 @@ using MongoDB.Driver;
 
 namespace MicrosoftTeamsIntegration.Jira.Services;
 
-public class NotificationSubscriptionSubscriptionDatabaseService : DatabaseService, INotificationSubscriptionDatabaseService
+public class NotificationSubscriptionDatabaseService : DatabaseService, INotificationSubscriptionDatabaseService
 {
     private readonly IMongoCollection<NotificationSubscription> _notificationSubscriptionCollection;
 
-    public NotificationSubscriptionSubscriptionDatabaseService(IOptions<AppSettings> appSettings, IMongoDBContext context)
+    public NotificationSubscriptionDatabaseService(IOptions<AppSettings> appSettings, IMongoDBContext context)
         : base(appSettings, context)
     {
         _notificationSubscriptionCollection =

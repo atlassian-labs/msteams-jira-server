@@ -237,7 +237,7 @@ public class NotificationSubscriptionServiceTests
         A.CallTo(() => _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
             .Returns(new[] { expectedNotification });
 
-        var result = await _service.GetNotification(_integratedUser);
+        var result = await _service.GetNotificationSubscription(_integratedUser);
 
         Assert.Equal(expectedNotification, result);
         A.CallTo(() => _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
@@ -253,7 +253,7 @@ public class NotificationSubscriptionServiceTests
         A.CallTo(() => _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(microsoftUserId))
             .Throws(exception);
 
-        var result = await _service.GetNotification(_integratedUser);
+        var result = await _service.GetNotificationSubscription(_integratedUser);
 
         Assert.Null(result);
     }
@@ -264,7 +264,9 @@ public class NotificationSubscriptionServiceTests
         var notification = new NotificationSubscription
         {
             SubscriptionId = "test-subscription-id",
-            MicrosoftUserId = _integratedUser.MsTeamsUserId
+            MicrosoftUserId = _integratedUser.MsTeamsUserId,
+            EventTypes = Array.Empty<string>(),
+            IsActive = false
         };
 
         await _service.UpdateNotificationSubscription(_integratedUser, notification);
@@ -272,6 +274,25 @@ public class NotificationSubscriptionServiceTests
         A.CallTo(() => _distributedCacheService.Get<string>(A<string>._, CancellationToken.None))
             .MustNotHaveHappened();
         A.CallTo(() => _notificationSubscriptionDatabaseService.UpdateNotificationSubscription(notification.SubscriptionId, notification))
+            .MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task UpdateNotificationSubscription_ShouldMuteSubscription_WhenThereAreNoEventTypesConfigured()
+    {
+        var notification = new NotificationSubscription
+        {
+            SubscriptionId = "test-subscription-id",
+            MicrosoftUserId = _integratedUser.MsTeamsUserId,
+            EventTypes = Array.Empty<string>(),
+            IsActive = true
+        };
+
+        await _service.UpdateNotificationSubscription(_integratedUser, notification);
+
+        A.CallTo(() => _distributedCacheService.Get<string>(A<string>._, CancellationToken.None))
+            .MustNotHaveHappened();
+        A.CallTo(() => _notificationSubscriptionDatabaseService.UpdateNotificationSubscription(notification.SubscriptionId, A<NotificationSubscription>.That.Matches(x => !x.IsActive)))
             .MustHaveHappenedOnceExactly();
     }
 

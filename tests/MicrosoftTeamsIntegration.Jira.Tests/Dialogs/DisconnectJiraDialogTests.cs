@@ -68,7 +68,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             {
                 IsSuccess = true
             });
-            A.CallTo(() => _notificationSubscriptionService.GetNotification(A<IntegratedUser>._)).Returns((NotificationSubscription)null);
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(A<IntegratedUser>._)).Returns((NotificationSubscription)null);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("disconnect");
             var confirmReply = await testClient.SendActivityAsync<IMessageActivity>("Yes");
@@ -91,7 +91,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             {
                 IsSuccess = true
             });
-            A.CallTo(() => _notificationSubscriptionService.GetNotification(A<IntegratedUser>._)).Returns((NotificationSubscription)null);
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(A<IntegratedUser>._)).Returns((NotificationSubscription)null);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("disconnect");
             var confirmReply = await testClient.SendActivityAsync<IMessageActivity>("No");
