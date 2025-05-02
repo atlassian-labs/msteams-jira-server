@@ -309,16 +309,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             var issueTypes = await GetCreateMetaIssueTypes(user, projectKeyOrId);
             var transitions = new List<JiraTransitionsResponse>();
 
-            foreach (var issueType in issueTypes)
+            foreach (var issueType in issueTypes.Select(it => it.Id))
             {
                 try
                 {
-                    var fields = await GetTransitions(user, issueType.Id);
+                    var fields = await GetTransitions(user, issueType);
                     transitions.Add(fields);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to get transitions for issue type {issueType}", issueType.Id);
+                    _logger.LogError(ex, "Failed to get transitions for issue type {issueType}", issueType);
                 }
             }
 

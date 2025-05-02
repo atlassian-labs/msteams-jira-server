@@ -291,7 +291,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             bool isGroupConversation = turnContext.Activity.IsGroupConversation();
 
             string title = isGroupConversation ? "🔔 Channel notifications" : "🔔 Personal notifications";
-            string notificationType = isGroupConversation ? "channel" : "personal";
             string turnOnCommandName = isGroupConversation
                 ? DialogMatchesAndCommands.TurnOnChannelNotificationsCommand
                 : DialogMatchesAndCommands.TurnOnNotificationsCommand;
@@ -309,7 +308,9 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     },
                     new AdaptiveTextBlock
                     {
-                        Text = $"Turn on {notificationType} notifications to stay updated across your projects in Jira Data Center without the distraction of email notifications.",
+                        Text = isGroupConversation
+                                ? "Manage your project notifications for this channel. I’ll send instant updates to keep your team in sync."
+                                : "Turn on personal notifications to stay updated across your projects in Jira Data Center without the distraction of email notifications.",
                         Wrap = true
                     }
                 },
@@ -317,7 +318,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 {
                     new AdaptiveSubmitAction
                     {
-                        Title = "Turn on notifications",
+                        Title = isGroupConversation ? "Manage notifications" : "Turn on notifications",
                         Style = "positive",
                         Data = new JiraBotTeamsDataWrapper
                         {

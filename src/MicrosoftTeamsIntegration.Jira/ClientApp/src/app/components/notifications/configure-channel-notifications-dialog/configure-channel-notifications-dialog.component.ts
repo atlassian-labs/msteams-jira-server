@@ -40,7 +40,6 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     private selectedIssueType: IssueType | undefined;
     public prioritiesOptions: DropDownOption<string>[] = [];
     public statusesOptions: DropDownOption<string>[] = [];
-    public selectedStatusOption: DropDownOption<string>[] = [];
 
     // Notification options
     private notificationOptions: SelectOption[] = [
@@ -104,7 +103,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         this.notifications = await this.apiService.getAllNotificationsByConversationId(this.jiraId as string, this.conversationId);
 
         if (this.notifications && this.notifications.length > 0) {
-            this.displayNotificationsListGroup();
+            await this.displayNotificationsListGroup();
         } else {
             this.displayInitialContainer();
         }
@@ -115,7 +114,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
         this.projects = (await this.getProjects(this.jiraId as string)) as any;
 
-        this.checkAddonUpdated();
+        await this.checkAddonUpdated();
 
         if (!this.projects || this.projects.length === 0) {
             const message = 'You don\'t have permission to perform this action';
@@ -126,10 +125,10 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         this.availableProjectsOptions = this.projects.map(this.dropdownUtilService.mapProjectToDropdownOption);
         this.projectFilteredOptions = this.availableProjectsOptions;
 
-        let defaultProject: string = this.availableProjectsOptions[0]?.value || '';
-        let defaultIssueType: string = this.availableIssueTypesOptions[0]?.value || '';
-        let defaultStatus: string = this.statusesOptions[0]?.value || '';
-        let defaultPriority: string = this.prioritiesOptions[0]?.value || '';
+        let defaultProjectOption: string = this.availableProjectsOptions[0]?.value || '';
+        let defaultIssueTypeOption: string = this.availableIssueTypesOptions[0]?.value || '';
+        let defaultStatusOption: string = this.statusesOptions[0]?.value || '';
+        let defaultPriorityOption: string = this.prioritiesOptions[0]?.value || '';
         this.issueIsSelectOptions = [
             { id: 'issueCreated', label: 'Created', value: 'IssueCreated' },
             { id: 'issueUpdated', label: 'Updated', value: 'IssueUpdated' },
@@ -142,38 +141,17 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         this.addRemovePriorityFromForm();
 
         if (notification) {
-            defaultProject = this.availableProjectsOptions.find(project => project.id === notification.projectId)?.value || defaultProject;
-            await this.onProjectSelected(defaultProject);
-            await this.setStatusesOptions();
-
-            if (notification.filter) {
-                const jqlParts = notification.filter.split(' AND ');
-
-                const typeMatch = jqlParts.find(part => part.trim().startsWith('type in'));
-                if (typeMatch) {
-                    const typeValue = typeMatch.match(/"([^"]+)"/)?.[1];
-                    defaultIssueType = this.availableIssueTypesOptions.find(opt => opt.label === typeValue)?.value || defaultIssueType;
-                    await this.onIssueTypeSelected(defaultIssueType);
-                }
-
-                const priorityMatch = jqlParts.find(part => part.trim().startsWith('priority in'));
-                if (priorityMatch) {
-                    const priorityValue = priorityMatch.match(/"([^"]+)"/)?.[1];
-                    defaultPriority = this.prioritiesOptions.find(opt => opt.id === priorityValue)?.value || defaultPriority;
-                }
-
-                const statusMatch = jqlParts.find(part => part.trim().startsWith('status in'));
-                if (statusMatch) {
-                    const statusValue = statusMatch.match(/"([^"]+)"/)?.[1];
-                    defaultStatus = this.statusesOptions.find(opt => opt.label === statusValue)?.value || defaultStatus;
-                }
-            }
+            const { defaultProject, defaultIssueType, defaultPriority, defaultStatus }
+                = await this.initializeDefaultsForNotification(notification);
+            defaultProjectOption = defaultProject;
+            defaultIssueTypeOption = defaultIssueType;
+            defaultStatusOption = defaultStatus;
+            defaultPriorityOption = defaultPriority;
 
             this.issueIsSelectOptions = this.issueIsSelectOptions.filter(opt => notification.eventTypes.includes(opt.value as string));
             this.commentIsSelectOptions = this.commentIsSelectOptions.filter(opt => notification.eventTypes.includes(opt.value as string));
         } else {
-            await this.onProjectSelected(defaultProject);
-            await this.setStatusesOptions();
+            await this.onProjectSelected(defaultProjectOption);
             this.addRemovePriorityFromForm();
         }
 
@@ -181,10 +159,10 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         this.issueForm = new UntypedFormGroup({
             subscriptionId: new UntypedFormControl(notification?.subscriptionId),
             jiraId: new UntypedFormControl(this.jiraId, [Validators.required]),
-            project: new UntypedFormControl(defaultProject),
-            issuetype: new UntypedFormControl(defaultIssueType),
-            status: new UntypedFormControl(defaultStatus),
-            priority: new UntypedFormControl(defaultPriority),
+            project: new UntypedFormControl(defaultProjectOption),
+            issuetype: new UntypedFormControl(defaultIssueTypeOption),
+            status: new UntypedFormControl(defaultStatusOption),
+            priority: new UntypedFormControl(defaultPriorityOption),
             issueIs: new UntypedFormControl(this.issueIsSelectOptions),
             commentIs: new UntypedFormControl(this.commentIsSelectOptions)
         });
@@ -197,11 +175,15 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
         this.selectedProject = this.projects?.find((proj: { id: string | null }) => proj.id === projectId);
         const projectKey = this.selectedProject?.key as string;
-        const [issueTypesResult] = await Promise.all([
+        const [issueTypesResult, statusesResult] = await Promise.all([
             this.apiService.getCreateMetaIssueTypes(this.jiraId as string, projectKey).catch(error => {
                 console.error('Error fetching issue types:', error);
                 return null;
             }),
+            await this.apiService.getStatusesByProject(this.jiraId as string, projectId as string).catch(error => {
+                console.error('Error fetching statuses:', error);
+                return null;
+            })
         ]);
 
         if (issueTypesResult) {
@@ -210,6 +192,15 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         } else {
             this.availableIssueTypesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
             const errorMessage = 'Failed to fetch issue types. Please try again later.';
+            this.notificationService.notifyError(errorMessage);
+        }
+
+        if(statusesResult) {
+            this.statusesOptions = statusesResult.map(this.dropdownUtilService.mapStatusToDropdownOption);
+            this.statusesOptions.unshift(this.ALL_OPTION);
+        } else {
+            this.statusesOptions = [this.DEFAULT_UNAVAILABLE_OPTION];
+            const errorMessage = 'Failed to fetch statuses. Please try again later.';
             this.notificationService.notifyError(errorMessage);
         }
 
@@ -241,29 +232,18 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             const formValue = this.issueForm.value;
             const selectedProject = this.projects.find((project: { id: string }) => project.id === formValue.project);
             const selectedIssueType = this.issueTypes.find((issueType: { id: string }) => issueType.id === formValue.issuetype);
+            const selectedPriority = this.prioritiesOptions.find((priority) => priority.id === formValue?.priority)?.label;
+            const selectedStatus = this.statusesOptions.find(opt => opt.id === formValue.status)?.label;
 
-            let jqlQuery = `project = ${selectedProject?.key}`;
+            const jqlQuery = this.buildJqlQuery(
+                formValue,
+                selectedProject?.key,
+                selectedIssueType?.name,
+                selectedPriority,
+                selectedStatus);
 
-            if (formValue.issuetype) {
-                jqlQuery += ` AND type in ("${selectedIssueType?.name}")`;
-            }
-
-            if (formValue.priority) {
-                jqlQuery += ` AND priority in ("${formValue.priority}")`;
-            }
-
-            if (formValue.status) {
-                jqlQuery += ` AND status in ("${this.statusesOptions.find(opt => opt.id === formValue.status)?.label}")`;
-            }
-
-            const issueIsOptions = formValue.issueIs.map((option: string | SelectOption) =>
-                typeof option === 'string'
-                    ? this.notificationOptions.find(n => n.id === option)?.value
-                    : this.notificationOptions.find(n => n.id === option.id)?.value);
-            const commentIsOptions = formValue.commentIs.map((option: string | SelectOption) =>
-                typeof option === 'string'
-                    ? this.notificationOptions.find(n => n.id === option)?.value
-                    : this.notificationOptions.find(n => n.id === option.id)?.value);
+            const issueIsOptions = this.getMappedNotificationTypeOptions(formValue.issueIs);
+            const commentIsOptions = this.getMappedNotificationTypeOptions(formValue.commentIs);
 
             const notificationSubscription: NotificationSubscription = {
                 jiraId: this.jiraId,
@@ -291,7 +271,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
             this.notificationService.notifySuccess(notifyMessage);
 
-            this.displayNotificationsListGroup();
+            await this.displayNotificationsListGroup();
         }
     }
 
@@ -310,60 +290,6 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
     public onCancel(): void {
         microsoftTeams.dialog.url.submit();
-    }
-
-    private async getProjects(jiraUrl: string): Promise<Project[] | null> {
-        return await this.apiService.getProjects(jiraUrl, true);
-    }
-
-    private async findProjects(jiraUrl: string, filterName?: string): Promise<Project[]> {
-        return await this.apiService.findProjects(jiraUrl, filterName, true);
-    }
-
-    private async setStatusesOptions(): Promise<void> {
-        const jiraTransitionsArray = await this.transitionService
-            .getTransitionsByProjectKeyOrId(this.jiraId as string, this.selectedProject?.id as string);
-        const allTransitions = jiraTransitionsArray.flatMap(response => response.transitions);
-
-        // Filter unique transitions based on their `id`
-        const uniqueTransitions = allTransitions.filter(
-            (transition, index, self) =>
-                index === self.findIndex(t => t.id === transition.id)
-        );
-
-        this.statusesOptions = uniqueTransitions.map(this.dropdownUtilService.mapTransitionToDropdownOptionString);
-        this.statusesOptions.unshift(this.ALL_OPTION);
-    }
-
-    private addRemovePriorityFromForm(): void {
-        if (!this.fields || Object.keys(this.fields).length === 0) {
-            this.prioritiesOptions = [this.ALL_OPTION];
-            return;
-        }
-
-        const priorities = this.fields.priority;
-
-        const priorityControlName = 'priority';
-
-        if (priorities) {
-            const prioritiesOptions = priorities.allowedValues.map(this.dropdownUtilService.mapPriorityToDropdownOption);
-            prioritiesOptions.unshift(this.ALL_OPTION);
-            this.prioritiesOptions = prioritiesOptions;
-        } else if (this.issueForm.contains(priorityControlName)) {
-            this.issueForm.removeControl(priorityControlName);
-            this.prioritiesOptions = [];
-        }
-    }
-
-    private getIssueTypesOptions(): DropDownOption<string>[] {
-        if (this.issueTypes && this.issueTypes.length > 0) {
-            const issueTypes = this.issueTypes
-                .map(this.dropdownUtilService.mapIssueTypeToDropdownOption);
-            issueTypes.unshift(this.ALL_OPTION);
-
-            return issueTypes;
-        }
-        return [this.DEFAULT_UNAVAILABLE_OPTION];
     }
 
     public displayInitialContainer(): void {
@@ -398,6 +324,108 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         this.showNotificationsListGroup = false;
 
         await this.createForm(notification);
+    }
+
+    private async getProjects(jiraUrl: string): Promise<Project[] | null> {
+        return await this.apiService.getProjects(jiraUrl, true);
+    }
+
+    private addRemovePriorityFromForm(): void {
+        if (!this.fields || Object.keys(this.fields).length === 0) {
+            this.prioritiesOptions = [this.ALL_OPTION];
+            return;
+        }
+
+        const priorities = this.fields.priority;
+
+        const priorityControlName = 'priority';
+
+        if (priorities) {
+            const prioritiesOptions = priorities.allowedValues.map(this.dropdownUtilService.mapPriorityToDropdownOption);
+            prioritiesOptions.unshift(this.ALL_OPTION);
+            this.prioritiesOptions = prioritiesOptions;
+        } else if (this.issueForm.contains(priorityControlName)) {
+            this.issueForm.removeControl(priorityControlName);
+            this.prioritiesOptions = [];
+        }
+    }
+
+    private getIssueTypesOptions(): DropDownOption<string>[] {
+        if (this.issueTypes && this.issueTypes.length > 0) {
+            const issueTypes = this.issueTypes
+                .map(this.dropdownUtilService.mapIssueTypeToDropdownOption);
+            issueTypes.unshift(this.ALL_OPTION);
+
+            return issueTypes;
+        }
+        return [this.DEFAULT_UNAVAILABLE_OPTION];
+    }
+
+    private buildJqlQuery(
+        formValue: any,
+        projectKey: string | undefined,
+        issueTypeName: string | undefined,
+        priority: string | undefined,
+        status: string | undefined
+    ): string {
+        let jqlQuery = `project = "${projectKey}"`;
+
+        if (formValue.issuetype && formValue.issuetype !== this.ALL_OPTION.value) {
+            jqlQuery += ` AND type in ("${issueTypeName}")`;
+        }
+
+        if (formValue.priority && formValue.priority !== this.ALL_OPTION.value) {
+            jqlQuery += ` AND priority in ("${priority}")`;
+        }
+
+        if (formValue.status && formValue.status !== this.ALL_OPTION.value) {
+            jqlQuery += ` AND status in ("${status}")`;
+        }
+
+        return jqlQuery;
+    }
+
+    private getMappedNotificationTypeOptions(options: (string | SelectOption)[]): any {
+        return options.map((option: string | SelectOption) =>
+            typeof option === 'string'
+                ? this.notificationOptions.find(n => n.id === option)?.value
+                : this.notificationOptions.find(n => n.id === option.id)?.value
+        );
+    }
+
+    private async initializeDefaultsForNotification(notification: NotificationSubscription):
+    Promise<{ defaultProject: string; defaultIssueType: string; defaultPriority: string; defaultStatus: string }> {
+        const defaultProject = this.availableProjectsOptions.find(project => project.id === notification.projectId)?.value || '';
+        await this.onProjectSelected(defaultProject);
+
+        let defaultIssueType = this.availableIssueTypesOptions[0]?.value || '';
+        let defaultPriority = this.prioritiesOptions[0]?.value || '';
+        let defaultStatus = this.statusesOptions[0]?.value || '';
+
+        if (notification.filter) {
+            const jqlParts = notification.filter.split(' AND ');
+
+            const typeMatch = jqlParts.find(part => part.trim().startsWith('type in'));
+            if (typeMatch) {
+                const typeValue = typeMatch.match(/"([^"]+)"/)?.[1];
+                defaultIssueType = this.availableIssueTypesOptions.find(opt => opt.label === typeValue)?.value || defaultIssueType;
+                await this.onIssueTypeSelected(defaultIssueType);
+            }
+
+            const priorityMatch = jqlParts.find(part => part.trim().startsWith('priority in'));
+            if (priorityMatch) {
+                const priorityValue = priorityMatch.match(/"([^"]+)"/)?.[1];
+                defaultPriority = this.prioritiesOptions.find(opt => opt.label === priorityValue)?.value || defaultPriority;
+            }
+
+            const statusMatch = jqlParts.find(part => part.trim().startsWith('status in'));
+            if (statusMatch) {
+                const statusValue = statusMatch.match(/"([^"]+)"/)?.[1];
+                defaultStatus = this.statusesOptions.find(opt => opt.label === statusValue)?.value || defaultStatus;
+            }
+        }
+
+        return { defaultProject, defaultIssueType, defaultPriority, defaultStatus };
     }
 
     private async checkAddonUpdated(): Promise<void> {
