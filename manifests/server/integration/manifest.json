@@ -78,8 +78,8 @@
           ],
           "commands": [
             {
-              "title": "assign",
-              "description": "Assign issue to yourself"
+              "title": "notifications",
+              "description": "Set up notifications for Jira issues"
             },
             {
               "title": "vote",
@@ -109,6 +109,10 @@
             {
               "title": "assign",
               "description": "Assign issue to yourself"
+            },
+            {
+              "title": "notifications",
+              "description": "Set up personal notifications for Jira issues"
             },
             {
               "title": "watch",
