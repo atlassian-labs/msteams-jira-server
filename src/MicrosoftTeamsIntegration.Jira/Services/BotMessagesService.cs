@@ -429,6 +429,136 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return adaptiveCard;
         }
 
+        public AdaptiveCard BuildHelpCard(ITurnContext turnContext)
+        {
+            var isGroup = turnContext.Activity.IsGroupConversation();
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+
+            adaptiveCard.Body = new List<AdaptiveElement>()
+            {
+                new AdaptiveContainer()
+                {
+                    Items = new List<AdaptiveElement>()
+                    {
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "How I can help you?",
+                            Size = AdaptiveTextSize.Large,
+                            Weight = AdaptiveTextWeight.Bolder
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "Here’s a list of the commands I can process:",
+                            Wrap = true
+                        },
+                        CreateActionColumnSet(
+                            "Connect",
+                            "Connect a Jira Data Center instance to your Microsoft Teams account",
+                            DialogMatchesAndCommands.ConnectToJiraDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Create",
+                            "Create a new issue",
+                            DialogMatchesAndCommands.CreateNewIssueDialogCommand,
+                            !isGroup,
+                            true),
+                        CreateActionColumnSet(
+                            "Notifications",
+                            $"Set up {(isGroup ? "channel" : "personal")} notifications here in Teams",
+                            DialogMatchesAndCommands.TurnOnNotificationsCommand,
+                            true,
+                            true),
+                        CreateActionColumnSet(
+                            "Find",
+                            $"Obtain issue(s) by a summary search phrase or an issue key (e.g. **{DialogMatchesAndCommands.FindDialogCommand} MP-47** or **{DialogMatchesAndCommands.FindDialogCommand} search_phrase**)",
+                            DialogMatchesAndCommands.FindDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Assign",
+                            $"Assign the issue to yourself (e.g. **{DialogMatchesAndCommands.AssignDialogCommand} MP-47**)",
+                            DialogMatchesAndCommands.AssignDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Edit",
+                            "Open the issue card to change priority, summary, and description of the issue",
+                            DialogMatchesAndCommands.IssueEditDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Log",
+                            "Log time spent on the issue",
+                            DialogMatchesAndCommands.LogTimeDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Watch",
+                            $"Start watching the issue (e.g. **{DialogMatchesAndCommands.WatchDialogCommand} MP-47**)",
+                            DialogMatchesAndCommands.WatchDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Unwatch",
+                            $"Stop watching the issue (e.g. **{DialogMatchesAndCommands.UnwatchDialogCommand} MP-47**)",
+                            DialogMatchesAndCommands.UnwatchDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Vote",
+                            "Vote on the issue",
+                            DialogMatchesAndCommands.VoteDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Unvote",
+                            "Unvote on the issue",
+                            DialogMatchesAndCommands.UnvoteDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Comment",
+                            "Comment the issue",
+                            DialogMatchesAndCommands.CommentDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Disconnect",
+                            $"Disconnect Jira Data Center instance you've connected from Microsoft Teams",
+                            DialogMatchesAndCommands.DisconnectJiraDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Cancel",
+                            "cancel current dialog",
+                            DialogMatchesAndCommands.CancelCommand,
+                            true,
+                            false),
+                        new AdaptiveTextBlock()
+                        {
+                            IsVisible = !isGroup,
+                            Wrap = true,
+                            Text = "Type an issue key (e.g. **MP-47**) to view issue card with actions"
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Separator = true,
+                            Wrap = true,
+                            Text =
+                                "\u24d8 For detailed instructions on configuring Jira Data Center application, please visit our [help page](https://confluence.atlassian.com/msteamsjiraserver/microsoft-teams-for-jira-server-documentation-1027116656.html)."
+                        }
+                    }
+                }
+            };
+            adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
+            {
+                { "msTeams", new { width = "full" } }
+            };
+
+            return adaptiveCard;
+        }
+
         private static async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
         {
             string welcomeText =
@@ -572,6 +702,76 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             {
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(adaptiveCard.ToAttachment()), cancellationToken);
             }
+        }
+
+        private static AdaptiveColumnSet CreateActionColumnSet(string title, string description, string command, bool isVisible, bool isFetchTask)
+        {
+            AdaptiveActionSet adaptiveActionSet = isFetchTask
+                ? new AdaptiveActionSet()
+                {
+                    Actions = new List<AdaptiveAction>()
+                    {
+                        new AdaptiveSubmitAction()
+                        {
+                            Title = title,
+                            Data = new JiraBotTeamsDataWrapper
+                            {
+                                FetchTaskData = new FetchTaskBotCommand(command),
+                                TeamsData = new TeamsData
+                                {
+                                    Type = "task/fetch"
+                                }
+                            }
+                        }
+                    }
+                }
+                : new AdaptiveActionSet()
+                {
+                    Actions = new List<AdaptiveAction>()
+                    {
+                        new AdaptiveSubmitAction()
+                        {
+                            Title = title,
+                            Data = new
+                            {
+                                msteams = new
+                                {
+                                    type = "messageBack",
+                                    text = command
+                                }
+                            }
+                        }
+                    }
+                };
+
+            return new AdaptiveColumnSet()
+            {
+                IsVisible = isVisible,
+                Columns = new List<AdaptiveColumn>()
+                {
+                    new AdaptiveColumn()
+                    {
+                        Width = "120px",
+                        Items = new List<AdaptiveElement>()
+                        {
+                            adaptiveActionSet
+                        }
+                    },
+                    new AdaptiveColumn()
+                    {
+                        Width = "stretch",
+                        VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center,
+                        Items = new List<AdaptiveElement>()
+                        {
+                            new AdaptiveTextBlock()
+                            {
+                                Text = description,
+                                Wrap = true
+                            }
+                        }
+                    }
+                }
+            };
         }
     }
 }

@@ -55,7 +55,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             _analyticsService = analyticsService;
 
             // Add dialogs
-            AddDialog(new HelpDialog(_accessors, _appSettings, telemetry, analyticsService));
+            AddDialog(new HelpDialog(_accessors, _appSettings, telemetry, analyticsService, botMessagesService));
             AddDialog(new IssueByKeyDialog(_accessors, botMessagesService, _appSettings, telemetry, analyticsService));
             AddDialog(new WatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry, analyticsService));
             AddDialog(new UnwatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry, analyticsService));

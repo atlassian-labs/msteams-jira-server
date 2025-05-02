@@ -89,24 +89,24 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
         [Fact]
         public async Task UserIsAllowedToStartHelpDialog()
         {
-            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry, _analyticsService);
+            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry, _analyticsService, _botMessagesService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             // Execute the test case
             var reply = await testClient.SendActivityAsync<IMessageActivity>("help");
-            Assert.Contains("Here’s a list of the commands", reply.Text);
+            Assert.NotNull(reply.Attachments[0]);
             Assert.Equal(DialogTurnStatus.Complete, testClient.DialogTurnResult.Status);
         }
 
         [Fact]
         public async Task UserGetsProperHelpForJiraServer()
         {
-            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry, _analyticsService);
+            var sut = new HelpDialog(_mockAccessors, new AppSettings(), _telemetry, _analyticsService, _botMessagesService);
             var testClient = new DialogTestClient(Channels.Test, sut, middlewares: _middleware);
 
             // Execute the test case
             var reply = await testClient.SendActivityAsync<IMessageActivity>("help");
-            Assert.Contains("Jira Data Center instance", reply.Text);
+            Assert.NotNull(reply.Attachments[0]);
         }
 
         [Fact]

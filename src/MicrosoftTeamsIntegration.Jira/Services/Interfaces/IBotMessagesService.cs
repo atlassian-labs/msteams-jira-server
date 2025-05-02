@@ -20,5 +20,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
         Task SendNotificationCard(ITurnContext turnContext, NotificationMessage notificationMessage, CancellationToken cancellationToken = default);
         AdaptiveCard BuildConfigureNotificationsCard(ITurnContext turnContext);
         AdaptiveCard BuildNotificationConfigurationSummaryCard(NotificationSubscription subscription, bool showSuccessMessage = false);
+        AdaptiveCard BuildHelpCard(ITurnContext turnContext);
     }
 }

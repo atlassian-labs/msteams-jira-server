@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -505,6 +505,52 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             // Assert
             A.CallTo(() => turnContext.SendActivityAsync(A<IActivity>._, A<CancellationToken>._)).MustHaveHappened();
+        }
+
+        [Fact]
+        public void BuildHelpCard_GroupConversation_ShouldReturnCorrectCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount { IsGroup = true }
+            };
+            var turnContext = A.Fake<ITurnContext>();
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            var card = service.BuildHelpCard(turnContext);
+
+            // Assert
+            Assert.NotNull(card);
+            Assert.Contains("How I can help you?", card.Body.OfType<AdaptiveContainer>().FirstOrDefault()?.Items.OfType<AdaptiveTextBlock>().FirstOrDefault()?.Text);
+            Assert.DoesNotContain("Connect", card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Select(a => a.Title));
+            Assert.Equal(7, card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Count());
+        }
+
+        [Fact]
+        public void BuildHelpCard_PersonalConversation_ShouldReturnCorrectCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount { IsGroup = false }
+            };
+            var turnContext = A.Fake<ITurnContext>();
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            var card = service.BuildHelpCard(turnContext);
+
+            // Assert
+            Assert.NotNull(card);
+            Assert.Contains("How I can help you?", card.Body.OfType<AdaptiveContainer>().FirstOrDefault()?.Items.OfType<AdaptiveTextBlock>().FirstOrDefault()?.Text);
+            Assert.Contains("Connect", card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Select(a => a.Title));
+            Assert.Equal(14, card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Count());
         }
 
         private AttachmentData BuildTestData(string href = "")
