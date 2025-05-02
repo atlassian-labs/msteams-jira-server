@@ -501,6 +501,15 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(result);
         }
 
+        [HttpGet("issue/transitionsByProject")]
+        public async Task<IActionResult> GetTransitionsByProject(string jiraUrl, string projectKeyOrId)
+        {
+            var user = await GetAndVerifyUser(jiraUrl);
+            var result = await _jiraService.GetTransitionsByProject(user, projectKeyOrId);
+
+            return Ok(result);
+        }
+
         [HttpPost("issue/transitions")]
         public async Task<IActionResult> DoTransition(string jiraUrl, string issueIdOrKey, [FromBody] DoTransitionRequest model)
         {

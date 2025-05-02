@@ -786,8 +786,31 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         .ReplyToActivityId(turnContext.Activity.ReplyToId)
                         .Build();
 
-                    taskModuleTitle = "Configure notifications";
+                    taskModuleTitle = "Configure personal notifications";
                     taskModuleHeight = 480;
+                }
+
+                if (fetchTaskCommand.CommandName.Equals(
+                        DialogMatchesAndCommands.TurnOnChannelNotificationsCommand,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    var conversationReferenceId = Guid.NewGuid().ToString();
+                    var conversationReference = turnContext.Activity.GetConversationReference();
+                    conversationReference.Conversation.Id =
+                        MessagingExtensionRegex.RemoveMessageId(conversationReference.Conversation.Id);
+                    await _distributedCacheService
+                        .Set(conversationReferenceId, JsonConvert.SerializeObject(conversationReference));
+
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl)
+                        .ChannelNotifications()
+                        .JiraId(jiraId)
+                        .MicrosoftUserId(user?.MsTeamsUserId)
+                        .ConversationReferenceId(conversationReferenceId)
+                        .ConversationId(turnContext.Activity.Conversation.Id)
+                        .Build();
+
+                    taskModuleTitle = "Configure channel notifications";
+                    taskModuleHeight = 580;
                 }
 
                 return new FetchTaskResponseEnvelope
@@ -1066,5 +1089,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             return obj.ToObject<T>();
         }
+    }
+
+    public abstract partial class MessagingExtensionRegex
+    {
+        public static string RemoveMessageId(string input)
+        {
+            return RemoveMessageIdRegex().Replace(input, string.Empty);
+        }
+
+        [GeneratedRegex(@";messageid=[^;]*", RegexOptions.IgnoreCase)]
+        private static partial Regex RemoveMessageIdRegex();
     }
 }

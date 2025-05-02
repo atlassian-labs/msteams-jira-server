@@ -5,6 +5,7 @@ using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Meta;
+using MicrosoftTeamsIntegration.Jira.Models.Jira.Transition;
 
 namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
 {
@@ -48,6 +49,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services.Interfaces
         Task<JiraUser[]> SearchAssignableMultiProject(IntegratedUser user, string projectKey, string username);
         Task<JiraApiActionCallResponseWithContent<string>> Assign(IntegratedUser user, string issueIdOrKey, string assigneeAccountId);
         Task<JiraTransitionsResponse> GetTransitions(IntegratedUser user, string issueIdOrKey);
+        Task<List<JiraTransitionsResponse>> GetTransitionsByProject(IntegratedUser user, string projectKeyOrId);
         Task<JiraApiActionCallResponse> DoTransition(IntegratedUser user, string issueIdOrKey, DoTransitionRequest doTransitionRequest);
         Task<string> GetUserNameOrAccountId(IntegratedUser user);
         Task<List<JiraIssueAutocompleteData>> GetFieldAutocompleteData(IntegratedUser user, string fieldName);

@@ -280,11 +280,21 @@ export class ApiService {
             `/api/notificationSubscription/get?jiraServerId=${jiraServerId}`));
     }
 
+    public getAllNotificationsByConversationId(jiraServerId: string, conversationId: string): Promise<NotificationSubscription[]> {
+        return firstValueFrom(this.http.get<NotificationSubscription[]>(
+            `/api/notificationSubscription/getAllByConversationId?jiraServerId=${jiraServerId}&conversationId=${conversationId}`));
+    }
+
     public updateNotification(jiraServerId: string, notification: NotificationSubscription): Promise<any> {
         return firstValueFrom(this.http.put(`/api/notificationSubscription/update?jiraServerId=${jiraServerId}`, notification));
     }
 
     public removePersonalNotification(jiraServerId: string): Promise<any> {
         return firstValueFrom(this.http.post(`/api/notificationSubscription/removePersonal?jiraServerId=${jiraServerId}`, {}));
+    }
+
+    public deleteNotification(jiraServerId: string, subscriptionId: string): Promise<any> {
+        return firstValueFrom(this.http
+            .delete(`/api/notificationSubscription/delete?jiraServerId=${jiraServerId}&subscriptionId=${subscriptionId}`));
     }
 }

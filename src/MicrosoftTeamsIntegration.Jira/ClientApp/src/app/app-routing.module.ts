@@ -12,7 +12,8 @@ import {
     CreateIssueDialogComponent, EditIssueDialogComponent,
     CreateCommentDialogComponent,
     CommentIssueDialogComponent, SignoutDialogComponent,
-    ConfigurePersonalNotificationsDialogComponent
+    ConfigurePersonalNotificationsDialogComponent,
+    ConfigureChannelNotificationsDialogComponent
 } from '@app/components';
 
 import { AuthGuard } from '@core/guards/auth.guard';
@@ -84,6 +85,12 @@ export const routes: Routes = [
     {
         path: 'notifications/configure-personal',
         component: ConfigurePersonalNotificationsDialogComponent,
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
+    },
+    {
+        path: 'notifications/configure-channel',
+        component: ConfigureChannelNotificationsDialogComponent,
+        canActivate: [(route: ActivatedRouteSnapshot) => inject(AuthGuard).canActivate(route)]
     }
 ];
 

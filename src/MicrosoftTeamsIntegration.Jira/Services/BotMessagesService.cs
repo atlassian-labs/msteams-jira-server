@@ -292,6 +292,9 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             string title = isGroupConversation ? "🔔 Channel notifications" : "🔔 Personal notifications";
             string notificationType = isGroupConversation ? "channel" : "personal";
+            string turnOnCommandName = isGroupConversation
+                ? DialogMatchesAndCommands.TurnOnChannelNotificationsCommand
+                : DialogMatchesAndCommands.TurnOnNotificationsCommand;
 
             var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 3))
             {
@@ -318,7 +321,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         Style = "positive",
                         Data = new JiraBotTeamsDataWrapper
                         {
-                            FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.TurnOnNotificationsCommand),
+                            FetchTaskData = new FetchTaskBotCommand(turnOnCommandName),
                             TeamsData = new TeamsData
                             {
                                 Type = "task/fetch"

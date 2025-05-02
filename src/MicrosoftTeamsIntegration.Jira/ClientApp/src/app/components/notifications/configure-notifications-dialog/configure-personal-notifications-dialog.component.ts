@@ -126,7 +126,8 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             microsoftUserId: this.microsoftUserId,
             conversationId: this.conversationId,
             conversationReferenceId: this.conversationReferenceId,
-            projectId: ''
+            projectId: '',
+            projectName: ''
         };
 
         try {

@@ -75,6 +75,33 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
         }
     }
 
+    public async Task<IEnumerable<NotificationSubscription>> GetNotificationSubscriptionByConversationId(string conversationId)
+    {
+        try
+        {
+            return await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionConversationId(conversationId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("An error occurred while retrieving the notification: {ErrorMessage}", ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<IEnumerable<NotificationSubscription>> GetNotifications(IntegratedUser user)
+    {
+        try
+        {
+            return await _notificationSubscriptionDatabaseService
+                .GetNotificationSubscriptionByMicrosoftUserId(user.MsTeamsUserId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("An error occurred while retrieving the notifications: {ErrorMessage}", ex.Message);
+            return null;
+        }
+    }
+
     public async Task UpdateNotificationSubscription(IntegratedUser user, NotificationSubscription notification, string conversationReferenceId = "")
     {
         try
@@ -90,8 +117,11 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
                 }
             }
 
-            // mute notifications if the user has not selected any event types
-            notification.IsActive = notification.EventTypes.Length != 0;
+            if (notification.IsActive)
+            {
+                // mute notifications if the user has not selected any event types
+                notification.IsActive = notification.EventTypes.Length != 0;
+            }
 
             await _notificationSubscriptionDatabaseService.UpdateNotificationSubscription(
                 notification.SubscriptionId,
@@ -132,6 +162,26 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
             _logger.LogError(
                 "An error occurred while deleting the notification subscription: {ErrorMessage}",
                 ex.Message);
+        }
+    }
+
+    public async Task DeleteNotificationSubscriptionBySubscriptionId(IntegratedUser user, string subscriptionId)
+    {
+        try
+        {
+            var notifications =
+                await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionBySubscriptionId(subscriptionId);
+
+            await _notificationSubscriptionDatabaseService.DeleteNotificationSubscriptionBySubscriptionId(subscriptionId);
+
+            await TryToDisableAddonNotificationSettingsOnRemoval(user, notifications.First());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                "An error occurred while deleting the notification subscription: {ErrorMessage}",
+                ex.Message);
+            throw new BadRequestException("Failed to delete notification subscription");
         }
     }
 

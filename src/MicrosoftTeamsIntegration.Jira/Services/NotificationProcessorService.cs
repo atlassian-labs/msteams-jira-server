@@ -355,16 +355,27 @@ public class NotificationProcessorService : INotificationProcessorService
         NotificationMessageCardPayload notificationMessage,
         NotificationSubscription subscription)
     {
-        var adaptiveCard = _mapper.Map<AdaptiveCard>(notificationMessage);
-        var activity = MessageFactory.Attachment(adaptiveCard.ToAttachment());
-        await _proactiveMessagesService.SendActivity(
-            activity,
-            JsonConvert.DeserializeObject<ConversationReference>(subscription.ConversationReference));
-        _analyticsService.SendTrackEvent(
-            null,
-            "bot",
-            "processed",
-            "notification",
-            subscription.SubscriptionType.ToString());
+        try
+        {
+            var adaptiveCard = _mapper.Map<AdaptiveCard>(notificationMessage);
+            var activity = MessageFactory.Attachment(adaptiveCard.ToAttachment());
+            await _proactiveMessagesService.SendActivity(
+                activity,
+                JsonConvert.DeserializeObject<ConversationReference>(subscription.ConversationReference));
+            _analyticsService.SendTrackEvent(
+                null,
+                "bot",
+                "processed",
+                "notification",
+                subscription.SubscriptionType.ToString());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Error while sending notification card to user {UserId} in conversation {ConversationId}",
+                subscription.MicrosoftUserId,
+                subscription.ConversationReference);
+        }
     }
 }

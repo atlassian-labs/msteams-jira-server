@@ -81,7 +81,9 @@ public class NotificationSubscriptionDatabaseService : DatabaseService, INotific
             .Set(x => x.Filter, notificationSubscription.Filter)
             .Set(x => x.IsActive, notificationSubscription.IsActive)
             .Set(x => x.ConversationId, notificationSubscription.ConversationId)
-            .Set(x => x.ConversationReference, notificationSubscription.ConversationReference);
+            .Set(x => x.ConversationReference, notificationSubscription.ConversationReference)
+            .Set(x => x.ProjectId, notificationSubscription.ProjectId)
+            .Set(x => x.ProjectName, notificationSubscription.ProjectName);
 
         var filter = Builders<NotificationSubscription>.Filter.Where(x =>
             x.SubscriptionId == subscriptionId);

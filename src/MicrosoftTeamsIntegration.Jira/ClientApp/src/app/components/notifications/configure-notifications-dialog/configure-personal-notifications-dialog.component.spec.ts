@@ -24,7 +24,8 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
         microsoftUserId: 'test-user-id',
         conversationId: 'test-conversation-id',
         conversationReferenceId: 'test-reference-id',
-        projectId: ''
+        projectId: '',
+        projectName: ''
     };
 
     beforeEach(async () => {
@@ -108,7 +109,8 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
                 microsoftUserId: 'test-user-id',
                 conversationId: 'test-conversation-id',
                 conversationReferenceId: 'test-reference-id',
-                projectId: ''
+                projectId: '',
+                projectName: ''
             }));
 
             await component.ngOnInit();

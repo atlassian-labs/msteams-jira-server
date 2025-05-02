@@ -33,6 +33,9 @@ public sealed class NotificationSubscription
     [BsonElement("projectId")]
     public string ProjectId { get; set; }
 
+    [BsonElement("projectName")]
+    public string ProjectName { get; set; }
+
     [BsonElement("microsoftUserId")]
     public string MicrosoftUserId { get; set; }
 

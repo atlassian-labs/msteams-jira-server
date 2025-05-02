@@ -7,6 +7,7 @@
     conversationReferenceId: string;
     eventTypes: string[];
     projectId: string;
+    projectName: string;
     microsoftUserId: string;
     filter: string;
     isActive: boolean;

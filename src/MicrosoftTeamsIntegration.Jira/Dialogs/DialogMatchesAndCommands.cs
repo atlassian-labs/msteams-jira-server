@@ -43,5 +43,7 @@
         public const string ConfigureNotificationsCommand = "notifications";
 
         public const string TurnOnNotificationsCommand = "turnOnNotifications";
+
+        public const string TurnOnChannelNotificationsCommand = "turnOnChannelNotifications";
     }
 }

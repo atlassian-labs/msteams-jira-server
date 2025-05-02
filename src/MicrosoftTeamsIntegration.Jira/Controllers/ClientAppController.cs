@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +65,26 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(notificationSubscription);
         }
 
+        [HttpGet("api/notificationSubscription/getAll")]
+        public async Task<IActionResult> GetNotifications(string jiraServerId)
+        {
+            var user = await GetAndVerifyUser(jiraServerId);
+            IEnumerable<NotificationSubscription> notificationSubscription =
+                await _notificationSubscriptionService.GetNotifications(user);
+
+            return Ok(notificationSubscription);
+        }
+
+        [HttpGet("api/notificationSubscription/getAllByConversationId")]
+        public async Task<IActionResult> GetNotificationsByConversationId(string jiraServerId, string conversationId)
+        {
+            await GetAndVerifyUser(jiraServerId);
+
+            var notifications = await _notificationSubscriptionService.GetNotificationSubscriptionByConversationId(conversationId);
+
+            return Ok(notifications);
+        }
+
         [HttpPut("api/notificationSubscription/update")]
         public async Task<IActionResult> UpdateNotificationSubscription(string jiraServerId, NotificationSubscription notificationSubscription)
         {
@@ -81,6 +102,16 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
         {
             var user = await GetAndVerifyUser(jiraServerId);
             await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user);
+
+            return Ok();
+        }
+
+        [HttpDelete("api/notificationSubscription/delete")]
+        public async Task<IActionResult> DeleteNotificationSubscriptionBySubscriptionId(string jiraServerId, string subscriptionId)
+        {
+            var user = await GetAndVerifyUser(jiraServerId);
+
+            await _notificationSubscriptionService.DeleteNotificationSubscriptionBySubscriptionId(user, subscriptionId);
 
             return Ok();
         }

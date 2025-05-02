@@ -42,6 +42,12 @@ public class JiraUrlQueryBuilder
         return this;
     }
 
+    public JiraUrlQueryBuilder ChannelNotifications()
+    {
+        _jiraUrlStringBuilder.Append("/#/notifications/configure-channel");
+        return this;
+    }
+
     public JiraUrlQueryBuilder JiraUrl(string jiraUrl)
     {
         _jiraUrlStringBuilder.Append($";jiraUrl={Uri.EscapeDataString(jiraUrl ?? string.Empty)}");
