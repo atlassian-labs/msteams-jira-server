@@ -281,8 +281,9 @@ public class NotificationProcessorService : INotificationProcessorService
             return true;
         }
 
-        string issueType = notification.Issue?.Type.ToLower();
-        string issueStatus = notification.Issue?.Status.ToLower();
+        string issueType = notification.Issue?.Type?.ToLower();
+        string issueStatus = notification.Issue?.Status?.ToLower();
+        string issuePriority = notification.Issue?.Priority?.ToLower();
 
         bool doesIssueMatchFilter = true;
 
@@ -296,9 +297,14 @@ public class NotificationProcessorService : INotificationProcessorService
                 @"(?<=(?:status\s*(?:in|=)\s*)\([^()]*)['""]?([\w-\s]+)['""]?(?=[^()]*\))",
                 RegexOptions.IgnoreCase,
                 TimeSpan.FromMilliseconds(100));
+            var priorityRegex = new Regex(
+                @"(?<=(?:priority\s*(?:in|=)\s*)\([^()]*)['""]?([\w-\s]+)['""]?(?=[^()]*\))",
+                RegexOptions.IgnoreCase,
+                TimeSpan.FromMilliseconds(100));
 
             var issueTypeMatches = typeRegex.Matches(subscription.Filter);
             var issueStatusMatches = statusRegex.Matches(subscription.Filter);
+            var issuePriorityMatches = priorityRegex.Matches(subscription.Filter);
 
             var doesTypeMatchFilter
                 = issueTypeMatches.Count == 0
@@ -306,7 +312,10 @@ public class NotificationProcessorService : INotificationProcessorService
             var doesStatusMatchFilter
                 = issueStatusMatches.Count == 0
                   || issueStatusMatches.Any(m => m?.Groups[1].Value.ToLower() == issueStatus);
-            doesIssueMatchFilter = doesTypeMatchFilter && doesStatusMatchFilter;
+            var doesPriorityMatchFilter
+                = issuePriorityMatches.Count == 0
+                  || issuePriorityMatches.Any(m => m?.Groups[1].Value.ToLower() == issuePriority);
+            doesIssueMatchFilter = doesTypeMatchFilter && doesStatusMatchFilter && doesPriorityMatchFilter;
         }
 
         return !doesIssueMatchFilter;
