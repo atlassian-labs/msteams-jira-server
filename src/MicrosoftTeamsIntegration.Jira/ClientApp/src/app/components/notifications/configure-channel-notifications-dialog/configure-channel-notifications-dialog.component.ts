@@ -11,6 +11,7 @@ import { IssueTransitionService } from '@core/services/entities/transition.servi
 import { SelectOption } from '@shared/models/select-option.model';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
 import * as microsoftTeams from '@microsoft/teams-js';
+import {AnalyticsService, EventAction, UiEventSubject} from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-configure-channel-notifications-dialog',
@@ -86,11 +87,17 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         private dropdownUtilService: DropdownUtilService,
         private notificationService: NotificationService,
         private appInsightsService: AppInsightsService,
-        private utilService: UtilService
+        private utilService: UtilService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
         this.appInsightsService.logNavigation('ConfigureChannelNotifications', this.route);
+        this.analyticsService.sendScreenEvent(
+            'configureChannelNotificationsModal',
+            EventAction.viewed,
+            UiEventSubject.taskModule,
+            'configureChannelNotificationsModal', {});
 
         const { jiraId, microsoftUserId, conversationReferenceId, conversationId }
             = this.route.snapshot.params;
@@ -265,8 +272,20 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             if (this.issueForm.value.subscriptionId) {
                 notificationSubscription.subscriptionId = this.issueForm.value.subscriptionId;
                 await this.apiService.updateNotification(this.jiraId, notificationSubscription);
+                this.analyticsService.sendUiEvent(
+                    'configureChannelNotificationsModal',
+                    EventAction.clicked,
+                    UiEventSubject.button,
+                    'updateChannelNotification',
+                    {source: 'configureChannelNotificationsModal'});
             } else {
                 await this.apiService.addNotification(this.jiraId, notificationSubscription);
+                this.analyticsService.sendUiEvent(
+                    'configureChannelNotificationsModal',
+                    EventAction.clicked,
+                    UiEventSubject.button,
+                    'createChannelNotification',
+                    {source: 'configureChannelNotificationsModal'});
             }
 
             this.notificationService.notifySuccess(notifyMessage);
@@ -276,16 +295,28 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     }
 
     public async deleteNotification(notification: NotificationSubscription): Promise<void> {
+        this.analyticsService.sendUiEvent(
+            'configureChannelNotificationsModal',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'deleteChannelNotification',
+            {source: 'configureChannelNotificationsModal'});
         await this.apiService.deleteNotification(this.jiraId as string, notification.subscriptionId as string);
         this.notificationService.notifySuccess('Notification deleted successfully.');
-        this.displayNotificationsListGroup();
+        await this.displayNotificationsListGroup();
     }
 
     public async toggleNotification(notification: NotificationSubscription): Promise<void> {
+        this.analyticsService.sendUiEvent(
+            'configureChannelNotificationsModal',
+            EventAction.clicked,
+            UiEventSubject.button,
+            !notification.isActive ? 'muteChannelNotification' : 'unmuteChannelNotification',
+            {source: 'configureChannelNotificationsModal'});
         notification.isActive = !notification.isActive;
         await this.apiService.updateNotification(this.jiraId, notification);
         this.notificationService.notifySuccess('Notification successfully ' + (notification.isActive ? 'disabled' : 'enabled'));
-        this.displayNotificationsListGroup();
+        await this.displayNotificationsListGroup();
     }
 
     public onCancel(): void {

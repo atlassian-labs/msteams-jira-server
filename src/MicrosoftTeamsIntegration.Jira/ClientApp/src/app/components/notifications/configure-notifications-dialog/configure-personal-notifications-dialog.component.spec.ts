@@ -6,6 +6,7 @@ import { NotificationService } from '@shared/services/notificationService';
 import { of } from 'rxjs';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
 import * as microsoftTeams from '@microsoft/teams-js';
+import {AnalyticsService} from '@core/services/analytics.service';
 
 describe('ConfigurePersonalNotificationsDialogComponent', () => {
     let component: ConfigurePersonalNotificationsDialogComponent;
@@ -13,6 +14,7 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
     let mockApiService: jasmine.SpyObj<ApiService>;
     let mockNotificationService: jasmine.SpyObj<NotificationService>;
     let mockUtilsService: jasmine.SpyObj<UtilService>;
+    let mockAnalyticsService: jasmine.SpyObj<AnalyticsService>;
     let mockActivatedRoute: any;
 
     const mockNotificationSubscription: NotificationSubscription = {
@@ -48,6 +50,12 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
             'getMinAddonVersionForNotifications'
         ]);
 
+        const analyticsServiceSpy = jasmine.createSpyObj(
+            'AnalyticsService', [
+                'sendScreenEvent',
+                'sendUiEvent'
+            ]);
+
         const mockSnackBarRef = jasmine.createSpyObj('MatSnackBarRef', ['afterDismissed']);
         mockSnackBarRef.afterDismissed.and.returnValue(of({ dismissedByAction: false }));
 
@@ -75,6 +83,7 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
                 {provide: NotificationService, useValue: mockNotificationService},
                 {provide: ActivatedRoute, useValue: mockActivatedRoute},
                 {provide: UtilService, useValue: mockUtilsService},
+                {provide: AnalyticsService, useValue: analyticsServiceSpy}
             ]
         }).compileComponents();
 

@@ -376,10 +376,25 @@ public class NotificationProcessorService : INotificationProcessorService
                 "bot",
                 "processed",
                 "notification",
-                subscription.SubscriptionType.ToString());
+                string.Empty,
+                new NotificationsAnalyticsEventAttribute()
+                {
+                    NotificationEventType = notificationMessage.EventType.ToEventType().ToString()
+                });
         }
         catch (Exception ex)
         {
+            _analyticsService.SendTrackEvent(
+                null,
+                "bot",
+                "processingFailed",
+                "notification",
+                string.Empty,
+                new NotificationsAnalyticsEventAttribute()
+                {
+                    NotificationEventType = notificationMessage.EventType.ToEventType().ToString()
+                });
+
             _logger.LogError(
                 ex,
                 "Error while sending notification card to user {UserId} in conversation {ConversationId}",

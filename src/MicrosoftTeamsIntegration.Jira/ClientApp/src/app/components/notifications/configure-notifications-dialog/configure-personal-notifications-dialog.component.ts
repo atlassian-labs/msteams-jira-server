@@ -5,6 +5,7 @@ import { NotificationSubscription, SubscriptionType } from '@core/models/Notific
 import {ApiService, UtilService} from '@core/services';
 import { NotificationService } from '@shared/services/notificationService';
 import * as microsoftTeams from '@microsoft/teams-js';
+import {AnalyticsService, EventAction, UiEventSubject} from '@core/services/analytics.service';
 
 @Component({
     selector: 'app-configure-personal-notifications-dialog',
@@ -28,7 +29,8 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         private route: ActivatedRoute,
         private apiService: ApiService,
         private notificationService: NotificationService,
-        private utilService: UtilService
+        private utilService: UtilService,
+        private analyticsService: AnalyticsService
     ) { }
 
     public async ngOnInit() {
@@ -40,6 +42,12 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         this.conversationReferenceId = conversationReferenceId;
         this.loading = true;
         this.replyToActivityId = replyToActivityId;
+
+        this.analyticsService.sendScreenEvent(
+            'configurePersonalNotificationsModal',
+            EventAction.viewed,
+            UiEventSubject.taskModule,
+            'configurePersonalNotificationsModal', {});
 
         await this.createForm();
 
@@ -113,6 +121,12 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
                 this.submitting = false;
                 microsoftTeams.dialog.url.submit();
             });
+            this.analyticsService.sendUiEvent(
+                'configurePersonalNotificationsModal',
+                EventAction.clicked,
+                UiEventSubject.button,
+                'updatePersonalNotification',
+                {source: 'configurePersonalNotificationsModal'});
 
             return;
         }
@@ -129,6 +143,12 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             projectId: '',
             projectName: ''
         };
+        this.analyticsService.sendUiEvent(
+            'configurePersonalNotificationsModal',
+            EventAction.clicked,
+            UiEventSubject.button,
+            'createPersonalNotification',
+            {source: 'configurePersonalNotificationsModal'});
 
         try {
             await this.apiService.addNotification(this.jiraId, notification);
