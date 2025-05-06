@@ -11,7 +11,8 @@ import { IssueTransitionService } from '@core/services/entities/transition.servi
 import { SelectOption } from '@shared/models/select-option.model';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
 import * as microsoftTeams from '@microsoft/teams-js';
-import {AnalyticsService, EventAction, UiEventSubject} from '@core/services/analytics.service';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
+import { NotificationSubscriptionEvent, NotificationSubscriptionAction } from '@core/models/NotificationSubscriptionEvent';
 
 @Component({
     selector: 'app-configure-channel-notifications-dialog',
@@ -269,9 +270,16 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
                 ? 'Notification updated successfully.'
                 : 'Notification saved successfully.';
 
+            let notificationSubscriptionEvent: NotificationSubscriptionEvent | undefined;
+
             if (this.issueForm.value.subscriptionId) {
                 notificationSubscription.subscriptionId = this.issueForm.value.subscriptionId;
                 await this.apiService.updateNotification(this.jiraId, notificationSubscription);
+
+                notificationSubscriptionEvent = {
+                    subscription: notificationSubscription,
+                    action: NotificationSubscriptionAction.Update
+                };
                 this.analyticsService.sendUiEvent(
                     'configureChannelNotificationsModal',
                     EventAction.clicked,
@@ -280,6 +288,11 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
                     {source: 'configureChannelNotificationsModal'});
             } else {
                 await this.apiService.addNotification(this.jiraId, notificationSubscription);
+
+                notificationSubscriptionEvent = {
+                    subscription: notificationSubscription,
+                    action: NotificationSubscriptionAction.Create
+                };
                 this.analyticsService.sendUiEvent(
                     'configureChannelNotificationsModal',
                     EventAction.clicked,
@@ -291,6 +304,8 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             this.notificationService.notifySuccess(notifyMessage);
 
             await this.displayNotificationsListGroup();
+
+            await this.apiService.sendNotificationSubscriptionEvent(notificationSubscriptionEvent);
         }
     }
 
@@ -304,6 +319,13 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         await this.apiService.deleteNotification(this.jiraId as string, notification.subscriptionId as string);
         this.notificationService.notifySuccess('Notification deleted successfully.');
         await this.displayNotificationsListGroup();
+
+        const notificationSubscriptionEvent: NotificationSubscriptionEvent = {
+            subscription: notification,
+            action: NotificationSubscriptionAction.Delete
+        };
+
+        await this.apiService.sendNotificationSubscriptionEvent(notificationSubscriptionEvent);
     }
 
     public async toggleNotification(notification: NotificationSubscription): Promise<void> {

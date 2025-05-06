@@ -3,11 +3,16 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Options;
+using MicrosoftTeamsIntegration.Artifacts.Extensions;
+using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Filters;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
+using Newtonsoft.Json;
 
 namespace MicrosoftTeamsIntegration.Jira.Controllers
 {
@@ -17,11 +22,17 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
         private readonly TelemetryConfiguration _telemetryConfiguration;
         private readonly AppSettings _appSettings;
         private readonly INotificationSubscriptionService _notificationSubscriptionService;
+        private readonly IProactiveMessagesService _proactiveMessagesService;
+        private readonly IBotMessagesService _botMessagesService;
+        private readonly IDistributedCacheService _distributedCacheService;
 
         public ClientAppController(
             IOptions<AppSettings> appSettings,
             IOptions<TelemetryConfiguration> telemetryConfiguration,
             INotificationSubscriptionService notificationSubscriptionService,
+            IProactiveMessagesService proactiveMessagesService,
+            IBotMessagesService botMessagesService,
+            IDistributedCacheService distributedCacheService,
             IDatabaseService databaseService,
             IJiraAuthService jiraAuthService)
             : base(databaseService, jiraAuthService)
@@ -29,6 +40,9 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             _telemetryConfiguration = telemetryConfiguration.Value;
             _appSettings = appSettings.Value;
             _notificationSubscriptionService = notificationSubscriptionService;
+            _proactiveMessagesService = proactiveMessagesService;
+            _botMessagesService = botMessagesService;
+            _distributedCacheService = distributedCacheService;
         }
 
         [HttpGet("api/app-settings")]
@@ -112,6 +126,38 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             var user = await GetAndVerifyUser(jiraServerId);
 
             await _notificationSubscriptionService.DeleteNotificationSubscriptionBySubscriptionId(user, subscriptionId);
+
+            return Ok();
+        }
+
+        [HttpPost("api/notificationSubscription/sendChannelNotificationEvent")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SendChannelNotificationEvent(NotificationSubscriptionEvent subscriptionEvent)
+        {
+            string conversationReferenceJson;
+
+            if (string.IsNullOrEmpty(subscriptionEvent.Subscription.ConversationReference))
+            {
+                conversationReferenceJson =
+                    await _distributedCacheService
+                        .Get<string>(subscriptionEvent.Subscription.ConversationReferenceId);
+            }
+            else
+            {
+                conversationReferenceJson = subscriptionEvent.Subscription.ConversationReference;
+            }
+
+            ConversationReference conversationReference =
+                JsonConvert.DeserializeObject<ConversationReference>(conversationReferenceJson);
+
+            var channelNotificationEventAdaptiveCard = _botMessagesService.BuildChannelNotificationConfigurationSummaryCard(
+                subscriptionEvent, conversationReference.User.Name);
+
+            var activity = MessageFactory.Attachment(channelNotificationEventAdaptiveCard.ToAttachment());
+
+            await _proactiveMessagesService.SendActivity(
+                activity,
+                conversationReference);
 
             return Ok();
         }

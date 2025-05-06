@@ -433,6 +433,99 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return adaptiveCard;
         }
 
+        public AdaptiveCard BuildChannelNotificationConfigurationSummaryCard(
+            NotificationSubscriptionEvent subscriptionEvent,
+            string callerName)
+        {
+            string title = string.Empty;
+
+            List<ChannelEventType> eventTypes
+                = subscriptionEvent.Subscription.EventTypes.AsEnumerable().Select(x
+                    => Enum.Parse<ChannelEventType>(x)).ToList();
+
+            switch (subscriptionEvent.Action)
+            {
+                case SubscriptionAction.Created:
+                    title = $"**{callerName}** has set up channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Updated:
+                    title = $"**{callerName}** has updated channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Deleted:
+                    title = $"**{callerName}** has removed channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+            }
+
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+
+            adaptiveCard.Body = new List<AdaptiveElement>()
+            {
+                new AdaptiveContainer()
+                {
+                    Items = new List<AdaptiveElement>()
+                    {
+                        new AdaptiveTextBlock()
+                        {
+                            Text = title,
+                            IsVisible = true
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Text = $"You will now get a message when someone:",
+                            IsVisible = subscriptionEvent.Action != SubscriptionAction.Deleted && eventTypes.Count > 0
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "* **Created comment** on issue",
+                            IsVisible = eventTypes.Contains(ChannelEventType.CommentCreated)
+                                      && subscriptionEvent.Action != SubscriptionAction.Deleted
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "* **Updated comment** on issue",
+                            IsVisible = eventTypes.Contains(ChannelEventType.CommentUpdated)
+                                        && subscriptionEvent.Action != SubscriptionAction.Deleted
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "* **Created issue**",
+                            IsVisible = eventTypes.Contains(ChannelEventType.IssueCreated)
+                                        && subscriptionEvent.Action != SubscriptionAction.Deleted
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "* **Updated issue**",
+                            IsVisible = eventTypes.Contains(ChannelEventType.IssueUpdated)
+                                        && subscriptionEvent.Action != SubscriptionAction.Deleted
+                        },
+                    }
+                }
+            };
+
+            adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
+            {
+                { "msTeams", new { width = "full" } }
+            };
+            adaptiveCard.Actions = new List<AdaptiveAction>()
+            {
+                new AdaptiveSubmitAction
+                {
+                    Title = "Manage notifications",
+                    Style = "positive",
+                    Data = new JiraBotTeamsDataWrapper
+                    {
+                        FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.TurnOnChannelNotificationsCommand),
+                        TeamsData = new TeamsData
+                        {
+                            Type = "task/fetch"
+                        }
+                    }
+                }
+            };
+
+            return adaptiveCard;
+        }
+
         public AdaptiveCard BuildHelpCard(ITurnContext turnContext)
         {
             var isGroup = turnContext.Activity.IsGroupConversation();

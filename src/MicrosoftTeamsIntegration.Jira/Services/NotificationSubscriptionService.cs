@@ -75,6 +75,21 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
         }
     }
 
+    public async Task<NotificationSubscription> GetNotificationSubscriptionBySubscriptionId(string subscriptionId)
+    {
+        try
+        {
+            var notifications =
+                await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionBySubscriptionId(subscriptionId);
+            return notifications.First();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("An error occurred while retrieving the notification: {ErrorMessage}", ex.Message);
+            return null;
+        }
+    }
+
     public async Task<IEnumerable<NotificationSubscription>> GetNotificationSubscriptionByConversationId(string conversationId)
     {
         try

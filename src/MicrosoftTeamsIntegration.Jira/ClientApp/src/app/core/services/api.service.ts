@@ -28,6 +28,7 @@ import { JiraIssueSprint } from '@core/models/Jira/jira-issue-sprint.model';
 import { JiraIssueEpic } from '@core/models/Jira/jira-issue-epic.model';
 import { firstValueFrom } from 'rxjs';
 import { NotificationSubscription } from '@core/models/NotificationSubscription';
+import { NotificationSubscriptionEvent } from '@core/models/NotificationSubscriptionEvent';
 
 export interface JiraAddonStatus {
     addonStatus: number;
@@ -296,5 +297,9 @@ export class ApiService {
     public deleteNotification(jiraServerId: string, subscriptionId: string): Promise<any> {
         return firstValueFrom(this.http
             .delete(`/api/notificationSubscription/delete?jiraServerId=${jiraServerId}&subscriptionId=${subscriptionId}`));
+    }
+
+    public sendNotificationSubscriptionEvent(notificationSubscriptionEvent: NotificationSubscriptionEvent): Promise<any> {
+        return firstValueFrom(this.http.post('/api/notificationSubscription/sendChannelNotificationEvent', notificationSubscriptionEvent));
     }
 }
