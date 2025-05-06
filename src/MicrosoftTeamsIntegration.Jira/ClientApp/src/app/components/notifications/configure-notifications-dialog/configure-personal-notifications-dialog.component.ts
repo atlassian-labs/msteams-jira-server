@@ -67,7 +67,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             this.isAddonUpdated
                 = this.utilService.isAddonUpdatedToVersion(addonVersion, this.utilService.getMinAddonVersionForNotifications());
             if(!this.isAddonUpdated) {
-                this.notificationService.notifyError(this.utilService.getUpgradeAddonMessageForNotifications(), 20000, false);
+                this.notificationService.notifyError(this.utilService.getUpgradeAddonMessageForNotifications(), 5000, false);
             }
 
             if (notificationSettings) {
@@ -111,6 +111,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             this.savedNotificationSubscription.jiraId = this.jiraId;
             this.savedNotificationSubscription.conversationId = this.conversationId;
             this.savedNotificationSubscription.conversationReferenceId = this.conversationReferenceId;
+            this.savedNotificationSubscription.isActive = true;
 
             await this.apiService.updateNotification(this.jiraId, this.savedNotificationSubscription);
 

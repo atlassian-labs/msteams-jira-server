@@ -55,11 +55,14 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         { id: 'issueCreated', label: 'Created', value: 'IssueCreated' },
         { id: 'issueUpdated', label: 'Updated', value: 'IssueUpdated' },
     ];
+    public issueIsSelectOptionsSelected: SelectOption[] = [];
 
     public commentIsSelectOptions: SelectOption[] = [
         { id: 'commentCreated', label: 'Created', value: 'CommentCreated' },
         { id: 'commentUpdated', label: 'Updated', value: 'CommentUpdated' },
     ];
+
+    public commentIsSelectOptionsSelected: SelectOption[] = [];
 
 
     public jiraId: string | any;
@@ -137,14 +140,15 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         let defaultIssueTypeOption: string = this.availableIssueTypesOptions[0]?.value || '';
         let defaultStatusOption: string = this.statusesOptions[0]?.value || '';
         let defaultPriorityOption: string = this.prioritiesOptions[0]?.value || '';
-        this.issueIsSelectOptions = [
+        this.issueIsSelectOptionsSelected = [
             { id: 'issueCreated', label: 'Created', value: 'IssueCreated' },
             { id: 'issueUpdated', label: 'Updated', value: 'IssueUpdated' },
         ];
-        this.commentIsSelectOptions = [
+        this.commentIsSelectOptionsSelected = [
             { id: 'commentCreated', label: 'Created', value: 'CommentCreated' },
             { id: 'commentUpdated', label: 'Updated', value: 'CommentUpdated' },
         ];
+
 
         this.addRemovePriorityFromForm();
 
@@ -156,8 +160,10 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             defaultStatusOption = defaultStatus;
             defaultPriorityOption = defaultPriority;
 
-            this.issueIsSelectOptions = this.issueIsSelectOptions.filter(opt => notification.eventTypes.includes(opt.value as string));
-            this.commentIsSelectOptions = this.commentIsSelectOptions.filter(opt => notification.eventTypes.includes(opt.value as string));
+            this.issueIsSelectOptionsSelected
+                = this.issueIsSelectOptions.filter(opt => notification.eventTypes.includes(opt.value as string));
+            this.commentIsSelectOptionsSelected
+                = this.commentIsSelectOptions.filter(opt => notification.eventTypes.includes(opt.value as string));
         } else {
             await this.onProjectSelected(defaultProjectOption);
             this.addRemovePriorityFromForm();
@@ -265,6 +271,17 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
                 microsoftUserId: this.microsoftUserId,
                 isActive: true
             };
+
+            const isDuplicate = this.notifications
+                .filter((notification: NotificationSubscription) =>
+                    notification.subscriptionId !== this.issueForm.value.subscriptionId)
+                .find((subscription: NotificationSubscription) => this.areNotificationsEqual(subscription, notificationSubscription));
+
+            if (isDuplicate) {
+                this.notificationService.notifyError(
+                    'The subscription with the same configuration already exists. Please use a different configuration.');
+                return;
+            }
 
             const notifyMessage = this.issueForm.value.subscriptionId
                 ? 'Notification updated successfully.'
@@ -488,7 +505,20 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         const isAddonUpdated
             = this.utilService.isAddonUpdatedToVersion(addonVersion.addonVersion, this.utilService.getMinAddonVersionForNotifications());
         if(!isAddonUpdated) {
-            this.notificationService.notifyError(this.utilService.getUpgradeAddonMessageForNotifications(), 20000, false);
+            this.notificationService.notifyError(this.utilService.getUpgradeAddonMessageForNotifications(), 5000, false);
         }
+    }
+
+    private areNotificationsEqual(
+        notification1: NotificationSubscription,
+        notification2: NotificationSubscription
+    ): boolean {
+        return notification1.jiraId === notification2.jiraId &&
+            notification1.subscriptionType === notification2.subscriptionType &&
+            notification1.conversationId === notification2.conversationId &&
+            JSON.stringify(notification1.eventTypes) === JSON.stringify(notification2.eventTypes) &&
+            notification1.projectId === notification2.projectId &&
+            notification1.projectName === notification2.projectName &&
+            notification1.filter === notification2.filter;
     }
 }
