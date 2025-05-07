@@ -66,7 +66,7 @@ public class NotificationSubscriptionService : INotificationSubscriptionService
         {
             var notifications =
                 await _notificationSubscriptionDatabaseService.GetNotificationSubscriptionByMicrosoftUserId(user.MsTeamsUserId);
-            return notifications.First();
+            return notifications.First(notification => notification.SubscriptionType == SubscriptionType.Personal);
         }
         catch (Exception ex)
         {

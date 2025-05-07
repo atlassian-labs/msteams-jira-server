@@ -66,7 +66,6 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
 
     public jiraId: string | any;
-    public microsoftUserId: string | any;
     public notifications: NotificationSubscription[] | any;
     public conversationReferenceId: string | any;
     public conversationId: string | any;
@@ -103,11 +102,10 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             UiEventSubject.taskModule,
             'configureChannelNotificationsModal', {});
 
-        const { jiraId, microsoftUserId, conversationReferenceId, conversationId }
+        const { jiraId, conversationReferenceId, conversationId }
             = this.route.snapshot.params;
 
         this.jiraId = jiraId;
-        this.microsoftUserId = microsoftUserId;
         this.conversationReferenceId = conversationReferenceId;
         this.conversationId = conversationId;
 
@@ -265,10 +263,10 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
                 projectId: selectedProject?.id,
                 projectName: selectedProject?.name,
                 filter: jqlQuery,
+                microsoftUserId: '',
                 conversationId: this.conversationId,
                 conversationReferenceId: this.conversationReferenceId,
                 eventTypes: [...issueIsOptions, ...commentIsOptions],
-                microsoftUserId: this.microsoftUserId,
                 isActive: true
             };
 

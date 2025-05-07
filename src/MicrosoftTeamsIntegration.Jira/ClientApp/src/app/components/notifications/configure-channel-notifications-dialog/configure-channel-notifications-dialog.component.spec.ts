@@ -31,7 +31,7 @@ describe('ConfigureChannelNotificationsDialogComponent', () => {
         eventTypes: ['IssueCreated', 'CommentCreated'],
         isActive: true,
         filter: 'project = TEST AND type in ("Bug")',
-        microsoftUserId: 'test-user-id',
+        microsoftUserId: '',
         conversationId: 'test-conversation-id',
         conversationReferenceId: 'test-reference-id',
         projectId: 'TEST',
@@ -146,7 +146,7 @@ describe('ConfigureChannelNotificationsDialogComponent', () => {
             snapshot: {
                 params: {
                     jiraId: 'test-jira-id',
-                    microsoftUserId: 'test-user-id',
+                    microsoftUserId: '',
                     conversationId: 'test-conversation-id',
                     conversationReferenceId: 'test-reference-id'
                 }
@@ -202,7 +202,6 @@ describe('ConfigureChannelNotificationsDialogComponent', () => {
             await component.ngOnInit();
 
             expect(component.jiraId).toBe('test-jira-id');
-            expect(component.microsoftUserId).toBe('test-user-id');
             expect(component.conversationId).toBe('test-conversation-id');
             expect(component.conversationReferenceId).toBe('test-reference-id');
             expect(component.showNotificationsListGroup).toBeTrue();

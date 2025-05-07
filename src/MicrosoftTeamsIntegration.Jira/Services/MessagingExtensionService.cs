@@ -804,7 +804,6 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     url = new JiraUrlQueryBuilder(_appSettings.BaseUrl)
                         .ChannelNotifications()
                         .JiraId(jiraId)
-                        .MicrosoftUserId(user?.MsTeamsUserId)
                         .ConversationReferenceId(conversationReferenceId)
                         .ConversationId(turnContext.Activity.Conversation.Id)
                         .Build();
