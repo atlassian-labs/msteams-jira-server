@@ -362,46 +362,55 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     {
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "You successfully subscribed to notifications from Jira \ud83e\udd73",
                             IsVisible = showSuccessMessage
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = $"{(showSuccessMessage ? string.Empty : "\ud83d\udd14 ")}" +
                                    $"You will receive notifications when there are:"
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* Updates on issues you **assigned** to",
                             IsVisible = eventTypes.Contains(PersonalEventType.ActivityIssueAssignee)
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* Comments on issues you **assigned** to",
                             IsVisible = eventTypes.Contains(PersonalEventType.CommentIssueAssignee)
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* Updates on issues you've **reported**",
                             IsVisible = eventTypes.Contains(PersonalEventType.ActivityIssueCreator)
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* Comments on issues you've **reported**",
                             IsVisible = eventTypes.Contains(PersonalEventType.CommentIssueCreator)
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* Updates on issues that you are **watching**",
                             IsVisible = eventTypes.Contains(PersonalEventType.IssueViewer)
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* Comments on issues that you are **watching**",
                             IsVisible = eventTypes.Contains(PersonalEventType.CommentViewer)
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* Someone **mentioned** you in a comment or issue",
                             IsVisible = eventTypes.Contains(PersonalEventType.MentionedOnIssue)
                         }
@@ -476,34 +485,40 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     {
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = title,
                             IsVisible = true
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = $"You will now get a message when someone:",
                             IsVisible = showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* **Created comment** on issue",
                             IsVisible = eventTypes.Contains(ChannelEventType.CommentCreated)
                                       && showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* **Updated comment** on issue",
                             IsVisible = eventTypes.Contains(ChannelEventType.CommentUpdated)
                                         && showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* **Created issue**",
                             IsVisible = eventTypes.Contains(ChannelEventType.IssueCreated)
                                         && showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
+                            Wrap = true,
                             Text = "* **Updated issue**",
                             IsVisible = eventTypes.Contains(ChannelEventType.IssueUpdated)
                                         && showEventListMessage

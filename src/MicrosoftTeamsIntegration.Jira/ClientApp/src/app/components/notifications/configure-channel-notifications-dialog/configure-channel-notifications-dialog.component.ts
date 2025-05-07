@@ -23,6 +23,8 @@ import { NotificationSubscriptionEvent, NotificationSubscriptionAction } from '@
 export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     // Loading and view state
     public loading = false;
+    public isFetchingProjects = false;
+    public submitting = false;
     public showInitialContainer = false;
     public showCreateNotificationsGroup = false;
     public showNotificationsListGroup = false;
@@ -186,9 +188,8 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         const projectId = typeof optionOrValue === 'string' ? optionOrValue : optionOrValue.value;
 
         this.selectedProject = this.projects?.find((proj: { id: string | null }) => proj.id === projectId);
-        const projectKey = this.selectedProject?.key as string;
         const [issueTypesResult, statusesResult] = await Promise.all([
-            this.apiService.getCreateMetaIssueTypes(this.jiraId as string, projectKey).catch(error => {
+            this.apiService.getCreateMetaIssueTypes(this.jiraId as string, projectId as string).catch(error => {
                 console.error('Error fetching issue types:', error);
                 return null;
             }),
@@ -219,6 +220,28 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         await this.onIssueTypeSelected(this.availableIssueTypesOptions[0]);
     }
 
+    public async onSearchChanged(filterName: string): Promise<void> {
+        filterName = filterName.trim().toLowerCase();
+        this.isFetchingProjects = true;
+        try {
+            const foundProjects =
+                await this.apiService.findProjects(this.jiraId, filterName, true);
+            this.projectsDropdown.filteredOptions =
+                foundProjects.map(this.dropdownUtilService.mapProjectToDropdownOption);
+
+            this.projects = [...this.projects, ...foundProjects.filter((project: any) =>
+                !this.projects.some((existingProject: any) => existingProject.id === project.id))];
+        } catch (error) {
+            this.appInsightsService.trackException(
+                new Error('Error while searching projects'),
+                'Configure Channel Notifications Dialog',
+                { originalErrorMessage: (error as any).message }
+            );
+        } finally {
+            this.isFetchingProjects = false;
+        }
+    }
+
     public async onIssueTypeSelected(optionOrValue: DropDownOption<string> | string): Promise<void> {
         const issueTypeId = typeof optionOrValue === 'string' ? optionOrValue : optionOrValue.value;
 
@@ -241,6 +264,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
     public async saveNotification(): Promise<void> {
         if (this.issueForm.valid) {
+            this.submitting = true;
             const formValue = this.issueForm.value;
             const selectedProject = this.projects.find((project: { id: string }) => project.id === formValue.project);
             const selectedIssueType = this.issueTypes.find((issueType: { id: string }) => issueType.id === formValue.issuetype);
@@ -321,6 +345,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             await this.displayNotificationsListGroup();
 
             await this.apiService.sendNotificationSubscriptionEvent(notificationSubscriptionEvent);
+            this.submitting = false;
         }
     }
 

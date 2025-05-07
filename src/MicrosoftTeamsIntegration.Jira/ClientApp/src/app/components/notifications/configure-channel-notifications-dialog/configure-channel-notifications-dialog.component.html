@@ -33,12 +33,15 @@
                         formControlName="jiraId"></textarea>
 
                 <p class="field-label">Jira project</p>
-                <app-dropdown
+                <app-dropdown #projectsDropdown
                   [required]="true"
                   [searchable]="true"
-                  [isInnerSearch]="true"
                   [options]="availableProjectsOptions"
-                  (optionSelect)="onProjectSelected($event)" 
+                  [filteredOptions]="projectFilteredOptions"
+                  [loading]="isFetchingProjects"
+                  (optionSelect)="onProjectSelected($event)"
+                  (searchChange)="onSearchChanged($event)"
+                  [debounceTime]="700"
                   formControlName="project"></app-dropdown>
                 
                 <p class="field-label">Type</p>
@@ -84,7 +87,7 @@
                 <button class="ts-btn ts-btn-secondary buttons__button" (click)="displayNotificationsListGroup()">
                     Show all
                 </button>
-                <button class="ts-btn ts-btn-primary buttons__button" (click)="saveNotification()">
+                <button class="ts-btn ts-btn-primary buttons__button" (click)="saveNotification()" [disabled]="submitting">
                     Save notification
                 </button>
             </div>
