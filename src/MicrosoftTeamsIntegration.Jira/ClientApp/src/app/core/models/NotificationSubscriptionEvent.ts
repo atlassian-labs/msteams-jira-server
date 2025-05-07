@@ -8,5 +8,7 @@ export interface NotificationSubscriptionEvent {
 export enum NotificationSubscriptionAction {
     Create = 'Created',
     Update = 'Updated',
-    Delete = 'Deleted'
+    Delete = 'Deleted',
+    Enabled = 'Enabled',
+    Disabled = 'Disabled',
 }

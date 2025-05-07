@@ -15,5 +15,7 @@ public enum SubscriptionAction
 {
     Created,
     Updated,
-    Deleted
+    Deleted,
+    Enabled,
+    Disabled
 }

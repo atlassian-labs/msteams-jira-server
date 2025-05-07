@@ -443,6 +443,10 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 = subscriptionEvent.Subscription.EventTypes.AsEnumerable().Select(x
                     => Enum.Parse<ChannelEventType>(x)).ToList();
 
+            bool showEventListMessage = subscriptionEvent.Action != SubscriptionAction.Deleted
+                                        && subscriptionEvent.Action != SubscriptionAction.Disabled
+                                        && eventTypes.Count > 0;
+
             switch (subscriptionEvent.Action)
             {
                 case SubscriptionAction.Created:
@@ -453,6 +457,12 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     break;
                 case SubscriptionAction.Deleted:
                     title = $"**{callerName}** has removed channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Enabled:
+                    title = $"**{callerName}** has enabled channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Disabled:
+                    title = $"**{callerName}** has disabled channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
                     break;
             }
 
@@ -472,31 +482,31 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         new AdaptiveTextBlock()
                         {
                             Text = $"You will now get a message when someone:",
-                            IsVisible = subscriptionEvent.Action != SubscriptionAction.Deleted && eventTypes.Count > 0
+                            IsVisible = showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
                             Text = "* **Created comment** on issue",
                             IsVisible = eventTypes.Contains(ChannelEventType.CommentCreated)
-                                      && subscriptionEvent.Action != SubscriptionAction.Deleted
+                                      && showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
                             Text = "* **Updated comment** on issue",
                             IsVisible = eventTypes.Contains(ChannelEventType.CommentUpdated)
-                                        && subscriptionEvent.Action != SubscriptionAction.Deleted
+                                        && showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
                             Text = "* **Created issue**",
                             IsVisible = eventTypes.Contains(ChannelEventType.IssueCreated)
-                                        && subscriptionEvent.Action != SubscriptionAction.Deleted
+                                        && showEventListMessage
                         },
                         new AdaptiveTextBlock()
                         {
                             Text = "* **Updated issue**",
                             IsVisible = eventTypes.Contains(ChannelEventType.IssueUpdated)
-                                        && subscriptionEvent.Action != SubscriptionAction.Deleted
+                                        && showEventListMessage
                         },
                     }
                 }

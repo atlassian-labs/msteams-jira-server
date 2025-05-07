@@ -352,8 +352,15 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             {source: 'configureChannelNotificationsModal'});
         notification.isActive = !notification.isActive;
         await this.apiService.updateNotification(this.jiraId, notification);
-        this.notificationService.notifySuccess('Notification successfully ' + (notification.isActive ? 'disabled' : 'enabled'));
+        this.notificationService.notifySuccess('Notification successfully ' + (notification.isActive ? 'enabled' : 'disabled'));
         await this.displayNotificationsListGroup();
+
+        const notificationSubscriptionEvent: NotificationSubscriptionEvent = {
+            subscription: notification,
+            action: notification.isActive ? NotificationSubscriptionAction.Enabled : NotificationSubscriptionAction.Disabled
+        };
+
+        await this.apiService.sendNotificationSubscriptionEvent(notificationSubscriptionEvent);
     }
 
     public onCancel(): void {
