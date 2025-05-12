@@ -111,6 +111,11 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         this.conversationReferenceId = conversationReferenceId;
         this.conversationId = conversationId;
 
+        if (!this.jiraId) {
+            const response = await this.apiService.getJiraUrlForPersonalScope();
+            this.jiraId = response.jiraUrl;
+        }
+
         this.notifications = await this.apiService.getAllNotificationsByConversationId(this.jiraId as string, this.conversationId);
 
         if (this.notifications && this.notifications.length > 0) {

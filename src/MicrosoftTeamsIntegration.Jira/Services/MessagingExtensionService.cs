@@ -784,6 +784,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         .ConversationId(turnContext.Activity.Conversation.Id)
                         .ConversationReferenceId(conversationReferenceId)
                         .ReplyToActivityId(turnContext.Activity.ReplyToId)
+                        .Application(application)
+                        .Source("bot")
                         .Build();
 
                     taskModuleTitle = "Configure personal notifications";
@@ -806,6 +808,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         .JiraId(jiraId)
                         .ConversationReferenceId(conversationReferenceId)
                         .ConversationId(turnContext.Activity.Conversation.Id)
+                        .Application(application)
+                        .Source("bot")
                         .Build();
 
                     taskModuleTitle = "Configure channel notifications";

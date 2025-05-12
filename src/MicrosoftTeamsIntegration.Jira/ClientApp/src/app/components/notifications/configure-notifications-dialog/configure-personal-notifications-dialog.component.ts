@@ -5,7 +5,8 @@ import { NotificationSubscription, SubscriptionType } from '@core/models/Notific
 import {ApiService, UtilService} from '@core/services';
 import { NotificationService } from '@shared/services/notificationService';
 import * as microsoftTeams from '@microsoft/teams-js';
-import {AnalyticsService, EventAction, UiEventSubject} from '@core/services/analytics.service';
+import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
+import { StatusCode } from '@core/enums';
 
 @Component({
     selector: 'app-configure-personal-notifications-dialog',
@@ -42,6 +43,11 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         this.conversationReferenceId = conversationReferenceId;
         this.loading = true;
         this.replyToActivityId = replyToActivityId;
+
+        if (!this.jiraId) {
+            const response = await this.apiService.getJiraUrlForPersonalScope();
+            this.jiraId = response.jiraUrl;
+        }
 
         this.analyticsService.sendScreenEvent(
             'configurePersonalNotificationsModal',
@@ -83,7 +89,12 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
 
                 this.savedNotificationSubscription = notificationSettings;
             }
-        } catch (error) {
+        } catch (error: any) {
+            if (error?.status === StatusCode.Unauthorized) {
+                this.loading = false;
+                return;
+            }
+
             this.notificationService.notifyError('Failed to load notification settings. Please try again.')
                 .afterDismissed().subscribe(() => {
                     microsoftTeams.dialog.url.submit();
