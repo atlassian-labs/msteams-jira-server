@@ -588,7 +588,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                         CreateActionColumnSet(
                             "Notifications",
                             $"Set up {(isGroup ? "channel" : "personal")} notifications here in Teams",
-                            DialogMatchesAndCommands.TurnOnNotificationsCommand,
+                            isGroup ? DialogMatchesAndCommands.TurnOnChannelNotificationsCommand : DialogMatchesAndCommands.TurnOnNotificationsCommand,
                             true,
                             true),
                         CreateActionColumnSet(
