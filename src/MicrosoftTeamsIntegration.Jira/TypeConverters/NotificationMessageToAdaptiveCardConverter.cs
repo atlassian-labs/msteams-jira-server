@@ -291,7 +291,9 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
                 var updatedFields = string.Join(
                     ", ",
                     notificationMessage.Changelog?.Select(c => c.Field.ToLower()) ?? Array.Empty<string>());
-                return $"{notificationMessage.User.Name} updated the **{updatedFields}** on this issue:";
+                return !string.IsNullOrWhiteSpace(updatedFields) ?
+                    $"{notificationMessage.User.Name} updated the **{updatedFields}** on this issue:" :
+                    $"{notificationMessage.User.Name} updated this issue:";
             }
         }
     }
