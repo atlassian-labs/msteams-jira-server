@@ -6,7 +6,6 @@ import {ApiService, UtilService} from '@core/services';
 import { NotificationService } from '@shared/services/notificationService';
 import * as microsoftTeams from '@microsoft/teams-js';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
-import { StatusCode } from '@core/enums';
 
 @Component({
     selector: 'app-configure-personal-notifications-dialog',
@@ -64,8 +63,16 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         try {
             const getAddonStatusPromise
                 = this.apiService.getAddonStatus(this.jiraId);
-            const getCurrentNotificationSettingsPromise
-                = await this.apiService.getNotificationSettings(this.jiraId);
+
+            let getCurrentNotificationSettingsPromise;
+            try {
+                getCurrentNotificationSettingsPromise
+                    = await this.apiService.getNotificationSettings(this.jiraId);
+            } catch {
+                this.loading = false;
+                return;
+            }
+
             const [{ addonVersion }, notificationSettings] = await Promise.all([
                 getAddonStatusPromise,
                 getCurrentNotificationSettingsPromise
@@ -90,11 +97,6 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
                 this.savedNotificationSubscription = notificationSettings;
             }
         } catch (error: any) {
-            if (error?.status === StatusCode.Unauthorized) {
-                this.loading = false;
-                return;
-            }
-
             this.notificationService.notifyError('Failed to load notification settings. Please try again.')
                 .afterDismissed().subscribe(() => {
                     microsoftTeams.dialog.url.submit();

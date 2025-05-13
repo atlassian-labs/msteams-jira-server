@@ -307,6 +307,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
             if (isDuplicate) {
                 this.notificationService.notifyError(
                     'The subscription with the same configuration already exists. Please use a different configuration.');
+                this.submitting = false;
                 return;
             }
 

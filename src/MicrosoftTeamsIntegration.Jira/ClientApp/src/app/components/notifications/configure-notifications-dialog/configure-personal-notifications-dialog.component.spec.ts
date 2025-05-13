@@ -130,7 +130,7 @@ describe('ConfigurePersonalNotificationsDialogComponent', () => {
         });
 
         it('should handle error when loading notification settings', async () => {
-            mockApiService.getNotificationSettings.and.returnValue(Promise.reject('Error'));
+            mockApiService.getAddonStatus.and.returnValue(Promise.reject('Error'));
 
             await component.ngOnInit();
             await component.getNotificationSettings();
