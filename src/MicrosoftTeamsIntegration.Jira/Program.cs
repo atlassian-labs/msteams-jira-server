@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
+using MicrosoftTeamsIntegration.Jira.Services.SignalR;
 
 namespace MicrosoftTeamsIntegration.Jira
 {
@@ -19,6 +21,10 @@ namespace MicrosoftTeamsIntegration.Jira
                 {
                     webBuilder.ConfigureMicrosoftTeamsIntegrationDefaults();
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices(s =>
+                {
+                    s.AddHostedService<SignalRBroadcastClient>();
                 });
     }
 }

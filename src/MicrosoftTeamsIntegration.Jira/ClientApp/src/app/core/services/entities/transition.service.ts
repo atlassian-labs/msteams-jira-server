@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { JiraTransitionsResponse } from '@core/models/Jira/jira-transition.model';
 import { JiraApiActionCallResponse } from '@core/models/Jira/jira-api-action-call-response.model';
-import {firstValueFrom} from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class IssueTransitionService {
@@ -14,6 +14,11 @@ export class IssueTransitionService {
     public getTransitions(jiraUrl: string, issueIdOrKey: string): Promise<JiraTransitionsResponse> {
         return firstValueFrom(this.http
             .get<JiraTransitionsResponse>(`/api/issue/transitions?jiraUrl=${jiraUrl}&issueIdOrKey=${issueIdOrKey}`));
+    }
+
+    public getTransitionsByProjectKeyOrId(jiraUrl: string, projectKeyOrId: string): Promise<JiraTransitionsResponse[]> {
+        return firstValueFrom(this.http
+            .get<JiraTransitionsResponse[]>(`/api/issue/transitionsByProject?jiraUrl=${jiraUrl}&projectKeyOrId=${projectKeyOrId}`));
     }
 
     public doTransition(jiraUrl: string, issueIdOrKey: string, transitionId: string): Promise<JiraApiActionCallResponse> {

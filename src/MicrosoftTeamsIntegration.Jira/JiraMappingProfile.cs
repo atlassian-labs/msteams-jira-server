@@ -6,6 +6,7 @@ using Microsoft.Bot.Schema.Teams;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Dto;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
+using MicrosoftTeamsIntegration.Jira.Models.Notifications;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using MicrosoftTeamsIntegration.Jira.TypeConverters;
 
@@ -41,6 +42,9 @@ namespace MicrosoftTeamsIntegration.Jira
 
             CreateMap<BotAndMessagingExtensionJiraIssue, MessagingExtensionAttachment>()
                 .ConvertUsing(new JiraIssueToMessagingExtensionAttachmentTypeConverter());
+
+            CreateMap<NotificationMessageCardPayload, AdaptiveCard>()
+                .ConvertUsing(new NotificationMessageToAdaptiveCardConverter());
         }
     }
 }

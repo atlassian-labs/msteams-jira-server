@@ -14,20 +14,14 @@ using MongoDB.Driver;
 namespace MicrosoftTeamsIntegration.Jira.Services
 {
     [UsedImplicitly]
-    public sealed class DatabaseService : IDatabaseService
+    public class DatabaseService : IDatabaseService
     {
         private readonly IMongoCollection<IntegratedUser> _usersCollection;
-
         private readonly IMongoCollection<JiraAddonSettings> _jiraAddonSettingsCollection;
         private static SemaphoreSlim _openConnectionSemaphore;
-        private readonly IOptions<AppSettings> _appSettings;
-        private readonly IMongoDBContext _context;
 
         public DatabaseService(IOptions<AppSettings> appSettings, IMongoDBContext context)
         {
-            _appSettings = appSettings;
-            _context = context;
-
             _openConnectionSemaphore = new SemaphoreSlim(
                 context.MaxConnectionPoolSize / 2,
                 context.MaxConnectionPoolSize / 2);
@@ -235,20 +229,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             await ProcessThrottlingRequest(() => _usersCollection.DeleteOneAsync(deleteFilter));
         }
 
-        private async Task ResetUserActiveJiraInstanceForPersonalScope(string msTeamsUserId)
-        {
-            var updateBuilder = new UpdateDefinitionBuilder<IntegratedUser>();
-            var updateDefinition = updateBuilder
-                .Set(x => x.IsUsedForPersonalScope, false)
-                .Set(x => x.IsUsedForPersonalScopeBefore, true);
-
-            var filter = Builders<IntegratedUser>.Filter.Where(x =>
-                x.MsTeamsUserId == msTeamsUserId && x.IsUsedForPersonalScope);
-
-            await ProcessThrottlingRequest(() => _usersCollection.UpdateOneAsync(filter, updateDefinition));
-        }
-
-        private static async Task<T> ProcessThrottlingRequest<T>(Func<Task<T>> func)
+        protected static async Task<T> ProcessThrottlingRequest<T>(Func<Task<T>> func)
         {
             T result;
 
@@ -265,7 +246,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             return result;
         }
 
-        private static async Task ProcessThrottlingRequest(Func<Task> func)
+        protected static async Task ProcessThrottlingRequest(Func<Task> func)
         {
             await _openConnectionSemaphore.WaitAsync();
             try
@@ -276,6 +257,19 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             {
                 _openConnectionSemaphore.Release();
             }
+        }
+
+        private async Task ResetUserActiveJiraInstanceForPersonalScope(string msTeamsUserId)
+        {
+            var updateBuilder = new UpdateDefinitionBuilder<IntegratedUser>();
+            var updateDefinition = updateBuilder
+                .Set(x => x.IsUsedForPersonalScope, false)
+                .Set(x => x.IsUsedForPersonalScopeBefore, true);
+
+            var filter = Builders<IntegratedUser>.Filter.Where(x =>
+                x.MsTeamsUserId == msTeamsUserId && x.IsUsedForPersonalScope);
+
+            await ProcessThrottlingRequest(() => _usersCollection.UpdateOneAsync(filter, updateDefinition));
         }
     }
 }

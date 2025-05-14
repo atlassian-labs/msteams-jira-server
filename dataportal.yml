@@ -71,6 +71,8 @@ attributes:
       - 'createIssueCommentModal'
       - 'addIssueCommentModal'
       - 'connectToJira'
+      - 'configurePersonalNotificationsModal'
+      - 'configureChannelNotificationsModal'
 track:
   - id: 24765
     action: completed
@@ -151,6 +153,40 @@ track:
           - 'groupChat'
           - 'channel'
           - 'personal'
+  - id: 82676
+    action: processed
+    subject: notification
+    library: server
+    description: |
+      Track information about processed notifications
+    attributes:
+      - name: notificationEventType
+        required: true
+        description: |
+          Shows the type of notification event
+        enumeration:
+          - 'personal'
+          - 'channel'
+  - id: 82677
+    action: processingFailed
+    subject: notification
+    library: server
+    description: |
+      Track information about failed to process notifications
+    attributes:
+      - name: notificationEventType
+        required: true
+        description: |
+          Shows the type of notification event
+        enumeration:
+          - 'personal'
+          - 'channel'
+  - id: 82678
+    action: processing
+    subject: notification
+    library: server
+    description: |
+      Track information about all notifications that needs to be processed
 
 screen:
   - id: 25484
@@ -216,6 +252,18 @@ screen:
     name: errorScreen
     description: |
       Error view showed when error occured
+    attributes:
+      - name: application
+      - name: source
+  - id: 82686
+    name: configurePersonalNotificationsModal
+    description: Open the configure personal notifications modal
+    attributes:
+      - name: application
+      - name: source
+  - id: 82687
+    name: configureChannelNotificationsModal
+    description: Open the configure channel notifications modal
     attributes:
       - name: application
       - name: source
@@ -356,6 +404,59 @@ ui:
         type: string
         description: The error message accompanying the erroneous result.
         required: false
-
-
-
+  - id: 82679
+    action: clicked
+    subject: button
+    subjectId: updatePersonalNotification
+    description: |
+      The user clicked on the update notification button
+    attributes:
+      - name: source
+  - id: 82680
+    action: clicked
+    subject: button
+    subjectId: createPersonalNotification
+    description: |
+      The user clicked on the create notification button
+    attributes:
+      - name: source
+  - id: 82681
+    action: clicked
+    subject: button
+    subjectId: updateChannelNotification
+    description: |
+      The user clicked on the update channel notification button
+    attributes:
+      - name: source
+  - id: 82682
+    action: clicked
+    subject: button
+    subjectId: createChannelNotification
+    description: |
+      The user clicked on the create channel notification button
+    attributes:
+      - name: source
+  - id: 82683
+    action: clicked
+    subject: button
+    subjectId: deleteChannelNotification
+    description: |
+      The user clicked on the delete channel notification button
+    attributes:
+      - name: source
+  - id: 82684
+    action: clicked
+    subject: button
+    subjectId: muteChannelNotification
+    description: |
+      The user clicked on the mute channel notification button
+    attributes:
+      - name: source
+  - id: 82685
+    action: clicked
+    subject: button
+    subjectId: unmuteChannelNotification
+    description: |
+      The user clicked on the unmute channel notification button
+    attributes:
+      - name: source

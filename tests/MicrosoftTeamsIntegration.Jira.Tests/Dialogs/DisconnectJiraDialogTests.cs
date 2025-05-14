@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Builder.Testing;
 using Microsoft.Bot.Builder.Testing.XUnit;
 using Microsoft.Bot.Connector;
@@ -27,6 +28,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
         private readonly IJiraAuthService _fakeJiraAuthService;
         private readonly AppSettings _appSettings;
         private readonly IAnalyticsService _analyticsService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
 
         public DisconnectJiraDialogTests(ITestOutputHelper output)
         {
@@ -38,6 +40,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             _appSettings = new AppSettings();
             _telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
             _analyticsService = A.Fake<IAnalyticsService>();
+            _notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
         }
 
         [Fact]
@@ -65,6 +68,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             {
                 IsSuccess = true
             });
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(A<IntegratedUser>._)).Returns((NotificationSubscription)null);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("disconnect");
             var confirmReply = await testClient.SendActivityAsync<IMessageActivity>("Yes");
@@ -87,6 +91,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
             {
                 IsSuccess = true
             });
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(A<IntegratedUser>._)).Returns((NotificationSubscription)null);
 
             var reply = await testClient.SendActivityAsync<IMessageActivity>("disconnect");
             var confirmReply = await testClient.SendActivityAsync<IMessageActivity>("No");
@@ -99,7 +104,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Dialogs
 
         private DisconnectJiraDialog GetDisconnectJiraDialog()
         {
-            return new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry, _analyticsService);
+            return new DisconnectJiraDialog(_fakeAccessors, _fakeJiraAuthService, _appSettings, _telemetry, _analyticsService, _notificationSubscriptionService);
         }
     }
 }

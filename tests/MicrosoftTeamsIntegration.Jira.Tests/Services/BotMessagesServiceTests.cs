@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AdaptiveCards;
 using AutoMapper;
 using FakeItEasy;
 using Microsoft.Bot.Builder;
@@ -9,7 +10,6 @@ using Microsoft.Bot.Builder.Adapters;
 using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Options;
-using MicrosoftTeamsIntegration.Artifacts.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Services;
@@ -43,67 +43,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             public string HtmlContentWithTagA0CustomLink { get; set; }
             public string HtmlContentWithTagA1YahooLink { get; set; }
             public string HtmlContentWithTagA2GoogleLink { get; set; }
-        }
-
-        private AttachmentData BuildTestData(string href = "")
-        {
-            var testData = new AttachmentData
-            {
-                MockActivity = A.Fake<Activity>(),
-                ImgContent = "<img src=\"pic_trulli.jpg\" alt=\"Italian Trulli\">",
-
-                HtmlContentWithoutTagA =
-                    "<!DOCTYPE html>" +
-                    "<html>" +
-                    "<title> HTML Tutorial </title>" +
-                    "<body>" +
-                    "<div class=\"Header\">" +
-                    "<h1>This is a Heading</h1>" +
-                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
-                    "</div>" +
-                    "</body>" +
-                    "</html>",
-
-                HtmlContentWithTagA0CustomLink =
-                    "<!DOCTYPE html>" +
-                    "<html>" +
-                    "<title> HTML Tutorial </title>" +
-                    "<body>" +
-                    "<div class=\"Header\">" +
-                    "<h1>This is a Heading</h1>" +
-                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
-                    $"<div class\"http\"><p>\\n\\n\\n\\n\\n\\n\\n\\n\\This part is for determine\\r\\r\\r\\r\\r\\r\\r\\r\\r\\ parse behavior with tag a \\n \\r <a href=\"{href}\">This is title for tag a</a></p></div>" +
-                    "</div>" +
-                    "</body>" +
-                    "</html>",
-
-                HtmlContentWithTagA1YahooLink =
-                    "<!DOCTYPE html>" +
-                    "<html>" +
-                    "<title> HTML Tutorial </title>" +
-                    "<body>" +
-                    "<div class=\"Header\">" +
-                    "<h1>This is a Heading</h1>" +
-                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
-                    $"<div class\"http\"><p>\\n\\n\\n\\n\\n\\n\\n\\n\\This part is for determine\\r\\r\\r\\r\\r\\r\\r\\r\\r\\ parse behavior with tag a \\n \\r <a href=\"{_yahooLink}\">This is title for tag a</a></p></div>" +
-                    "</div>" +
-                    "</body>" +
-                    "</html>",
-
-                HtmlContentWithTagA2GoogleLink =
-                    "<!DOCTYPE html>" +
-                    "<html>" +
-                    "<title> HTML Tutorial </title>" +
-                    "<body>" +
-                    "<div class=\"Header\">" +
-                    "<h1>This is a Heading</h1>" +
-                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
-                    $"<div class\"http\"><p>\\n\\n\\n\\n\\n\\n\\n\\n\\This part is for determine\\r\\r\\r\\r\\r\\r\\r\\r\\r\\ parse behavior with tag a \\n \\r <a href=\"{_googleLink}\">This is title for tag a</a></p></div>" +
-                    "</div>" +
-                    "</body>" +
-                    "</html>"
-            };
-            return testData;
         }
 
         // Verify that we get empty string whether html content contains no <a> tag
@@ -280,8 +219,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
                 .Returns(new JiraIssueSearch()
                 {
-                    JiraIssues = new JiraIssue[1]
-                    {
+                    JiraIssues =
+                    [
                         new JiraIssue()
                         {
                             Id = "id",
@@ -294,7 +233,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                                 }
                             }
                         }
-                    }
+
+                    ]
                 });
 
             A.CallTo(() => _fakeJiraService.GetUserNameOrAccountId(A<IntegratedUser>._)).Returns("user");
@@ -346,8 +286,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             A.CallTo(() => _fakeJiraService.Search(A<IntegratedUser>._, A<SearchForIssuesRequest>._))
                 .Returns(new JiraIssueSearch()
                 {
-                    JiraIssues = new JiraIssue[1]
-                    {
+                    JiraIssues =
+                    [
                         new JiraIssue()
                         {
                             Id = "id",
@@ -360,7 +300,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                                 }
                             }
                         }
-                    },
+
+                    ],
                 });
 
             A.CallTo(() => _fakeJiraService.GetUserNameOrAccountId(A<IntegratedUser>._)).Returns("user");
@@ -408,7 +349,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             };
 
             var turnContext = A.Fake<ITurnContext>();
-            var connectorClient = A.Fake<IConnectorClient>();
 
             A.CallTo(() => turnContext.Activity).Returns(activity);
 
@@ -483,6 +423,195 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             // Assert
             A.CallTo(() => turnContext.SendActivityAsync(A<IActivity>._, A<CancellationToken>._)).MustHaveHappened();
+        }
+
+        [Fact]
+        public void BuildConfigureNotificationsCard_GroupConversation_ShouldReturnCorrectCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount { IsGroup = true }
+            };
+            var turnContext = A.Fake<ITurnContext>();
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            var card = service.BuildConfigureNotificationsCard(turnContext);
+
+            // Assert
+            Assert.NotNull(card);
+            Assert.Contains("🔔 Channel notifications", card.Body.OfType<AdaptiveTextBlock>().FirstOrDefault()?.Text);
+        }
+
+        [Fact]
+        public void BuildConfigureNotificationsCard_PersonalConversation_ShouldReturnCorrectCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount { IsGroup = false }
+            };
+            var turnContext = A.Fake<ITurnContext>();
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            var card = service.BuildConfigureNotificationsCard(turnContext);
+
+            // Assert
+            Assert.NotNull(card);
+            Assert.Contains("🔔 Personal notifications", card.Body.OfType<AdaptiveTextBlock>().FirstOrDefault()?.Text);
+        }
+
+        [Fact]
+        public void BuildNotificationConfigurationSummaryCard_ShouldReturnCorrectCard()
+        {
+            // Arrange
+            var subscription = new NotificationSubscription
+            {
+                EventTypes = new string[] { "ActivityIssueAssignee", "MentionedOnIssue" }
+            };
+            var service = CreateBotMessagesService();
+
+            // Act
+            var card = service.BuildNotificationConfigurationSummaryCard(subscription, showSuccessMessage: true);
+
+            // Assert
+            Assert.NotNull(card);
+            Assert.Contains("You successfully subscribed to notifications", card.Body.OfType<AdaptiveContainer>().FirstOrDefault()?.Items.OfType<AdaptiveTextBlock>().FirstOrDefault()?.Text);
+            Assert.Contains("Updates on issues you **assigned** to", card.Body.OfType<AdaptiveContainer>().FirstOrDefault()?.Items.OfType<AdaptiveTextBlock>().Skip(2).FirstOrDefault()?.Text);
+            Assert.Contains("Someone **mentioned** you", card.Body.OfType<AdaptiveContainer>().FirstOrDefault()?.Items.OfType<AdaptiveTextBlock>().LastOrDefault()?.Text);
+        }
+
+        [Fact]
+        public async Task SendConfigureNotificationsCard_GroupConversation_ShouldSendCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount { IsGroup = true }
+            };
+            var turnContext = A.Fake<ITurnContext>();
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            await service.SendConfigureNotificationsCard(turnContext, CancellationToken.None);
+
+            // Assert
+            A.CallTo(() => turnContext.SendActivityAsync(A<IActivity>._, A<CancellationToken>._)).MustHaveHappened();
+        }
+
+        [Fact]
+        public void BuildHelpCard_GroupConversation_ShouldReturnCorrectCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount { IsGroup = true }
+            };
+            var turnContext = A.Fake<ITurnContext>();
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            var card = service.BuildHelpCard(turnContext);
+
+            // Assert
+            Assert.NotNull(card);
+            Assert.Contains("How I can help you?", card.Body.OfType<AdaptiveContainer>().FirstOrDefault()?.Items.OfType<AdaptiveTextBlock>().FirstOrDefault()?.Text);
+            Assert.DoesNotContain("Connect", card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Select(a => a.Title));
+            Assert.Equal(7, card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Count());
+        }
+
+        [Fact]
+        public void BuildHelpCard_PersonalConversation_ShouldReturnCorrectCard()
+        {
+            // Arrange
+            var activity = new Activity
+            {
+                Conversation = new ConversationAccount { IsGroup = false }
+            };
+            var turnContext = A.Fake<ITurnContext>();
+            A.CallTo(() => turnContext.Activity).Returns(activity);
+
+            var service = CreateBotMessagesService();
+
+            // Act
+            var card = service.BuildHelpCard(turnContext);
+
+            // Assert
+            Assert.NotNull(card);
+            Assert.Contains("How I can help you?", card.Body.OfType<AdaptiveContainer>().FirstOrDefault()?.Items.OfType<AdaptiveTextBlock>().FirstOrDefault()?.Text);
+            Assert.Contains("Connect", card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Select(a => a.Title));
+            Assert.Equal(14, card.Body.OfType<AdaptiveContainer>().SelectMany(ac => ac.Items).OfType<AdaptiveColumnSet>().Where(x => x.IsVisible).SelectMany(cs => cs.Columns).SelectMany(c => c.Items.OfType<AdaptiveActionSet>()).SelectMany(a => a.Actions.OfType<AdaptiveSubmitAction>()).Count());
+        }
+
+        private AttachmentData BuildTestData(string href = "")
+        {
+            var testData = new AttachmentData
+            {
+                MockActivity = A.Fake<Activity>(),
+                ImgContent = "<img src=\"pic_trulli.jpg\" alt=\"Italian Trulli\">",
+
+                HtmlContentWithoutTagA =
+                    "<!DOCTYPE html>" +
+                    "<html>" +
+                    "<title> HTML Tutorial </title>" +
+                    "<body>" +
+                    "<div class=\"Header\">" +
+                    "<h1>This is a Heading</h1>" +
+                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>",
+
+                HtmlContentWithTagA0CustomLink =
+                    "<!DOCTYPE html>" +
+                    "<html>" +
+                    "<title> HTML Tutorial </title>" +
+                    "<body>" +
+                    "<div class=\"Header\">" +
+                    "<h1>This is a Heading</h1>" +
+                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
+                    $"<div class\"http\"><p>\\n\\n\\n\\n\\n\\n\\n\\n\\This part is for determine\\r\\r\\r\\r\\r\\r\\r\\r\\r\\ parse behavior with tag a \\n \\r <a href=\"{href}\">This is title for tag a</a></p></div>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>",
+
+                HtmlContentWithTagA1YahooLink =
+                    "<!DOCTYPE html>" +
+                    "<html>" +
+                    "<title> HTML Tutorial </title>" +
+                    "<body>" +
+                    "<div class=\"Header\">" +
+                    "<h1>This is a Heading</h1>" +
+                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
+                    $"<div class\"http\"><p>\\n\\n\\n\\n\\n\\n\\n\\n\\This part is for determine\\r\\r\\r\\r\\r\\r\\r\\r\\r\\ parse behavior with tag a \\n \\r <a href=\"{_yahooLink}\">This is title for tag a</a></p></div>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>",
+
+                HtmlContentWithTagA2GoogleLink =
+                    "<!DOCTYPE html>" +
+                    "<html>" +
+                    "<title> HTML Tutorial </title>" +
+                    "<body>" +
+                    "<div class=\"Header\">" +
+                    "<h1>This is a Heading</h1>" +
+                    "<p><span style=\"color:blue\">This is a paragraph.<br></span></p>" +
+                    $"<div class\"http\"><p>\\n\\n\\n\\n\\n\\n\\n\\n\\This part is for determine\\r\\r\\r\\r\\r\\r\\r\\r\\r\\ parse behavior with tag a \\n \\r <a href=\"{_googleLink}\">This is title for tag a</a></p></div>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>"
+            };
+            return testData;
         }
 
         private IBotMessagesService CreateBotMessagesService()

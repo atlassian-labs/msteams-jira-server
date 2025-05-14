@@ -1,0 +1,214 @@
+<div class="dialog">
+    <div class="no-notifications-group" *ngIf="showInitialContainer">
+        <div class="dialog__content">
+            <div class="initial-container">
+                <img src="https://product-integrations-cdn.atl-paas.net/jira-teams/jira-configure.png" alt="Configure Jira" class="jira-logo" style="display: block; margin: 0 auto;">
+                <p style="margin-bottom: 10px">To start receiving Jira Data Center notifications in this channel/chat please click "Add new" button to create new configuration</p>
+            </div>
+        </div>
+        <div class="dialog__footer">
+            <div class="buttons">
+                <button class="ts-btn ts-btn-secondary buttons__button" (click)="onCancel()">
+                    Cancel
+                </button>
+                <button class="ts-btn ts-btn-primary buttons__button" (click)="displayCreateNotificationsGroup()">
+                    Add new
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="create-notifications-group" *ngIf="showCreateNotificationsGroup && !loading">
+        <div class="dialog__content">
+            <p style="margin-bottom: 10px; margin-top: 5px;">Customise the type of project notifications you get from</p>
+            <form *ngIf="issueForm"
+                  #form
+                  [formGroup]="issueForm"
+                  class="notifications-form">
+                <p class="field-label">Jira Data Center ID</p>
+                <textarea id="jira-id"
+                        class="field-group__jiraId-textarea"
+                        placeholder="Enter Jira Data Center ID"
+                        readonly
+                        formControlName="jiraId"></textarea>
+
+                <p class="field-label">Jira project</p>
+                <app-dropdown #projectsDropdown
+                  [required]="true"
+                  [searchable]="true"
+                  [options]="availableProjectsOptions"
+                  [filteredOptions]="projectFilteredOptions"
+                  [loading]="isFetchingProjects"
+                  (optionSelect)="onProjectSelected($event)"
+                  (searchChange)="onSearchChanged($event)"
+                  [debounceTime]="700"
+                  formControlName="project"></app-dropdown>
+                
+                <p class="field-label">Type</p>
+                <app-dropdown [options]="availableIssueTypesOptions"
+                              (optionSelect)="onIssueTypeSelected($event)" formControlName="issuetype"></app-dropdown>
+
+                <p class="field-label">Priority</p>
+                <app-dropdown [searchable]="true" [isInnerSearch]="true" [options]="prioritiesOptions"
+                              formControlName="priority"></app-dropdown>
+
+                <p class="field-label">Status</p>
+                <app-dropdown [searchable]="true" [isInnerSearch]="true" [options]="statusesOptions"
+                              formControlName="status" style="margin-bottom: 10px;"></app-dropdown>
+
+                <div class="field-group" style="display: flex; justify-content: space-between; height: 32px;">
+                    <div class="field-group__column" style="flex: 1; margin-right: 10px;">
+                        <p class="field-label">Issue is</p>
+                        <ng-select [items]="issueIsSelectOptions"
+                                   bindLabel="label"
+                                   bindValue="id"
+                                   [multiple]="true"
+                                   formControlName="issueIs"
+                                   [compareWith]="compareSelectOptions"
+                                   [hideSelected]="true"
+                                   [(ngModel)]="issueIsSelectOptionsSelected"></ng-select>
+                    </div>
+                    <div class="field-group__column" style="flex: 1; margin-left: 10px;">
+                        <p class="field-label">Comment is</p>
+                        <ng-select [items]="commentIsSelectOptions"
+                                   bindLabel="label"
+                                   bindValue="id"
+                                   [multiple]="true"
+                                   formControlName="commentIs"
+                                   [compareWith]="compareSelectOptions"
+                                   [hideSelected]="true"
+                                   [(ngModel)]="commentIsSelectOptionsSelected"></ng-select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="dialog__footer">
+            <div class="buttons">
+                <button class="ts-btn ts-btn-secondary buttons__button" (click)="displayNotificationsListGroup()">
+                    Show all
+                </button>
+                <button class="ts-btn ts-btn-primary buttons__button" (click)="saveNotification()" [disabled]="submitting">
+                    Save notification
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notifications-list-group" *ngIf="showNotificationsListGroup">
+        <div class="dialog__content">
+            <p style="margin-bottom: 10px; margin-top: 5px;">You have {{notifications.length}} notification(s) configured for this channel/chat</p>
+            <table mat-table [dataSource]="notifications" style="margin-top: 10px;" 
+                   aria-label="Notification subscriptions table showing projects, notification criteria, Jira URLs and actions">
+                <!-- Project Column -->
+                <ng-container matColumnDef="project">
+                    <th mat-header-cell *matHeaderCellDef>Project</th>
+                    <td mat-cell *matCellDef="let notification">{{notification.projectName}}</td>
+                </ng-container>
+    
+                <!-- Criteria Column -->
+                <ng-container matColumnDef="criteria">
+                    <th mat-header-cell *matHeaderCellDef>Criteria</th>
+                    <td mat-cell *matCellDef="let notification">Events: {{notification.eventTypes.join(', ')}}</td>
+                </ng-container>
+    
+                <!-- Jira URL Column -->
+                <ng-container matColumnDef="jiraId">
+                    <th mat-header-cell *matHeaderCellDef>Jira Data Center ID</th>
+                    <td mat-cell *matCellDef="let notification">{{notification.jiraId}}</td>
+                </ng-container>
+    
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let notification">
+                        <button mat-icon-button [matMenuTriggerFor]="menu">
+                            <mat-icon>more_horiz</mat-icon>
+                        </button>
+    
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="displayCreateNotificationsGroupWithNotification(notification)" [disabled]="notification.jiraId !== jiraId">Edit</button>
+                            <button mat-menu-item (click)="toggleNotification(notification)">{{notification.isActive ? 'Turn Off' : 'Turn On'}}</button>
+                            <button mat-menu-item (click)="deleteNotification(notification)">Delete</button>
+                        </mat-menu>
+                    </td>
+                </ng-container>
+    
+                <tr mat-header-row *matHeaderRowDef="['project', 'criteria', 'jiraId', 'actions']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['project', 'criteria', 'jiraId', 'actions'];" 
+                    [style.opacity]="row.isActive ? '1' : '0.5'"></tr>
+            </table>
+        </div>
+        <div class="dialog__footer">
+            <div class="buttons">
+                <button class="ts-btn ts-btn-secondary buttons__button" (click)="onCancel()">
+                    Cancel
+                </button>
+                <button class="ts-btn ts-btn-primary buttons__button" (click)="displayCreateNotificationsGroup()">
+                    Add new
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="template">
+        <div class="ph-item">
+            <div class="ph-col-12 big">
+                <div class="ph-row">
+                    <div class="ph-col-8"></div>
+                    <div class="ph-col-4 empty"></div>
+                    <div class="ph-col-12 big"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ph-item">
+            <div class="ph-col-12 big">
+                <div class="ph-row">
+                    <div class="ph-col-4"></div>
+                    <div class="ph-col-12 big"></div>
+                </div>
+            </div>
+            <div class="ph-col-12 big">
+                <div class="ph-row">
+                    <div class="ph-col-4"></div>
+                    <div class="ph-col-12 big"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ph-item">
+            <div class="ph-col-12 big">
+                <div class="ph-row">
+                    <div class="ph-col-4"></div>
+                    <div class="ph-col-12 big"></div>
+                </div>
+            </div>
+            <div class="ph-col-12 big">
+                <div class="ph-row">
+                    <div class="ph-col-4"></div>
+                    <div class="ph-col-12 big"></div>
+                </div>
+            </div>
+        </div>
+        <div class="ph-item">
+            <div class="ph-col-12 big">
+                <div class="ph-row">
+                    <div class="ph-col-4 big"></div>
+                    <div class="ph-col-4 empty"></div>
+                    <div class="ph-col-4 big"></div>
+                </div>
+            </div>
+        </div>
+        <div class="ph-item">
+            <div class="ph-col-12">
+                <div class="ph-row">
+                    <div class="ph-col-6 empty"></div>
+                    <div class="ph-col-2 big"></div>
+                    <div class="ph-col-2 empty"></div>
+                    <div class="ph-col-2 big"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

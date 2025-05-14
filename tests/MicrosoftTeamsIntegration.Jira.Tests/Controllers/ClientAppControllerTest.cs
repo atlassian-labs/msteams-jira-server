@@ -3,7 +3,9 @@ using FakeItEasy;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Controllers;
+using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Xunit;
 
@@ -21,6 +23,13 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Controllers
                 new OptionsFactory<TelemetryConfiguration>(
                     new List<IConfigureOptions<TelemetryConfiguration>>(),
                     new List<IPostConfigureOptions<TelemetryConfiguration>>()));
+
+        private readonly INotificationSubscriptionService _notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
+        private readonly IDatabaseService _databaseService = A.Fake<IDatabaseService>();
+        private readonly IJiraAuthService _jiraAuthService = A.Fake<IJiraAuthService>();
+        private readonly IBotMessagesService _botMessagesService = A.Fake<IBotMessagesService>();
+        private readonly IDistributedCacheService _distributedCacheService = A.Fake<IDistributedCacheService>();
+        private readonly IProactiveMessagesService _proactiveMessagesService = A.Fake<IProactiveMessagesService>();
 
         [Fact]
         public void GetClientAppSettingsTest()
@@ -40,9 +49,16 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Controllers
         private ClientAppController CreateClientAppController()
         {
             return A.Fake<ClientAppController>(
-                x => x.WithArgumentsForConstructor(new object[] {
+                x => x.WithArgumentsForConstructor(new object[]
+                {
                     _appSettings,
-                    _telemetryConfiguration
+                    _telemetryConfiguration,
+                    _notificationSubscriptionService,
+                    _proactiveMessagesService,
+                    _botMessagesService,
+                    _distributedCacheService,
+                    _databaseService,
+                    _jiraAuthService
                 }));
         }
     }

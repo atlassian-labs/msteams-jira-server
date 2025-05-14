@@ -5,13 +5,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
 using MicrosoftTeamsIntegration.Artifacts.Models;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
@@ -22,6 +20,7 @@ using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Dto;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
+using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Refit;
@@ -33,7 +32,6 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
     public class JiraApiController : BaseApiController
     {
         private readonly IDatabaseService _databaseService;
-        private readonly AppSettings _appSettings;
         private readonly IJiraService _jiraService;
         private readonly IMapper _mapper;
         private readonly IJiraAuthService _jiraAuthService;
@@ -43,19 +41,18 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
 
         public JiraApiController(
             IDatabaseService databaseService,
-            IOptions<AppSettings> appSettings,
             IJiraService jiraService,
             IMapper mapper,
             IJiraAuthService jiraAuthService,
             IDistributedCacheService distributedCacheService,
             ILogger<JiraApiController> logger,
             IOptions<ClientAppOptions> clientAppOptions)
+            : base(databaseService, jiraAuthService)
         {
             _databaseService = databaseService;
             _jiraService = jiraService;
             _mapper = mapper;
             _jiraAuthService = jiraAuthService;
-            _appSettings = appSettings.Value;
             _distributedCacheService = distributedCacheService;
             _logger = logger;
             _clientAppOptions = clientAppOptions.Value;
@@ -504,6 +501,15 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(result);
         }
 
+        [HttpGet("issue/transitionsByProject")]
+        public async Task<IActionResult> GetTransitionsByProject(string jiraUrl, string projectKeyOrId)
+        {
+            var user = await GetAndVerifyUser(jiraUrl);
+            var result = await _jiraService.GetTransitionsByProject(user, projectKeyOrId);
+
+            return Ok(result);
+        }
+
         [HttpPost("issue/transitions")]
         public async Task<IActionResult> DoTransition(string jiraUrl, string issueIdOrKey, [FromBody] DoTransitionRequest model)
         {
@@ -537,7 +543,7 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
 
                 if (shouldReturnError)
                 {
-                    var errorMessage = $"Please contact your Jira Data Center administrator and ask him to install Jira addon application.";
+                    var errorMessage = $"Please contact your Jira Data Center administrator to install or update Jira Data Center for Microsoft Teams application.";
                     var error = new ApiError(errorMessage);
                     return BadRequest(error);
                 }
@@ -637,53 +643,26 @@ namespace MicrosoftTeamsIntegration.Jira.Controllers
             return Ok(result);
         }
 
-        private async Task<IntegratedUser> GetAndVerifyUser(string jiraUrl)
+        [HttpGet("getJiraId")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetJiraId(string jiraUrl)
         {
-            if (jiraUrl.HasValue())
+            using HttpClient httpClient = new HttpClient();
+            var response = await httpClient.GetAsync($"{jiraUrl}/plugins/servlet/teams/getJiraServerId");
+            if (response.IsSuccessStatusCode)
             {
-                jiraUrl = Uri.UnescapeDataString(jiraUrl);
+                string jiraIdResponse = await response.Content.ReadAsStringAsync();
+                if (Guid.TryParse(jiraIdResponse.Trim(), out Guid jiraId))
+                {
+                    return Ok(jiraId.ToString());
+                }
             }
 
-            var msTeamsUserId = GetUserOid();
-            var user = await _databaseService.GetUserByTeamsUserIdAndJiraUrl(msTeamsUserId, jiraUrl);
-            var isJiraConnected = await _jiraAuthService.IsJiraConnected(user);
-
-            if (!isJiraConnected)
-            {
-                throw new UnauthorizedException();
-            }
-
-            if (user != null)
-            {
-                user.AccessToken = GetUserAccessToken();
-            }
-
-            if (user.HasJiraAuthInfo())
-            {
-                return user;
-            }
-
-            if (user is null)
-            {
-                throw new UnauthorizedException();
-            }
-
-            var addonStatus = await _databaseService.GetJiraServerAddonSettingsByJiraId(jiraUrl);
-
-            var message = user.HasJiraAuthInfo()
-                ? addonStatus.GetErrorMessage(jiraUrl)
-                : JiraConstants.UserNotAuthorizedMessage;
-
-            var response = new HttpResponseMessage(HttpStatusCode.Forbidden)
-            {
-                Content = new StringContent(message)
-            };
-            var exception = await ApiException.Create(
-                new HttpRequestMessage(),
-                HttpMethod.Post,
-                response,
-                new RefitSettings());
-            throw exception;
+            var errorMessage = $"Can't get Jira Data Center ID. Please contact your Jira Data Center administrator to install or update Jira Data Center for Microsoft Teams application.";
+            var error = new ApiError(errorMessage);
+            return BadRequest(error);
         }
 
         private async Task<string> GetDefaultMetadataMessage(string metadataRef)

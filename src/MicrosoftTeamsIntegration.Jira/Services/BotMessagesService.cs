@@ -11,8 +11,12 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Options;
 using MicrosoftTeamsIntegration.Artifacts.Extensions;
+using MicrosoftTeamsIntegration.Jira.Dialogs;
 using MicrosoftTeamsIntegration.Jira.Extensions;
 using MicrosoftTeamsIntegration.Jira.Models;
+using MicrosoftTeamsIntegration.Jira.Models.Bot;
+using MicrosoftTeamsIntegration.Jira.Models.FetchTask;
+using MicrosoftTeamsIntegration.Jira.Models.Notifications;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 
@@ -266,6 +270,417 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
         }
 
+        public async Task SendConfigureNotificationsCard(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            var adaptiveCard = BuildConfigureNotificationsCard(turnContext);
+
+            var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
+
+            if (turnContext.Activity.IsGroupConversation())
+            {
+                await turnContext.SendActivityAsync(message, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+            }
+        }
+
+        public AdaptiveCard BuildConfigureNotificationsCard(ITurnContext turnContext)
+        {
+            bool isGroupConversation = turnContext.Activity.IsGroupConversation();
+
+            string title = isGroupConversation ? "🔔 Channel notifications" : "🔔 Personal notifications";
+            string turnOnCommandName = isGroupConversation
+                ? DialogMatchesAndCommands.TurnOnChannelNotificationsCommand
+                : DialogMatchesAndCommands.TurnOnNotificationsCommand;
+
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 3))
+            {
+                Body = new List<AdaptiveElement>()
+                {
+                    new AdaptiveTextBlock
+                    {
+                        Text = title,
+                        Size = AdaptiveTextSize.Medium,
+                        Weight = AdaptiveTextWeight.Bolder,
+                        Wrap = true
+                    },
+                    new AdaptiveTextBlock
+                    {
+                        Text = isGroupConversation
+                                ? "Manage your project notifications for this channel. I’ll send instant updates to keep your team in sync."
+                                : "Turn on personal notifications to stay updated across your projects in Jira Data Center without the distraction of email notifications.",
+                        Wrap = true
+                    }
+                },
+                Actions = new List<AdaptiveAction>()
+                {
+                    new AdaptiveSubmitAction
+                    {
+                        Title = isGroupConversation ? "Manage notifications" : "Turn on notifications",
+                        Style = "positive",
+                        Data = new JiraBotTeamsDataWrapper
+                        {
+                            FetchTaskData = new FetchTaskBotCommand(turnOnCommandName),
+                            TeamsData = new TeamsData
+                            {
+                                Type = "task/fetch"
+                            }
+                        }
+                    }
+                }
+            };
+            return adaptiveCard;
+        }
+
+        public async Task SendNotificationCard(
+            ITurnContext turnContext,
+            NotificationMessage notificationMessage,
+            CancellationToken cancellationToken = default)
+        {
+            var adaptiveCard = _mapper.Map<AdaptiveCard>(notificationMessage);
+
+            var message = MessageFactory.Attachment(adaptiveCard.ToAttachment());
+
+            await turnContext.SendToDirectConversationAsync(message, cancellationToken: cancellationToken);
+        }
+
+        public AdaptiveCard BuildNotificationConfigurationSummaryCard(NotificationSubscription subscription, bool showSuccessMessage = false)
+        {
+            List<PersonalEventType> eventTypes
+                = subscription.EventTypes.AsEnumerable().Select(x
+                    => Enum.Parse<PersonalEventType>(x)).ToList();
+
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+
+            adaptiveCard.Body = new List<AdaptiveElement>()
+            {
+                new AdaptiveContainer()
+                {
+                    Items = new List<AdaptiveElement>()
+                    {
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "You successfully subscribed to notifications from Jira \ud83e\udd73",
+                            IsVisible = showSuccessMessage
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = $"{(showSuccessMessage ? string.Empty : "\ud83d\udd14 ")}" +
+                                   $"You will receive notifications when there are:"
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* Updates on issues you **assigned** to",
+                            IsVisible = eventTypes.Contains(PersonalEventType.ActivityIssueAssignee)
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* Comments on issues you **assigned** to",
+                            IsVisible = eventTypes.Contains(PersonalEventType.CommentIssueAssignee)
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* Updates on issues you've **reported**",
+                            IsVisible = eventTypes.Contains(PersonalEventType.ActivityIssueCreator)
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* Comments on issues you've **reported**",
+                            IsVisible = eventTypes.Contains(PersonalEventType.CommentIssueCreator)
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* Updates on issues that you are **watching**",
+                            IsVisible = eventTypes.Contains(PersonalEventType.IssueViewer)
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* Comments on issues that you are **watching**",
+                            IsVisible = eventTypes.Contains(PersonalEventType.CommentViewer)
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* Someone **mentioned** you in a comment or issue",
+                            IsVisible = eventTypes.Contains(PersonalEventType.MentionedOnIssue)
+                        }
+                    }
+                }
+            };
+
+            adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
+            {
+                { "msTeams", new { width = "full" } }
+            };
+            adaptiveCard.Actions = new List<AdaptiveAction>()
+            {
+                new AdaptiveSubmitAction
+                {
+                    Title = "Change notifications",
+                    Style = "positive",
+                    Data = new JiraBotTeamsDataWrapper
+                    {
+                        FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.TurnOnNotificationsCommand),
+                        TeamsData = new TeamsData
+                        {
+                            Type = "task/fetch"
+                        }
+                    }
+                }
+            };
+
+            return adaptiveCard;
+        }
+
+        public AdaptiveCard BuildChannelNotificationConfigurationSummaryCard(
+            NotificationSubscriptionEvent subscriptionEvent,
+            string callerName)
+        {
+            string title = string.Empty;
+
+            List<ChannelEventType> eventTypes
+                = subscriptionEvent.Subscription.EventTypes.AsEnumerable().Select(x
+                    => Enum.Parse<ChannelEventType>(x)).ToList();
+
+            bool showEventListMessage = subscriptionEvent.Action != SubscriptionAction.Deleted
+                                        && subscriptionEvent.Action != SubscriptionAction.Disabled
+                                        && eventTypes.Count > 0;
+
+            switch (subscriptionEvent.Action)
+            {
+                case SubscriptionAction.Created:
+                    title = $"**{callerName}** has set up channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Updated:
+                    title = $"**{callerName}** has updated channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Deleted:
+                    title = $"**{callerName}** has removed channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Enabled:
+                    title = $"**{callerName}** has enabled channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+                case SubscriptionAction.Disabled:
+                    title = $"**{callerName}** has disabled channel notifications for **{subscriptionEvent.Subscription.ProjectName}** project";
+                    break;
+            }
+
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+
+            adaptiveCard.Body = new List<AdaptiveElement>()
+            {
+                new AdaptiveContainer()
+                {
+                    Items = new List<AdaptiveElement>()
+                    {
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = title,
+                            IsVisible = true
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = $"You will now get a message when someone:",
+                            IsVisible = showEventListMessage
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* **Created comment** on issue",
+                            IsVisible = eventTypes.Contains(ChannelEventType.CommentCreated)
+                                      && showEventListMessage
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* **Updated comment** on issue",
+                            IsVisible = eventTypes.Contains(ChannelEventType.CommentUpdated)
+                                        && showEventListMessage
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* **Created issue**",
+                            IsVisible = eventTypes.Contains(ChannelEventType.IssueCreated)
+                                        && showEventListMessage
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Wrap = true,
+                            Text = "* **Updated issue**",
+                            IsVisible = eventTypes.Contains(ChannelEventType.IssueUpdated)
+                                        && showEventListMessage
+                        },
+                    }
+                }
+            };
+
+            adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
+            {
+                { "msTeams", new { width = "full" } }
+            };
+            adaptiveCard.Actions = new List<AdaptiveAction>()
+            {
+                new AdaptiveSubmitAction
+                {
+                    Title = "Manage notifications",
+                    Style = "positive",
+                    Data = new JiraBotTeamsDataWrapper
+                    {
+                        FetchTaskData = new FetchTaskBotCommand(DialogMatchesAndCommands.TurnOnChannelNotificationsCommand),
+                        TeamsData = new TeamsData
+                        {
+                            Type = "task/fetch"
+                        }
+                    }
+                }
+            };
+
+            return adaptiveCard;
+        }
+
+        public AdaptiveCard BuildHelpCard(ITurnContext turnContext)
+        {
+            var isGroup = turnContext.Activity.IsGroupConversation();
+            var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
+
+            adaptiveCard.Body = new List<AdaptiveElement>()
+            {
+                new AdaptiveContainer()
+                {
+                    Items = new List<AdaptiveElement>()
+                    {
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "How I can help you?",
+                            Size = AdaptiveTextSize.Large,
+                            Weight = AdaptiveTextWeight.Bolder
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Text = "Here’s a list of the commands I can process:",
+                            Wrap = true
+                        },
+                        CreateActionColumnSet(
+                            "Connect",
+                            "Connect a Jira Data Center instance to your Microsoft Teams account",
+                            DialogMatchesAndCommands.ConnectToJiraDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Create",
+                            "Create a new issue",
+                            DialogMatchesAndCommands.CreateNewIssueDialogCommand,
+                            !isGroup,
+                            true),
+                        CreateActionColumnSet(
+                            "Notifications",
+                            $"Set up {(isGroup ? "channel" : "personal")} notifications here in Teams",
+                            isGroup ? DialogMatchesAndCommands.TurnOnChannelNotificationsCommand : DialogMatchesAndCommands.TurnOnNotificationsCommand,
+                            true,
+                            true),
+                        CreateActionColumnSet(
+                            "Find",
+                            $"Obtain issue(s) by a summary search phrase or an issue key (e.g. **{DialogMatchesAndCommands.FindDialogCommand} MP-47** or **{DialogMatchesAndCommands.FindDialogCommand} search_phrase**)",
+                            DialogMatchesAndCommands.FindDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Assign",
+                            $"Assign the issue to yourself (e.g. **{DialogMatchesAndCommands.AssignDialogCommand} MP-47**)",
+                            DialogMatchesAndCommands.AssignDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Edit",
+                            "Open the issue card to change priority, summary, and description of the issue",
+                            DialogMatchesAndCommands.IssueEditDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Log",
+                            "Log time spent on the issue",
+                            DialogMatchesAndCommands.LogTimeDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Watch",
+                            $"Start watching the issue (e.g. **{DialogMatchesAndCommands.WatchDialogCommand} MP-47**)",
+                            DialogMatchesAndCommands.WatchDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Unwatch",
+                            $"Stop watching the issue (e.g. **{DialogMatchesAndCommands.UnwatchDialogCommand} MP-47**)",
+                            DialogMatchesAndCommands.UnwatchDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Vote",
+                            "Vote on the issue",
+                            DialogMatchesAndCommands.VoteDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Unvote",
+                            "Unvote on the issue",
+                            DialogMatchesAndCommands.UnvoteDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Comment",
+                            "Comment the issue",
+                            DialogMatchesAndCommands.CommentDialogCommand,
+                            true,
+                            false),
+                        CreateActionColumnSet(
+                            "Disconnect",
+                            $"Disconnect Jira Data Center instance you've connected from Microsoft Teams",
+                            DialogMatchesAndCommands.DisconnectJiraDialogCommand,
+                            !isGroup,
+                            false),
+                        CreateActionColumnSet(
+                            "Cancel",
+                            "cancel current dialog",
+                            DialogMatchesAndCommands.CancelCommand,
+                            true,
+                            false),
+                        new AdaptiveTextBlock()
+                        {
+                            IsVisible = !isGroup,
+                            Wrap = true,
+                            Text = "Type an issue key (e.g. **MP-47**) to view issue card with actions"
+                        },
+                        new AdaptiveTextBlock()
+                        {
+                            Separator = true,
+                            Wrap = true,
+                            Text =
+                                "\u24d8 For detailed instructions on configuring Jira Data Center application, please visit our [help page](https://confluence.atlassian.com/msteamsjiraserver/microsoft-teams-for-jira-server-documentation-1027116656.html)."
+                        }
+                    }
+                }
+            };
+            adaptiveCard.AdditionalProperties = new SerializableDictionary<string, object>
+            {
+                { "msTeams", new { width = "full" } }
+            };
+
+            return adaptiveCard;
+        }
+
         private static async Task SendWelcomeCard(ITurnContext turnContext, IConnectorClient connectorClient, Activity activity, bool isGroupConversation, CancellationToken cancellationToken)
         {
             string welcomeText =
@@ -409,6 +824,76 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             {
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(adaptiveCard.ToAttachment()), cancellationToken);
             }
+        }
+
+        private static AdaptiveColumnSet CreateActionColumnSet(string title, string description, string command, bool isVisible, bool isFetchTask)
+        {
+            AdaptiveActionSet adaptiveActionSet = isFetchTask
+                ? new AdaptiveActionSet()
+                {
+                    Actions = new List<AdaptiveAction>()
+                    {
+                        new AdaptiveSubmitAction()
+                        {
+                            Title = title,
+                            Data = new JiraBotTeamsDataWrapper
+                            {
+                                FetchTaskData = new FetchTaskBotCommand(command),
+                                TeamsData = new TeamsData
+                                {
+                                    Type = "task/fetch"
+                                }
+                            }
+                        }
+                    }
+                }
+                : new AdaptiveActionSet()
+                {
+                    Actions = new List<AdaptiveAction>()
+                    {
+                        new AdaptiveSubmitAction()
+                        {
+                            Title = title,
+                            Data = new
+                            {
+                                msteams = new
+                                {
+                                    type = "messageBack",
+                                    text = command
+                                }
+                            }
+                        }
+                    }
+                };
+
+            return new AdaptiveColumnSet()
+            {
+                IsVisible = isVisible,
+                Columns = new List<AdaptiveColumn>()
+                {
+                    new AdaptiveColumn()
+                    {
+                        Width = "120px",
+                        Items = new List<AdaptiveElement>()
+                        {
+                            adaptiveActionSet
+                        }
+                    },
+                    new AdaptiveColumn()
+                    {
+                        Width = "stretch",
+                        VerticalContentAlignment = AdaptiveVerticalContentAlignment.Center,
+                        Items = new List<AdaptiveElement>()
+                        {
+                            new AdaptiveTextBlock()
+                            {
+                                Text = description,
+                                Wrap = true
+                            }
+                        }
+                    }
+                }
+            };
         }
     }
 }

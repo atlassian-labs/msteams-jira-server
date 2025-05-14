@@ -53,6 +53,7 @@ export class ConnectJiraComponent implements OnInit {
     public loading = false;
     public showLoginForm = false;
     public errorMessage: string | undefined;
+    public addonStatusErrorMessage: string | undefined;
     public addonVersion = '';
     public jiraAuthUrl = '';
     public authClicked = false;
@@ -93,10 +94,25 @@ export class ConnectJiraComponent implements OnInit {
             {source: 'connectToJira'});
 
         try {
-            const jiraId: string = this.jiraId.value;
-            this.jiraServerId = jiraId;
+            let jiraId: string = this.jiraId.value;
 
             localStorage.setItem(ConnectJiraComponent.JIRA_ID_STORAGE_KEY, jiraId);
+
+            if (this.isValidUrl(jiraId)) {
+                try {
+                    jiraId = await this.apiService.getJiraId(jiraId);
+                } catch (error) {
+                    // eslint-disable-next-line max-len
+                    this.addonStatusErrorMessage = `Jira Data Center is not found or not accessible. Please try to visit the URL to get Jira ID: <a href="${jiraId}/plugins/servlet/teams/getJiraServerId" target="_blank">${jiraId}/plugins/servlet/teams/getJiraServerId</a> or visit <a href="https://confluence.atlassian.com/msteamsjiraserver/microsoft-teams-for-jira-server-documentation-1027116656.html" target="_blank" rel="noreferrer noopener">documentation</a> for more details`;
+                    this.showAddonStatusError = true;
+                    return;
+                }
+            }
+
+            this.jiraServerId = jiraId;
+
+            this.addonStatusErrorMessage = `Please check if ${this.jiraServerId} is valid Jira unique ID or Jira base URL
+                 and Jira Data Center for Microsoft Teams app for your organization is installed.`;
 
             const { addonStatus, addonVersion } = await this.apiService.getAddonStatus(jiraId);
             const addonIsInstalled = addonStatus === AddonStatus.Installed || addonStatus === AddonStatus.Connected;
@@ -135,6 +151,15 @@ export class ConnectJiraComponent implements OnInit {
             if (this.enabledLoadingIndicatorHiding) {
                 this.loadingIndicatorService.hide();
             }
+        }
+    }
+
+    isValidUrl(urlString: string): boolean {
+        try {
+            new URL(urlString);
+            return true;
+        } catch (err) {
+            return false;
         }
     }
 

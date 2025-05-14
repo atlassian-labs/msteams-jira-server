@@ -291,7 +291,7 @@ namespace MicrosoftTeamsIntegration.Jira.TypeConverters
                 return card;
             }
 
-            // Edit button is common fro personal and team scope
+            // Edit button is common for personal and team scope
             card.Actions.Add(new AdaptiveSubmitAction
             {
                 Title = DialogTitles.EditTitle,

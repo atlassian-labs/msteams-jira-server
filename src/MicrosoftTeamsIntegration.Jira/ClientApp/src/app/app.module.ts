@@ -38,7 +38,8 @@ import {
     IssueCommentComponent, NewCommentComponent,
     IssuesTableMobileComponent, ConnectJiraComponent, CreateCommentDialogComponent,
     IssueDetailsComponent, SignoutMaterialDialogComponent, SignoutDialogComponent,
-    CommentIssueDialogComponent
+    CommentIssueDialogComponent, ConfigurePersonalNotificationsDialogComponent,
+    ConfigureChannelNotificationsDialogComponent
 } from '@app/components';
 import { DynamicFieldsDirective } from './components/issues/fields/dynamic-fields.directive';
 import { SelectFieldComponent } from './components/issues/fields/select-field.component';
@@ -58,6 +59,8 @@ import { SelectCascadingFieldComponent } from './components/issues/fields/select
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SuccessSnackbarComponent } from './components/snack-bars/success-bar/success-snackbar.component';
 import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-snackbar.component';
+import { MatMenuModule } from '@angular/material/menu';
+
 
 @NgModule({ declarations: [
     AppComponent,
@@ -80,6 +83,8 @@ import { ErrorSnackbarComponent } from './components/snack-bars/error-bar/error-
     ConnectJiraComponent,
     CreateCommentDialogComponent,
     CommentIssueDialogComponent,
+    ConfigurePersonalNotificationsDialogComponent,
+    ConfigureChannelNotificationsDialogComponent,
     IssueDetailsComponent,
     SignoutMaterialDialogComponent,
     SignoutDialogComponent,
@@ -124,7 +129,8 @@ bootstrap: [AppComponent], imports: [BrowserAnimationsModule,
     SharedModule,
     MatSnackBarModule,
     MatExpansionPanel,
-    MatExpansionPanelTitle], providers: [
+    MatExpansionPanelTitle,
+    MatMenuModule], providers: [
     { provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: { useUtc: true } },
     provideHttpClient(withInterceptorsFromDi())
 ] })

@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.ContractResolvers;
 using MicrosoftTeamsIntegration.Jira.Exceptions;
 using MicrosoftTeamsIntegration.Jira.Helpers;
@@ -13,6 +14,7 @@ using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Meta;
+using MicrosoftTeamsIntegration.Jira.Models.Jira.Transition;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
 using Newtonsoft.Json;
@@ -300,6 +302,27 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         public Task<JiraTransitionsResponse> GetTransitions(IntegratedUser user, string issueIdOrKey)
         {
             return ProcessRequest<JiraTransitionsResponse>(user, $"api/2/issue/{issueIdOrKey}/transitions", "GET");
+        }
+
+        public async Task<List<JiraTransitionsResponse>> GetTransitionsByProject(IntegratedUser user, string projectKeyOrId)
+        {
+            var issueTypes = await GetCreateMetaIssueTypes(user, projectKeyOrId);
+            var transitions = new List<JiraTransitionsResponse>();
+
+            foreach (var issueType in issueTypes.Select(it => it.Id))
+            {
+                try
+                {
+                    var fields = await GetTransitions(user, issueType);
+                    transitions.Add(fields);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to get transitions for issue type {issueType}", issueType);
+                }
+            }
+
+            return transitions.Distinct().ToList();
         }
 
         public Task<JiraApiActionCallResponse> DoTransition(IntegratedUser user, string issueIdOrKey, DoTransitionRequest doTransitionRequest)

@@ -53,6 +53,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         private readonly IDistributedCacheService _distributedCacheService;
         private readonly TelemetryClient _telemetry;
         private readonly IAnalyticsService _analyticsService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
 
         public MessagingExtensionService(
             IOptions<AppSettings> appSettings,
@@ -62,7 +63,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             IBotMessagesService botMessagesService,
             IDistributedCacheService distributedCacheService,
             TelemetryClient telemetry,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            INotificationSubscriptionService notificationSubscriptionService)
         {
             _appSettings = appSettings.Value;
             _logger = logger;
@@ -72,6 +74,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             _distributedCacheService = distributedCacheService;
             _telemetry = telemetry;
             _analyticsService = analyticsService;
+            _notificationSubscriptionService = notificationSubscriptionService;
         }
 
         public async Task<FetchTaskResponseEnvelope> HandleMessagingExtensionFetchTask(
@@ -96,7 +99,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             }
         }
 
-        public FetchTaskResponseEnvelope HandleBotFetchTask(ITurnContext turnContext, IntegratedUser user)
+        public async Task<FetchTaskResponseEnvelope> HandleBotFetchTask(ITurnContext turnContext, IntegratedUser user)
         {
             FetchTaskBotCommand fetchTaskCommand = null;
             var value = turnContext.Activity?.Value as JObject;
@@ -107,7 +110,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 fetchTaskCommand = dataWrapperObject?.FetchTaskData;
             }
 
-            var response = BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
+            var response = await BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
             if (response != null)
             {
                 return response;
@@ -434,6 +437,31 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                             }
 
                             break;
+                        case "showNotificationSettings":
+                            var notificationConfigurationMessage = turnContext.Activity.CreateReply();
+                            notificationConfigurationMessage.Id = fetchTaskCommand.ReplyToActivityId;
+                            var notificationSubscription =
+                                await _notificationSubscriptionService.GetNotificationSubscription(user);
+
+                            if (notificationSubscription != null && notificationSubscription.IsActive &&
+                                notificationSubscription.EventTypes.Length != 0)
+                            {
+                                var subscriptionConfigurationCard =
+                                    _botMessagesService.BuildNotificationConfigurationSummaryCard(
+                                        notificationSubscription, true);
+                                notificationConfigurationMessage.Attachments.Add(subscriptionConfigurationCard
+                                    .ToAttachment());
+                            }
+                            else
+                            {
+                                var notificationConfigurationCard =
+                                    _botMessagesService.BuildConfigureNotificationsCard(turnContext);
+                                notificationConfigurationMessage.Attachments.Add(notificationConfigurationCard
+                                    .ToAttachment());
+                            }
+
+                            await turnContext.UpdateActivityAsync(notificationConfigurationMessage);
+                            break;
                     }
                 }
                 catch (Exception exception)
@@ -442,7 +470,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                 }
             }
 
-            return BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
+            return await BuildTaskModuleResponse(turnContext, user, fetchTaskCommand);
         }
 
         private Task<FetchTaskResponseEnvelope> HandleInvalidCommandId(string errorMessage)
@@ -687,7 +715,7 @@ namespace MicrosoftTeamsIntegration.Jira.Services
             };
         }
 
-        private FetchTaskResponseEnvelope BuildTaskModuleResponse(
+        private async Task<FetchTaskResponseEnvelope> BuildTaskModuleResponse(
             ITurnContext turnContext,
             IntegratedUser user,
             FetchTaskBotCommand fetchTaskCommand)
@@ -740,6 +768,52 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
                     taskModuleTitle = "Comment issue";
                     taskModuleHeight = 250;
+                }
+
+                if (fetchTaskCommand.CommandName.Equals(
+                        DialogMatchesAndCommands.TurnOnNotificationsCommand,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    var conversationReferenceId = Guid.NewGuid().ToString();
+                    await _distributedCacheService.Set(conversationReferenceId, JsonConvert.SerializeObject(turnContext.Activity.GetConversationReference()));
+
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl)
+                        .PersonalNotifications()
+                        .JiraId(jiraId)
+                        .MicrosoftUserId(user?.MsTeamsUserId)
+                        .ConversationId(turnContext.Activity.Conversation.Id)
+                        .ConversationReferenceId(conversationReferenceId)
+                        .ReplyToActivityId(turnContext.Activity.ReplyToId)
+                        .Application(application)
+                        .Source("bot")
+                        .Build();
+
+                    taskModuleTitle = "Configure personal notifications";
+                    taskModuleHeight = 480;
+                }
+
+                if (fetchTaskCommand.CommandName.Equals(
+                        DialogMatchesAndCommands.TurnOnChannelNotificationsCommand,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    var conversationReferenceId = Guid.NewGuid().ToString();
+                    var conversationReference = turnContext.Activity.GetConversationReference();
+                    conversationReference.Conversation.Id =
+                        MessagingExtensionRegex.RemoveMessageId(conversationReference.Conversation.Id);
+                    await _distributedCacheService
+                        .Set(conversationReferenceId, JsonConvert.SerializeObject(conversationReference));
+
+                    url = new JiraUrlQueryBuilder(_appSettings.BaseUrl)
+                        .ChannelNotifications()
+                        .JiraId(jiraId)
+                        .ConversationReferenceId(conversationReferenceId)
+                        .ConversationId(turnContext.Activity.Conversation.Id)
+                        .Application(application)
+                        .Source("bot")
+                        .Build();
+
+                    taskModuleTitle = "Configure channel notifications";
+                    taskModuleHeight = 580;
                 }
 
                 return new FetchTaskResponseEnvelope
@@ -1018,5 +1092,16 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
             return obj.ToObject<T>();
         }
+    }
+
+    public abstract partial class MessagingExtensionRegex
+    {
+        public static string RemoveMessageId(string input)
+        {
+            return RemoveMessageIdRegex().Replace(input, string.Empty);
+        }
+
+        [GeneratedRegex(@";messageid=[^;]*", RegexOptions.IgnoreCase)]
+        private static partial Regex RemoveMessageIdRegex();
     }
 }

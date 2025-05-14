@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using AutoMapper;
 using JetBrains.Annotations;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.Azure.SignalR;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Azure.Blobs;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ using MicrosoftTeamsIntegration.Artifacts.Services;
 using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Exceptions;
 using MicrosoftTeamsIntegration.Jira.Helpers;
+using MicrosoftTeamsIntegration.Jira.Jobs;
 using MicrosoftTeamsIntegration.Jira.Services;
 using MicrosoftTeamsIntegration.Jira.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Services.SignalR;
@@ -29,6 +31,7 @@ using MicrosoftTeamsIntegration.Jira.Services.SignalR.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Settings;
 using Newtonsoft.Json;
 using Polly.Contrib.WaitAndRetry;
+using Quartz;
 using Refit;
 
 namespace MicrosoftTeamsIntegration.Jira
@@ -58,6 +61,7 @@ namespace MicrosoftTeamsIntegration.Jira
             Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5);
 
             services.AddSingleton<IDatabaseService, DatabaseService>();
+            services.AddSingleton<INotificationSubscriptionDatabaseService, NotificationSubscriptionDatabaseService>();
 
             services.AddTransient<IMessagingExtensionService, MessagingExtensionService>();
             services.AddTransient<IActionableMessageService, ActionableMessageService>();
@@ -70,6 +74,8 @@ namespace MicrosoftTeamsIntegration.Jira
             services.AddSingleton<IBotFrameworkAdapterService, BotFrameworkAdapterService>();
             services.AddSingleton<IAnalyticsService, AnalyticsService>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<INotificationProcessorService, NotificationProcessorService>();
+            services.AddSingleton<INotificationQueueService, NotificationQueueService>();
 
             // This can be removed after https://github.com/aspnet/IISIntegration/issues/371
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -98,18 +104,48 @@ namespace MicrosoftTeamsIntegration.Jira
             services.AddTransient<IJiraAuthService, JiraAuthService>();
             services.AddSingleton<ISignalRService, SignalRService>();
             services.AddTransient<IJiraService, JiraService>();
+            services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
             services
                 .AddSignalR(options =>
                 {
                     options.EnableDetailedErrors = true;
                     options.MaximumReceiveMessageSize = appSettings.JiraServerMaximumReceiveMessageSize;
                 })
-                .AddAzureSignalR(_configuration["Azure:SignalR:ConnectionString"])
+                .AddAzureSignalR(options =>
+                {
+                    options.Endpoints =
+                    [
+
+                        // Add additional endpoints here if needed, i.e.
+                        // new ServiceEndpoint(_configuration["Azure:SignalR:ConnectionString:EU"]),
+                        new ServiceEndpoint(_configuration["Azure:SignalR:ConnectionString"])
+                    ];
+                })
                 .AddNewtonsoftJsonProtocol(options =>
                 {
                     options.PayloadSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     options.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
+
+            // Add Redis backplane for redis only for non-development environments
+            if (!_env.IsDevelopment())
+            {
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = appSettings.CacheConnectionString;
+                });
+            }
+
+            services.AddQuartz(q =>
+            {
+                var jobKey = new JobKey("NotificationJob");
+                q.AddJob<NotificationJob>(options => options.WithIdentity(jobKey));
+                q.AddTrigger(options => options
+                    .ForJob(jobKey)
+                    .WithIdentity("NotificationJob-trigger")
+                    .WithCronSchedule(appSettings.NotificationJobSchedule));
+            });
+            services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
             // Auto Mapper Configurations
             var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile(new JiraMappingProfile(appSettings)); });
@@ -326,6 +362,7 @@ namespace MicrosoftTeamsIntegration.Jira
                         .From("teams.microsoft.com")
                         .From("*.teams.microsoft.com")
                         .From("*.teams.microsoft.us")
+                        .From("teams.cloud.microsoft")
                         .From("*.skype.com")
                         .From("*.msteams-atlassian.com")
                         .From("*.office.com");

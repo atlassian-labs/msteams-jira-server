@@ -823,7 +823,6 @@ namespace MicrosoftTeamsIntegration.Jira.Tests
             var jiraApiController = A.Fake<JiraApiController>(
                     x => x.WithArgumentsForConstructor(new object[] {
                             _fakeDatabaseService,
-                            _appSettings,
                             _fakeJiraService,
                             _fakeMapper,
                             _fakeJiraAuthService,

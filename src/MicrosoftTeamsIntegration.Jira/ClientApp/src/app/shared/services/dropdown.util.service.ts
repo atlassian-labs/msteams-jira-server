@@ -111,4 +111,12 @@ export class DropdownUtilService {
             label: transition.name
         };
     }
+
+    public mapTransitionToDropdownOptionString(transition: JiraTransition): DropDownOption<string> {
+        return {
+            id: transition.id,
+            label: transition.name,
+            value: transition.id,
+        };
+    }
 }

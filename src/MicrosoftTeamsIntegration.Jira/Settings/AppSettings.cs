@@ -1,4 +1,4 @@
-﻿namespace MicrosoftTeamsIntegration.Jira.Settings
+namespace MicrosoftTeamsIntegration.Jira.Settings
 {
     public class AppSettings
     {
@@ -19,5 +19,6 @@
         // space separated list of uls that should be added to CSP list
         public string CspValidDomains { get; set; }
         public string AnalyticsEnvironment { get; set; }
+        public string NotificationJobSchedule { get; set; }
     }
 }

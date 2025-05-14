@@ -63,6 +63,25 @@
   color: colors.$white;
 }
 
+.mat-mdc-checkbox .mdc-label, .mdc-checkbox__background {
+  color: colors.$black !important;
+}
+
+.mat-mdc-checkbox .mdc-label {
+  font-weight: normal !important;
+  margin-bottom: 0px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__background {
+  border-color: colors.$app-brand-17 !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark
+{
+  background-color: colors.$app-brand !important;
+  color: colors.$white;
+}
+
 .mat-mdc-radio-button.mat-mdc-radio-checked .mat-ripple-element {
   background-color: colors.$app-brand !important;
 }
@@ -534,7 +553,21 @@ body.contrast {
     border-color: colors.$black !important;
     background-color: colors.$yellow !important;
   }
+  
+  .mat-mdc-checkbox .mdc-label, .mdc-checkbox__background {
+    color: colors.$white !important;
+  }
 
+  .mat-mdc-checkbox .mdc-label {
+    color: colors.$white !important;
+    font-weight: normal !important;
+  }
+
+  .mat-mdc-checkbox .mdc-checkbox__background {
+    border-color: colors.$black !important;
+    background-color: colors.$yellow !important;
+  }
+  
   .mat-mdc-radio-button.mat-mdc-radio-checked .mat-ripple-element {
     background-color: colors.$yellow !important;
   }
@@ -597,7 +630,12 @@ body.contrast {
     background-color: transparent !important;
     color: colors.$black !important;
   }
-
+  
+  .mat-mdc-checkbox .mdc-checkbox__background .mdc-checkbox__checkmark {
+    background-color: transparent !important;
+    color: colors.$black !important;
+  }
+  
   .mat-mdc-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
     border-color:  colors.$yellow !important;
   }

@@ -1,138 +1,143 @@
-﻿import { TestBed } from '@angular/core/testing';
-import { UtilService } from './util.service';
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-describe('UtilService', () => {
-    let service: UtilService;
+import {Injectable} from '@angular/core';
+import * as microsoftTeams from '@microsoft/teams-js';
+import {HostClientType} from '@microsoft/teams-js';
+import {compare} from 'compare-versions';
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [UtilService]
+interface PredefinedFilters {
+    id: number;
+    value: string;
+    label: string;
+}
+
+type IconSize = 'small' | 'medium';
+
+@Injectable({ providedIn: 'root' })
+export class UtilService {
+    private readonly PREDEFINED_FILTERS: PredefinedFilters[] = [
+        { id: 0, value: 'all-issues', label: 'All issues' },
+        { id: 1, value: 'open-issues', label: 'Open issues' },
+        { id: 2, value: 'done-issues', label: 'Done issues' },
+        { id: 3, value: 'viewed-recently', label: 'Viewed recently' },
+        { id: 4, value: 'created-recently', label: 'Created recently' },
+        { id: 5, value: 'resolved-recently', label: 'Resolved recently' },
+        { id: 6, value: 'updated-recently', label: 'Updated recently' }
+    ];
+
+    private readonly UPGRADE_ADDON_MESSAGE
+        = 'Please upgrade Jira Data Center for Microsoft Teams app on your Jira Data Center to perform projects search.';
+    private readonly NOTIFICATIONS_UPGRADE_ADDON_MESSAGE
+        = 'Please upgrade Jira Data Center for Microsoft Teams app on your Jira Data Center' +
+        ' to receive notifications from Jira.';
+    private readonly ADDON_VERSION = '2022.08.103';
+    private readonly NOTIFICATIONS_ADDON_VERSION = '2025.05.13';
+
+    public isMobile = async (): Promise<boolean> => {
+        const context = await microsoftTeams.app.getContext();
+        return context.app.host.clientType === HostClientType.ios ||
+            context.app.host.clientType === HostClientType.android;
+    };
+
+    public getFilters = (): PredefinedFilters[] => this.PREDEFINED_FILTERS;
+
+    public encode(value: string): string {
+        if (value.match(/[!'()*]/)) {
+            return encodeURIComponent(value).replace(/[!'()*]/g, c =>
+                // Also encode !, ', (, ), and *
+                `%${c.charCodeAt(0).toString(16)}`
+            );
+        }
+
+        return value;
+    }
+
+    public getMsTeamsContext = (): { tid: string; loginHint: string; userObjectId: string; locale: string } =>
+        JSON.parse(localStorage.getItem('msTeamsContext') as string);
+
+    public setTeamsContext = (tenantId: string): void => localStorage.setItem('msTeamsContext', JSON.stringify({ tid: tenantId }));
+
+    public getUserClientId = (): string => localStorage.getItem('userClientId') as string;
+
+    public getAADInstance = (): string => {
+        const microsoftLoginBaseUrl = localStorage.getItem('microsoftLoginBaseUrl');
+        const baseUrl = microsoftLoginBaseUrl ? microsoftLoginBaseUrl : 'https://login.microsoftonline.com';
+        return `${baseUrl}/`;
+    };
+
+    public convertStringToNull = (value: any) => value === 'null' || value === 'undefined' ? null : value;
+
+    public capitalizeFirstLetter = (value: string) => String(value).charAt(0).toUpperCase() + String(value).slice(1);
+
+    public capitalizeFirstLetterAndJoin = (...value: string[]) => value.map(this.capitalizeFirstLetter).join('');
+
+    public getDefaultUserIcon(size: IconSize = 'small'): string {
+        const iconSizeInPixels = size === 'small' ? '24x24' : '32x32';
+        return `/assets/useravatar${iconSizeInPixels}.png`;
+    }
+
+    /**
+     * Be careful when using this type of copy, beacuse it will not copy function properties
+     */
+    public jsonCopy = <T>(obj: any): T => JSON.parse(JSON.stringify(obj)) as T;
+
+    /**
+     * Be careful: if object property is present but in different position it will show false result.
+     * e.g. jsonEqual({ prop1: 1, prop2: 2 }, { prop2: 2, prop1: 1}) => false;
+     *
+     * Also it will not track function properties.
+     */
+    public jsonEqual = (obj1: any, obj2: any): boolean => JSON.stringify(obj1) === JSON.stringify(obj2);
+
+    /**
+     * Appends params to specified link
+     * @param link with or without params
+     * @param paramMap
+    */
+    public appendParamsToLink(link: string, paramMap: any): string {
+        // if link doesn't contain params - append '?'
+        // else if there is already some params - append '&' if necessary
+        link += link.indexOf('?') === -1 ? '?' :
+            link.endsWith('&') ? '' : '&';
+
+        Object.keys(paramMap).forEach(key => {
+            // if value is not empty or not undefined - append it
+            if (paramMap[key]) {
+                link += `${key}=${paramMap[key]}&`;
+            }
         });
 
-        service = TestBed.inject(UtilService);
-    });
+        return encodeURI(link);
+    }
 
-    it('should be created', () => {
-        expect(service).toBeTruthy();
-    });
+    public getJiraServerId = (): string => localStorage.getItem('jiraServer.jiraId') as string;
 
-    it('should return predefined filters', () => {
-        const filters = service.getFilters();
-        expect(filters.length).toBe(7);
-        expect(filters[0].value).toBe('all-issues');
-    });
+    public getQueryParam(paramName: string, url?: string): string {
+        try {
+            const query = url ? new URL(url).search : window.location.search;
+            const params = new URLSearchParams(query);
+            return params.get(paramName) || '';
+        } catch (error) {
+            console.error('Error parsing query parameter:', error);
+            return '';
+        }
+    }
 
-    it('should encode special characters', () => {
-        const encodedValue = service.encode('test!()*\'');
-        expect(encodedValue).toBe('test%21%28%29%2a%27');
-    });
+    public isElectron = (): boolean => {
+        const userAgent = navigator.userAgent.toLowerCase();
+        return userAgent.indexOf('electron') > -1;
+    };
 
-    it('should get and set Microsoft Teams context', () => {
-        const context = { tid: 'test-tenant', loginHint: 'test-login', userObjectId: 'test-user', locale: 'en-US' };
-        localStorage.setItem('msTeamsContext', JSON.stringify(context));
+    public getMinAddonVersion = (): string => this.ADDON_VERSION;
 
-        const retrievedContext = service.getMsTeamsContext();
-        expect(retrievedContext.tid).toBe('test-tenant');
+    public getMinAddonVersionForNotifications = (): string => this.NOTIFICATIONS_ADDON_VERSION;
 
-        service.setTeamsContext('new-tenant');
-        const updatedContext = service.getMsTeamsContext();
-        expect(updatedContext.tid).toBe('new-tenant');
-    });
+    public getUpgradeAddonMessage = (): string => this.UPGRADE_ADDON_MESSAGE;
+    public getUpgradeAddonMessageForNotifications = (): string => this.NOTIFICATIONS_UPGRADE_ADDON_MESSAGE;
 
-    it('should get user client ID', () => {
-        localStorage.setItem('userClientId', 'test-client-id');
-        const clientId = service.getUserClientId();
-        expect(clientId).toBe('test-client-id');
-    });
-
-    it('should get AAD instance', () => {
-        localStorage.setItem('microsoftLoginBaseUrl', 'https://login.microsoftonline.com');
-        const aadInstance = service.getAADInstance();
-        expect(aadInstance).toBe('https://login.microsoftonline.com/');
-    });
-
-    it('should convert string to null', () => {
-        expect(service.convertStringToNull('null')).toBeNull();
-        expect(service.convertStringToNull('undefined')).toBeNull();
-        expect(service.convertStringToNull('test')).toBe('test');
-    });
-
-    it('should capitalize first letter', () => {
-        expect(service.capitalizeFirstLetter('test')).toBe('Test');
-    });
-
-    it('should capitalize first letter and join', () => {
-        expect(service.capitalizeFirstLetterAndJoin('test', 'case')).toBe('TestCase');
-    });
-
-    it('should get default user icon', () => {
-        expect(service.getDefaultUserIcon('small')).toBe('/assets/useravatar24x24.png');
-        expect(service.getDefaultUserIcon('medium')).toBe('/assets/useravatar32x32.png');
-    });
-
-    it('should perform JSON copy', () => {
-        const obj = { a: 1, b: 2 };
-        const copiedObj = service.jsonCopy(obj);
-        expect(copiedObj).toEqual(obj);
-    });
-
-    it('should compare JSON objects', () => {
-        const obj1 = { a: 1, b: 2 };
-        const obj2 = { a: 1, b: 2 };
-        const obj3 = { a: 2, b: 3 };
-        expect(service.jsonEqual(obj1, obj2)).toBeTrue();
-        expect(service.jsonEqual(obj1, obj3)).toBeFalse();
-    });
-
-    it('should append params to link', () => {
-        const link = 'https://example.com';
-        const params = { param1: 'value1', param2: 'value2' };
-        const updatedLink = service.appendParamsToLink(link, params);
-        expect(updatedLink).toBe('https://example.com?param1=value1&param2=value2&');
-    });
-
-    it('should get Jira server ID', () => {
-        localStorage.setItem('jiraServer.jiraId', 'test-jira-id');
-        const jiraId = service.getJiraServerId();
-        expect(jiraId).toBe('test-jira-id');
-    });
-
-    it('should get query param', () => {
-        const paramValue = service.getQueryParam('param1', 'https://example.com?param1=value1&param2=value2');
-        expect(paramValue).toBe('value1');
-    });
-
-    it('should return empty string if query param is not found', () => {
-        const paramValue = service.getQueryParam('param3', 'https://example.com?param1=value1&param2=value2');
-        expect(paramValue).toBe('');
-    });
-
-    it('should handle URL without query params', () => {
-        const paramValue = service.getQueryParam('param1', 'https://example.com');
-        expect(paramValue).toBe('');
-    });
-
-    it('should handle malformed URL', () => {
-        const paramValue = service.getQueryParam('param1', 'malformed-url');
-        expect(paramValue).toBe('');
-    });
-
-    it('should detect Electron environment', () => {
-        spyOnProperty(navigator, 'userAgent', 'get').and.returnValue('electron');
-        expect(service.isElectron()).toBeTrue();
-    });
-
-    it('should get minimum addon version', () => {
-        expect(service.getMinAddonVersion()).toBe('2022.08.103');
-    });
-
-    it('should get upgrade addon message', () => {
-        expect(service.getUpgradeAddonMessage())
-            .toBe('Please upgrade Jira Server for Microsoft Teams app on your Jira Data Center to perform projects search.');
-    });
-
-    it('should check if addon is updated', () => {
-        spyOn(service, 'getMinAddonVersion').and.returnValue('2022.08.103');
-        expect(service.isAddonUpdated('2022.08.104')).toBeTrue();
-    });
-});
+    public isAddonUpdated
+        = (addonVersion: string): boolean => compare(addonVersion, this.getMinAddonVersion(), '>=');
+    public isAddonUpdatedToVersion
+        = (addonVersion: string, minAddonVersion: string): boolean => compare(addonVersion, minAddonVersion, '>=');
+}

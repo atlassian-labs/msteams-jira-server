@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -41,7 +41,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             IUserTokenService userTokenService,
             ICommandDialogReferenceService commandDialogReferenceService,
             IBotFrameworkAdapterService botFrameworkAdapter,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            INotificationSubscriptionService notificationSubscriptionService)
             : base(nameof(MainDispatcher))
         {
             _accessors = accessors;
@@ -54,7 +55,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             _analyticsService = analyticsService;
 
             // Add dialogs
-            AddDialog(new HelpDialog(_accessors, _appSettings, telemetry, analyticsService));
+            AddDialog(new HelpDialog(_accessors, _appSettings, telemetry, analyticsService, botMessagesService));
             AddDialog(new IssueByKeyDialog(_accessors, botMessagesService, _appSettings, telemetry, analyticsService));
             AddDialog(new WatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry, analyticsService));
             AddDialog(new UnwatchDialog(_accessors, jiraService, botMessagesService, _appSettings, telemetry, analyticsService));
@@ -67,8 +68,9 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs.Dispatcher
             AddDialog(new CommentDialog(_accessors, jiraService, _appSettings, telemetry, analyticsService));
             AddDialog(new AssignDialog(_accessors, jiraService, _appSettings, botMessagesService, telemetry, analyticsService));
             AddDialog(new ConnectToJiraDialog(_accessors, _appSettings, botMessagesService, telemetry, botFrameworkAdapter));
-            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry, analyticsService));
+            AddDialog(new DisconnectJiraDialog(_accessors, jiraAuthService, _appSettings, telemetry, analyticsService, notificationSubscriptionService));
             AddDialog(new SignoutMsAccountDialog(_accessors, appSettings, telemetry, botFrameworkAdapter, analyticsService));
+            AddDialog(new NotificationsDialog(_accessors, botMessagesService, _appSettings, telemetry, notificationSubscriptionService));
         }
 
         protected override async Task<DialogTurnResult> OnBeginDialogAsync(DialogContext innerDc, object options, CancellationToken cancellationToken = default)

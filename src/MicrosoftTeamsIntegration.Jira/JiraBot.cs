@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -32,6 +32,7 @@ namespace MicrosoftTeamsIntegration.Jira
         private readonly JiraBotAccessors _accessors;
         private readonly IMessagingExtensionService _messagingExtensionService;
         private readonly IDatabaseService _databaseService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
         private readonly IBotMessagesService _botMessagesService;
         private readonly IJiraService _jiraService;
         private readonly IActionableMessageService _actionableMessageService;
@@ -50,6 +51,7 @@ namespace MicrosoftTeamsIntegration.Jira
         public JiraBot(
             IMessagingExtensionService messagingExtensionService,
             IDatabaseService databaseService,
+            INotificationSubscriptionService notificationSubscriptionService,
             JiraBotAccessors accessors,
             IBotMessagesService botMessagesService,
             IJiraService jiraService,
@@ -67,6 +69,7 @@ namespace MicrosoftTeamsIntegration.Jira
             _accessors = accessors;
             _messagingExtensionService = messagingExtensionService;
             _databaseService = databaseService;
+            _notificationSubscriptionService = notificationSubscriptionService;
             _botMessagesService = botMessagesService;
             _jiraService = jiraService;
             _actionableMessageService = actionableMessageService;
@@ -94,7 +97,8 @@ namespace MicrosoftTeamsIntegration.Jira
                     _userTokenService,
                     _commandDialogReferenceService,
                     _botFrameworkAdapterService,
-                    _analyticsService));
+                    _analyticsService,
+                    _notificationSubscriptionService));
         }
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
@@ -242,7 +246,8 @@ namespace MicrosoftTeamsIntegration.Jira
                         _userTokenService,
                         _commandDialogReferenceService,
                         _botFrameworkAdapterService,
-                        _analyticsService).RunAsync(
+                        _analyticsService,
+                        _notificationSubscriptionService).RunAsync(
                         turnContext,
                         _accessors.ConversationDialogState,
                         cancellationToken);
@@ -266,6 +271,7 @@ namespace MicrosoftTeamsIntegration.Jira
                     if (accessToken?.Token != null)
                     {
                         await _actionableMessageService.HandleSuccessfulConnection(turnContext);
+                        await _botMessagesService.SendConfigureNotificationsCard(turnContext, cancellationToken);
                         _analyticsService.SendBotDialogEvent(turnContext, "connectToJira", "completed");
                     }
                 }
@@ -448,7 +454,7 @@ namespace MicrosoftTeamsIntegration.Jira
                 }
                 else
                 {
-                    var response = _messagingExtensionService.HandleBotFetchTask(turnContext, user);
+                    var response = await _messagingExtensionService.HandleBotFetchTask(turnContext, user);
                     await BuildInvokeResponse(turnContext, HttpStatusCode.OK, response, cancellationToken);
                 }
             }

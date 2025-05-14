@@ -1,0 +1,101 @@
+@use '../../../../styles/styles';
+@use '../../../../styles/app-colors';
+@use '../../../../styles/common/checkboxes.component';
+
+.field-label {
+  font-size: 12px;
+  line-height: 1.6rem;
+  font-weight: 400;
+}
+
+.dialog {
+  margin-left: 3.2rem;
+  margin-right: 3.2rem;
+  margin-top: 2.0rem;
+
+  &__content {
+    overflow: auto;
+    max-height: calc(100vh - 48px);
+    margin-bottom: 12px;
+    
+    padding-right: 3.2rem;
+    margin-right: -3rem;
+  }
+
+  &__footer {
+    margin-bottom: 12px;
+  }
+
+  .field-group {
+    width: 100%;
+
+    &__jiraId-textarea {
+      height: 3.2rem;
+      overflow: hidden;
+    }
+  }
+
+  .header-text {
+    font-size: 16px !important;
+    margin-bottom: 8px;
+  }
+
+
+  .checkbox-container {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .content {
+    .notification-groups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+
+      .group {
+        h4 {
+          margin-bottom: 8px;
+          font-size: 14px;
+        }
+
+        p {
+          vertical-align: middle !important;
+          line-height: 18px;
+        }
+
+        label {
+          display: block;
+          margin-bottom: 6px;
+          font-size: 14px;
+
+          input {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+
+  .actions {
+    text-align: right;
+    margin-top: 24px;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+
+    &__button {
+      width: 150px;
+      height: 32px;
+      margin-top: 50px;
+    }
+  }
+}
+
+
+.template .ph-item {
+  margin-bottom: 0px !important;
+  padding: 15px !important;
+}

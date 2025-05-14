@@ -1,0 +1,131 @@
+@use "../../../../styles/app-colors";
+
+.dialog {
+  margin-left: 3.2rem;
+  margin-right: 3.2rem;
+  margin-top: 0.2rem;
+
+  &__content {
+    overflow: auto;
+    max-height: calc(100vh - 80px);
+
+    // styles to make scrollbar shifted to the right
+    padding-right: 3.2rem;
+    margin-right: -3rem;
+    padding-bottom: 9rem;
+  }
+
+  .field-group {
+    width: 100%;
+
+    &__jiraId-textarea {
+      height: 3.2rem;
+      overflow: hidden;
+    }
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: lighter;
+    margin-bottom: 0.8rem;
+  }
+
+  &__footer {
+    position: absolute;
+    bottom: 3.2rem;
+    right: 3.2rem;
+  }
+}
+
+.initial-container {
+  text-align: center;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 14px !important;
+  font-style: normal !important;
+  
+  img {
+    max-height: calc(100% - 80px) !important;
+  }
+}
+
+.mat-mdc-header-row {    
+  height: 10px !important;
+  padding: 0 0 0 0 !important;
+}
+
+.mat-mdc-table mat-header-row.mat-mdc-header-row {
+  font-size: 12px !important;
+}
+
+.mat-mdc-table {
+  background-color: inherit;  
+  overflow-x: hidden;
+}
+
+.mat-mdc-cell {
+  height: 16px !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+
+::ng-deep .dark {
+   .mat-mdc-menu-panel {
+    background-color: app-colors.$app-gray-10-dark !important;
+  }
+  .mat-mdc-menu-item{
+      color: app-colors.$white !important;
+  }
+  .mat-mdc-header-cell {
+    color: app-colors.$white;
+  }
+  .mat-mdc-cell {
+    color: app-colors.$white;
+  }
+}
+
+::ng-deep .contrast {
+  .mat-mdc-menu-content {
+    background-color: app-colors.$black !important;
+    
+  }
+  .mat-mdc-menu-item{
+    color: app-colors.$white;
+  }
+  .mat-mdc-header-cell {
+    color: app-colors.$white;
+  }
+  .mat-mdc-cell {
+    color: app-colors.$white;
+  }
+}
+
+::ng-deep .mat-mdc-menu-item {
+  font-size: 14px !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  --mat-menu-item-label-text-size: 14px;
+}
+
+.buttons {
+  &__button {
+    width: auto;
+    height: 32px;
+  }
+
+  .buttons__button:first-of-type {
+    margin-right: 15px;
+  }
+}
+
+.template .ph-item {
+  margin-bottom: 0px !important;
+  padding: 15px !important;
+}

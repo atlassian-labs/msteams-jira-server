@@ -26,7 +26,9 @@ import { JiraIssueFieldMeta } from '@core/models/Jira/jira-issue-field-meta.mode
 import { JiraFieldAutocomplete } from '@core/models/Jira/jira-field-autocomplete-data.model';
 import { JiraIssueSprint } from '@core/models/Jira/jira-issue-sprint.model';
 import { JiraIssueEpic } from '@core/models/Jira/jira-issue-epic.model';
-import {firstValueFrom} from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { NotificationSubscription } from '@core/models/NotificationSubscription';
+import { NotificationSubscriptionEvent } from '@core/models/NotificationSubscriptionEvent';
 
 export interface JiraAddonStatus {
     addonStatus: number;
@@ -263,5 +265,41 @@ export class ApiService {
     public validateConnection(jiraServerId: string): Promise<{ isSuccess: boolean }> {
         return firstValueFrom(this.http
             .get<any>(`/api/validate-connection?jiraServerId=${jiraServerId}`));
+    }
+
+    public async getJiraId(jiraBaseUrl: string | undefined): Promise<string> {
+        return firstValueFrom(this.http
+            .get(`/api/getJiraId?jiraUrl=${jiraBaseUrl}`, { responseType: 'text' }));
+    }
+
+    public addNotification(jiraServerId: string, notification: NotificationSubscription): Promise<any> {
+        return firstValueFrom(this.http.post(`/api/notificationSubscription/add?jiraServerId=${jiraServerId}`, notification));
+    }
+
+    public getNotificationSettings(jiraServerId: string): Promise<NotificationSubscription> {
+        return firstValueFrom(this.http.get<NotificationSubscription>(
+            `/api/notificationSubscription/get?jiraServerId=${jiraServerId}`));
+    }
+
+    public getAllNotificationsByConversationId(jiraServerId: string, conversationId: string): Promise<NotificationSubscription[]> {
+        return firstValueFrom(this.http.get<NotificationSubscription[]>(
+            `/api/notificationSubscription/getAllByConversationId?jiraServerId=${jiraServerId}&conversationId=${conversationId}`));
+    }
+
+    public updateNotification(jiraServerId: string, notification: NotificationSubscription): Promise<any> {
+        return firstValueFrom(this.http.put(`/api/notificationSubscription/update?jiraServerId=${jiraServerId}`, notification));
+    }
+
+    public removePersonalNotification(jiraServerId: string): Promise<any> {
+        return firstValueFrom(this.http.post(`/api/notificationSubscription/removePersonal?jiraServerId=${jiraServerId}`, {}));
+    }
+
+    public deleteNotification(jiraServerId: string, subscriptionId: string): Promise<any> {
+        return firstValueFrom(this.http
+            .delete(`/api/notificationSubscription/delete?jiraServerId=${jiraServerId}&subscriptionId=${subscriptionId}`));
+    }
+
+    public sendNotificationSubscriptionEvent(notificationSubscriptionEvent: NotificationSubscriptionEvent): Promise<any> {
+        return firstValueFrom(this.http.post('/api/notificationSubscription/sendChannelNotificationEvent', notificationSubscriptionEvent));
     }
 }

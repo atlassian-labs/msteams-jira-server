@@ -1,4 +1,5 @@
-﻿using System.Threading;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Bot.Builder;
@@ -24,13 +25,15 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
         private readonly AppSettings _appSettings;
         private readonly TelemetryClient _telemetry;
         private readonly IAnalyticsService _analyticsService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
 
         public DisconnectJiraDialog(
             JiraBotAccessors accessors,
             IJiraAuthService jiraAuthService,
             AppSettings appSettings,
             TelemetryClient telemetry,
-            IAnalyticsService analyticsService)
+            IAnalyticsService analyticsService,
+            INotificationSubscriptionService notificationSubscriptionService)
             : base(nameof(DisconnectJiraDialog))
         {
             _telemetry = telemetry;
@@ -38,6 +41,7 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             _jiraAuthService = jiraAuthService;
             _appSettings = appSettings;
             _analyticsService = analyticsService;
+            _notificationSubscriptionService = notificationSubscriptionService;
 
             var waterfallSteps = new WaterfallStep[]
             {
@@ -70,11 +74,14 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             }
 
             _analyticsService.SendBotDialogEvent(stepContext.Context, "disconnectJira", "replied");
+            var promptMessage = await _notificationSubscriptionService.GetNotificationSubscription(user) != null
+                ? BotMessages.JiraDisconnectDialogConfirmPromptWithNotificationSubscriptions
+                : BotMessages.JiraDisconnectDialogConfirmPrompt;
             return await stepContext.PromptAsync(
                 ConfirmationPrompt,
                 new PromptOptions
                 {
-                    Prompt = MessageFactory.Text(BotMessages.JiraDisconnectDialogConfirmPrompt)
+                    Prompt = MessageFactory.Text(promptMessage)
                 }, cancellationToken);
         }
 
@@ -89,6 +96,9 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
             }
 
             var jiraId = user.JiraServerId;
+
+            // remove personal subscription if exists
+            await _notificationSubscriptionService.DeleteNotificationSubscriptionByMicrosoftUserId(user);
 
             var result = await _jiraAuthService.Logout(user);
 

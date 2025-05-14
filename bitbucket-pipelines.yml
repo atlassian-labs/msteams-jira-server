@@ -121,16 +121,17 @@ definitions:
           - rm -rf /var/lib/apt/lists/*
           - export CHROME_BIN=/usr/bin/google-chrome
           - dotnet tool install --global dotnet-sonarscanner
-          - dotnet tool install --global JetBrains.dotCover.GlobalTool
+          - dotnet tool install --global JetBrains.dotCover.CommandLineTools
           - export PATH="$PATH:/root/.dotnet/tools"
           - dotnet sonarscanner begin /k:"$SONAR_REPOSITORY" /d:sonar.host.url="$SONAR_URL"  /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html /d:sonar.javascript.lcov.reportPaths=./ClientApp/coverage/lcov-report/lcov.info
           - dotnet build --no-incremental
-          - dotnet dotcover test --dcReportType=HTML
+          - dotCover cover-dotnet --ReportType=HTML --Output=dotCover.Output.html -- test
           - npm install --prefix ./src/MicrosoftTeamsIntegration.Jira/ClientApp
           - npm run test:pipeline --no-sandbox --prefix ./src/MicrosoftTeamsIntegration.Jira/ClientApp
           - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
           - |
             ENCODED_BRANCH=$(echo "$BITBUCKET_BRANCH" | jq -sRr @uri)
+            sleep 30 # wait for Sonar Quality Gate to process the results
             STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonar-enterprise.internal.atlassian.com/api/qualitygates/project_status?projectKey=msteams-jira-onprem&branch=$ENCODED_BRANCH" | jq -r .projectStatus.status)
             if [ "$STATUS" != "OK" ]; then
               echo "Quality gate failed: https://sonar-enterprise.internal.atlassian.com/dashboard?id=msteams-jira-onprem&branch=$ENCODED_BRANCH&"

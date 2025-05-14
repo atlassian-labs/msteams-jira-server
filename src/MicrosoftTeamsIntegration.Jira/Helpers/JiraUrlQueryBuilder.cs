@@ -36,6 +36,18 @@ public class JiraUrlQueryBuilder
         return this;
     }
 
+    public JiraUrlQueryBuilder PersonalNotifications()
+    {
+        _jiraUrlStringBuilder.Append("/#/notifications/configure-personal");
+        return this;
+    }
+
+    public JiraUrlQueryBuilder ChannelNotifications()
+    {
+        _jiraUrlStringBuilder.Append("/#/notifications/configure-channel");
+        return this;
+    }
+
     public JiraUrlQueryBuilder JiraUrl(string jiraUrl)
     {
         _jiraUrlStringBuilder.Append($";jiraUrl={Uri.EscapeDataString(jiraUrl ?? string.Empty)}");
@@ -87,6 +99,24 @@ public class JiraUrlQueryBuilder
     public JiraUrlQueryBuilder ReplyToActivityId(string replyToActivityId)
     {
         _jiraUrlStringBuilder.Append($";replyToActivityId={replyToActivityId}");
+        return this;
+    }
+
+    public JiraUrlQueryBuilder MicrosoftUserId(string userId)
+    {
+        _jiraUrlStringBuilder.Append($";microsoftUserId={userId}");
+        return this;
+    }
+
+    public JiraUrlQueryBuilder ConversationId(string conversationId)
+    {
+        _jiraUrlStringBuilder.Append($";conversationId={conversationId}");
+        return this;
+    }
+
+    public JiraUrlQueryBuilder ConversationReferenceId(string conversationReferenceId)
+    {
+        _jiraUrlStringBuilder.Append($";conversationReferenceId={conversationReferenceId}");
         return this;
     }
 

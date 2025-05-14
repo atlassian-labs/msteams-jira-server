@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MicrosoftTeamsIntegration.Artifacts.Services.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Jira;
 using MicrosoftTeamsIntegration.Jira.Models.Jira.Issue;
@@ -25,6 +26,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
     {
         private readonly ISignalRService _signalRService = A.Fake<ISignalRService>();
         private readonly IDatabaseService _databaseService = A.Fake<IDatabaseService>();
+        private readonly INotificationSubscriptionDatabaseService _notificationSubscriptionDatabaseService = A.Fake<INotificationSubscriptionDatabaseService>();
+        private readonly IDistributedCacheService _distributedCacheService = A.Fake<IDistributedCacheService>();
         private readonly IJiraAuthService _jiraAuthService = A.Fake<IJiraAuthService>();
         private readonly ILogger<JiraService> _logger = new NullLogger<JiraService>();
 
