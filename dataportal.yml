@@ -460,7 +460,3 @@ ui:
       The user clicked on the unmute channel notification button
     attributes:
       - name: source
-
-
-
-

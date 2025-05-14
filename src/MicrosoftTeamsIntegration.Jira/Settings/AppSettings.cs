@@ -1,4 +1,4 @@
-﻿namespace MicrosoftTeamsIntegration.Jira.Settings
+namespace MicrosoftTeamsIntegration.Jira.Settings
 {
     public class AppSettings
     {
