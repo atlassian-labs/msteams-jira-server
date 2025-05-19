@@ -4,8 +4,10 @@ using System.Linq;
 using AdaptiveCards;
 using AutoMapper;
 using MicrosoftTeamsIntegration.Jira.Dialogs;
+using MicrosoftTeamsIntegration.Jira.Models;
 using MicrosoftTeamsIntegration.Jira.Models.Bot;
 using MicrosoftTeamsIntegration.Jira.Models.FetchTask;
+using MicrosoftTeamsIntegration.Jira.Models.Interfaces;
 using MicrosoftTeamsIntegration.Jira.Models.Notifications;
 
 namespace MicrosoftTeamsIntegration.Jira.TypeConverters;
@@ -15,7 +17,7 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
     private const string UnknownUserIconUrl = "https://product-integrations-cdn.atl-paas.net/icons/unknown-user.png";
     private const int AdaptiveCardTextTruncationLimit = 500;
 
-    public AdaptiveCard Convert(NotificationMessageCardPayload source, AdaptiveCard destination, ResolutionContext context)
+    public AdaptiveCard Convert(NotificationMessageCardPayload source, AdaptiveCard destination, IResolutionContext context)
     {
         var adaptiveCard = new AdaptiveCard(new AdaptiveSchemaVersion(1, 4));
 
@@ -244,6 +246,11 @@ public class NotificationMessageToAdaptiveCardConverter : ITypeConverter<Notific
         };
 
         return adaptiveCard;
+    }
+
+    public AdaptiveCard Convert(NotificationMessageCardPayload source, AdaptiveCard destination, ResolutionContext context)
+    {
+        return Convert(source, destination, new ResolutionContextWrapper(context));
     }
 
     private static AdaptiveColumnSet CreateTextComponent(string text)
