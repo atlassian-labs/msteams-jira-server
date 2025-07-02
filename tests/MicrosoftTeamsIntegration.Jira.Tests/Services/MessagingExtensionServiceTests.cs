@@ -733,7 +733,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             {
                 StatusCode = HttpStatusCode.Forbidden,
                 Content = refitSettings.ContentSerializer.ToHttpContent(string.Empty)
-            }, refitSettings);
+            },
+                refitSettings);
 
             A.CallTo(() => _jiraService.GetIssueByIdOrKey(user, A<string>._))
                 .ThrowsAsync(apiException);

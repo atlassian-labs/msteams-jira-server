@@ -87,7 +87,8 @@ public class SignalRServiceTests
         // Assert
         _hubMock.Verify(
             h => h.Clients.Group(It.IsAny<string>())
-                .SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>()), Times.Once);
+                .SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
