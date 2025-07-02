@@ -82,7 +82,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 new PromptOptions
                 {
                     Prompt = MessageFactory.Text(promptMessage)
-                }, cancellationToken);
+                },
+                cancellationToken);
         }
 
         public async Task<DialogTurnResult> OnDisconnectJiraConfirmAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)

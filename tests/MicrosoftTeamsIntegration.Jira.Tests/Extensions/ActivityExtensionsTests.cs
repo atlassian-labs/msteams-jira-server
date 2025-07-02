@@ -90,11 +90,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
                 Value = new JObject(),
                 Attachments = new List<Attachment>()
                 {
-                    new ()
+                    new()
                     {
                         ContentType = "message"
                     },
-                    new ()
+                    new()
                     {
                         ContentType = "text/html"
                     }
@@ -120,7 +120,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Extensions
                 Value = new JObject(),
                 Attachments = new List<Attachment>()
                 {
-                    new ()
+                    new()
                     {
                         ContentType = "message"
                     }

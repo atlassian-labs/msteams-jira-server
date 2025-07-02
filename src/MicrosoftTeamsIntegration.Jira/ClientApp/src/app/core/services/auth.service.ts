@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import {Inject, Injectable} from '@angular/core';
+import {Inject, Injectable, DOCUMENT} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import * as microsoftTeams from '@microsoft/teams-js';
 
-import {DOCUMENT} from '@angular/common';
+
 import {logger} from '@core/services/logger.service';
 import {AppLoadService} from '@core/services/app-load.service';
 import {ErrorService} from '@core/services/error.service';
