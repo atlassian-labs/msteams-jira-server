@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;

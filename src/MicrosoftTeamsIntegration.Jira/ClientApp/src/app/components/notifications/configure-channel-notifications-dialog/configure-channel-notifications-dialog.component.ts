@@ -505,7 +505,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     }
 
     private async initializeDefaultsForNotification(notification: NotificationSubscription):
-    Promise<{ defaultProject: string; defaultIssueType: string; defaultPriority: string; defaultStatus: string }> {
+        Promise<{ defaultProject: string; defaultIssueType: string; defaultPriority: string; defaultStatus: string }> {
         const defaultProject = this.availableProjectsOptions.find(project => project.id === notification.projectId)?.value || '';
         await this.onProjectSelected(defaultProject);
 
@@ -541,7 +541,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
     private async checkAddonUpdated(): Promise<void> {
         const addonVersion
-                = await this.apiService.getAddonStatus(this.jiraId);
+            = await this.apiService.getAddonStatus(this.jiraId);
 
         const isAddonUpdated
             = this.utilService.isAddonUpdatedToVersion(addonVersion.addonVersion, this.utilService.getMinAddonVersionForNotifications());
