@@ -268,90 +268,95 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     }
 
     public async saveNotification(): Promise<void> {
-        if (this.issueForm.valid) {
-            this.submitting = true;
-            const formValue = this.issueForm.value;
-            const selectedProject = this.projects.find((project: { id: string }) => project.id === formValue.project);
-            const selectedIssueType = this.issueTypes.find((issueType: { id: string }) => issueType.id === formValue.issuetype);
-            const selectedPriority = this.prioritiesOptions.find((priority) => priority.id === formValue?.priority)?.label;
-            const selectedStatus = this.statusesOptions.find(opt => opt.id === formValue.status)?.label;
+        try {
+            if (this.issueForm.valid) {
+                this.submitting = true;
+                const formValue = this.issueForm.value;
+                const selectedProject = this.projects.find((project: { id: string }) => project.id === formValue.project);
+                const selectedIssueType = this.issueTypes.find((issueType: { id: string }) => issueType.id === formValue.issuetype);
+                const selectedPriority = this.prioritiesOptions.find((priority) => priority.id === formValue?.priority)?.label;
+                const selectedStatus = this.statusesOptions.find(opt => opt.id === formValue.status)?.label;
 
-            const jqlQuery = this.buildJqlQuery(
-                formValue,
-                selectedProject?.key,
-                selectedIssueType?.name,
-                selectedPriority,
-                selectedStatus);
+                const jqlQuery = this.buildJqlQuery(
+                    formValue,
+                    selectedProject?.key,
+                    selectedIssueType?.name,
+                    selectedPriority,
+                    selectedStatus);
 
-            const issueIsOptions = this.getMappedNotificationTypeOptions(formValue.issueIs);
-            const commentIsOptions = this.getMappedNotificationTypeOptions(formValue.commentIs);
+                const issueIsOptions = this.getMappedNotificationTypeOptions(formValue.issueIs);
+                const commentIsOptions = this.getMappedNotificationTypeOptions(formValue.commentIs);
 
-            const notificationSubscription: NotificationSubscription = {
-                jiraId: this.jiraId,
-                subscriptionType: SubscriptionType.Channel,
-                projectId: selectedProject?.id,
-                projectName: selectedProject?.name,
-                filter: jqlQuery,
-                microsoftUserId: '',
-                conversationId: this.conversationId,
-                conversationReferenceId: this.conversationReferenceId,
-                eventTypes: [...issueIsOptions, ...commentIsOptions],
-                isActive: true
-            };
+                const notificationSubscription: NotificationSubscription = {
+                    jiraId: this.jiraId,
+                    subscriptionType: SubscriptionType.Channel,
+                    projectId: selectedProject?.id,
+                    projectName: selectedProject?.name,
+                    filter: jqlQuery,
+                    microsoftUserId: '',
+                    conversationId: this.conversationId,
+                    conversationReferenceId: this.conversationReferenceId,
+                    eventTypes: [...issueIsOptions, ...commentIsOptions],
+                    isActive: true
+                };
 
-            const isDuplicate = this.notifications
-                .filter((notification: NotificationSubscription) =>
-                    notification.subscriptionId !== this.issueForm.value.subscriptionId)
-                .find((subscription: NotificationSubscription) => this.areNotificationsEqual(subscription, notificationSubscription));
+                const isDuplicate = this.notifications
+                    ?.filter((notification: NotificationSubscription) =>
+                        notification.subscriptionId !== this.issueForm.value.subscriptionId)
+                    ?.find((subscription: NotificationSubscription) => this.areNotificationsEqual(subscription, notificationSubscription));
 
-            if (isDuplicate) {
-                this.notificationService.notifyError(
-                    'The subscription with the same configuration already exists. Please use a different configuration.');
+                if (isDuplicate) {
+                    this.notificationService.notifyError(
+                        'The subscription with the same configuration already exists. Please use a different configuration.');
+                    this.submitting = false;
+                    return;
+                }
+
+                const notifyMessage = this.issueForm.value.subscriptionId
+                    ? 'Notification updated successfully.'
+                    : 'Notification saved successfully.';
+
+                let notificationSubscriptionEvent: NotificationSubscriptionEvent | undefined;
+
+                if (this.issueForm.value.subscriptionId) {
+                    notificationSubscription.subscriptionId = this.issueForm.value.subscriptionId;
+                    await this.apiService.updateNotification(this.jiraId, notificationSubscription);
+
+                    notificationSubscriptionEvent = {
+                        subscription: notificationSubscription,
+                        action: NotificationSubscriptionAction.Update
+                    };
+                    this.analyticsService.sendUiEvent(
+                        'configureChannelNotificationsModal',
+                        EventAction.clicked,
+                        UiEventSubject.button,
+                        'updateChannelNotification',
+                        {source: 'configureChannelNotificationsModal'});
+                } else {
+                    await this.apiService.addNotification(this.jiraId, notificationSubscription);
+
+                    notificationSubscriptionEvent = {
+                        subscription: notificationSubscription,
+                        action: NotificationSubscriptionAction.Create
+                    };
+                    this.analyticsService.sendUiEvent(
+                        'configureChannelNotificationsModal',
+                        EventAction.clicked,
+                        UiEventSubject.button,
+                        'createChannelNotification',
+                        {source: 'configureChannelNotificationsModal'});
+                }
+
+                this.notificationService.notifySuccess(notifyMessage);
+
+                await this.displayNotificationsListGroup();
+
+                await this.apiService.sendNotificationSubscriptionEvent(notificationSubscriptionEvent);
                 this.submitting = false;
-                return;
             }
-
-            const notifyMessage = this.issueForm.value.subscriptionId
-                ? 'Notification updated successfully.'
-                : 'Notification saved successfully.';
-
-            let notificationSubscriptionEvent: NotificationSubscriptionEvent | undefined;
-
-            if (this.issueForm.value.subscriptionId) {
-                notificationSubscription.subscriptionId = this.issueForm.value.subscriptionId;
-                await this.apiService.updateNotification(this.jiraId, notificationSubscription);
-
-                notificationSubscriptionEvent = {
-                    subscription: notificationSubscription,
-                    action: NotificationSubscriptionAction.Update
-                };
-                this.analyticsService.sendUiEvent(
-                    'configureChannelNotificationsModal',
-                    EventAction.clicked,
-                    UiEventSubject.button,
-                    'updateChannelNotification',
-                    {source: 'configureChannelNotificationsModal'});
-            } else {
-                await this.apiService.addNotification(this.jiraId, notificationSubscription);
-
-                notificationSubscriptionEvent = {
-                    subscription: notificationSubscription,
-                    action: NotificationSubscriptionAction.Create
-                };
-                this.analyticsService.sendUiEvent(
-                    'configureChannelNotificationsModal',
-                    EventAction.clicked,
-                    UiEventSubject.button,
-                    'createChannelNotification',
-                    {source: 'configureChannelNotificationsModal'});
-            }
-
-            this.notificationService.notifySuccess(notifyMessage);
-
-            await this.displayNotificationsListGroup();
-
-            await this.apiService.sendNotificationSubscriptionEvent(notificationSubscriptionEvent);
+        } catch (error) {
             this.submitting = false;
+            this.notificationService.notifyError('Failed to save notification. Please try again later.');
         }
     }
 
@@ -500,7 +505,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     }
 
     private async initializeDefaultsForNotification(notification: NotificationSubscription):
-    Promise<{ defaultProject: string; defaultIssueType: string; defaultPriority: string; defaultStatus: string }> {
+        Promise<{ defaultProject: string; defaultIssueType: string; defaultPriority: string; defaultStatus: string }> {
         const defaultProject = this.availableProjectsOptions.find(project => project.id === notification.projectId)?.value || '';
         await this.onProjectSelected(defaultProject);
 
@@ -536,7 +541,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
 
     private async checkAddonUpdated(): Promise<void> {
         const addonVersion
-                = await this.apiService.getAddonStatus(this.jiraId);
+            = await this.apiService.getAddonStatus(this.jiraId);
 
         const isAddonUpdated
             = this.utilService.isAddonUpdatedToVersion(addonVersion.addonVersion, this.utilService.getMinAddonVersionForNotifications());

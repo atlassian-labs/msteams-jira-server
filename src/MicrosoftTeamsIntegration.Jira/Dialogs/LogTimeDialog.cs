@@ -72,7 +72,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                 new PromptOptions
                 {
                     Prompt = message
-                }, cancellationToken);
+                },
+                cancellationToken);
         }
 
         public async Task<DialogTurnResult> OnHandleSelectedTimeSlotAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken = default)
@@ -87,7 +88,8 @@ namespace MicrosoftTeamsIntegration.Jira.Dialogs
                         new PromptOptions
                         {
                             Prompt = MessageFactory.Text("Please enter a time duration in the following format: 2w 4d 6h 45m (w = weeks, d = days, h = hours, m = minutes).")
-                        }, cancellationToken);
+                        },
+                        cancellationToken);
                 }
 
                 await AddIssueWorklog(stepContext, timeSpent);

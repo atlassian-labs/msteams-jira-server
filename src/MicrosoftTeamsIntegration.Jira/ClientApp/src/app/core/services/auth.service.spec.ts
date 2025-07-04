@@ -1,8 +1,9 @@
+import { DOCUMENT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { AuthService } from './auth.service';
 import { ErrorService, AppLoadService } from '@core/services';
-import { DOCUMENT } from '@angular/common';
+
 import * as microsoftTeams from '@microsoft/teams-js';
 import { StatusCode } from '@core/enums';
 

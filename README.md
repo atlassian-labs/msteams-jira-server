@@ -160,7 +160,7 @@ Contributions to Data Center are welcome! Please see [CONTRIBUTING.md](CONTRIBUT
 
 ## License
 
-Copyright (c) 2019 - 2021 Atlassian and others.
+Copyright (c) 2019 - 2025 Atlassian and others.
 Apache 2.0 licensed, see [LICENSE](LICENSE) file.
 
 <br/> 

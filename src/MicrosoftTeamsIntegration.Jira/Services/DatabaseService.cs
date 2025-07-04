@@ -18,14 +18,13 @@ namespace MicrosoftTeamsIntegration.Jira.Services
     {
         private readonly IMongoCollection<IntegratedUser> _usersCollection;
         private readonly IMongoCollection<JiraAddonSettings> _jiraAddonSettingsCollection;
-        private static SemaphoreSlim _openConnectionSemaphore;
+        private static readonly SemaphoreSlim OpenConnectionSemaphore =
+            new SemaphoreSlim(
+                Math.Max(1, Environment.ProcessorCount),
+                Math.Max(1, Environment.ProcessorCount));
 
         public DatabaseService(IOptions<AppSettings> appSettings, IMongoDBContext context)
         {
-            _openConnectionSemaphore = new SemaphoreSlim(
-                context.MaxConnectionPoolSize / 2,
-                context.MaxConnectionPoolSize / 2);
-
             _usersCollection = context.GetCollection<IntegratedUser>("Users");
 
             _jiraAddonSettingsCollection = context.GetCollection<JiraAddonSettings>("AddonSettings");
@@ -233,14 +232,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
         {
             T result;
 
-            await _openConnectionSemaphore.WaitAsync();
+            await OpenConnectionSemaphore.WaitAsync();
             try
             {
                 result = await func();
             }
             finally
             {
-                _openConnectionSemaphore.Release();
+                OpenConnectionSemaphore.Release();
             }
 
             return result;
@@ -248,14 +247,14 @@ namespace MicrosoftTeamsIntegration.Jira.Services
 
         protected static async Task ProcessThrottlingRequest(Func<Task> func)
         {
-            await _openConnectionSemaphore.WaitAsync();
+            await OpenConnectionSemaphore.WaitAsync();
             try
             {
                 await func();
             }
             finally
             {
-                _openConnectionSemaphore.Release();
+                OpenConnectionSemaphore.Release();
             }
         }
 

@@ -146,7 +146,8 @@ namespace MicrosoftTeamsIntegration.Jira.Services
                     JiraInstanceUrl = user.JiraInstanceUrl,
                     IsGroupConversation = isGroupConversation,
                     UserNameOrAccountId = userNameOrAccountId
-                },  _ => { });
+                },
+                _ => { });
 
             return card;
         }

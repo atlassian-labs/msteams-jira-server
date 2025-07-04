@@ -47,7 +47,7 @@ public class NotificationProcessorService : INotificationProcessorService
         try
         {
             _analyticsService.SendTrackEvent(
-                null,
+                "bot",
                 "bot",
                 "processing",
                 "notification",
@@ -372,7 +372,7 @@ public class NotificationProcessorService : INotificationProcessorService
                 activity,
                 JsonConvert.DeserializeObject<ConversationReference>(subscription.ConversationReference));
             _analyticsService.SendTrackEvent(
-                null,
+                "bot",
                 "bot",
                 "processed",
                 "notification",
@@ -385,7 +385,7 @@ public class NotificationProcessorService : INotificationProcessorService
         catch (Exception ex)
         {
             _analyticsService.SendTrackEvent(
-                null,
+                "bot",
                 "bot",
                 "processingFailed",
                 "notification",

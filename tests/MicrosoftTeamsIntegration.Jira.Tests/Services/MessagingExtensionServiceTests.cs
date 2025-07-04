@@ -36,6 +36,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
         private readonly MessagingExtensionService _target;
         private readonly IJiraService _jiraService;
+        private readonly INotificationSubscriptionService _notificationSubscriptionService;
 
         public MessagingExtensionServiceTests()
         {
@@ -47,7 +48,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var distributedCacheService = A.Fake<IDistributedCacheService>();
             var telemetry = new TelemetryClient(TelemetryConfiguration.CreateDefault());
             var analyticsService = A.Fake<IAnalyticsService>();
-            var notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
+            _notificationSubscriptionService = A.Fake<INotificationSubscriptionService>();
 
             _target = new MessagingExtensionService(
                 appSettings,
@@ -58,7 +59,7 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
                 distributedCacheService,
                 telemetry,
                 analyticsService,
-                notificationSubscriptionService);
+                _notificationSubscriptionService);
         }
 
         [Fact]
@@ -732,7 +733,8 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             {
                 StatusCode = HttpStatusCode.Forbidden,
                 Content = refitSettings.ContentSerializer.ToHttpContent(string.Empty)
-            }, refitSettings);
+            },
+                refitSettings);
 
             A.CallTo(() => _jiraService.GetIssueByIdOrKey(user, A<string>._))
                 .ThrowsAsync(apiException);
@@ -955,7 +957,11 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
 
             var activity = new Activity
             {
-                Value = jObject
+                Value = jObject,
+                Conversation = new ConversationAccount()
+                {
+                    TenantId = "Id"
+                },
             };
 
             var testAdapter = new TestAdapter(Channels.Test);
@@ -1007,6 +1013,169 @@ namespace MicrosoftTeamsIntegration.Jira.Tests.Services
             var result = _target.TryValidateMessagingExtensionQueryLink(turnContext, user, out _);
 
             Assert.False(result);
+        }
+
+        [Fact]
+        public async Task HandleTaskSubmitActionAsync_ShowNotificationSettings_WithActiveSubscription()
+        {
+            var user = new IntegratedUser
+            {
+                JiraServerId = JiraServerId
+            };
+            var fetchTask = new FetchTaskBotCommand("showNotificationSettings")
+            {
+                ReplyToActivityId = "id"
+            };
+
+            dynamic jObject = new JObject();
+            jObject.data = (JObject)JToken.FromObject(fetchTask);
+
+            var activity = new Activity
+            {
+                Value = jObject,
+                Conversation = new ConversationAccount()
+                {
+                    TenantId = "Id"
+                },
+            };
+
+            var testAdapter = new TestAdapter(Channels.Test);
+            using var turnContext = new TurnContext(testAdapter, activity);
+
+            var notificationSubscription = new NotificationSubscription
+            {
+                IsActive = true,
+                EventTypes = new[] { "issue_created", "issue_updated" }
+            };
+
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(user))
+                .Returns(notificationSubscription);
+
+            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user);
+
+            Assert.IsType<FetchTaskResponseEnvelope>(result);
+            Assert.IsType<FetchTaskResponse>(result.Task);
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(user))
+                .MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task HandleTaskSubmitActionAsync_ShowNotificationSettings_WithoutActiveSubscription()
+        {
+            var user = new IntegratedUser
+            {
+                JiraServerId = JiraServerId
+            };
+            var fetchTask = new FetchTaskBotCommand("showNotificationSettings")
+            {
+                ReplyToActivityId = "id"
+            };
+
+            dynamic jObject = new JObject();
+            jObject.data = (JObject)JToken.FromObject(fetchTask);
+
+            var activity = new Activity
+            {
+                Value = jObject,
+                Conversation = new ConversationAccount()
+                {
+                    TenantId = "Id"
+                },
+            };
+
+            var testAdapter = new TestAdapter(Channels.Test);
+            using var turnContext = new TurnContext(testAdapter, activity);
+
+            var notificationSubscription = new NotificationSubscription
+            {
+                IsActive = false,
+                EventTypes = Array.Empty<string>()
+            };
+
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(user))
+                .Returns(notificationSubscription);
+
+            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user);
+
+            Assert.IsType<FetchTaskResponseEnvelope>(result);
+            Assert.IsType<FetchTaskResponse>(result.Task);
+            A.CallTo(() => _notificationSubscriptionService.GetNotificationSubscription(user))
+                .MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task HandleTaskSubmitActionAsync_TurnOnNotificationsCommand_ReturnsCorrectResponse()
+        {
+            var user = new IntegratedUser
+            {
+                JiraServerId = JiraServerId,
+                MsTeamsUserId = "testUserId"
+            };
+            var fetchTask = new FetchTaskBotCommand(DialogMatchesAndCommands.TurnOnNotificationsCommand)
+            {
+                ReplyToActivityId = "replyId"
+            };
+
+            dynamic jObject = new JObject();
+            jObject.data = (JObject)JToken.FromObject(fetchTask);
+
+            var activity = new Activity
+            {
+                Value = jObject,
+                Conversation = new ConversationAccount()
+                {
+                    TenantId = "Id",
+                    Id = "conversationId"
+                }
+            };
+
+            var testAdapter = new TestAdapter(Channels.Test);
+            using var turnContext = new TurnContext(testAdapter, activity);
+
+            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user);
+
+            Assert.IsType<FetchTaskResponseEnvelope>(result);
+            Assert.IsType<FetchTaskResponse>(result.Task);
+            Assert.Equal(FetchTaskType.Continue, result.Task.Type);
+            Assert.Equal("Configure personal notifications", ((FetchTaskResponseInfo)result.Task.Value).Title);
+            Assert.Equal(480, ((FetchTaskResponseInfo)result.Task.Value).Height);
+        }
+
+        [Fact]
+        public async Task HandleTaskSubmitActionAsync_TurnOnChannelNotificationsCommand_ReturnsCorrectResponse()
+        {
+            var user = new IntegratedUser
+            {
+                JiraServerId = JiraServerId
+            };
+            var fetchTask = new FetchTaskBotCommand(DialogMatchesAndCommands.TurnOnChannelNotificationsCommand)
+            {
+                ReplyToActivityId = "replyId"
+            };
+
+            dynamic jObject = new JObject();
+            jObject.data = (JObject)JToken.FromObject(fetchTask);
+
+            var activity = new Activity
+            {
+                Value = jObject,
+                Conversation = new ConversationAccount()
+                {
+                    TenantId = "Id",
+                    Id = "conversationId;messageid=123"
+                }
+            };
+
+            var testAdapter = new TestAdapter(Channels.Test);
+            using var turnContext = new TurnContext(testAdapter, activity);
+
+            var result = await _target.HandleTaskSubmitActionAsync(turnContext, user);
+
+            Assert.IsType<FetchTaskResponseEnvelope>(result);
+            Assert.IsType<FetchTaskResponse>(result.Task);
+            Assert.Equal(FetchTaskType.Continue, result.Task.Type);
+            Assert.Equal("Configure channel notifications", ((FetchTaskResponseInfo)result.Task.Value).Title);
+            Assert.Equal(580, ((FetchTaskResponseInfo)result.Task.Value).Height);
         }
     }
 }
