@@ -505,7 +505,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     }
 
     private async initializeDefaultsForNotification(notification: NotificationSubscription):
-        Promise<{ defaultProject: string; defaultIssueType: string; defaultPriority: string; defaultStatus: string }> {
+    Promise<{ defaultProject: string; defaultIssueType: string; defaultPriority: string; defaultStatus: string }> {
         const defaultProject = this.availableProjectsOptions.find(project => project.id === notification.projectId)?.value || '';
         await this.onProjectSelected(defaultProject);
 
