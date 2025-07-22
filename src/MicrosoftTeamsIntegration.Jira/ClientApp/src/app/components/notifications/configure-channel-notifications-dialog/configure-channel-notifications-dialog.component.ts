@@ -10,8 +10,8 @@ import { DropDownComponent } from '@shared/components/dropdown/dropdown.componen
 import { IssueTransitionService } from '@core/services/entities/transition.service';
 import { SelectOption } from '@shared/models/select-option.model';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
-import * as microsoftTeams from '@microsoft/teams-js';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
+import {TeamsService} from '@core/services/teams.service';
 import { NotificationSubscriptionEvent, NotificationSubscriptionAction } from '@core/models/NotificationSubscriptionEvent';
 
 @Component({
@@ -84,8 +84,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         label: 'All'
     };
 
-    constructor(
-        private apiService: ApiService,
+    constructor(private apiService: ApiService,
         private transitionService: IssueTransitionService,
         private route: ActivatedRoute,
         private router: Router,
@@ -93,7 +92,8 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
         private notificationService: NotificationService,
         private appInsightsService: AppInsightsService,
         private utilService: UtilService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -400,7 +400,7 @@ export class ConfigureChannelNotificationsDialogComponent implements OnInit {
     }
 
     public onCancel(): void {
-        microsoftTeams.dialog.url.submit();
+        this.teamsService.submitDialog();
     }
 
     public displayInitialContainer(): void {

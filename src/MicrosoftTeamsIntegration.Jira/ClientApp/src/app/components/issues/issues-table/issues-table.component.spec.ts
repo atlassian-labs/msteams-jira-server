@@ -12,11 +12,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { JiraIssuesSearch, NormalizedIssue } from '@core/models';
 import { ApplicationType, StatusCode } from '@core/enums';
 import { JiraPermissions } from '@core/models/Jira/jira-permission.model';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import { JiraSortDirection } from '@core/enums/sort-direction.enum';
 import { SelectOption } from '@shared/models/select-option.model';
 
 describe('IssuesComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: IssuesComponent;
     let fixture: ComponentFixture<IssuesComponent>;
     let apiService: jasmine.SpyObj<ApiService>;
@@ -34,16 +35,6 @@ describe('IssuesComponent', () => {
         issues: [], prioritiesIdsInOrder: [], errorMessages: [], total: 0, pageSize: 50, expand: '', startAt: 0, maxResults: 50 };
 
     beforeEach(async () => {
-        if (!jasmine.isSpy(microsoftTeams.app.notifySuccess)) {
-            spyOn(microsoftTeams.app, 'notifySuccess').and.callFake(() => {});
-        }
-        if (!jasmine.isSpy(microsoftTeams.app.getContext)) {
-            spyOn(microsoftTeams.app, 'getContext').and.returnValue(Promise.resolve([] as any));
-        }
-        if (!jasmine.isSpy(microsoftTeams.dialog.url.submit)) {
-            spyOn(microsoftTeams.dialog.url, 'submit').and.callFake(() => {});
-        }
-
         const apiServiceSpy = jasmine.createSpyObj('ApiService',
             ['getJiraUrlForPersonalScope',
                 'getMyselfData',
@@ -78,8 +69,20 @@ describe('IssuesComponent', () => {
                 { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } },
                 { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
                 { provide: MatDialog, useValue: {} },
-                { provide: DomSanitizer, useValue: { bypassSecurityTrustUrl: (url: string) => url } }
-            ]
+                { provide: DomSanitizer, useValue: { bypassSecurityTrustUrl: (url: string) => url } },
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        getContext: jasmine.createSpy('getContext').and.returnValue(Promise.resolve({
+                            app: { locale: 'en-US', theme: 'default' },
+                            user: { id: 'userId', displayName: 'Test User' }
+                        })),
+                        notifySuccess: jasmine.createSpy('notifySuccess'),
+                        openDialog: jasmine.createSpy('openDialog'),
+                        submitDialog: jasmine.createSpy('submitDialog')
+                    }
+                }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(IssuesComponent);
@@ -97,6 +100,8 @@ describe('IssuesComponent', () => {
         dialog = TestBed.inject(MatDialog);
 
         issuesService.adjustOrderByQueryStringWithIssueProperty.and.returnValue('');
+
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
     });
 
     it('should create', () => {
@@ -230,7 +235,7 @@ describe('IssuesComponent', () => {
     it('should open edit dialog', () => {
         const issueId = '123';
         spyOn(localStorage, 'getItem').and.returnValue('http://example.com');
-        spyOn(microsoftTeams.dialog.url, 'open').and.callFake((dialogInfo, callback) => {
+        teamsService.openDialog.and.callFake((dialogInfo, callback) => {
             if (callback) {
                 callback({ err: 'User cancelled/closed the task module.' });
             }
@@ -245,12 +250,12 @@ describe('IssuesComponent', () => {
             'editIssue',
             { source: 'issuesTab' }
         );
-        expect(microsoftTeams.dialog.url.open).toHaveBeenCalled();
+        expect(teamsService.openDialog).toHaveBeenCalled();
     });
 
     it('should open issue create dialog', () => {
         spyOn(localStorage, 'getItem').and.returnValue('http://example.com');
-        spyOn(microsoftTeams.dialog.url, 'open').and.callFake((dialogInfo, callback) => {
+        teamsService.openDialog.and.callFake((dialogInfo, callback) => {
             if (callback) {
                 callback({ err: 'User cancelled/closed the task module.' });
             }
@@ -265,7 +270,7 @@ describe('IssuesComponent', () => {
             'createIssue',
             { source: 'issuesTab' }
         );
-        expect(microsoftTeams.dialog.url.open).toHaveBeenCalled();
+        expect(teamsService.openDialog).toHaveBeenCalled();
     });
 
     it('should return correct chevron class', () => {

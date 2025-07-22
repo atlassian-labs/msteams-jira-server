@@ -1,6 +1,4 @@
-﻿import * as microsoftTeams from '@microsoft/teams-js';
-
-import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+﻿import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, AppInsightsService, ErrorService } from '@core/services';
 import { Component, OnInit, ViewChild } from '@angular/core';
@@ -21,6 +19,7 @@ import { StringValidators } from '@core/validators/string.validators';
 import { UtilService } from '@core/services/util.service';
 import { NotificationService } from '@shared/services/notificationService';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
+import {TeamsService} from '@core/services/teams.service';
 
 @Component({
     selector: 'app-create-issue-dialog',
@@ -105,7 +104,8 @@ export class CreateIssueDialogComponent implements OnInit {
         private permissionService: PermissionService,
         private fieldsService: FieldsService,
         private notificationService: NotificationService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -157,14 +157,14 @@ export class CreateIssueDialogComponent implements OnInit {
             this.currentUser = currentUser;
             this.currentUserAccountId = this.currentUser.name;
 
-            microsoftTeams.app.notifySuccess();
+            this.teamsService.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),
                 'CreateIssueDialogData::ngOnInit'
             );
 
-            microsoftTeams.dialog.url.submit(error as any);
+            this.teamsService.submitDialog(error as any);
         } finally {
             this.loading = false;
         }
@@ -348,15 +348,15 @@ export class CreateIssueDialogComponent implements OnInit {
         const message = `Issue ${issueUrl} has been created`;
         this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
             if (this.returnIssueOnSubmit) {
-                microsoftTeams.dialog.url.submit(issue.key);
+                this.teamsService.submitDialog(issue.key);
             } else {
-                microsoftTeams.dialog.url.submit({
+                this.teamsService.submitDialog({
                     commandName: 'showIssueCard',
                     issueId: issue.id,
                     issueKey: issue.key,
                     replyToActivityId: this.replyToActivityId});
             }
-            microsoftTeams.dialog.url.submit();
+            this.teamsService.submitDialog();
         });
     }
 

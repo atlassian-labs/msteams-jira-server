@@ -26,11 +26,11 @@ import {
 import { IssuesService } from '@core/services/entities/issues.service';
 import { PermissionService } from '@core/services/entities/permission.service';
 import { logger } from '@core/services/logger.service';
-import * as microsoftTeams from '@microsoft/teams-js';
 import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
 import { SelectOption } from '@shared/models/select-option.model';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
+import {TeamsService} from '@core/services/teams.service';
 @Component({
     selector: 'app-issues',
     styleUrls: [
@@ -138,8 +138,7 @@ export class IssuesComponent implements OnInit {
         return this.pageIndex === 0 ? 0 : this.pageIndex * this.pageSize;
     }
 
-    constructor(
-        public dialog: MatDialog,
+    constructor(public dialog: MatDialog,
         public domSanitizer: DomSanitizer,
         private router: Router,
         private route: ActivatedRoute,
@@ -150,6 +149,7 @@ export class IssuesComponent implements OnInit {
         private appInsightService: AppInsightsService,
         private permissionService: PermissionService,
         private analyticsService: AnalyticsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -181,12 +181,12 @@ export class IssuesComponent implements OnInit {
         }
         this.loadingOff();
 
-        microsoftTeams.app.notifySuccess();
+        this.teamsService.notifySuccess();
 
         const issueTableComponent = this;
 
         // open edit issue dialog if context contains sub entity ID and user is authorized
-        const context = await microsoftTeams.app.getContext();
+        const context = await this.teamsService.getContext();
         if (context?.page?.subPageId && issueTableComponent.jiraUrl) {
             issueTableComponent.openEditDialog(context.page.subPageId);
         }
@@ -227,7 +227,7 @@ export class IssuesComponent implements OnInit {
             }
         };
 
-        microsoftTeams.dialog.url.open(dialogInfo, async (result: any) => {
+        this.teamsService.openDialog(dialogInfo, async (result: any) => {
             if (result?.err) {
                 if (result.err !== 'User cancelled/closed the task module.') {
                     this.appInsightService.trackException(new Error(result.err), 'Issue-table.component::openEditDialog');
@@ -257,7 +257,7 @@ export class IssuesComponent implements OnInit {
             }
         };
 
-        microsoftTeams.dialog.url.open(dialogInfo, async (result: any) => {
+        this.teamsService.openDialog(dialogInfo, async (result: any) => {
             if (result?.err) {
                 if (result?.err !== 'User cancelled/closed the task module.') {
                     this.appInsightService.trackException(new Error(result?.err), 'Issue-table.component::openIssueCreateDialog');

@@ -5,7 +5,6 @@ import { IssueCommentService } from '@core/services/entities/comment.service';
 import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.model';
 import { ApiService, ErrorService, AppInsightsService } from '@core/services';
 import { Issue } from '@core/models';
-import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
 import { DomSanitizer } from '@angular/platform-browser';
 import { JiraPermissionName } from '@core/models/Jira/jira-permission.model';
@@ -13,6 +12,7 @@ import { PermissionService } from '@core/services/entities/permission.service';
 import { NotificationService } from '@shared/services/notificationService';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
+import {TeamsService} from '@core/services/teams.service';
 @Component({
     selector: 'app-comment-issue-dialog',
     templateUrl: './comment-issue-dialog.component.html',
@@ -29,8 +29,7 @@ export class CommentIssueDialogComponent implements OnInit {
     public issueKey: string | undefined;
     public formDisabled: boolean | undefined;
 
-    constructor(
-        public domSanitizer: DomSanitizer,
+    constructor(public domSanitizer: DomSanitizer,
         private commentService: IssueCommentService,
         private route: ActivatedRoute,
         private apiService: ApiService,
@@ -39,7 +38,8 @@ export class CommentIssueDialogComponent implements OnInit {
         private router: Router,
         private errorService: ErrorService,
         private readonly notificationService: NotificationService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit() {
@@ -85,7 +85,7 @@ export class CommentIssueDialogComponent implements OnInit {
             this.jiraUrl = currentUser.jiraServerInstanceUrl;
             await this.createForm();
 
-            microsoftTeams.app.notifySuccess();
+            this.teamsService.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),
@@ -150,7 +150,7 @@ export class CommentIssueDialogComponent implements OnInit {
 
         this.notificationService.notifySuccess(`Comment was added to ${issueUrl}`)
             .afterDismissed().subscribe(() => {
-                microsoftTeams.dialog.url.submit();
+                this.teamsService.submitDialog();
             });
     }
 

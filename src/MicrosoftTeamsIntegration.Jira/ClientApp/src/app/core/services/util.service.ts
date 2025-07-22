@@ -2,9 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import {Injectable} from '@angular/core';
-import * as microsoftTeams from '@microsoft/teams-js';
-import {HostClientType} from '@microsoft/teams-js';
 import {compare} from 'compare-versions';
+import {TeamsService} from '@core/services/teams.service';
 
 interface PredefinedFilters {
     id: number;
@@ -16,6 +15,9 @@ type IconSize = 'small' | 'medium';
 
 @Injectable({ providedIn: 'root' })
 export class UtilService {
+
+    constructor(private teamsService: TeamsService) {}
+
     private readonly PREDEFINED_FILTERS: PredefinedFilters[] = [
         { id: 0, value: 'all-issues', label: 'All issues' },
         { id: 1, value: 'open-issues', label: 'Open issues' },
@@ -35,9 +37,9 @@ export class UtilService {
     private readonly NOTIFICATIONS_ADDON_VERSION = '2025.05.13';
 
     public isMobile = async (): Promise<boolean> => {
-        const context = await microsoftTeams.app.getContext();
-        return context.app.host.clientType === HostClientType.ios ||
-            context.app.host.clientType === HostClientType.android;
+        const context = await this.teamsService.getContext();
+        return context.app.host.clientType === 'ios' ||
+            context.app.host.clientType === 'android';
     };
 
     public getFilters = (): PredefinedFilters[] => this.PREDEFINED_FILTERS;

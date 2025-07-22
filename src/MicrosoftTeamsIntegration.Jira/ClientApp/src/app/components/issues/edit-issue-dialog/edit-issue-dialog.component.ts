@@ -1,6 +1,4 @@
-﻿import * as microsoftTeams from '@microsoft/teams-js';
-
-import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+﻿import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ApiService, AppInsightsService } from '@core/services';
 import { Component, OnInit } from '@angular/core';
 import { CurrentJiraUser, JiraUser, UserGroup } from '@core/models/Jira/jira-user.model';
@@ -27,6 +25,7 @@ import { FieldsService } from '@shared/services/fields.service';
 import { FieldItem } from '@app/components/issues/fields/field-item';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
+import {TeamsService} from '@core/services/teams.service';
 interface EditIssueModel {
     key: string;
     id: string;
@@ -132,8 +131,7 @@ export class EditIssueDialogComponent implements OnInit {
 
     protected readonly Object = Object;
 
-    constructor(
-        public dialog: MatDialog,
+    constructor(public dialog: MatDialog,
         public domSanitizer: DomSanitizer,
         private apiService: ApiService,
         private permissionService: PermissionService,
@@ -146,7 +144,8 @@ export class EditIssueDialogComponent implements OnInit {
         private router: Router,
         private notificationService: NotificationService,
         private fieldsService: FieldsService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -223,7 +222,7 @@ export class EditIssueDialogComponent implements OnInit {
 
             await this.createForm();
 
-            microsoftTeams.app.notifySuccess();
+            this.teamsService.notifySuccess();
         } catch (error) {
             this.error = error as any;
             this.appInsightsService.trackException(
@@ -371,7 +370,7 @@ export class EditIssueDialogComponent implements OnInit {
     }
 
     public onCancel(): void {
-        microsoftTeams.dialog.url.submit();
+        this.teamsService.submitDialog();
     }
 
     public onConfirmCancel(): void {
@@ -663,7 +662,7 @@ export class EditIssueDialogComponent implements OnInit {
         const message = `The issue ${issueUrl} has been updated`;
 
         this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
-            microsoftTeams.dialog.url.submit();
+            this.teamsService.submitDialog();
         });
     }
 }

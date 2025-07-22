@@ -5,10 +5,11 @@ import { LoadingIndicatorService } from '@shared/services/loading-indicator.serv
 import { RoutingState, UtilService } from '@core/services';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { of, Subject } from 'rxjs';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import { SharedModule } from '@shared/shared.module';
 
 describe('AppComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: AppComponent;
     let fixture: ComponentFixture<AppComponent>;
     let loadingIndicatorService: jasmine.SpyObj<LoadingIndicatorService>;
@@ -31,7 +32,18 @@ describe('AppComponent', () => {
                 { provide: RoutingState, useValue: routingStateSpy },
                 { provide: UtilService, useValue: utilServiceSpy },
                 { provide: Router, useValue: routerSpy }
-            ]
+                ,
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        getContext: jasmine.createSpy('getContext').and.returnValue(Promise.resolve({
+                            app: { locale: 'en-US', theme: 'default' },
+                            user: { id: 'userId', displayName: 'Test User' }
+                        })),
+                        registerOnThemeChangeHandler: jasmine.createSpy('registerOnThemeChangeHandler')
+                    }
+                }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(AppComponent);
@@ -40,32 +52,8 @@ describe('AppComponent', () => {
         routingState = TestBed.inject(RoutingState) as jasmine.SpyObj<RoutingState>;
         utilService = TestBed.inject(UtilService) as jasmine.SpyObj<UtilService>;
         router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
         routerEventsSubject = router.events as Subject<any>;
-
-        spyOn(microsoftTeams.app, 'initialize').and.returnValue(Promise.resolve());
-        spyOn(microsoftTeams.app, 'registerOnThemeChangeHandler').and.returnValue();
-        spyOn(microsoftTeams.app, 'getContext').and.returnValue(Promise.resolve({
-            app: {
-                locale: 'en-US',
-                theme: 'default'
-            },
-            page: {
-                id: 'pageId',
-                frameContext: 'content'
-            },
-            user: {
-                id: 'userId',
-                displayName: 'Test User'
-            },
-            team: {
-                id: 'teamId',
-                name: 'Test Team'
-            },
-            channel: {
-                id: 'channelId',
-                name: 'Test Channel'
-            }
-        } as any));
     });
 
     it('should create', () => {
@@ -79,8 +67,8 @@ describe('AppComponent', () => {
         await component.ngOnInit();
 
         expect(routingState.loadRouting).toHaveBeenCalled();
-        expect(microsoftTeams.app.initialize).toHaveBeenCalled();
-        expect(microsoftTeams.app.registerOnThemeChangeHandler).toHaveBeenCalled();
+        expect(teamsService.initialize).toHaveBeenCalled();
+        expect(teamsService.registerOnThemeChangeHandler).toHaveBeenCalled();
         expect(utilService.isMobile).toHaveBeenCalled();
         expect(document.body.classList.contains('mobile')).toBeFalse();
     });
@@ -120,7 +108,7 @@ describe('AppComponent', () => {
 
 
     it('should apply Teams theme as a class', async () => {
-        microsoftTeams.app.getContext = jasmine.createSpy('getContext').and.returnValue(Promise.resolve({
+        teamsService.getContext.and.returnValue(Promise.resolve({
             app: {
                 locale: 'en-US',
                 theme: 'dark'

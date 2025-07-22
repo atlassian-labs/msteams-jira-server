@@ -12,10 +12,11 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { JiraPermissionsResponse } from '@core/models/Jira/jira-permission.model';
 import { Issue, JiraComment } from '@core/models';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import {CurrentJiraUser} from '@core/models/Jira/jira-user.model';
 
 describe('CommentIssueDialogComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: CommentIssueDialogComponent;
     let fixture: ComponentFixture<CommentIssueDialogComponent>;
     let commentService: jasmine.SpyObj<IssueCommentService>;
@@ -28,9 +29,6 @@ describe('CommentIssueDialogComponent', () => {
     let mockAppInsightsService: jasmine.SpyObj<AppInsightsService>;
 
     beforeEach(async () => {
-        spyOn(microsoftTeams.app, 'notifySuccess').and.callFake(() => {});
-        spyOn(microsoftTeams.dialog.url, 'submit').and.callFake(() => {});
-
         const commentServiceSpy = jasmine.createSpyObj('IssueCommentService', ['addComment']);
         const apiServiceSpy = jasmine.createSpyObj('ApiService', ['getJiraUrlForPersonalScope', 'getIssueByIdOrKey', 'getCurrentUserData']);
         const permissionServiceSpy = jasmine.createSpyObj('PermissionService', ['getMyPermissions']);
@@ -64,8 +62,15 @@ describe('CommentIssueDialogComponent', () => {
                             { jiraUrl: 'testJiraUrl', jiraId: 'testJiraId', issueId: 'testIssueId', issueKey: 'testIssueKey',
                                 application: 'testApp' } }
                     }
-                }
-            ]
+                },
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        notifySuccess: jasmine.createSpy('notifySuccess'),
+                        submitDialog: jasmine.createSpy('submitDialog')
+                    }
+                }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(CommentIssueDialogComponent);
@@ -76,6 +81,7 @@ describe('CommentIssueDialogComponent', () => {
         errorService = TestBed.inject(ErrorService) as jasmine.SpyObj<ErrorService>;
         notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
         analyticsService = TestBed.inject(AnalyticsService) as jasmine.SpyObj<AnalyticsService>;
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
         domSanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
     });
 
