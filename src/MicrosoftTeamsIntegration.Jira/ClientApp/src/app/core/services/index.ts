@@ -5,3 +5,4 @@ export * from '@core/services/error.service';
 export * from '@core/services/app-load.service';
 export * from '@core/services/app-insights.service';
 export * from '@core/services/routingState';
+export * from '@core/services/teams.service';

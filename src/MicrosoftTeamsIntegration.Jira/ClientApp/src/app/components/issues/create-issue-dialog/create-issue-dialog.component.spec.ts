@@ -12,10 +12,11 @@ import { PermissionService } from '@core/services/entities/permission.service';
 import { Issue, Priority, Project } from '@core/models';
 import { JiraPermissionsResponse } from '@core/models/Jira/jira-permission.model';
 import { JiraIssueFieldMeta } from '@core/models/Jira/jira-issue-field-meta.model';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 
 describe('CreateIssueDialogComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: CreateIssueDialogComponent;
     let fixture: ComponentFixture<CreateIssueDialogComponent>;
     let apiService: jasmine.SpyObj<ApiService>;
@@ -49,9 +50,6 @@ describe('CreateIssueDialogComponent', () => {
     }];
 
     beforeEach(async () => {
-        spyOn(microsoftTeams.app, 'notifySuccess').and.callFake(() => {});
-        spyOn(microsoftTeams.dialog.url, 'submit').and.callFake(() => {});
-
         const apiServiceSpy = jasmine.createSpyObj('ApiService',
             ['getAddonStatus',
                 'getCurrentUserData', 'createIssue', 'findProjects', 'getProjects', 'getCreateMetaIssueTypes', 'getCreateMetaFields']);
@@ -82,8 +80,15 @@ describe('CreateIssueDialogComponent', () => {
                 { provide: AnalyticsService, useValue: analyticsServiceSpy },
                 { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } },
                 { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
-                { provide: MatDialog, useValue: {} }
-            ]
+                { provide: MatDialog, useValue: {} },
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        notifySuccess: jasmine.createSpy('notifySuccess'),
+                        submitDialog: jasmine.createSpy('submitDialog')
+                    }
+                }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(CreateIssueDialogComponent);
@@ -101,6 +106,7 @@ describe('CreateIssueDialogComponent', () => {
         route = TestBed.inject(ActivatedRoute);
         router = TestBed.inject(Router);
         dialog = TestBed.inject(MatDialog);
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
     });
 
     beforeEach(() => {

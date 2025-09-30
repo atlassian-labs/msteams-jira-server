@@ -10,6 +10,8 @@ import {
 
 import { IssuesService } from '@core/services/entities/issues.service';
 import { SettingsService } from '@core/services/entities/settings.service';
+import { TeamsService } from '@core/services/teams.service';
+import * as microsoftTeams from '@microsoft/teams-js';
 import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
 import { DropDownOption } from '@shared/models/dropdown-option.model';
 
@@ -25,7 +27,6 @@ import { LoadingIndicatorService } from '@shared/services/loading-indicator.serv
 import { SelectOption } from '@shared/models/select-option.model';
 import { SelectChange } from '@shared/models/select-change.model';
 
-import * as microsoftTeams from '@microsoft/teams-js';
 import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 import { MatSnackBar} from '@angular/material/snack-bar';
 import {NotificationService} from '@shared/services/notificationService';
@@ -82,8 +83,7 @@ export class SettingsFiltersComponent implements OnInit {
     @ViewChild('filtersDropdown', { static: false }) filtersDropdown: DropDownComponent<string> | any;
     @ViewChild('projectsDropdown', { static: false }) projectsDropdown: DropDownComponent<string> | any;
 
-    constructor(
-        private route: ActivatedRoute,
+    constructor(private route: ActivatedRoute,
         private apiService: ApiService,
         private errorService: ErrorService,
         private settingsService: SettingsService,
@@ -93,7 +93,8 @@ export class SettingsFiltersComponent implements OnInit {
         private loadingIndicatorService: LoadingIndicatorService,
         private dropdownUtilService: DropdownUtilService,
         private snackBar: MatSnackBar,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -193,7 +194,7 @@ export class SettingsFiltersComponent implements OnInit {
             await this.loadProjectsData();
         }
 
-        microsoftTeams.pages.config.setValidityState(false);
+        this.teamsService.setValidityState(false);
 
         this.selectedProject = undefined;
         this.filter = filter;
@@ -362,11 +363,11 @@ export class SettingsFiltersComponent implements OnInit {
             websiteUrl: null
         } as any;
 
-        microsoftTeams.pages.config.registerOnSaveHandler(async (saveEvent: microsoftTeams.pages.config.SaveEvent) => {
-            await microsoftTeams.pages.config.setConfig(config);
+        this.teamsService.registerOnSaveHandler(async (saveEvent: microsoftTeams.pages.config.SaveEvent) => {
+            await this.teamsService.setConfig(config);
             saveEvent.notifySuccess();
         });
 
-        microsoftTeams.pages.config.setValidityState(true);
+        this.teamsService.setValidityState(true);
     }
 }

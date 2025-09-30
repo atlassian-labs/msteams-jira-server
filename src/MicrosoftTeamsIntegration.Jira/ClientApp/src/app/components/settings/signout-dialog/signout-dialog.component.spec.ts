@@ -2,10 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SignoutDialogComponent } from './signout-dialog.component';
 import { ApiService, AuthService, UtilService, AppInsightsService } from '@core/services';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('SignoutDialogComponent', () => {
+
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: SignoutDialogComponent;
     let fixture: ComponentFixture<SignoutDialogComponent>;
     let apiService: jasmine.SpyObj<ApiService>;
@@ -30,8 +32,14 @@ describe('SignoutDialogComponent', () => {
                 { provide: UtilService, useValue: utilServiceSpy },
                 { provide: AppInsightsService, useValue: appInsightsServiceSpy },
                 { provide: Router, useValue: routerSpy },
-                { provide: ActivatedRoute, useValue: { snapshot: { params: { jiraUrl: 'test-jira-url' } } } }
-            ],
+                { provide: ActivatedRoute, useValue: { snapshot: { params: { jiraUrl: 'test-jira-url' } } } },
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        notifySuccess: jasmine.createSpy('notifySuccess')
+                    }
+                }],
             schemas: [NO_ERRORS_SCHEMA]
         }).compileComponents();
 
@@ -43,10 +51,7 @@ describe('SignoutDialogComponent', () => {
         appInsightsService = TestBed.inject(AppInsightsService) as jasmine.SpyObj<AppInsightsService>;
         router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
         route = TestBed.inject(ActivatedRoute);
-
-        if (!jasmine.isSpy(microsoftTeams.app.notifySuccess)) {
-            spyOn(microsoftTeams.app, 'notifySuccess').and.callFake(() => {});
-        }
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
     });
 
     it('should create', () => {
@@ -58,7 +63,7 @@ describe('SignoutDialogComponent', () => {
         await component.ngOnInit();
         expect(appInsightsService.logNavigation).toHaveBeenCalled();
         expect(component.ngOnInit).toHaveBeenCalled();
-        expect(microsoftTeams.app.notifySuccess).toHaveBeenCalled();
+        expect(teamsService.notifySuccess).toHaveBeenCalled();
     });
 
     it('should parse params correctly', () => {

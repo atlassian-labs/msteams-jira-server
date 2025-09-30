@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PermissionService } from '@core/services/entities/permission.service';
 import { IssueTransitionService } from '@core/services/entities/transition.service';
 import { UntypedFormGroup, UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import { Issue, JiraComment, Priority, ProjectType } from '@core/models';
 import { JiraPermission, JiraPermissions, JiraPermissionsResponse } from '@core/models/Jira/jira-permission.model';
 import { EditIssueMetadata, EditIssueMetadataFields } from '@core/models/Jira/jira-issue-edit-meta.model';
@@ -24,6 +24,7 @@ import { DropDownOption } from '@shared/models/dropdown-option.model';
 import { JiraTransition, JiraTransitionsResponse } from '@core/models/Jira/jira-transition.model';
 
 describe('EditIssueDialogComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: EditIssueDialogComponent;
     let fixture: ComponentFixture<EditIssueDialogComponent>;
     let apiService: jasmine.SpyObj<ApiService>;
@@ -126,8 +127,15 @@ describe('EditIssueDialogComponent', () => {
                 { provide: IssueTransitionService, useValue: transitionServiceSpy },
                 { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } },
                 { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
-                { provide: MatDialog, useValue: {} }
-            ]
+                { provide: MatDialog, useValue: {} },
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        notifySuccess: jasmine.createSpy('notifySuccess'),
+                        submitDialog: jasmine.createSpy('submitDialog')
+                    }
+                }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(EditIssueDialogComponent);
@@ -140,6 +148,7 @@ describe('EditIssueDialogComponent', () => {
         notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
         transitionService = TestBed.inject(IssueTransitionService) as jasmine.SpyObj<IssueTransitionService>;
         dropdownUtilService = TestBed.inject(DropdownUtilService) as jasmine.SpyObj<DropdownUtilService>;
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
     });
 
     it('should create', () => {
@@ -277,9 +286,9 @@ describe('EditIssueDialogComponent', () => {
     });
 
     it('should handle cancel', () => {
-        spyOn(microsoftTeams.dialog.url, 'submit');
+        teamsService.submitDialog();
         component.onCancel();
-        expect(microsoftTeams.dialog.url.submit).toHaveBeenCalled();
+        expect(teamsService.submitDialog).toHaveBeenCalled();
     });
 
     it('should determine if user can view issue', () => {

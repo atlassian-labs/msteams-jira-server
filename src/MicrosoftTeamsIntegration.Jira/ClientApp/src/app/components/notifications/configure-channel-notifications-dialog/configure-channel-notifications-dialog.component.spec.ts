@@ -11,9 +11,9 @@ import { NotificationSubscription, SubscriptionType } from '@core/models/Notific
 import { NotificationSubscriptionEvent, NotificationSubscriptionAction } from '@core/models/NotificationSubscriptionEvent';
 import { Project, ProjectTypeKey } from '@core/models';
 import { SelectOption } from '@shared/models/select-option.model';
-import * as microsoftTeams from '@microsoft/teams-js';
-
+import { TeamsService } from '@core/services/teams.service';
 describe('ConfigureChannelNotificationsDialogComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: ConfigureChannelNotificationsDialogComponent;
     let fixture: ComponentFixture<ConfigureChannelNotificationsDialogComponent>;
     let mockApiService: jasmine.SpyObj<ApiService>;
@@ -84,8 +84,6 @@ describe('ConfigureChannelNotificationsDialogComponent', () => {
     ];
 
     beforeEach(async () => {
-        spyOn(microsoftTeams.dialog.url, 'submit').and.callFake(() => {});
-
         mockApiService = jasmine.createSpyObj('ApiService', [
             'getAllNotificationsByConversationId',
             'getProjects',
@@ -185,12 +183,20 @@ describe('ConfigureChannelNotificationsDialogComponent', () => {
                 { provide: IssueTransitionService, useValue: mockTransitionService },
                 { provide: DropdownUtilService, useValue: mockDropdownUtilService },
                 { provide: Router, useValue: mockRouter },
-                { provide: AnalyticsService, useValue: mockAnalyticsService }
-            ]
+                { provide: AnalyticsService, useValue: mockAnalyticsService },
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        notifySuccess: jasmine.createSpy('notifySuccess'),
+                        submitDialog: jasmine.createSpy('submitDialog')
+                    }
+                }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(ConfigureChannelNotificationsDialogComponent);
         component = fixture.componentInstance;
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
     });
 
     it('should create', () => {

@@ -14,8 +14,8 @@ import { Subscription } from 'rxjs';
 
 import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
 import { RoutingState, UtilService } from '@core/services';
-import * as microsoftTeams from '@microsoft/teams-js';
 import {logger} from '@core/services/logger.service';
+import {TeamsService} from '@core/services/teams.service';
 
 @Component({
     selector: 'app-root',
@@ -30,7 +30,8 @@ export class AppComponent implements OnInit, OnDestroy {
         private readonly router: Router,
         private readonly loadingIndicatorService: LoadingIndicatorService,
         private readonly routingState: RoutingState,
-        private readonly utilService: UtilService
+        private readonly utilService: UtilService,
+        private readonly teamsService: TeamsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -60,7 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     private async initMSTeams(): Promise<void> {
-        await microsoftTeams.app.initialize();
+        await this.teamsService.initialize();
 
         //  add pop up class to body
         if (window.location === window.parent.location) {
@@ -110,7 +111,7 @@ export class AppComponent implements OnInit, OnDestroy {
             applyTheme(themeColors, themeFromParams);
         }
 
-        const context = await microsoftTeams.app.getContext();
+        const context = await this.teamsService.getContext();
         if (context) {
             logger('Teams context:', context);
             localStorage.setItem('msTeamsContext', JSON.stringify({
@@ -126,7 +127,7 @@ export class AppComponent implements OnInit, OnDestroy {
             applyTheme(themeColors, theme);
         }
 
-        microsoftTeams.app.registerOnThemeChangeHandler(function (theme: string) {
+        this.teamsService.registerOnThemeChangeHandler(function (theme: string) {
             const themeColors = colors[theme];
             addThemeClassToBody(theme);
             applyTheme(themeColors, theme);

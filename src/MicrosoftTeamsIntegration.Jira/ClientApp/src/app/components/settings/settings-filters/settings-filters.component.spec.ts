@@ -8,7 +8,7 @@ import { DropdownUtilService } from '@shared/services/dropdown.util.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from '@shared/services/notificationService';
 import { ActivatedRoute } from '@angular/router';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import { DropDownComponent } from '@shared/components/dropdown/dropdown.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { SelectOption } from '@shared/models/select-option.model';
@@ -16,6 +16,7 @@ import { DropDownOption } from '@shared/models/dropdown-option.model';
 import { SelectChange } from '@shared/models/select-change.model';
 
 describe('SettingsFiltersComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: SettingsFiltersComponent;
     let fixture: ComponentFixture<SettingsFiltersComponent>;
     let apiService: jasmine.SpyObj<ApiService>;
@@ -61,8 +62,16 @@ describe('SettingsFiltersComponent', () => {
                 { provide: DropdownUtilService, useValue: dropdownUtilServiceSpy },
                 { provide: MatSnackBar, useValue: snackBarSpy },
                 { provide: NotificationService, useValue: notificationServiceSpy },
-                { provide: ActivatedRoute, useValue: { snapshot: { params: { jiraUrl: 'test-jira-url' } } } }
-            ],
+                { provide: ActivatedRoute, useValue: { snapshot: { params: { jiraUrl: 'test-jira-url' } } } },
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        setValidityState: jasmine.createSpy('setValidityState'),
+                        registerOnSaveHandler: jasmine.createSpy('registerOnSaveHandler'),
+                        setConfig: jasmine.createSpy('setConfig').and.returnValue(Promise.resolve())
+                    }
+                }],
             schemas: [NO_ERRORS_SCHEMA]
         }).compileComponents();
 
@@ -83,17 +92,6 @@ describe('SettingsFiltersComponent', () => {
         component.projectsDropdown = {
             filteredOptions: []
         } as unknown as DropDownComponent<string>;
-
-        if (!jasmine.isSpy(microsoftTeams.pages.config.setValidityState)) {
-            spyOn(microsoftTeams.pages.config, 'setValidityState').and.callFake(() => {});
-        }
-        if (!jasmine.isSpy(microsoftTeams.pages.config.registerOnSaveHandler)) {
-            spyOn(microsoftTeams.pages.config, 'registerOnSaveHandler').and.callFake(() => {});
-        }
-        if (!jasmine.isSpy(microsoftTeams.pages.config.setConfig)) {
-            spyOn(microsoftTeams.pages.config, 'setConfig').and
-                .callFake((instanceConfig: microsoftTeams.pages.InstanceConfig) => Promise.resolve([] as any));
-        }
     });
 
     it('should create', () => {

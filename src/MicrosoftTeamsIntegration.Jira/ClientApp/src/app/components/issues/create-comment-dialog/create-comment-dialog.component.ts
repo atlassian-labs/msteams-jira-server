@@ -9,11 +9,11 @@ import { IssueAddCommentOptions } from '@core/models/Jira/issue-comment-options.
 import { ApiService, ErrorService, AppInsightsService } from '@core/services';
 import { Issue } from '@core/models';
 import { UtilService } from '@core/services/util.service';
-import * as microsoftTeams from '@microsoft/teams-js';
 import { StringValidators } from '@core/validators/string.validators';
 import { NotificationService } from '@shared/services/notificationService';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
+import {TeamsService} from '@core/services/teams.service';
 @Component({
     selector: 'app-create-comment-dialog',
     templateUrl: './create-comment-dialog.component.html',
@@ -39,15 +39,15 @@ export class CreateCommentDialogComponent implements OnInit {
     @Input() public jiraId: string | any;
     @Input() public defaultSearchTerm: string | any;
 
-    constructor(
-        private apiService: ApiService,
+    constructor(private apiService: ApiService,
         private commentService: IssueCommentService,
         private route: ActivatedRoute,
         private utilService: UtilService,
         private appInsightsService: AppInsightsService,
         private errorService: ErrorService,
         private notificationService: NotificationService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit() {
@@ -72,7 +72,7 @@ export class CreateCommentDialogComponent implements OnInit {
                 await this.search(this.defaultSearchTerm);
             }
 
-            microsoftTeams.app.notifySuccess();
+            this.teamsService.notifySuccess();
         } catch (error) {
             this.appInsightsService.trackException(
                 new Error(error as any),
@@ -175,7 +175,7 @@ export class CreateCommentDialogComponent implements OnInit {
         const message = `Comment was added to ${issueUrl}`;
 
         this.notificationService.notifySuccess(message).afterDismissed().subscribe(() => {
-            microsoftTeams.dialog.url.submit();
+            this.teamsService.submitDialog();
         });
     }
 

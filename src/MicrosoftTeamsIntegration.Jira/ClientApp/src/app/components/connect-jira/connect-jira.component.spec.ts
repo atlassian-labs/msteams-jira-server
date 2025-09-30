@@ -6,10 +6,11 @@ import { ApiService, AuthService, ErrorService, AppInsightsService, JiraAddonSta
 import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
 import { AnalyticsService } from '@core/services/analytics.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as microsoftTeams from '@microsoft/teams-js';
+import { TeamsService } from '@core/services/teams.service';
 import { AddonStatus, ApplicationType } from '@core/enums';
 
 describe('ConnectJiraComponent', () => {
+    let teamsService: jasmine.SpyObj<TeamsService>;
     let component: ConnectJiraComponent;
     let fixture: ComponentFixture<ConnectJiraComponent>;
     let apiService: jasmine.SpyObj<ApiService>;
@@ -43,7 +44,14 @@ describe('ConnectJiraComponent', () => {
                 { provide: ActivatedRoute, useValue:
                         { snapshot: { params: { endpoint: 'testEndpoint', application: 'testApplication' } } } },
                 { provide: Router, useValue: routerSpy }
-            ]
+                ,
+                {
+                    provide: TeamsService,
+                    useValue: {
+                        initialize: jasmine.createSpy('initialize').and.returnValue(Promise.resolve()),
+                        notifySuccess: jasmine.createSpy('notifySuccess')
+                    }
+                }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(ConnectJiraComponent);
@@ -55,9 +63,7 @@ describe('ConnectJiraComponent', () => {
         loadingIndicatorService = TestBed.inject(LoadingIndicatorService) as jasmine.SpyObj<LoadingIndicatorService>;
         analyticsService = TestBed.inject(AnalyticsService) as jasmine.SpyObj<AnalyticsService>;
         router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-
-        spyOn(microsoftTeams.app, 'initialize').and.returnValue(Promise.resolve());
-        spyOn(microsoftTeams.app, 'notifySuccess').and.returnValue(await Promise.resolve());
+        teamsService = TestBed.inject(TeamsService) as jasmine.SpyObj<TeamsService>;
     });
 
     it('should create', () => {

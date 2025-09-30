@@ -9,7 +9,7 @@ import {
     UtilService,
     AppInsightsService,
 } from '@core/services';
-import * as microsoftTeams from '@microsoft/teams-js';
+import {TeamsService} from '@core/services/teams.service';
 
 @Component({
     selector: 'app-signout-dialog',
@@ -29,7 +29,8 @@ export class SignoutDialogComponent implements OnInit {
         private authService: AuthService,
         private apiService: ApiService,
         private utilService: UtilService,
-        private appInsightsService: AppInsightsService
+        private appInsightsService: AppInsightsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit(): Promise<void> {
@@ -38,7 +39,7 @@ export class SignoutDialogComponent implements OnInit {
 
         this.parseParams();
 
-        microsoftTeams.app.notifySuccess();
+        this.teamsService.notifySuccess();
     }
 
     public async onSignOut(): Promise<void> {

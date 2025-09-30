@@ -9,8 +9,8 @@ import {
 } from '@core/services';
 import { LoadingIndicatorService } from '@shared/services/loading-indicator.service';
 import { ApplicationType, AddonStatus } from '@core/enums';
-import * as microsoftTeams from '@microsoft/teams-js';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
+import {TeamsService} from '@core/services/teams.service';
 
 @Component({
     selector: 'app-connect-jira',
@@ -30,6 +30,7 @@ export class ConnectJiraComponent implements OnInit {
         private appInsightsService: AppInsightsService,
         private loadingIndicatorService: LoadingIndicatorService,
         private analyticsService: AnalyticsService,
+        private teamsService: TeamsService,
     ) { }
 
     public get jiraId(): AbstractControl | any {
@@ -78,7 +79,7 @@ export class ConnectJiraComponent implements OnInit {
 
         this.loadingIndicatorService.hide();
 
-        microsoftTeams.app.notifySuccess();
+        this.teamsService.notifySuccess();
     }
 
     public async onSubmitConnectForm(): Promise<void> {

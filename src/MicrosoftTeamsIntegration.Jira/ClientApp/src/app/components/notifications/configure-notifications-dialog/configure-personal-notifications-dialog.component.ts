@@ -4,9 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { NotificationSubscription, SubscriptionType } from '@core/models/NotificationSubscription';
 import {ApiService, UtilService} from '@core/services';
 import { NotificationService } from '@shared/services/notificationService';
-import * as microsoftTeams from '@microsoft/teams-js';
 import { AnalyticsService, EventAction, UiEventSubject } from '@core/services/analytics.service';
 
+import {TeamsService} from '@core/services/teams.service';
 @Component({
     selector: 'app-configure-personal-notifications-dialog',
     templateUrl: './configure-personal-notifications-dialog.component.html',
@@ -25,12 +25,12 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
     public isAddonUpdated = false;
     public replyToActivityId: string | any;
 
-    constructor(
-        private route: ActivatedRoute,
+    constructor(private route: ActivatedRoute,
         private apiService: ApiService,
         private notificationService: NotificationService,
         private utilService: UtilService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private teamsService: TeamsService
     ) { }
 
     public async ngOnInit() {
@@ -99,7 +99,7 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         } catch (error: any) {
             this.notificationService.notifyError('Failed to load notification settings. Please try again.')
                 .afterDismissed().subscribe(() => {
-                    microsoftTeams.dialog.url.submit();
+                    this.teamsService.submitDialog();
                 });
         } finally {
             this.loading = false;
@@ -129,11 +129,11 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
             await this.apiService.updateNotification(this.jiraId, this.savedNotificationSubscription);
 
             this.notificationService.notifySuccess('Notification updated successfully.').afterDismissed().subscribe(() => {
-                microsoftTeams.dialog.url.submit({
+                this.teamsService.submitDialog({
                     commandName: 'showNotificationSettings',
                     replyToActivityId: this.replyToActivityId});
                 this.submitting = false;
-                microsoftTeams.dialog.url.submit();
+                this.teamsService.submitDialog();
             });
             this.analyticsService.sendUiEvent(
                 'configurePersonalNotificationsModal',
@@ -167,11 +167,11 @@ export class ConfigurePersonalNotificationsDialogComponent implements OnInit {
         try {
             await this.apiService.addNotification(this.jiraId, notification);
             this.notificationService.notifySuccess('Notification saved successfully.').afterDismissed().subscribe(() => {
-                microsoftTeams.dialog.url.submit({
+                this.teamsService.submitDialog({
                     commandName: 'showNotificationSettings',
                     replyToActivityId: this.replyToActivityId});
                 this.submitting = false;
-                microsoftTeams.dialog.url.submit();
+                this.teamsService.submitDialog();
             });
         } catch (error) {
             this.notificationService.notifyError('Failed to save notification. Please try again.').afterDismissed().subscribe(() => {

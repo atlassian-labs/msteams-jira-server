@@ -3,13 +3,12 @@
 
 import {Inject, Injectable, DOCUMENT} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import * as microsoftTeams from '@microsoft/teams-js';
-
 
 import {logger} from '@core/services/logger.service';
 import {AppLoadService} from '@core/services/app-load.service';
 import {ErrorService} from '@core/services/error.service';
 import {StatusCode} from '@core/enums';
+import {TeamsService} from '@core/services/teams.service';
 
 interface AuthenticateParameters {
     /**
@@ -40,7 +39,8 @@ export class AuthService {
         @Inject(DOCUMENT) private document: Document,
         private readonly http: HttpClient,
         private errorService: ErrorService,
-        private appService: AppLoadService
+        private appService: AppLoadService,
+        private teamsService: TeamsService
     ) { }
 
     public async isAuthenticated(): Promise<boolean> {
@@ -79,7 +79,7 @@ export class AuthService {
                 };
 
                 try {
-                    await microsoftTeams.authentication.authenticate(authenticateParameters);
+                    await this.teamsService.authenticate(authenticateParameters);
 
                     // force redirect to calling page
                     window.history.back();
@@ -111,7 +111,7 @@ export class AuthService {
             };
 
             try {
-                await microsoftTeams.authentication.authenticate(authenticateParameters);
+                await this.teamsService.authenticate(authenticateParameters);
             } catch (e) {
                 // in general is true only for mobile
                 // as far as microsoftTeams.authentication.authenticate()
@@ -131,7 +131,7 @@ export class AuthService {
         const CONSENT_ERROR_CODES = ['resourceRequiresConsent', 'resourceRequiresMfa', 'tokenRevoked'];
 
         try {
-            const token = await microsoftTeams.authentication.getAuthToken({ silent: true });
+            const token = await this.teamsService.getAuthToken({ silent: true });
             logger('Got new token from SSO');
             return token;
         } catch (error: any) {
